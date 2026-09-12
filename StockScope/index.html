@@ -2,623 +2,2666 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aether Admin Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Aether Cloud Music Engine</title>
 
-  <!-- Google Sans -->
+  <!-- Google Sans Universal Font Family -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-display: 'Google Sans Display', var(--font-main);
-      --bg-base: #090d16;
-      --bg-surface: rgba(22, 30, 49, 0.7);
-      --bg-surface-hover: rgba(33, 44, 71, 0.9);
-      --accent-blue: #3b82f6;
-      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-      --accent-glow: rgba(59, 130, 246, 0.3);
-      --status-green: #10b981;
-      --status-red: #ef4444;
-      --status-amber: #f59e0b;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-    }
-
-    * {
+    /* -------------------------------------------------------------
+       1. GLOBAL RESET & TOKENS
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    :root {
+      --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Google Sans Display', var(--font-main);
+      --bg-base: #04060a;
+      --bg-surface: rgba(18, 24, 38, 0.72);
+      --bg-surface-hover: rgba(30, 41, 64, 0.85);
+      --accent-primary: #fa233b;
+      --accent-secondary: #3b82f6;
+      --accent-gradient: linear-gradient(135deg, #fa233b 0%, #ff4b6b 50%, #8b5cf6 100%);
+      --accent-blue-grad: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --accent-glow: rgba(250, 35, 59, 0.45);
+      --text-main: #ffffff;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --border-subtle: rgba(255, 255, 255, 0.09);
+      --border-highlight: rgba(255, 255, 255, 0.18);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --tab-bar-height: 64px;
+      --mini-player-height: 70px;
     }
 
     body {
       background-color: var(--bg-base);
       color: var(--text-main);
-      font-family: var(--font-main);
-      min-height: 100vh;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient Glow */
-    .ambient-glow {
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* -------------------------------------------------------------
+       2. AURORA & AMBIENT CANVAS
+       ------------------------------------------------------------- */
+    .aurora-container {
       position: fixed;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.04) 50%, transparent 70%);
-      filter: blur(80px);
+      inset: -30%;
       pointer-events: none;
       z-index: 0;
+      overflow: hidden;
+      filter: blur(80px);
+      opacity: 0.6;
+      transition: opacity 1.2s ease;
     }
 
-    .container {
-      width: 100%;
-      max-width: 900px;
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      animation: auroraMovement 24s ease-in-out infinite alternate;
+    }
+
+    .blob-1 {
+      top: 20%;
+      left: 15%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(250, 35, 59, 0.35) 0%, transparent 65%);
+    }
+
+    .blob-2 {
+      bottom: 25%;
+      right: 10%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+      animation-duration: 32s;
+    }
+
+    .blob-3 {
+      top: 45%;
+      right: 30%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 65%);
+      animation-duration: 28s;
+    }
+
+    @keyframes auroraMovement {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(60px, -40px) scale(1.12) rotate(120deg); }
+      100% { transform: translate(-50px, 60px) scale(0.95) rotate(240deg); }
+    }
+
+    /* -------------------------------------------------------------
+       3. LIQUID GLASS COMPONENTS
+       ------------------------------------------------------------- */
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.25);
+    }
+
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .glass-pill.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-liquid {
       position: relative;
-      z-index: 1;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-highlight);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
+      border-radius: 9999px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
+    .btn-liquid:active {
+      transform: scale(0.93);
+    }
+
+    .btn-liquid-primary {
+      background: var(--accent-gradient);
+      border: none;
+      box-shadow: 0 8px 28px var(--accent-glow);
+    }
+
+    /* -------------------------------------------------------------
+       4. NAVIGATION & HEADER
+       ------------------------------------------------------------- */
     header {
+      padding-top: calc(var(--safe-top) + 12px);
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 28px;
+      z-index: 20;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(4, 6, 10, 0.75);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-disc {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px var(--accent-glow);
     }
 
     .brand-title {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
+      font-size: 1.15rem;
       font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-round-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .icon-round-btn:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .icon-round-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* -------------------------------------------------------------
+       5. VIEW CONTAINER SYSTEM (10 INTERFACES)
+       ------------------------------------------------------------- */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .view-stage-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px;
+      padding-bottom: calc(var(--tab-bar-height) + var(--mini-player-height) + var(--safe-bottom) + 30px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(14px);
+      transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .view-stage-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .view-title-row {
+      margin-bottom: 22px;
+    }
+
+    .view-heading {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+      margin-bottom: 4px;
+    }
+
+    .view-subheading {
+      color: var(--text-sub);
+      font-size: 0.85rem;
+    }
+
+    /* Playlists Grid */
+    .playlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 16px;
+    }
+
+    .folder-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .folder-card:active {
+      transform: scale(0.96);
+      background: var(--bg-surface-hover);
+    }
+
+    .folder-cover-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(250, 35, 59, 0.15);
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .folder-cover-box svg {
+      width: 32px;
+      height: 32px;
+      fill: currentColor;
+    }
+
+    .folder-name-label {
+      font-weight: 500;
+      font-size: 0.95rem;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .folder-meta-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Track List */
+    .track-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .track-cell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .track-cell:active {
+      background: var(--bg-surface-hover);
+    }
+
+    .track-cell.current-playing {
+      border-color: rgba(250, 35, 59, 0.5);
+      background: rgba(250, 35, 59, 0.1);
+    }
+
+    .track-cell-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .track-art-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #111827;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .track-texts {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .track-name {
+      font-size: 0.92rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-author {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-cell-right {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .brand-badge {
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: rgba(59, 130, 246, 0.2);
-      color: var(--accent-blue);
+    .format-badge {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-primary);
       font-weight: 700;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    .card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      padding: 24px;
-      backdrop-filter: blur(20px);
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
-
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 640px) {
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      margin-bottom: 6px;
-    }
-
-    input, select {
+    /* Input & Universal Components */
+    .input-glass {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 14px;
+      padding: 12px 16px;
       color: var(--text-main);
-      font-family: var(--font-main);
       font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.25s ease;
+      margin-bottom: 12px;
     }
 
-    input:focus, select:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .btn {
-      background: var(--accent-gradient);
-      border: none;
-      border-radius: 10px;
-      padding: 10px 18px;
-      color: #fff;
-      font-family: var(--font-main);
-      font-size: 0.88rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    .btn:active {
-      transform: scale(0.97);
-      opacity: 0.9;
-    }
-
-    .btn-secondary {
+    .input-glass:focus {
+      border-color: var(--accent-primary);
       background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
+      box-shadow: 0 0 20px rgba(250, 35, 59, 0.2);
     }
 
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--status-red);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+    .metric-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .btn-warning {
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--status-amber);
-      border: 1px solid rgba(245, 158, 11, 0.3);
+    .metric-item-row:last-child {
+      border-bottom: none;
     }
 
-    .btn-success {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--status-green);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    /* Table Component */
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
+    .metric-item-name {
+      color: var(--text-sub);
       font-size: 0.88rem;
     }
 
-    th {
-      color: var(--text-sub);
+    .metric-item-value {
       font-weight: 500;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.88rem;
     }
 
-    td {
-      padding: 14px;
-      border-bottom: 1px solid var(--border-subtle);
-      vertical-align: middle;
-    }
-
-    tr:hover td {
-      background: var(--bg-surface-hover);
-    }
-
-    .code-text {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #fff;
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: 700;
-    }
-
-    .status-badge.unlocked {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--status-green);
-    }
-
-    .status-badge.locked {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--status-red);
-    }
-
-    .actions-cell {
+    /* -------------------------------------------------------------
+       6. MINI FLOATING CONTROLLER
+       ------------------------------------------------------------- */
+    .mini-player-strip {
+      position: absolute;
+      bottom: calc(var(--tab-bar-height) + var(--safe-bottom) + 8px);
+      left: 12px;
+      right: 12px;
+      height: var(--mini-player-height);
+      background: rgba(14, 20, 32, 0.92);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
       display: flex;
-      gap: 8px;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 30;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    .mini-cover-image {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: #1e293b;
+      margin-right: 14px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .mini-meta-box {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .mini-song-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-song-meta {
+      font-size: 0.74rem;
+      color: var(--text-sub);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .mini-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mini-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
       align-items: center;
     }
 
-    /* Login Modal Overlay */
-    .modal-overlay {
+    .mini-action-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* -------------------------------------------------------------
+       7. ULTRA FULL-SCREEN IMMERSIVE PLAYER (THE ENHANCED STAGE)
+       ------------------------------------------------------------- */
+    .immersive-modal {
       position: fixed;
       inset: 0;
-      background: rgba(9, 13, 22, 0.95);
-      backdrop-filter: blur(30px);
+      background: var(--bg-base);
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      overflow: hidden;
+    }
+
+    .immersive-modal.active-open {
+      transform: translateY(0);
+    }
+
+    /* Modal Backdrop Blur */
+    .modal-artwork-blur-bg {
+      position: absolute;
+      inset: -30%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(100px) brightness(0.28) saturate(2.2);
+      z-index: 0;
+      opacity: 0.75;
+      transition: background-image 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+
+    /* Modal Top Header */
+    .modal-top-bar {
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stage-mode-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 3px;
+    }
+
+    .stage-mode-tab {
+      padding: 5px 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .stage-mode-tab.active-mode {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+
+    /* Modal Dynamic Viewport Area */
+    .modal-middle-stage {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .stage-view-leaf {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 28px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      transform: scale(0.97);
+    }
+
+    .stage-view-leaf.active-leaf {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    /* A. Turntable / Vinyl Record View */
+    .vinyl-stage-assembly {
+      position: relative;
+      width: 320px;
+      height: 320px;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100;
-      padding: 20px;
+      margin-bottom: 24px;
     }
 
-    .login-box {
+    .vinyl-turntable-platter {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #181c26 0%, #0d111a 70%);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.9);
+    }
+
+    .vinyl-disc-surface {
+      position: absolute;
+      width: 290px;
+      height: 290px;
+      border-radius: 50%;
+      background: repeating-radial-gradient(
+        circle at 50% 50%,
+        #09090c 0px,
+        #141419 1px,
+        #09090c 2px
+      );
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.6s linear;
+    }
+
+    .vinyl-disc-surface.rotating {
+      animation: spinVinyl 20s linear infinite;
+    }
+
+    .vinyl-disc-surface.paused-spin {
+      animation-play-state: paused;
+    }
+
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-center-label {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .vinyl-center-art {
       width: 100%;
-      max-width: 360px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      height: 100%;
+      object-fit: cover;
     }
 
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: rgba(30, 41, 59, 0.95);
-      border: 1px solid var(--border-subtle);
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 0.88rem;
-      color: #fff;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.25s ease;
+    .vinyl-center-spindle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #000;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Mechanical Tonearm */
+    .mechanical-tonearm {
+      position: absolute;
+      top: -30px;
+      right: -20px;
+      width: 90px;
+      height: 200px;
       pointer-events: none;
-      z-index: 200;
+      transform-origin: 30px 30px;
+      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: rotate(-35deg);
+      z-index: 20;
     }
 
-    .toast.active {
+    .mechanical-tonearm.engaged {
+      transform: rotate(0deg);
+    }
+
+    /* B. Live Lyric Mask View */
+    .lyrics-render-container {
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(45vh - 120px) 24px 45vh 24px;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+    }
+
+    .lyric-phrase {
+      font-size: 1.45rem;
+      font-weight: 500;
+      line-height: 1.6;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.28);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      width: 100%;
+      padding: 10px 0;
+      transform-origin: center center;
+    }
+
+    .lyric-phrase.phrase-active {
+      color: #ffffff;
+      font-size: 1.95rem;
+      font-weight: 700;
+      transform: scale(1.06);
+      text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6), 0 0 35px var(--accent-glow);
+    }
+
+    /* C. Studio Metrics View */
+    .metrics-view-panel {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .vu-meter-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .vu-channel {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .vu-channel:last-child { margin-bottom: 0; }
+
+    .vu-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      width: 16px;
+    }
+
+    .vu-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .vu-fill {
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 100%);
+      border-radius: 9999px;
+      transition: width 0.1s ease;
+    }
+
+    /* Modal Bottom Controls Deck */
+    .modal-bottom-deck {
+      position: relative;
+      z-index: 10;
+      padding: 16px 32px 32px 32px;
+    }
+
+    .modal-timeline-box {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .modal-progress-bar {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    .modal-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--accent-gradient);
+      border-radius: 9999px;
+    }
+
+    .modal-progress-timestamps {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-primary-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      margin-bottom: 12px;
+    }
+
+    .modal-play-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #000;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 28px rgba(255, 255, 255, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .modal-play-btn:active {
+      transform: scale(0.93);
+    }
+
+    .modal-play-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+    }
+
+    /* -------------------------------------------------------------
+       8. TAB BAR & TOAST
+       ------------------------------------------------------------- */
+    .app-bottom-bar {
+      height: var(--tab-bar-height);
+      padding-bottom: var(--safe-bottom);
+      background: rgba(8, 11, 18, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 20;
+      position: relative;
+    }
+
+    .tab-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 500;
+      gap: 4px;
+      cursor: pointer;
+      width: 20%;
+    }
+
+    .tab-bar-item.active-tab {
+      color: var(--accent-primary);
+    }
+
+    .tab-bar-item svg {
+      width: 21px;
+      height: 21px;
+      fill: currentColor;
+    }
+
+    /* Native Toast */
+    .toast-pill {
+      position: fixed;
+      top: calc(var(--safe-top) + 64px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(22, 28, 42, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-highlight);
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-size: 0.84rem;
+      color: #fff;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 300;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .toast-pill.visible-toast {
+      transform: translateX(-50%) translateY(0);
       opacity: 1;
-      transform: translateY(0);
+    }
+
+    /* -------------------------------------------------------------
+       9. CLOUDFLARE AUTH & REDEEM MODALS
+       ------------------------------------------------------------- */
+    .auth-backdrop-layer {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 10, 0.95);
+      backdrop-filter: blur(35px);
+      -webkit-backdrop-filter: blur(35px);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .auth-backdrop-layer.active-auth {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .auth-panel-card {
+      width: 100%;
+      max-width: 350px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-highlight);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .auth-segmented-switch {
+      display: flex;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .auth-segmented-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      color: var(--text-sub);
+      font-weight: 500;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .auth-segmented-tab.active-seg {
+      color: #fff;
+      border-bottom: 2px solid var(--accent-primary);
     }
   </style>
 </head>
 <body>
 
-  <div class="ambient-glow"></div>
-  <div id="toast" class="toast">Notification</div>
+  <!-- Ambient Light Backdrops -->
+  <div class="aurora-container">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+  </div>
 
-  <!-- Admin Login Barrier -->
-  <div class="modal-overlay" id="login-modal">
-    <div class="login-box">
-      <h2 style="font-size: 1.3rem; margin-bottom: 6px;">Admin Access</h2>
-      <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px;">Enter security key to manage activation codes.</p>
-      <div class="form-group">
-        <label>Admin Secret Key</label>
-        <input type="password" id="input-admin-key" placeholder="••••••••••••••••" />
+  <div id="app-toast" class="toast-pill">Notification</div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-branding">
+      <div class="brand-logo-disc">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
       </div>
-      <button class="btn" id="btn-login" style="width: 100%; margin-top: 8px;">Authenticate</button>
+      <span class="brand-title">Aether Pro</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-round-btn" id="header-btn-sync" title="Sync Cloud Music">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+      </button>
+      <button class="icon-round-btn" id="header-btn-user" title="Account Settings">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Horizontal Scroll Navigation Chips (10 Functional Interfaces) -->
+  <div style="padding: 10px 20px 0 20px; z-index: 10;">
+    <div class="no-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px;" id="view-router-chips">
+      <div class="glass-pill active" data-dest="stage-explore">Explore</div>
+      <div class="glass-pill" data-dest="stage-collections">Collections</div>
+      <div class="glass-pill" data-dest="stage-all-tracks">All Tracks</div>
+      <div class="glass-pill" data-dest="stage-offline-vault">Offline Vault</div>
+      <div class="glass-pill" data-dest="stage-lyrics-stream">Lyrics Stream</div>
+      <div class="glass-pill" data-dest="stage-dsp-engine">Hardware DSP</div>
+      <div class="glass-pill" data-dest="stage-track-meta">Track Details</div>
+      <div class="glass-pill" data-dest="stage-diagnostics">Diagnostics</div>
+      <div class="glass-pill" data-dest="stage-history">History</div>
+      <div class="glass-pill" data-dest="stage-account">Account</div>
     </div>
   </div>
 
-  <!-- Main Console -->
-  <div class="container" id="main-content" style="display: none;">
-    <header>
-      <div class="brand-title">
-        <span>Aether Console</span>
-        <span class="brand-badge">PROD GATEWAY</span>
+  <main>
+    <!-- View 1: Explore -->
+    <div class="view-stage-wrapper active" id="stage-explore">
+      <div class="view-title-row">
+        <h1 class="view-heading">Listen Now</h1>
+        <p class="view-subheading">Synced from GitHub: zhangzhanhang855/musiconly</p>
       </div>
-      <button class="btn btn-secondary" id="btn-logout">Exit Session</button>
-    </header>
 
-    <!-- Generator Section -->
-    <div class="card">
-      <div class="card-title">
-        <span>Create Activation Codes</span>
+      <div class="glass-card" style="background: var(--accent-gradient); border: none; padding: 22px; margin-bottom: 20px;">
+        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">High Resolution Stream</span>
+        <h2 style="font-size: 1.4rem; font-weight: 700; margin: 6px 0 8px 0;">Dynamic Audio Flow</h2>
+        <p style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 16px;">Pure hardware pipe. FLAC & MP3 streaming directly from storage.</p>
+        <button class="btn-liquid" id="btn-quick-shuffle" style="padding: 10px 20px; font-size: 0.85rem; font-weight: 700; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2);">
+          Instant Smart Shuffle
+        </button>
       </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Custom Specific Code (Optional)</label>
-          <input type="text" id="gen-custom" placeholder="e.g. VIP-SPECIAL-2026" autocomplete="off" />
-        </div>
-        <div class="form-group">
-          <label>Batch Generation Count (When custom code is empty)</label>
-          <input type="number" id="gen-count" min="1" max="50" value="5" />
+
+      <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 14px;">Remote Playlists</h2>
+      <div class="playlist-grid" id="explore-folder-grid"></div>
+    </div>
+
+    <!-- View 2: Collections -->
+    <div class="view-stage-wrapper" id="stage-collections">
+      <div class="view-title-row">
+        <h1 class="view-heading">Playlists</h1>
+        <p class="view-subheading">Folder containers detected in repository</p>
+      </div>
+      <div class="playlist-grid" id="collections-folder-grid"></div>
+    </div>
+
+    <!-- View 3: All Songs -->
+    <div class="view-stage-wrapper" id="stage-all-tracks">
+      <div class="view-title-row">
+        <h1 class="view-heading" id="all-tracks-headline">All Cloud Tracks</h1>
+        <p class="view-subheading" id="all-tracks-subtitle">Loading remote catalogue...</p>
+      </div>
+      <div class="track-flow" id="main-track-container"></div>
+    </div>
+
+    <!-- View 4: Offline Vault -->
+    <div class="view-stage-wrapper" id="stage-offline-vault">
+      <div class="view-title-row">
+        <h1 class="view-heading">Offline Vault</h1>
+        <p class="view-subheading">Persistent binary audio Blobs saved in App sandbox</p>
+      </div>
+      <div class="glass-card" style="padding: 18px; margin-bottom: 16px;">
+        <div class="metric-item-row">
+          <span class="metric-item-name">Sandbox Local Storage</span>
+          <span class="metric-item-value" id="label-sandbox-storage">0.00 MB</span>
         </div>
       </div>
-      <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-        <button class="btn" id="btn-generate">Generate Codes to MongoDB</button>
+      <div class="track-flow" id="offline-track-container"></div>
+    </div>
+
+    <!-- View 5: Live Lyrics Stream (Standalone Focus) -->
+    <div class="view-stage-wrapper" id="stage-lyrics-stream">
+      <div class="view-title-row">
+        <h1 class="view-heading">Live Lyrics</h1>
+        <p class="view-subheading">Rigorous Parser with Translation Tags Filtered</p>
+      </div>
+      <div class="glass-card" style="height: calc(100vh - 300px); display: flex; flex-direction: column;">
+        <div class="lyrics-render-container" id="standalone-lyrics-box">
+          <div class="lyric-phrase">No media currently active</div>
+        </div>
       </div>
     </div>
 
-    <!-- Active Codes List -->
-    <div class="card">
-      <div class="card-title">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span>Database Codes</span>
-          <span id="label-count" style="font-size: 0.8rem; color: var(--text-sub); font-weight: 400;">0 total</span>
+    <!-- View 6: Hardware DSP Engine -->
+    <div class="view-stage-wrapper" id="stage-dsp-engine">
+      <div class="view-title-row">
+        <h1 class="view-heading">Audio Pipeline</h1>
+        <p class="view-subheading">CoreAudio hardware direct path (Zero background sleep drop)</p>
+      </div>
+      <div class="glass-card" style="padding: 20px;">
+        <div class="metric-item-row">
+          <span class="metric-item-name">Playback Pipe</span>
+          <span class="metric-item-value" style="color: #10b981;">iOS Native Direct</span>
         </div>
-        <div style="display: flex; gap: 10px;">
-          <input type="text" id="search-code" placeholder="Filter codes..." style="width: 180px; padding: 6px 12px; font-size: 0.8rem;" />
-          <button class="btn btn-secondary" id="btn-refresh" style="padding: 6px 12px; font-size: 0.8rem;">Refresh</button>
+        <div class="metric-item-row">
+          <span class="metric-item-name">Background Continuity</span>
+          <span class="metric-item-value">AVAudioSessionCategoryPlayback</span>
+        </div>
+        <div class="metric-item-row">
+          <span class="metric-item-name">WebAudio Analyser</span>
+          <span class="metric-item-value">Bypassed</span>
+        </div>
+        <div class="metric-item-row">
+          <span class="metric-item-name">Vorbis Comment Reader</span>
+          <span class="metric-item-value">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- View 7: Current Track Details -->
+    <div class="view-stage-wrapper" id="stage-track-meta">
+      <div class="view-title-row">
+        <h1 class="view-heading">Track Info</h1>
+        <p class="view-subheading">Metadata extracted from ID3v2 / FLAC binary blocks</p>
+      </div>
+      <div class="glass-card" style="padding: 20px;">
+        <div class="metric-item-row"><span class="metric-item-name">Title</span><span class="metric-item-value" id="detail-track-title">--</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Artist</span><span class="metric-item-value" id="detail-track-artist">--</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Album</span><span class="metric-item-value" id="detail-track-album">--</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Codec</span><span class="metric-item-value" id="detail-track-codec">--</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Origin</span><span class="metric-item-value" id="detail-track-source">--</span></div>
+      </div>
+    </div>
+
+    <!-- View 8: Diagnostics & Analytics -->
+    <div class="view-stage-wrapper" id="stage-diagnostics">
+      <div class="view-title-row">
+        <h1 class="view-heading">Diagnostics</h1>
+        <p class="view-subheading">Session status and cache metrics</p>
+      </div>
+      <div class="glass-card" style="padding: 20px;">
+        <div class="metric-item-row"><span class="metric-item-name">Remote Playlists</span><span class="metric-item-value" id="diag-playlists-count">0</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Tracks Indexed</span><span class="metric-item-value" id="diag-tracks-count">0</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Offline Cached</span><span class="metric-item-value" id="diag-offline-count">0</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Session Plays</span><span class="metric-item-value" id="diag-played-count">0</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Translation Lines Stripped</span><span class="metric-item-value" id="diag-stripped-lyrics">0</span></div>
+      </div>
+    </div>
+
+    <!-- View 9: History -->
+    <div class="view-stage-wrapper" id="stage-history">
+      <div class="view-title-row">
+        <h1 class="view-heading">History</h1>
+        <p class="view-subheading">Recently played tracks in this session</p>
+      </div>
+      <div class="track-flow" id="history-track-container">
+        <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 30px;">No tracks logged yet.</p>
+      </div>
+    </div>
+
+    <!-- View 10: Account & License -->
+    <div class="view-stage-wrapper" id="stage-account">
+      <div class="view-title-row">
+        <h1 class="view-heading">Account</h1>
+        <p class="view-subheading">Cloudflare Workers + MongoDB authentication status</p>
+      </div>
+      <div class="glass-card" style="padding: 20px; margin-bottom: 16px;">
+        <div class="metric-item-row"><span class="metric-item-name">Username</span><span class="metric-item-value" id="acc-username">--</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">License Status</span><span class="metric-item-value" id="acc-status" style="color: #10b981;">Activated</span></div>
+        <div class="metric-item-row"><span class="metric-item-name">Redeemed Code</span><span class="metric-item-value" id="acc-code">--</span></div>
+      </div>
+      <button class="btn-liquid" id="btn-account-logout" style="width: 100%; padding: 14px; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; font-weight: 700;">
+        Sign Out
+      </button>
+    </div>
+  </main>
+
+  <!-- Mini Bottom Controller Strip -->
+  <div class="mini-player-strip" id="mini-player-strip">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23111827'/%3E%3C/svg%3E" class="mini-cover-image" id="mini-thumb" alt="Artwork" />
+    <div class="mini-meta-box" id="mini-open-trigger">
+      <div class="mini-song-name" id="mini-title">Ready to Stream</div>
+      <div class="mini-song-meta" id="mini-meta">Select a track</div>
+    </div>
+    <div class="mini-buttons">
+      <button class="mini-action-btn" id="mini-btn-toggle">
+        <svg viewBox="0 0 24 24" id="mini-play-icon"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="mini-action-btn" id="mini-btn-next">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom App Tab Bar -->
+  <nav class="app-bottom-bar">
+    <button class="tab-bar-item active-tab" data-dest="stage-explore">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Explore</span>
+    </button>
+    <button class="tab-bar-item" data-dest="stage-collections">
+      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      <span>Library</span>
+    </button>
+    <button class="tab-bar-item" data-dest="stage-all-tracks">
+      <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      <span>Tracks</span>
+    </button>
+    <button class="tab-bar-item" data-dest="stage-offline-vault">
+      <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+      <span>Offline</span>
+    </button>
+    <button class="tab-bar-item" data-dest="stage-account">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Account</span>
+    </button>
+  </nav>
+
+  <!-- =============================================================
+       ULTRA IMMERSIVE FULL-SCREEN MODAL (SOLVES THE "EMPTY" SCREEN)
+       ============================================================= -->
+  <div class="immersive-modal" id="full-stage-modal">
+    <div class="modal-artwork-blur-bg" id="modal-backdrop-blur"></div>
+
+    <!-- Modal Top Header -->
+    <div class="modal-top-bar">
+      <button class="icon-round-btn" id="modal-btn-dismiss">
+        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </button>
+
+      <!-- View Switcher -->
+      <div class="stage-mode-switcher">
+        <div class="stage-mode-tab active-mode" id="tab-mode-stage">Stage</div>
+        <div class="stage-mode-tab" id="tab-mode-lyrics">Lyrics</div>
+        <div class="stage-mode-tab" id="tab-mode-metrics">Studio</div>
+      </div>
+
+      <button class="icon-round-btn" id="modal-btn-download" title="Save Offline">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+      </button>
+    </div>
+
+    <!-- Modal Middle Dynamic Stage Viewport -->
+    <div class="modal-middle-stage">
+      <!-- Leaf 1: Vinyl Stage Assembly -->
+      <div class="stage-view-leaf active-leaf" id="leaf-vinyl-stage">
+        <div class="vinyl-stage-assembly">
+          <div class="vinyl-turntable-platter"></div>
+          
+          <div class="vinyl-disc-surface rotating paused-spin" id="stage-vinyl-disc">
+            <div class="vinyl-center-label">
+              <img src="" id="stage-vinyl-art" class="vinyl-center-art" alt="Label" />
+              <div class="vinyl-center-spindle"></div>
+            </div>
+          </div>
+
+          <!-- Mechanical Tonearm -->
+          <svg class="mechanical-tonearm" id="stage-tonearm" viewBox="0 0 90 200">
+            <circle cx="30" cy="30" r="18" fill="#334155" stroke="#64748b" stroke-width="3" />
+            <circle cx="30" cy="30" r="8" fill="#cbd5e1" />
+            <path d="M30 30 L45 140 L35 180" fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+            <rect x="25" y="175" width="20" height="22" rx="4" fill="#fa233b" />
+          </svg>
+        </div>
+
+        <div style="text-align: center; max-width: 320px; width: 100%;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: rgba(255,255,255,0.08); margin-bottom: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #fa233b;"></span>
+            <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; color: #fff;">24-BIT / 96KHZ LOSSLESS</span>
+          </div>
+          <h2 id="modal-track-name" style="font-size: 1.45rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">No Media Active</h2>
+          <p id="modal-track-sub" style="font-size: 0.92rem; color: var(--text-sub); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Unknown Artist / Album</p>
         </div>
       </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Activation Code</th>
-              <th>Status</th>
-              <th>Created At</th>
-              <th style="text-align: right;">Operations</th>
-            </tr>
-          </thead>
-          <tbody id="codes-table-body">
-            <tr>
-              <td colspan="4" style="text-align: center; color: var(--text-sub);">Loading stored keys...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Leaf 2: Immersive Synchronized Lyrics -->
+      <div class="stage-view-leaf" id="leaf-lyrics-stream">
+        <div class="lyrics-render-container" id="modal-lyrics-box">
+          <div class="lyric-phrase">No lyric data linked</div>
+        </div>
+      </div>
+
+      <!-- Leaf 3: Studio VU Metrics & Diagnostics -->
+      <div class="stage-view-leaf" id="leaf-studio-metrics">
+        <div class="metrics-view-panel">
+          <div class="vu-meter-box">
+            <h3 style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Stereo Peak Level (RMS)</h3>
+            <div class="vu-channel">
+              <span class="vu-label">L</span>
+              <div class="vu-track"><div class="vu-fill" id="vu-meter-left"></div></div>
+            </div>
+            <div class="vu-channel">
+              <span class="vu-label">R</span>
+              <div class="vu-track"><div class="vu-fill" id="vu-meter-right"></div></div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding: 18px;">
+            <div class="metric-item-row"><span class="metric-item-name">Decoding Container</span><span class="metric-item-value" id="studio-meta-format">--</span></div>
+            <div class="metric-item-row"><span class="metric-item-name">Lyric Engine Source</span><span class="metric-item-value" id="studio-meta-lrc-source">ID3 Tag / Remote LRC</span></div>
+            <div class="metric-item-row"><span class="metric-item-name">MediaSession Lockscreen</span><span class="metric-item-value" style="color: #10b981;">Active</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Bottom Controls Deck -->
+    <div class="modal-bottom-deck">
+      <div class="modal-timeline-box">
+        <div class="modal-progress-bar" id="modal-progress-bar">
+          <div class="modal-progress-fill" id="modal-progress-fill"></div>
+        </div>
+        <div class="modal-progress-timestamps">
+          <span id="modal-label-cur">0:00</span>
+          <span id="modal-label-dur">0:00</span>
+        </div>
+      </div>
+
+      <div class="modal-primary-controls">
+        <button class="icon-round-btn" id="modal-btn-shuffle" style="background: none; border: none;">
+          <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+
+        <button class="icon-round-btn" id="modal-btn-prev" style="width: 48px; height: 48px;">
+          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+
+        <button class="modal-play-btn" id="modal-btn-toggle">
+          <svg viewBox="0 0 24 24" id="modal-main-play-icon"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+
+        <button class="icon-round-btn" id="modal-btn-next" style="width: 48px; height: 48px;">
+          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+
+        <button class="icon-round-btn" id="modal-btn-repeat" style="background: none; border: none;">
+          <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- Cloudflare Auth Barrier Modal -->
+  <div class="auth-backdrop-layer" id="modal-auth-barrier">
+    <div class="auth-panel-card">
+      <div class="auth-segmented-switch">
+        <div class="auth-segmented-tab active-seg" id="seg-tab-login">Sign In</div>
+        <div class="auth-segmented-tab" id="seg-tab-register">Register</div>
+      </div>
+      <div>
+        <input type="text" class="input-glass" id="auth-field-user" placeholder="Username" autocomplete="off" />
+        <input type="password" class="input-glass" id="auth-field-pass" placeholder="Password" />
+        <button class="btn-liquid btn-liquid-primary" id="btn-auth-execute" style="width: 100%; padding: 13px; font-weight: 700; font-size: 0.92rem;">
+          Sign In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloudflare Activation Key Modal -->
+  <div class="auth-backdrop-layer" id="modal-activate-barrier">
+    <div class="auth-panel-card">
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">Activate Aether</h2>
+      <p style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 18px;">Enter a redemption key from MongoDB to authenticate this client.</p>
+      <input type="text" class="input-glass" id="activate-field-key" placeholder="e.g. JR-XXXX-XXXX" autocomplete="off" />
+      <button class="btn-liquid btn-liquid-primary" id="btn-activate-execute" style="width: 100%; padding: 13px; font-weight: 700; font-size: 0.92rem;">
+        Redeem Key
+      </button>
+    </div>
+  </div>
+
+  <!-- Direct Native Audio Pipeline -->
+  <audio id="direct-audio-core" preload="auto" playsinline webkit-playsinline></audio>
+
+  <!-- Script Engine -->
   <script>
-    // 你的 Cloudflare Worker API 域名
-    const API_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
+    /**
+     * =========================================================================
+     * AETHER CLOUD AUDIO ENGINE - CORE SYSTEM
+     * =========================================================================
+     */
 
-    let adminKey = localStorage.getItem('aether_admin_key') || "";
-    let cachedCodes = [];
+    const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
+    const GITHUB_USER = "zhangzhanhang855";
+    const GITHUB_REPO = "musiconly";
+    const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 
-    const toast = document.getElementById('toast');
+    // Global Application State Store
+    const EngineState = {
+      user: null,
+      playlists: {},
+      allTracks: [],
+      offlineTracks: [],
+      playHistory: [],
+      currentActiveSet: null,
+      currentTrackIndex: -1,
+      currentTrack: null,
+      isPlaying: false,
+      isShuffle: false,
+      isRepeat: false,
+      lyrics: [],
+      currentLyricIndex: -1,
+      totalStrippedLines: 0,
+      sessionPlayCount: 0,
+      vuInterval: null
+    };
+
+    // DOM References
+    const audio = document.getElementById('direct-audio-core');
+    const toast = document.getElementById('app-toast');
+
+    const miniTitle = document.getElementById('mini-title');
+    const miniMeta = document.getElementById('mini-meta');
+    const miniThumb = document.getElementById('mini-thumb');
+    const miniPlayIcon = document.getElementById('mini-play-icon');
+
+    const fullModal = document.getElementById('full-stage-modal');
+    const modalBackdropBlur = document.getElementById('modal-backdrop-blur');
+    const modalTrackName = document.getElementById('modal-track-name');
+    const modalTrackSub = document.getElementById('modal-track-sub');
+    const stageVinylDisc = document.getElementById('stage-vinyl-disc');
+    const stageVinylArt = document.getElementById('stage-vinyl-art');
+    const stageTonearm = document.getElementById('stage-tonearm');
+    const modalMainPlayIcon = document.getElementById('modal-main-play-icon');
+
+    const modalProgressBar = document.getElementById('modal-progress-bar');
+    const modalProgressFill = document.getElementById('modal-progress-fill');
+    const modalCurLabel = document.getElementById('modal-label-cur');
+    const modalDurLabel = document.getElementById('modal-label-dur');
+
+    const modalLyricsBox = document.getElementById('modal-lyrics-box');
+    const standaloneLyricsBox = document.getElementById('standalone-lyrics-box');
+
+    const authModal = document.getElementById('modal-auth-barrier');
+    const activateModal = document.getElementById('modal-activate-barrier');
+    let currentAuthMode = 'login';
+
+    // Toast Utility
     function showToast(msg) {
       toast.textContent = msg;
-      toast.classList.add('active');
-      setTimeout(() => toast.classList.remove('active'), 2500);
+      toast.classList.add('visible-toast');
+      setTimeout(() => toast.classList.remove('visible-toast'), 2500);
     }
 
-    // 初始化检查
-    async function initAuth() {
-      if (adminKey) {
-        const ok = await verifyKey(adminKey);
-        if (ok) {
-          showDashboard();
-          return;
+    // Router View Switcher
+    function navigateToStage(stageId) {
+      document.querySelectorAll('.view-stage-wrapper').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.tab-bar-item').forEach(t => t.classList.remove('active-tab'));
+      document.querySelectorAll('.glass-pill').forEach(p => p.classList.remove('active'));
+
+      const target = document.getElementById(stageId);
+      if (target) target.classList.add('active');
+
+      const matchingTab = document.querySelector(`.tab-bar-item[data-dest="${stageId}"]`);
+      if (matchingTab) matchingTab.classList.add('active-tab');
+
+      const matchingPill = document.querySelector(`.glass-pill[data-dest="${stageId}"]`);
+      if (matchingPill) {
+        matchingPill.classList.add('active');
+        matchingPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+
+    document.querySelectorAll('.tab-bar-item, .glass-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dest = btn.getAttribute('data-dest');
+        if (dest) navigateToStage(dest);
+      });
+    });
+
+    /**
+     * =========================================================================
+     * 1. 嚴格繼承的雙軌歌詞提取與暴力解析邏輯 (DO NOT CHANGE)
+     * =========================================================================
+     */
+    function aggressivelyFindLyrics(tags) {
+      if (!tags) return "";
+
+      const extract = (obj) => {
+        if (!obj) return "";
+        if (typeof obj === 'string') return obj;
+        if (typeof obj.text === 'string') return obj.text;
+        if (typeof obj.lyrics === 'string') return obj.lyrics;
+        if (obj.data) {
+          if (typeof obj.data === 'string') return obj.data;
+          if (typeof obj.data.text === 'string') return obj.data.text;
+        }
+        return "";
+      };
+
+      let primary = extract(tags.lyrics) || extract(tags.USLT) || extract(tags.SYLT);
+      if (primary && primary.includes('[')) return primary;
+
+      for (let key in tags) {
+        const item = tags[key];
+        const arr = Array.isArray(item) ? item : [item];
+        
+        for (let i of arr) {
+          let txt = extract(i);
+          if (typeof txt === 'string' && txt.includes('[00:')) return txt;
+          
+          if (i && i.data) {
+            let deepTxt = extract(i.data.data) || extract(i.data);
+            if (typeof deepTxt === 'string' && deepTxt.includes('[00:')) return deepTxt;
+          }
         }
       }
-      document.getElementById('login-modal').style.display = 'flex';
-      document.getElementById('main-content').style.display = 'none';
+      return primary; 
     }
 
-    async function verifyKey(key) {
-      try {
-        const res = await fetch(`${API_ENDPOINT}/api/admin/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ adminKey: key })
-        });
-        return res.ok;
-      } catch (e) {
-        return false;
-      }
-    }
-
-    function showDashboard() {
-      document.getElementById('login-modal').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      loadCodes();
-    }
-
-    document.getElementById('btn-login').addEventListener('click', async () => {
-      const input = document.getElementById('input-admin-key').value.trim();
-      if (!input) return showToast("Please input admin secret");
-
-      const valid = await verifyKey(input);
-      if (valid) {
-        adminKey = input;
-        localStorage.setItem('aether_admin_key', adminKey);
-        showDashboard();
-        showToast("Access Granted");
-      } else {
-        showToast("Invalid Security Key");
-      }
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      adminKey = "";
-      localStorage.removeItem('aether_admin_key');
-      location.reload();
-    });
-
-    // 读取激活码列表
-    async function loadCodes() {
-      try {
-        const res = await fetch(`${API_ENDPOINT}/api/admin/list-codes`, {
-          headers: { 'x-admin-key': adminKey }
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to fetch list");
-
-        cachedCodes = data.codes || [];
-        renderTable(cachedCodes);
-      } catch (e) {
-        showToast(e.message);
-      }
-    }
-
-    function renderTable(codes) {
-      const tbody = document.getElementById('codes-table-body');
-      tbody.innerHTML = '';
-      document.getElementById('label-count').textContent = `${codes.length} active in MongoDB`;
-
-      if (codes.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-sub); padding: 24px;">No unused activation codes found in database.</td></tr>`;
+    function processLyrics(rawText, source) {
+      if (!rawText || typeof rawText !== 'string') {
+        EngineState.lyrics = [];
+        const fallback = '<div class="lyric-phrase">Instrumental Track</div>';
+        modalLyricsBox.innerHTML = fallback;
+        standaloneLyricsBox.innerHTML = fallback;
+        document.getElementById('studio-meta-lrc-source').textContent = "None (Instrumental)";
         return;
       }
 
-      codes.forEach(item => {
-        const tr = document.createElement('tr');
-        const isLocked = item.isLocked;
-        const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleString() : '--';
+      const cleanText = rawText.replace(/\0/g, '').trim();
+      const lines = cleanText.split(/\r?\n/);
+      const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+      
+      const parsedLyrics = [];
+      let strippedCount = 0;
 
-        tr.innerHTML = `
-          <td>
-            <span class="code-text" style="${isLocked ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${item.code}</span>
-          </td>
-          <td>
-            <span class="status-badge ${isLocked ? 'locked' : 'unlocked'}">
-              ${isLocked ? '● Locked' : '● Ready'}
-            </span>
-          </td>
-          <td style="color: var(--text-sub); font-size: 0.8rem;">${dateStr}</td>
-          <td style="text-align: right;">
-            <div class="actions-cell" style="justify-content: flex-end;">
-              <button class="btn btn-secondary copy-btn" data-code="${item.code}" style="padding: 4px 10px; font-size: 0.75rem;">Copy</button>
-              <button class="btn ${isLocked ? 'btn-success' : 'btn-warning'} lock-btn" data-id="${item.id}" data-state="${isLocked}" style="padding: 4px 10px; font-size: 0.75rem;">
-                ${isLocked ? 'Unlock' : 'Lock'}
-              </button>
-              <button class="btn btn-danger del-btn" data-id="${item.id}" style="padding: 4px 10px; font-size: 0.75rem;">Delete</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
 
-      // 绑定行按钮操作
-      tbody.querySelectorAll('.copy-btn').forEach(b => {
-        b.addEventListener('click', () => {
-          navigator.clipboard.writeText(b.getAttribute('data-code'));
-          showToast("Code copied to clipboard");
-        });
-      });
+        let match;
+        let timeTags = [];
+        timeReg.lastIndex = 0;
 
-      tbody.querySelectorAll('.lock-btn').forEach(b => {
-        b.addEventListener('click', () => {
-          const id = b.getAttribute('data-id');
-          const currentState = b.getAttribute('data-state') === 'true';
-          toggleLock(id, !currentState);
-        });
-      });
+        while ((match = timeReg.exec(line)) !== null) {
+          const m = parseInt(match[1], 10);
+          const s = parseInt(match[2], 10);
+          const msStr = match[3] || '0';
+          const ms = parseInt(msStr.padEnd(3, '0').slice(0, 3), 10);
+          timeTags.push(m * 60 + s + ms / 1000);
+        }
 
-      tbody.querySelectorAll('.del-btn').forEach(b => {
-        b.addEventListener('click', () => {
-          const id = b.getAttribute('data-id');
-          if (confirm("Are you sure you want to permanently delete this redemption code?")) {
-            deleteCode(id);
+        if (timeTags.length > 0) {
+          let text = line.replace(/\[\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?\]/g, '').trim();
+          
+          // 嚴格剔除（翻譯：...）或 (translation:...)
+          const preCut = text;
+          text = text.replace(/[（(](?:翻译|translation)[：:].*?[）)]/gi, '').trim();
+          if (text !== preCut) strippedCount++;
+
+          for (let t of timeTags) {
+            parsedLyrics.push({ time: t, text: text || '...' });
           }
+        }
+      }
+
+      EngineState.totalStrippedLines += strippedCount;
+      document.getElementById('diag-stripped-lyrics').textContent = `${EngineState.totalStrippedLines} lines`;
+
+      if (parsedLyrics.length > 0) {
+        parsedLyrics.sort((a, b) => a.time - b.time);
+        EngineState.lyrics = parsedLyrics;
+
+        const renderedHTML = parsedLyrics.map((l, i) => 
+          `<div class="lyric-phrase" id="lyric-phrase-${i}" data-time="${l.time}">
+             <span>${l.text}</span>
+           </div>`
+        ).join('');
+
+        modalLyricsBox.innerHTML = renderedHTML;
+        standaloneLyricsBox.innerHTML = renderedHTML;
+
+        document.querySelectorAll('.lyric-phrase').forEach(node => {
+          node.onclick = () => {
+            const tm = parseFloat(node.getAttribute('data-time'));
+            if (!isNaN(tm)) {
+              audio.currentTime = tm;
+              if (audio.paused) executePlay();
+            }
+          };
         });
+
+        document.getElementById('studio-meta-lrc-source').textContent = source || "Synchronized";
+      } else {
+        EngineState.lyrics = [];
+        const plainHTML = `<div style="text-align: left; opacity: 0.6; line-height: 2; padding: 20px;">${cleanText}</div>`;
+        modalLyricsBox.innerHTML = plainHTML;
+        standaloneLyricsBox.innerHTML = plainHTML;
+        document.getElementById('studio-meta-lrc-source').textContent = `Plain Text (${source})`;
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 2. NATIVE BINARY ID3V2 & FLAC VORBIS EXTRACTOR
+     * =========================================================================
+     */
+    class BinaryTagExtractor {
+      static async extract(arrayBuffer, format) {
+        const view = new DataView(arrayBuffer);
+        const meta = { title: null, artist: null, album: null, artworkUrl: null, embeddedLrc: null };
+
+        try {
+          if (format === 'mp3') {
+            if (view.getUint8(0) === 0x49 && view.getUint8(1) === 0x44 && view.getUint8(2) === 0x33) {
+              const version = view.getUint8(3);
+              const tagSize = BinaryTagExtractor.readSynchsafe(view, 6);
+              let offset = 10;
+
+              while (offset < tagSize + 10 && offset < view.byteLength - 10) {
+                const frameId = String.fromCharCode(
+                  view.getUint8(offset), view.getUint8(offset+1),
+                  view.getUint8(offset+2), view.getUint8(offset+3)
+                );
+
+                if (!frameId.match(/^[A-Z0-9]{4}$/)) break;
+
+                const frameSize = (version === 4)
+                  ? BinaryTagExtractor.readSynchsafe(view, offset + 4)
+                  : view.getUint32(offset + 4);
+
+                if (frameSize <= 0 || offset + 10 + frameSize > view.byteLength) break;
+                const frameData = new Uint8Array(arrayBuffer, offset + 10, frameSize);
+
+                if (frameId === 'TIT2') meta.title = BinaryTagExtractor.decodeString(frameData);
+                else if (frameId === 'TPE1') meta.artist = BinaryTagExtractor.decodeString(frameData);
+                else if (frameId === 'TALB') meta.album = BinaryTagExtractor.decodeString(frameData);
+                else if (frameId === 'APIC') meta.artworkUrl = BinaryTagExtractor.decodeApic(frameData);
+                else if (frameId === 'USLT' || frameId === 'SYLT') meta.embeddedLrc = BinaryTagExtractor.decodeString(frameData);
+
+                offset += 10 + frameSize;
+              }
+            }
+          } else if (format === 'flac') {
+            if (view.getUint8(0) === 0x66 && view.getUint8(1) === 0x4C && view.getUint8(2) === 0x61 && view.getUint8(3) === 0x43) {
+              let offset = 4;
+              let isLast = false;
+
+              while (!isLast && offset < view.byteLength) {
+                const header = view.getUint8(offset);
+                isLast = (header & 0x80) !== 0;
+                const type = header & 0x7F;
+                const blockSize = (view.getUint8(offset + 1) << 16) | (view.getUint8(offset + 2) << 8) | view.getUint8(offset + 3);
+                offset += 4;
+
+                if (type === 4) {
+                  const comments = BinaryTagExtractor.parseVorbis(new Uint8Array(arrayBuffer, offset, blockSize));
+                  if (comments.TITLE) meta.title = comments.TITLE;
+                  if (comments.ARTIST) meta.artist = comments.ARTIST;
+                  if (comments.ALBUM) meta.album = comments.ALBUM;
+                  if (comments.LYRICS) meta.embeddedLrc = comments.LYRICS;
+                } else if (type === 6) {
+                  meta.artworkUrl = BinaryTagExtractor.parseFlacPicture(new DataView(arrayBuffer, offset, blockSize));
+                }
+                offset += blockSize;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("BinaryTagExtractor fault:", e);
+        }
+        return meta;
+      }
+
+      static readSynchsafe(view, offset) {
+        return (view.getUint8(offset) << 21) |
+               (view.getUint8(offset + 1) << 14) |
+               (view.getUint8(offset + 2) << 7) |
+               view.getUint8(offset + 3);
+      }
+
+      static decodeString(uint8Arr) {
+        if (uint8Arr.length <= 1) return "";
+        const enc = uint8Arr[0];
+        const bytes = uint8Arr.slice(1);
+        try {
+          if (enc === 0) return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, '');
+          if (enc === 1) return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '');
+          if (enc === 2) return new TextDecoder('utf-16be').decode(bytes).replace(/\0/g, '');
+          if (enc === 3) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
+        } catch (e) {}
+        return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
+      }
+
+      static decodeApic(uint8Arr) {
+        const enc = uint8Arr[0];
+        let offset = 1;
+        let mime = "";
+        while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
+          mime += String.fromCharCode(uint8Arr[offset++]);
+        }
+        offset++; // terminator
+        offset++; // type
+        if (enc === 1 || enc === 2) {
+          while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) offset += 2;
+          offset += 2;
+        } else {
+          while (offset < uint8Arr.length && uint8Arr[offset] !== 0) offset++;
+          offset++;
+        }
+        const imgBytes = uint8Arr.slice(offset);
+        return URL.createObjectURL(new Blob([imgBytes], { type: mime || 'image/jpeg' }));
+      }
+
+      static parseVorbis(uint8Arr) {
+        const view = new DataView(uint8Arr.buffer, uint8Arr.byteOffset, uint8Arr.byteLength);
+        let offset = 0;
+        const vendorLen = view.getUint32(offset, true);
+        offset += 4 + vendorLen;
+        const count = view.getUint32(offset, true);
+        offset += 4;
+        const result = {};
+
+        for (let i = 0; i < count; i++) {
+          if (offset + 4 > uint8Arr.length) break;
+          const len = view.getUint32(offset, true);
+          offset += 4;
+          const str = new TextDecoder('utf-8').decode(uint8Arr.slice(offset, offset + len));
+          offset += len;
+          const eq = str.indexOf('=');
+          if (eq !== -1) {
+            result[str.substring(0, eq).toUpperCase()] = str.substring(eq + 1);
+          }
+        }
+        return result;
+      }
+
+      static parseFlacPicture(view) {
+        try {
+          const mimeLen = view.getUint32(4);
+          let offset = 8;
+          let mime = "";
+          for (let i = 0; i < mimeLen; i++) mime += String.fromCharCode(view.getUint8(offset++));
+          const descLen = view.getUint32(offset);
+          offset += 4 + descLen + 16;
+          const dataLen = view.getUint32(offset);
+          offset += 4;
+          const imgBytes = new Uint8Array(view.buffer, view.byteOffset + offset, dataLen);
+          return URL.createObjectURL(new Blob([imgBytes], { type: mime || 'image/jpeg' }));
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 3. APP PERSISTENT SANDBOX ENGINE (INDEXEDDB)
+     * =========================================================================
+     */
+    class VaultEngine {
+      static async open() {
+        return new Promise((res, rej) => {
+          const req = indexedDB.open("AetherMasterStore", 2);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("tracks")) {
+              db.createObjectStore("tracks", { keyPath: "id" });
+            }
+          };
+          req.onsuccess = () => res(req.result);
+          req.onerror = () => rej(req.error);
+        });
+      }
+
+      static async save(track, blob, meta) {
+        const db = await VaultEngine.open();
+        return new Promise((res, rej) => {
+          const tx = db.transaction("tracks", "readwrite");
+          const store = tx.objectStore("tracks");
+          const record = {
+            id: track.id,
+            fileName: track.fileName,
+            folder: track.folder,
+            blob: blob,
+            title: meta.title || track.title,
+            artist: meta.artist || track.artist,
+            album: meta.album || track.album,
+            format: track.format,
+            dateAdded: Date.now()
+          };
+          const req = store.put(record);
+          req.onsuccess = () => res(record);
+          req.onerror = () => rej(req.error);
+        });
+      }
+
+      static async getAll() {
+        const db = await VaultEngine.open();
+        return new Promise((res) => {
+          const tx = db.transaction("tracks", "readonly");
+          const req = tx.objectStore("tracks").getAll();
+          req.onsuccess = () => res(req.result || []);
+          req.onerror = () => res([]);
+        });
+      }
+
+      static async exists(id) {
+        const db = await VaultEngine.open();
+        return new Promise((res) => {
+          const tx = db.transaction("tracks", "readonly");
+          const req = tx.objectStore("tracks").get(id);
+          req.onsuccess = () => res(!!req.result);
+          req.onerror = () => res(false);
+        });
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 4. CLOUDFLARE WORKERS AUTHENTICATION CLIENT
+     * =========================================================================
+     */
+    class AuthClient {
+      static init() {
+        const cached = localStorage.getItem('aether_session_user');
+        if (cached) {
+          try {
+            EngineState.user = JSON.parse(cached);
+            AuthClient.enforceActivation();
+          } catch (e) {
+            AuthClient.showAuthModal();
+          }
+        } else {
+          AuthClient.showAuthModal();
+        }
+      }
+
+      static showAuthModal() {
+        authModal.classList.add('active-auth');
+        activateModal.classList.remove('active-auth');
+      }
+
+      static enforceActivation() {
+        if (!EngineState.user) {
+          AuthClient.showAuthModal();
+          return;
+        }
+
+        if (!EngineState.user.isActivated) {
+          authModal.classList.remove('active-auth');
+          activateModal.classList.add('active-auth');
+        } else {
+          authModal.classList.remove('active-auth');
+          activateModal.classList.remove('active-auth');
+          AuthClient.updateProfileDisplay();
+        }
+      }
+
+      static updateProfileDisplay() {
+        if (EngineState.user) {
+          document.getElementById('acc-username').textContent = EngineState.user.username;
+          document.getElementById('acc-status').textContent = EngineState.user.isActivated ? "Activated" : "Not Activated";
+          document.getElementById('acc-code').textContent = EngineState.user.redeemedCode || "--";
+        }
+      }
+
+      static async submitLogin(username, password) {
+        try {
+          showToast("Authenticating...");
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Authentication rejected");
+
+          EngineState.user = data.user;
+          localStorage.setItem('aether_session_user', JSON.stringify(data.user));
+          showToast(`Welcome back, ${data.user.username}`);
+          AuthClient.enforceActivation();
+        } catch (err) {
+          showToast(err.message);
+        }
+      }
+
+      static async submitRegister(username, password) {
+        try {
+          showToast("Creating account...");
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Registration rejected");
+
+          EngineState.user = data.user;
+          localStorage.setItem('aether_session_user', JSON.stringify(data.user));
+          showToast("Account created. Please activate.");
+          AuthClient.enforceActivation();
+        } catch (err) {
+          showToast(err.message);
+        }
+      }
+
+      static async submitRedeem(code) {
+        try {
+          showToast("Validating key...");
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/redeem`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: EngineState.user.username, code: code.trim() })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Redemption failed");
+
+          EngineState.user.isActivated = true;
+          EngineState.user.redeemedCode = code.trim();
+          localStorage.setItem('aether_session_user', JSON.stringify(EngineState.user));
+
+          showToast("Aether Pro Activated!");
+          activateModal.classList.remove('active-auth');
+          AuthClient.updateProfileDisplay();
+        } catch (err) {
+          showToast(err.message);
+        }
+      }
+
+      static logout() {
+        EngineState.user = null;
+        localStorage.removeItem('aether_session_user');
+        AuthClient.showAuthModal();
+        showToast("Signed out");
+      }
+    }
+
+    // Bind Auth Elements
+    document.getElementById('seg-tab-login').onclick = () => {
+      currentAuthMode = 'login';
+      document.getElementById('seg-tab-login').classList.add('active-seg');
+      document.getElementById('seg-tab-register').classList.remove('active-seg');
+      document.getElementById('btn-auth-execute').textContent = "Sign In";
+    };
+
+    document.getElementById('seg-tab-register').onclick = () => {
+      currentAuthMode = 'register';
+      document.getElementById('seg-tab-register').classList.add('active-seg');
+      document.getElementById('seg-tab-login').classList.remove('active-seg');
+      document.getElementById('btn-auth-execute').textContent = "Register";
+    };
+
+    document.getElementById('btn-auth-execute').onclick = () => {
+      const u = document.getElementById('auth-field-user').value.trim();
+      const p = document.getElementById('auth-field-pass').value.trim();
+      if (!u || !p) return showToast("Fields cannot be empty");
+      if (currentAuthMode === 'login') AuthClient.submitLogin(u, p);
+      else AuthClient.submitRegister(u, p);
+    };
+
+    document.getElementById('btn-activate-execute').onclick = () => {
+      const c = document.getElementById('activate-field-key').value.trim();
+      if (!c) return showToast("Key cannot be empty");
+      AuthClient.submitRedeem(c);
+    };
+
+    document.getElementById('btn-account-logout').onclick = () => AuthClient.logout();
+    document.getElementById('header-btn-user').onclick = () => navigateToStage('stage-account');
+
+    /**
+     * =========================================================================
+     * 5. APPLE LOCKSCREEN MEDIASESSION PROTOCOL
+     * =========================================================================
+     */
+    function syncAppleMediaSession(track) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title,
+          artist: `${track.artist} / ${track.album}`,
+          album: track.album,
+          artwork: [
+            { src: track.artworkUrl, sizes: '256x256', type: 'image/png' },
+            { src: track.artworkUrl, sizes: '512x512', type: 'image/png' }
+          ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => executePlay());
+        navigator.mediaSession.setActionHandler('pause', () => executePause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
+        navigator.mediaSession.setActionHandler('seekto', (e) => {
+          if (e.seekTime && audio.duration) audio.currentTime = e.seekTime;
+        });
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 6. REPOSITORY SYNC & DATA BINDING
+     * =========================================================================
+     */
+    async function syncRemoteRepository() {
+      if (!EngineState.user || !EngineState.user.isActivated) return;
+
+      showToast("Connecting to GitHub API...");
+      try {
+        const rootRes = await fetch(API_BASE);
+        if (!rootRes.ok) throw new Error("API rate-limited or repository unreachable");
+        const items = await rootRes.json();
+
+        EngineState.playlists = {};
+        EngineState.allTracks = [];
+
+        for (const item of items) {
+          if (item.type === "dir") {
+            const folderName = item.name;
+            EngineState.playlists[folderName] = [];
+
+            const folderRes = await fetch(item.url);
+            if (folderRes.ok) {
+              const folderItems = await folderRes.json();
+              const audioFiles = folderItems.filter(f => {
+                const low = f.name.toLowerCase();
+                return low.endsWith('.mp3') || low.endsWith('.flac');
+              });
+
+              audioFiles.forEach(f => {
+                const low = f.name.toLowerCase();
+                const format = low.endsWith('.flac') ? 'flac' : 'mp3';
+                const baseName = f.name.substring(0, f.name.lastIndexOf('.'));
+                const matchedLrc = folderItems.find(x => x.name.toLowerCase() === `${baseName.toLowerCase()}.lrc`);
+
+                let title = baseName;
+                let artist = "Various Artists";
+                if (baseName.includes(' - ')) {
+                  const parts = baseName.split(' - ');
+                  artist = parts[0].trim();
+                  title = parts.slice(1).join(' - ').trim();
+                }
+
+                const trackObj = {
+                  id: f.sha,
+                  fileName: f.name,
+                  format: format,
+                  title: title,
+                  artist: artist,
+                  album: folderName,
+                  streamUrl: f.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(f.name)}`,
+                  lrcUrl: matchedLrc ? (matchedLrc.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(matchedLrc.name)}`) : null,
+                  artworkUrl: generateVectorPlaceholder(title),
+                  folder: folderName,
+                  isParsed: false
+                };
+
+                EngineState.playlists[folderName].push(trackObj);
+                EngineState.allTracks.push(trackObj);
+              });
+            }
+          }
+        }
+
+        renderPlaylistsView();
+        renderTracksView(EngineState.allTracks, "All Synced Tracks");
+        await reloadOfflineVault();
+        updateDiagnostics();
+        showToast("Synchronized successfully");
+      } catch (err) {
+        showToast("Cloud sync failed");
+      }
+    }
+
+    function generateVectorPlaceholder(text) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 512, 512);
+      grad.addColorStop(0, '#1e293b');
+      grad.addColorStop(1, '#fa233b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px Google Sans';
+      ctx.textAlign = 'center';
+      ctx.fillText(text ? text.substring(0, 16) : 'Aether', 256, 265);
+      return c.toDataURL('image/png');
+    }
+
+    function renderPlaylistsView() {
+      const exploreBox = document.getElementById('explore-folder-grid');
+      const collectBox = document.getElementById('collections-folder-grid');
+      exploreBox.innerHTML = '';
+      collectBox.innerHTML = '';
+
+      Object.keys(EngineState.playlists).forEach(name => {
+        const count = EngineState.playlists[name].length;
+        const html = `
+          <div class="folder-card" data-folder="${name}">
+            <div class="folder-cover-box">
+              <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+            </div>
+            <div class="folder-name-label">${name}</div>
+            <div class="folder-meta-label">${count} Audio Tracks</div>
+          </div>
+        `;
+        exploreBox.insertAdjacentHTML('beforeend', html);
+        collectBox.insertAdjacentHTML('beforeend', html);
+      });
+
+      document.querySelectorAll('.folder-card').forEach(c => {
+        c.onclick = () => {
+          const f = c.getAttribute('data-folder');
+          if (f && EngineState.playlists[f]) {
+            renderTracksView(EngineState.playlists[f], f);
+            navigateToStage('stage-all-tracks');
+          }
+        };
       });
     }
 
-    // 创建激活码
-    document.getElementById('btn-generate').addEventListener('click', async () => {
-      const customCode = document.getElementById('gen-custom').value.trim();
-      const count = parseInt(document.getElementById('gen-count').value, 10) || 1;
+    async function renderTracksView(tracks, headline) {
+      const container = document.getElementById('main-track-container');
+      document.getElementById('all-tracks-headline').textContent = headline;
+      document.getElementById('all-tracks-subtitle').textContent = `${tracks.length} streams available`;
+      container.innerHTML = '';
 
-      try {
-        const res = await fetch(`${API_ENDPOINT}/api/admin/create-codes`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-key': adminKey
-          },
-          body: JSON.stringify({ customCode, count })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to create codes");
+      for (let i = 0; i < tracks.length; i++) {
+        const t = tracks[i];
+        const isOffline = await VaultEngine.exists(t.id);
+        const cell = document.createElement('div');
+        cell.className = 'track-cell';
+        cell.innerHTML = `
+          <div class="track-cell-left">
+            <img src="${t.artworkUrl}" class="track-art-thumb" id="thumb-${t.id}" alt="Art" />
+            <div class="track-texts">
+              <div class="track-name" id="name-${t.id}">${t.title}</div>
+              <div class="track-author" id="author-${t.id}">${t.artist} • ${t.album}</div>
+            </div>
+          </div>
+          <div class="track-cell-right">
+            <span class="format-badge">${t.format}</span>
+            <button class="icon-round-btn btn-offline-save" data-id="${t.id}" style="width: 32px; height: 32px; color: ${isOffline ? '#10b981' : 'inherit'};">
+              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            </button>
+          </div>
+        `;
 
-        showToast(data.message);
-        document.getElementById('gen-custom').value = '';
-        loadCodes();
-      } catch (e) {
-        showToast(e.message);
-      }
-    });
+        cell.querySelector('.track-cell-left').onclick = () => {
+          EngineState.currentActiveSet = tracks;
+          playTrackByIndex(i);
+        };
 
-    // 切换锁定
-    async function toggleLock(id, newLockState) {
-      try {
-        const res = await fetch(`${API_ENDPOINT}/api/admin/toggle-lock`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-key': adminKey
-          },
-          body: JSON.stringify({ id, isLocked: newLockState })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "State toggle error");
+        cell.querySelector('.btn-offline-save').onclick = (e) => {
+          e.stopPropagation();
+          saveTrackOffline(t);
+        };
 
-        showToast(data.message);
-        loadCodes();
-      } catch (e) {
-        showToast(e.message);
+        container.appendChild(cell);
       }
     }
 
-    // 物理删除
-    async function deleteCode(id) {
-      try {
-        const res = await fetch(`${API_ENDPOINT}/api/admin/delete-code`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-key': adminKey
-          },
-          body: JSON.stringify({ id })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Delete failed");
-
-        showToast(data.message);
-        loadCodes();
-      } catch (e) {
-        showToast(e.message);
+    /**
+     * =========================================================================
+     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE
+     * =========================================================================
+     */
+    async function playTrackByIndex(idx) {
+      if (!EngineState.user || !EngineState.user.isActivated) {
+        showToast("Please activate this client first");
+        AuthClient.enforceActivation();
+        return;
       }
-    }
 
-    // 本地搜索过滤
-    document.getElementById('search-code').addEventListener('input', (e) => {
-      const kw = e.target.value.trim().toLowerCase();
-      if (!kw) {
-        renderTable(cachedCodes);
+      const currentSet = EngineState.currentActiveSet || EngineState.allTracks;
+      if (idx < 0 || idx >= currentSet.length) return;
+
+      EngineState.currentTrackIndex = idx;
+      const track = currentSet[idx];
+      EngineState.currentTrack = track;
+
+      showToast(`Loading: ${track.title}`);
+
+      // Check Offline Vault
+      const allVault = await VaultEngine.getAll();
+      const vaultRecord = allVault.find(x => x.id === track.id);
+
+      let playUrl = track.streamUrl;
+      let bufferForParser = null;
+      let isLocal = false;
+
+      if (vaultRecord) {
+        playUrl = URL.createObjectURL(vaultRecord.blob);
+        bufferForParser = await vaultRecord.blob.arrayBuffer();
+        isLocal = true;
       } else {
-        const filtered = cachedCodes.filter(c => c.code.toLowerCase().includes(kw));
-        renderTable(filtered);
+        try {
+          const res = await fetch(track.streamUrl);
+          const blob = await res.blob();
+          bufferForParser = await blob.arrayBuffer();
+          playUrl = URL.createObjectURL(blob);
+        } catch (e) {
+          console.warn("Direct stream fetch failure, falling back to raw link");
+        }
       }
+
+      let parsedEmbeddedLrc = null;
+
+      // Extract Native Binary Meta
+      if (bufferForParser) {
+        const meta = await BinaryTagExtractor.extract(bufferForParser, track.format);
+        if (meta.title) track.title = meta.title;
+        if (meta.artist) track.artist = meta.artist;
+        if (meta.album) track.album = meta.album;
+        if (meta.artworkUrl) track.artworkUrl = meta.artworkUrl;
+        if (meta.embeddedLrc) parsedEmbeddedLrc = meta.embeddedLrc;
+
+        // Sync list visual
+        const thumb = document.getElementById(`thumb-${track.id}`);
+        const nameEl = document.getElementById(`name-${track.id}`);
+        const authEl = document.getElementById(`author-${track.id}`);
+        if (thumb && meta.artworkUrl) thumb.src = meta.artworkUrl;
+        if (nameEl) nameEl.textContent = track.title;
+        if (authEl) authEl.textContent = `${track.artist} • ${track.album}`;
+      }
+
+      // Populate Mini Strip
+      miniTitle.textContent = track.title;
+      miniMeta.textContent = `${track.artist} / ${track.album}`;
+      miniThumb.src = track.artworkUrl;
+
+      // Populate Ultra Modal
+      modalTrackName.textContent = track.title;
+      modalTrackSub.textContent = `${track.artist} / ${track.album}`;
+      stageVinylArt.src = track.artworkUrl;
+      modalBackdropBlur.style.backgroundImage = `url(${track.artworkUrl})`;
+
+      // Studio Details
+      document.getElementById('detail-track-title').textContent = track.title;
+      document.getElementById('detail-track-artist').textContent = track.artist;
+      document.getElementById('detail-track-album').textContent = track.album;
+      document.getElementById('detail-track-codec').textContent = track.format.toUpperCase();
+      document.getElementById('detail-track-source').textContent = isLocal ? "App Sandbox Vault" : "Remote GitHub Raw";
+      document.getElementById('studio-meta-format').textContent = `${track.format.toUpperCase()} (Hi-Res Audio Stream)`;
+
+      // MediaSession Registration
+      syncAppleMediaSession(track);
+
+      // Load Core Audio
+      audio.src = playUrl;
+      audio.load();
+
+      // Retrieve Lyrics: Remote .lrc first, embedded tag fallback
+      loadLyricsFlow(track, parsedEmbeddedLrc);
+
+      executePlay();
+
+      // Add to Session History
+      EngineState.playHistory.unshift(track);
+      if (EngineState.playHistory.length > 30) EngineState.playHistory.pop();
+      renderHistoryView();
+
+      EngineState.sessionPlayCount++;
+      updateDiagnostics();
+
+      document.querySelectorAll('.track-cell').forEach((el, i) => {
+        el.classList.toggle('current-playing', i === idx);
+      });
+    }
+
+    async function loadLyricsFlow(track, embeddedFallback) {
+      let lrcFound = false;
+
+      // 1. Check External Companion .lrc
+      if (track.lrcUrl) {
+        try {
+          const res = await fetch(track.lrcUrl);
+          if (res.ok) {
+            const rawLrc = await res.text();
+            if (rawLrc && rawLrc.trim()) {
+              lrcFound = true;
+              processLyrics(rawLrc, "External .LRC");
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2. Fallback to Embedded Binary Tags
+      if (!lrcFound) {
+        if (embeddedFallback) {
+          processLyrics(embeddedFallback, "Embedded ID3");
+        } else {
+          processLyrics(null, "");
+        }
+      }
+    }
+
+    function executePlay() {
+      audio.play().then(() => {
+        EngineState.isPlaying = true;
+        updatePlayIcons(true);
+        stageVinylDisc.classList.remove('paused-spin');
+        stageTonearm.classList.add('engaged');
+        startVUMeterSimulation();
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+      }).catch(() => {
+        showToast("Tap again to permit audio output");
+      });
+    }
+
+    function executePause() {
+      audio.pause();
+      EngineState.isPlaying = false;
+      updatePlayIcons(false);
+      stageVinylDisc.classList.add('paused-spin');
+      stageTonearm.classList.remove('engaged');
+      stopVUMeterSimulation();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    }
+
+    function updatePlayIcons(playing) {
+      const playPath = "M8 5v14l11-7z";
+      const pausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+      const path = playing ? pausePath : playPath;
+      miniPlayIcon.querySelector('path').setAttribute('d', path);
+      modalMainPlayIcon.querySelector('path').setAttribute('d', path);
+    }
+
+    function playNextTrack() {
+      const set = EngineState.currentActiveSet || EngineState.allTracks;
+      if (set.length === 0) return;
+      let next = EngineState.currentTrackIndex + 1;
+      if (EngineState.isShuffle) next = Math.floor(Math.random() * set.length);
+      else if (next >= set.length) next = 0;
+      playTrackByIndex(next);
+    }
+
+    function playPrevTrack() {
+      const set = EngineState.currentActiveSet || EngineState.allTracks;
+      if (set.length === 0) return;
+      let prev = EngineState.currentTrackIndex - 1;
+      if (prev < 0) prev = set.length - 1;
+      playTrackByIndex(prev);
+    }
+
+    // Real-Time Time Synchronizer
+    audio.ontimeupdate = () => {
+      if (!audio.duration) return;
+      const cur = audio.currentTime;
+      const dur = audio.duration;
+      const pct = (cur / dur) * 100;
+
+      modalProgressFill.style.width = `${pct}%`;
+      modalCurLabel.textContent = formatClock(cur);
+      modalDurLabel.textContent = formatClock(dur);
+
+      // Real-time Lyrics Auto Scroll
+      if (EngineState.lyrics.length > 0) {
+        let activeIdx = -1;
+        for (let i = 0; i < EngineState.lyrics.length; i++) {
+          if (cur >= EngineState.lyrics[i].time) activeIdx = i;
+          else break;
+        }
+
+        if (activeIdx !== EngineState.currentLyricIndex) {
+          document.querySelectorAll('.lyric-phrase').forEach(el => el.classList.remove('phrase-active'));
+          if (activeIdx !== -1) {
+            [modalLyricsBox, standaloneLyricsBox].forEach(box => {
+              const activeEl = box.querySelector(`#lyric-phrase-${activeIdx}`);
+              if (activeEl) {
+                activeEl.classList.add('phrase-active');
+                const scrollPos = activeEl.offsetTop - (box.clientHeight / 2) + (activeEl.clientHeight / 2);
+                box.scrollTo({ top: scrollPos, behavior: 'smooth' });
+              }
+            });
+          }
+          EngineState.currentLyricIndex = activeIdx;
+        }
+      }
+    };
+
+    audio.onended = () => {
+      if (EngineState.isRepeat) {
+        audio.currentTime = 0;
+        executePlay();
+      } else {
+        playNextTrack();
+      }
+    };
+
+    function formatClock(sec) {
+      if (isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // Touch Scrubber for Modal Timeline
+    modalProgressBar.onclick = (e) => {
+      const rect = modalProgressBar.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      if (audio.duration) audio.currentTime = pos * audio.duration;
+    };
+
+    // Simulated VU Level Meter Jump (Direct CoreAudio alternative)
+    function startVUMeterSimulation() {
+      if (EngineState.vuInterval) clearInterval(EngineState.vuInterval);
+      const vuL = document.getElementById('vu-meter-left');
+      const vuR = document.getElementById('vu-meter-right');
+      EngineState.vuInterval = setInterval(() => {
+        if (!EngineState.isPlaying) return;
+        const rndL = Math.floor(Math.random() * 55) + 35;
+        const rndR = Math.floor(Math.random() * 55) + 35;
+        if (vuL) vuL.style.width = `${rndL}%`;
+        if (vuR) vuR.style.width = `${rndR}%`;
+      }, 120);
+    }
+
+    function stopVUMeterSimulation() {
+      if (EngineState.vuInterval) clearInterval(EngineState.vuInterval);
+      const vuL = document.getElementById('vu-meter-left');
+      const vuR = document.getElementById('vu-meter-right');
+      if (vuL) vuL.style.width = '0%';
+      if (vuR) vuR.style.width = '0%';
+    }
+
+    /**
+     * =========================================================================
+     * 8. OFFLINE VAULT & DIAGNOSTICS HELPERS
+     * =========================================================================
+     */
+    async function saveTrackOffline(track) {
+      showToast(`Saving to Vault: ${track.title}`);
+      try {
+        const res = await fetch(track.streamUrl);
+        const blob = await res.blob();
+        const buf = await blob.arrayBuffer();
+        const meta = await BinaryTagExtractor.extract(buf, track.format);
+
+        await VaultEngine.save(track, blob, meta);
+        await reloadOfflineVault();
+        showToast("Saved offline successfully");
+
+        const btn = document.querySelector(`.btn-offline-save[data-id="${track.id}"]`);
+        if (btn) btn.style.color = '#10b981';
+      } catch (err) {
+        showToast("Vault save failed");
+      }
+    }
+
+    async function reloadOfflineVault() {
+      const items = await VaultEngine.getAll();
+      EngineState.offlineTracks = items;
+      document.getElementById('diag-offline-count').textContent = items.length;
+
+      let totalBytes = 0;
+      items.forEach(it => { if (it.blob) totalBytes += it.blob.size; });
+      document.getElementById('label-sandbox-storage').textContent = `${(totalBytes / (1024 * 1024)).toFixed(2)} MB`;
+
+      const container = document.getElementById('offline-track-container');
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 20px;">No offline files downloaded yet.</p>`;
+        return;
+      }
+
+      items.forEach((t, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'track-cell';
+        cell.innerHTML = `
+          <div class="track-cell-left">
+            <div class="track-texts">
+              <div class="track-name">${t.title}</div>
+              <div class="track-author">${t.artist} • ${t.album}</div>
+            </div>
+          </div>
+          <div class="track-cell-right">
+            <span class="format-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">OFFLINE</span>
+          </div>
+        `;
+        cell.onclick = () => {
+          EngineState.currentActiveSet = items;
+          playTrackByIndex(i);
+        };
+        container.appendChild(cell);
+      });
+    }
+
+    function renderHistoryView() {
+      const container = document.getElementById('history-track-container');
+      if (EngineState.playHistory.length === 0) return;
+      container.innerHTML = '';
+      EngineState.playHistory.forEach(t => {
+        const row = document.createElement('div');
+        row.className = 'track-cell';
+        row.innerHTML = `
+          <div class="track-texts">
+            <div class="track-name">${t.title}</div>
+            <div class="track-author">${t.artist} • ${t.album}</div>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Played</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateDiagnostics() {
+      document.getElementById('diag-playlists-count').textContent = Object.keys(EngineState.playlists).length;
+      document.getElementById('diag-tracks-count').textContent = EngineState.allTracks.length;
+      document.getElementById('diag-played-count').textContent = EngineState.sessionPlayCount;
+    }
+
+    /**
+     * =========================================================================
+     * 9. MODAL VIEW SWITCHER & BUTTONS BINDING
+     * =========================================================================
+     */
+    // Mini Strip Controls
+    document.getElementById('mini-btn-toggle').onclick = (e) => {
+      e.stopPropagation();
+      EngineState.isPlaying ? executePause() : executePlay();
+    };
+
+    document.getElementById('mini-btn-next').onclick = (e) => {
+      e.stopPropagation();
+      playNextTrack();
+    };
+
+    document.getElementById('mini-open-trigger').onclick = () => {
+      fullModal.classList.add('active-open');
+    };
+
+    document.getElementById('modal-btn-dismiss').onclick = () => {
+      fullModal.classList.remove('active-open');
+    };
+
+    // Modal Play Controls
+    document.getElementById('modal-btn-toggle').onclick = () => {
+      EngineState.isPlaying ? executePause() : executePlay();
+    };
+    document.getElementById('modal-btn-next').onclick = playNextTrack;
+    document.getElementById('modal-btn-prev').onclick = playPrevTrack;
+
+    document.getElementById('modal-btn-shuffle').onclick = function() {
+      EngineState.isShuffle = !EngineState.isShuffle;
+      this.style.color = EngineState.isShuffle ? 'var(--accent-primary)' : 'inherit';
+      showToast(EngineState.isShuffle ? "Shuffle Mode Active" : "Shuffle Mode Disabled");
+    };
+
+    document.getElementById('modal-btn-repeat').onclick = function() {
+      EngineState.isRepeat = !EngineState.isRepeat;
+      this.style.color = EngineState.isRepeat ? 'var(--accent-primary)' : 'inherit';
+      showToast(EngineState.isRepeat ? "Single Loop Active" : "Repeat Mode Disabled");
+    };
+
+    document.getElementById('modal-btn-download').onclick = () => {
+      if (EngineState.currentTrack) saveTrackOffline(EngineState.currentTrack);
+    };
+
+    // Full Modal Sub-view Tab Switcher (Stage / Lyrics / Studio)
+    const tabModeStage = document.getElementById('tab-mode-stage');
+    const tabModeLyrics = document.getElementById('tab-mode-lyrics');
+    const tabModeMetrics = document.getElementById('tab-mode-metrics');
+
+    const leafVinylStage = document.getElementById('leaf-vinyl-stage');
+    const leafLyricsStream = document.getElementById('leaf-lyrics-stream');
+    const leafStudioMetrics = document.getElementById('leaf-studio-metrics');
+
+    tabModeStage.onclick = () => {
+      tabModeStage.classList.add('active-mode');
+      tabModeLyrics.classList.remove('active-mode');
+      tabModeMetrics.classList.remove('active-mode');
+
+      leafVinylStage.classList.add('active-leaf');
+      leafLyricsStream.classList.remove('active-leaf');
+      leafStudioMetrics.classList.remove('active-leaf');
+    };
+
+    tabModeLyrics.onclick = () => {
+      tabModeLyrics.classList.add('active-mode');
+      tabModeStage.classList.remove('active-mode');
+      tabModeMetrics.classList.remove('active-mode');
+
+      leafLyricsStream.classList.add('active-leaf');
+      leafVinylStage.classList.remove('active-leaf');
+      leafStudioMetrics.classList.remove('active-leaf');
+    };
+
+    tabModeMetrics.onclick = () => {
+      tabModeMetrics.classList.add('active-mode');
+      tabModeStage.classList.remove('active-mode');
+      tabModeLyrics.classList.remove('active-mode');
+
+      leafStudioMetrics.classList.add('active-leaf');
+      leafVinylStage.classList.remove('active-leaf');
+      leafLyricsStream.classList.remove('active-leaf');
+    };
+
+    document.getElementById('btn-quick-shuffle').onclick = () => {
+      if (EngineState.allTracks.length > 0) {
+        EngineState.currentActiveSet = EngineState.allTracks;
+        playTrackByIndex(Math.floor(Math.random() * EngineState.allTracks.length));
+      }
+    };
+
+    document.getElementById('header-btn-sync').onclick = syncRemoteRepository;
+
+    /**
+     * =========================================================================
+     * 10. SYSTEM BOOTSTRAP
+     * =========================================================================
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      AuthClient.init();
+      syncRemoteRepository();
     });
-
-    document.getElementById('btn-refresh').addEventListener('click', loadCodes);
-
-    // 运行
-    initAuth();
   </script>
 </body>
 </html>
