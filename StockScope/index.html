@@ -246,7 +246,7 @@
     }
 
     /* -------------------------------------------------------------
-       5. VIEW CONTAINER SYSTEM (10 INTERFACES)
+       5. VIEW CONTAINER SYSTEM
        ------------------------------------------------------------- */
     main {
       flex: 1;
@@ -293,6 +293,7 @@
       font-size: 0.85rem;
     }
 
+    /* Playlists Grid */
     .playlist-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
@@ -351,6 +352,7 @@
       margin-top: 4px;
     }
 
+    /* Track List */
     .track-flow {
       display: flex;
       flex-direction: column;
@@ -1508,9 +1510,62 @@
 
     /**
      * =========================================================================
-     * 1. 歌詞讀取、容錯解碼與暴力解析邏輯
+     * 1. 歌詞編碼智能自適應探針（全面修復英文歌曲與多語言編碼錯亂）
      * =========================================================================
      */
+    class UniversalTextDecoder {
+      static decodeBuffer(uint8Arr) {
+        if (!uint8Arr || uint8Arr.length === 0) return "";
+
+        // 1. BOM 簽名精確探測
+        if (uint8Arr.length >= 3 && uint8Arr[0] === 0xEF && uint8Arr[1] === 0xBB && uint8Arr[2] === 0xBF) {
+          return new TextDecoder('utf-8').decode(uint8Arr.subarray(3));
+        }
+        if (uint8Arr.length >= 2 && uint8Arr[0] === 0xFF && uint8Arr[1] === 0xFE) {
+          return new TextDecoder('utf-16le').decode(uint8Arr.subarray(2));
+        }
+        if (uint8Arr.length >= 2 && uint8Arr[0] === 0xFE && uint8Arr[1] === 0xFF) {
+          return new TextDecoder('utf-16be').decode(uint8Arr.subarray(2));
+        }
+
+        // 2. 探測無 BOM 的 UTF-16 特徵（英文 ASCII 字符會出現大量交替的 0x00）
+        let evenZeros = 0, oddZeros = 0;
+        const checkLen = Math.min(uint8Arr.length, 512);
+        for (let i = 0; i < checkLen; i++) {
+          if (uint8Arr[i] === 0x00) {
+            if (i % 2 === 0) evenZeros++;
+            else oddZeros++;
+          }
+        }
+        if (oddZeros > 10 && oddZeros > evenZeros * 2) {
+          try { return new TextDecoder('utf-16le').decode(uint8Arr); } catch(e) {}
+        }
+        if (evenZeros > 10 && evenZeros > oddZeros * 2) {
+          try { return new TextDecoder('utf-16be').decode(uint8Arr); } catch(e) {}
+        }
+
+        // 3. 嘗試嚴格 UTF-8 解碼（所有正規英文字符集及現代標準均在此處理）
+        try {
+          const res = new TextDecoder('utf-8', { fatal: true }).decode(uint8Arr);
+          // 雙重校驗：如果解碼出的內容不含時間標籤但含有特殊古代偏旁，可能是誤判
+          if (res.includes('[') || res.includes(':')) {
+            return res;
+          }
+        } catch(e) {}
+
+        // 4. 針對中文 MP3 遺留編碼回退至 GB18030
+        try {
+          const gbkRes = new TextDecoder('gb18030').decode(uint8Arr);
+          if (gbkRes.includes('[') || gbkRes.includes(':')) {
+            return gbkRes;
+          }
+        } catch(e) {}
+
+        // 5. 終極兜底（非嚴格 UTF-8）
+        return new TextDecoder('utf-8').decode(uint8Arr);
+      }
+    }
+
     function aggressivelyFindLyrics(tags) {
       if (!tags) return "";
 
@@ -1522,6 +1577,9 @@
         if (obj.data) {
           if (typeof obj.data === 'string') return obj.data;
           if (typeof obj.data.text === 'string') return obj.data.text;
+          if (obj.data instanceof Uint8Array || Array.isArray(obj.data)) {
+            return UniversalTextDecoder.decodeBuffer(new Uint8Array(obj.data));
+          }
         }
         return "";
       };
@@ -1558,20 +1616,19 @@
 
       let cleanText = rawText.replace(/\0/g, '').trim();
 
-      // 如果未識別出正規時間戳，嘗試對雙字節亂碼執行二次修復
+      // 針對錯位單字節流的修復處理（僅在未提取到合法英數時間戳時啟動）
       if (!cleanText.match(/\[\d{1,3}:\d{1,2}/)) {
         try {
           const buf = new Uint8Array([...cleanText].map(c => c.charCodeAt(0) & 0xff));
-          const recovered = new TextDecoder('gb18030').decode(buf);
-          if (recovered.match(/\[\d{1,3}:\d{1,2}/)) {
-            cleanText = recovered;
+          const rec = UniversalTextDecoder.decodeBuffer(buf);
+          if (rec.match(/\[\d{1,3}:\d{1,2}/)) {
+            cleanText = rec;
           }
         } catch(e) {}
       }
 
       const lines = cleanText.split(/\r?\n/);
       const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
-      
       const parsedLyrics = [];
       let strippedCount = 0;
 
@@ -1643,7 +1700,7 @@
 
     /**
      * =========================================================================
-     * 2. NATIVE BINARY ID3V2 & FLAC VORBIS EXTRACTOR (含中文編碼修復)
+     * 2. NATIVE BINARY ID3V2 & FLAC VORBIS EXTRACTOR (精準字節解碼)
      * =========================================================================
      */
     class BinaryTagExtractor {
@@ -1677,7 +1734,7 @@
                 else if (frameId === 'TPE1') meta.artist = BinaryTagExtractor.decodeString(frameData);
                 else if (frameId === 'TALB') meta.album = BinaryTagExtractor.decodeString(frameData);
                 else if (frameId === 'APIC') meta.artworkUrl = BinaryTagExtractor.decodeApic(frameData);
-                else if (frameId === 'USLT' || frameId === 'SYLT') meta.embeddedLrc = BinaryTagExtractor.decodeString(frameData);
+                else if (frameId === 'USLT' || frameId === 'SYLT') meta.embeddedLrc = BinaryTagExtractor.decodeLyricsFrame(frameData);
 
                 offset += 10 + frameSize;
               }
@@ -1727,23 +1784,64 @@
 
         try {
           if (enc === 0) {
-            // ISO-8859-1 在中文音頻中通常為 GBK/GB18030 儲存
-            try {
-              return new TextDecoder('gb18030').decode(bytes).replace(/\0/g, '');
-            } catch (e) {
-              return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, '');
+            // ISO-8859-1：檢查是否為純 ASCII 英文，若不是才走 GB18030
+            let isPureAscii = true;
+            for (let b of bytes) {
+              if (b > 127) { isPureAscii = false; break; }
             }
+            if (isPureAscii) {
+              return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
+            }
+            try { return new TextDecoder('gb18030').decode(bytes).replace(/\0/g, ''); } 
+            catch (e) { return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, ''); }
           }
           if (enc === 1) return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '');
           if (enc === 2) return new TextDecoder('utf-16be').decode(bytes).replace(/\0/g, '');
           if (enc === 3) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
         } catch (e) {}
+
+        return UniversalTextDecoder.decodeBuffer(bytes).replace(/\0/g, '');
+      }
+
+      static decodeLyricsFrame(uint8Arr) {
+        if (!uint8Arr || uint8Arr.length < 5) return "";
+        const enc = uint8Arr[0];
+        // 跳過 3 字節 ISO 語言代碼 (e.g. "eng", "zho")
+        let offset = 4;
         
-        try {
-          return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
-        } catch(e) {
-          return "";
+        // 跳過描述字段 (content descriptor)，直到遇到對應的終止符
+        if (enc === 1 || enc === 2) {
+          while (offset + 1 < uint8Arr.length) {
+            if (uint8Arr[offset] === 0x00 && uint8Arr[offset + 1] === 0x00) {
+              offset += 2;
+              break;
+            }
+            offset += 2;
+          }
+        } else {
+          while (offset < uint8Arr.length) {
+            if (uint8Arr[offset] === 0x00) {
+              offset += 1;
+              break;
+            }
+            offset += 1;
+          }
         }
+
+        const lyricBytes = uint8Arr.slice(offset);
+        try {
+          if (enc === 0) {
+            let isAscii = true;
+            for (let b of lyricBytes) { if (b > 127) { isAscii = false; break; } }
+            if (isAscii) return new TextDecoder('utf-8').decode(lyricBytes);
+            return new TextDecoder('gb18030').decode(lyricBytes);
+          }
+          if (enc === 1) return new TextDecoder('utf-16').decode(lyricBytes);
+          if (enc === 2) return new TextDecoder('utf-16be').decode(lyricBytes);
+          if (enc === 3) return new TextDecoder('utf-8').decode(lyricBytes);
+        } catch(e) {}
+
+        return UniversalTextDecoder.decodeBuffer(lyricBytes);
       }
 
       static decodeApic(uint8Arr) {
@@ -1990,7 +2088,6 @@
       }
     }
 
-    // Bind Auth Elements
     document.getElementById('seg-tab-login').onclick = () => {
       currentAuthMode = 'login';
       document.getElementById('seg-tab-login').classList.add('active-seg');
@@ -2051,7 +2148,7 @@
 
     /**
      * =========================================================================
-     * 6. REPOSITORY SYNC & DATA BINDING (含外部 LRC 編碼容錯修復)
+     * 6. REPOSITORY SYNC & DATA BINDING (帶智能編碼探測的外部 LRC)
      * =========================================================================
      */
     async function syncRemoteRepository() {
@@ -2217,7 +2314,7 @@
 
     /**
      * =========================================================================
-     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE (含外部 LRC 雙編碼解碼)
+     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE
      * =========================================================================
      */
     async function playTrackByIndex(idx) {
@@ -2305,7 +2402,7 @@
       audio.src = playUrl;
       audio.load();
 
-      // Retrieve Lyrics: Remote .lrc first (with dual encoding), embedded tag fallback
+      // Retrieve Lyrics: Remote .lrc first (with multi-encoding probe), embedded tag fallback
       loadLyricsFlow(track, parsedEmbeddedLrc);
 
       executePlay();
@@ -2326,29 +2423,13 @@
     async function loadLyricsFlow(track, embeddedFallback) {
       let lrcFound = false;
 
-      // 1. Check External Companion .lrc (自動判斷 UTF-8 與 GB18030)
+      // 1. Check External Companion .lrc (使用 UniversalTextDecoder 檢測 UTF-8 / UTF-16 / GBK)
       if (track.lrcUrl) {
         try {
           const res = await fetch(track.lrcUrl);
           if (res.ok) {
             const buffer = await res.arrayBuffer();
-            let rawLrc = "";
-            try {
-              rawLrc = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
-            } catch(e) {
-              try {
-                rawLrc = new TextDecoder('gb18030').decode(buffer);
-              } catch(err) {
-                rawLrc = new TextDecoder('utf-8').decode(buffer);
-              }
-            }
-
-            if (!rawLrc.includes('[0') && !rawLrc.includes('[1') && !rawLrc.includes('[2')) {
-              try {
-                const gbkAlt = new TextDecoder('gb18030').decode(buffer);
-                if (gbkAlt.includes('[')) rawLrc = gbkAlt;
-              } catch(e) {}
-            }
+            const rawLrc = UniversalTextDecoder.decodeBuffer(new Uint8Array(buffer));
 
             if (rawLrc && rawLrc.trim()) {
               lrcFound = true;
@@ -2627,7 +2708,6 @@
       if (EngineState.currentTrack) saveTrackOffline(EngineState.currentTrack);
     };
 
-    // Full Modal Sub-view Tab Switcher (Stage / Lyrics / Studio)
     const tabModeStage = document.getElementById('tab-mode-stage');
     const tabModeLyrics = document.getElementById('tab-mode-lyrics');
     const tabModeMetrics = document.getElementById('tab-mode-metrics');
