@@ -293,7 +293,6 @@
       font-size: 0.85rem;
     }
 
-    /* Playlists Grid */
     .playlist-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
@@ -352,7 +351,6 @@
       margin-top: 4px;
     }
 
-    /* Track List */
     .track-flow {
       display: flex;
       flex-direction: column;
@@ -438,7 +436,6 @@
       text-transform: uppercase;
     }
 
-    /* Input & Universal Components */
     .input-glass {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
@@ -558,7 +555,7 @@
     }
 
     /* -------------------------------------------------------------
-       7. ULTRA FULL-SCREEN IMMERSIVE PLAYER (THE ENHANCED STAGE)
+       7. ULTRA FULL-SCREEN IMMERSIVE PLAYER
        ------------------------------------------------------------- */
     .immersive-modal {
       position: fixed;
@@ -578,7 +575,6 @@
       transform: translateY(0);
     }
 
-    /* Modal Backdrop Blur */
     .modal-artwork-blur-bg {
       position: absolute;
       inset: -30%;
@@ -591,7 +587,6 @@
       pointer-events: none;
     }
 
-    /* Modal Top Header */
     .modal-top-bar {
       position: relative;
       z-index: 10;
@@ -627,7 +622,6 @@
       box-shadow: 0 2px 12px var(--accent-glow);
     }
 
-    /* Modal Dynamic Viewport Area */
     .modal-middle-stage {
       position: relative;
       z-index: 10;
@@ -655,7 +649,7 @@
       transform: scale(1);
     }
 
-    /* A. Turntable / Vinyl Record View */
+    /* Turntable / Vinyl Record View */
     .vinyl-stage-assembly {
       position: relative;
       width: 320px;
@@ -735,7 +729,6 @@
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
-    /* Mechanical Tonearm */
     .mechanical-tonearm {
       position: absolute;
       top: -30px;
@@ -753,7 +746,7 @@
       transform: rotate(0deg);
     }
 
-    /* B. Live Lyric Mask View */
+    /* Live Lyric Mask View */
     .lyrics-render-container {
       width: 100%;
       height: 100%;
@@ -788,7 +781,7 @@
       text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6), 0 0 35px var(--accent-glow);
     }
 
-    /* C. Studio Metrics View */
+    /* Studio Metrics View */
     .metrics-view-panel {
       width: 100%;
       max-width: 480px;
@@ -830,13 +823,12 @@
 
     .vu-fill {
       height: 100%;
-      width: 40%;
+      width: 0%;
       background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 100%);
       border-radius: 9999px;
       transition: width 0.1s ease;
     }
 
-    /* Modal Bottom Controls Deck */
     .modal-bottom-deck {
       position: relative;
       z-index: 10;
@@ -950,7 +942,6 @@
       fill: currentColor;
     }
 
-    /* Native Toast */
     .toast-pill {
       position: fixed;
       top: calc(var(--safe-top) + 64px);
@@ -1271,7 +1262,7 @@
   </nav>
 
   <!-- =============================================================
-       ULTRA IMMERSIVE FULL-SCREEN MODAL (SOLVES THE "EMPTY" SCREEN)
+       ULTRA IMMERSIVE FULL-SCREEN MODAL
        ============================================================= -->
   <div class="immersive-modal" id="full-stage-modal">
     <div class="modal-artwork-blur-bg" id="modal-backdrop-blur"></div>
@@ -1428,12 +1419,6 @@
 
   <!-- Script Engine -->
   <script>
-    /**
-     * =========================================================================
-     * AETHER CLOUD AUDIO ENGINE - CORE SYSTEM
-     * =========================================================================
-     */
-
     const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
     const GITHUB_USER = "zhangzhanhang855";
     const GITHUB_REPO = "musiconly";
@@ -1490,14 +1475,12 @@
     const activateModal = document.getElementById('modal-activate-barrier');
     let currentAuthMode = 'login';
 
-    // Toast Utility
     function showToast(msg) {
       toast.textContent = msg;
       toast.classList.add('visible-toast');
       setTimeout(() => toast.classList.remove('visible-toast'), 2500);
     }
 
-    // Router View Switcher
     function navigateToStage(stageId) {
       document.querySelectorAll('.view-stage-wrapper').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.tab-bar-item').forEach(t => t.classList.remove('active-tab'));
@@ -1525,7 +1508,7 @@
 
     /**
      * =========================================================================
-     * 1. 嚴格繼承的雙軌歌詞提取與暴力解析邏輯 (DO NOT CHANGE)
+     * 1. 歌詞讀取、容錯解碼與暴力解析邏輯
      * =========================================================================
      */
     function aggressivelyFindLyrics(tags) {
@@ -1573,7 +1556,19 @@
         return;
       }
 
-      const cleanText = rawText.replace(/\0/g, '').trim();
+      let cleanText = rawText.replace(/\0/g, '').trim();
+
+      // 如果未識別出正規時間戳，嘗試對雙字節亂碼執行二次修復
+      if (!cleanText.match(/\[\d{1,3}:\d{1,2}/)) {
+        try {
+          const buf = new Uint8Array([...cleanText].map(c => c.charCodeAt(0) & 0xff));
+          const recovered = new TextDecoder('gb18030').decode(buf);
+          if (recovered.match(/\[\d{1,3}:\d{1,2}/)) {
+            cleanText = recovered;
+          }
+        } catch(e) {}
+      }
+
       const lines = cleanText.split(/\r?\n/);
       const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
       
@@ -1648,7 +1643,7 @@
 
     /**
      * =========================================================================
-     * 2. NATIVE BINARY ID3V2 & FLAC VORBIS EXTRACTOR
+     * 2. NATIVE BINARY ID3V2 & FLAC VORBIS EXTRACTOR (含中文編碼修復)
      * =========================================================================
      */
     class BinaryTagExtractor {
@@ -1726,16 +1721,29 @@
       }
 
       static decodeString(uint8Arr) {
-        if (uint8Arr.length <= 1) return "";
+        if (!uint8Arr || uint8Arr.length <= 1) return "";
         const enc = uint8Arr[0];
         const bytes = uint8Arr.slice(1);
+
         try {
-          if (enc === 0) return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, '');
+          if (enc === 0) {
+            // ISO-8859-1 在中文音頻中通常為 GBK/GB18030 儲存
+            try {
+              return new TextDecoder('gb18030').decode(bytes).replace(/\0/g, '');
+            } catch (e) {
+              return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, '');
+            }
+          }
           if (enc === 1) return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '');
           if (enc === 2) return new TextDecoder('utf-16be').decode(bytes).replace(/\0/g, '');
           if (enc === 3) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
         } catch (e) {}
-        return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
+        
+        try {
+          return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
+        } catch(e) {
+          return "";
+        }
       }
 
       static decodeApic(uint8Arr) {
@@ -1745,8 +1753,8 @@
         while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
           mime += String.fromCharCode(uint8Arr[offset++]);
         }
-        offset++; // terminator
-        offset++; // type
+        offset++;
+        offset++;
         if (enc === 1 || enc === 2) {
           while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) offset += 2;
           offset += 2;
@@ -2043,7 +2051,7 @@
 
     /**
      * =========================================================================
-     * 6. REPOSITORY SYNC & DATA BINDING
+     * 6. REPOSITORY SYNC & DATA BINDING (含外部 LRC 編碼容錯修復)
      * =========================================================================
      */
     async function syncRemoteRepository() {
@@ -2209,7 +2217,7 @@
 
     /**
      * =========================================================================
-     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE
+     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE (含外部 LRC 雙編碼解碼)
      * =========================================================================
      */
     async function playTrackByIndex(idx) {
@@ -2297,7 +2305,7 @@
       audio.src = playUrl;
       audio.load();
 
-      // Retrieve Lyrics: Remote .lrc first, embedded tag fallback
+      // Retrieve Lyrics: Remote .lrc first (with dual encoding), embedded tag fallback
       loadLyricsFlow(track, parsedEmbeddedLrc);
 
       executePlay();
@@ -2318,12 +2326,30 @@
     async function loadLyricsFlow(track, embeddedFallback) {
       let lrcFound = false;
 
-      // 1. Check External Companion .lrc
+      // 1. Check External Companion .lrc (自動判斷 UTF-8 與 GB18030)
       if (track.lrcUrl) {
         try {
           const res = await fetch(track.lrcUrl);
           if (res.ok) {
-            const rawLrc = await res.text();
+            const buffer = await res.arrayBuffer();
+            let rawLrc = "";
+            try {
+              rawLrc = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+            } catch(e) {
+              try {
+                rawLrc = new TextDecoder('gb18030').decode(buffer);
+              } catch(err) {
+                rawLrc = new TextDecoder('utf-8').decode(buffer);
+              }
+            }
+
+            if (!rawLrc.includes('[0') && !rawLrc.includes('[1') && !rawLrc.includes('[2')) {
+              try {
+                const gbkAlt = new TextDecoder('gb18030').decode(buffer);
+                if (gbkAlt.includes('[')) rawLrc = gbkAlt;
+              } catch(e) {}
+            }
+
             if (rawLrc && rawLrc.trim()) {
               lrcFound = true;
               processLyrics(rawLrc, "External .LRC");
@@ -2442,14 +2468,12 @@
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // Touch Scrubber for Modal Timeline
     modalProgressBar.onclick = (e) => {
       const rect = modalProgressBar.getBoundingClientRect();
       const pos = (e.clientX - rect.left) / rect.width;
       if (audio.duration) audio.currentTime = pos * audio.duration;
     };
 
-    // Simulated VU Level Meter Jump (Direct CoreAudio alternative)
     function startVUMeterSimulation() {
       if (EngineState.vuInterval) clearInterval(EngineState.vuInterval);
       const vuL = document.getElementById('vu-meter-left');
@@ -2563,7 +2587,6 @@
      * 9. MODAL VIEW SWITCHER & BUTTONS BINDING
      * =========================================================================
      */
-    // Mini Strip Controls
     document.getElementById('mini-btn-toggle').onclick = (e) => {
       e.stopPropagation();
       EngineState.isPlaying ? executePause() : executePlay();
@@ -2582,7 +2605,6 @@
       fullModal.classList.remove('active-open');
     };
 
-    // Modal Play Controls
     document.getElementById('modal-btn-toggle').onclick = () => {
       EngineState.isPlaying ? executePause() : executePlay();
     };
