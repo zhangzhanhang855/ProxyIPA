@@ -722,13 +722,6 @@
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
-
-    .visualizer-canvas {
-      width: 100%;
-      height: 120px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.2);
-    }
   </style>
 </head>
 <body>
@@ -762,8 +755,8 @@
       <div class="view-chip" data-target="view-tracks">All Songs</div>
       <div class="view-chip" data-target="view-offline">Offline Storage</div>
       <div class="view-chip" data-target="view-lyrics">Live Lyrics</div>
-      <div class="view-chip" data-target="view-dsp">DSP & Sound</div>
-      <div class="view-chip" data-target="view-visualizer">Visualizer</div>
+      <div class="view-chip" data-target="view-dsp">Audio Engine</div>
+      <div class="view-chip" data-target="view-audioinfo">Track Info</div>
       <div class="view-chip" data-target="view-stats">Analytics</div>
       <div class="view-chip" data-target="view-history">History</div>
       <div class="view-chip" data-target="view-settings">System</div>
@@ -775,11 +768,11 @@
     <div class="view-container active" id="view-explore">
       <div class="view-header">
         <h1 class="view-title">Listen Now</h1>
-        <p class="view-subtitle">Dynamic Cloud FLAC/MP3 Engine with Embedded Tag Parser</p>
+        <p class="view-subtitle">Background-Optimized FLAC/MP3 Engine</p>
       </div>
       <div class="section-card" style="background: var(--accent-gradient); border: none;">
         <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">Smart Shuffle</h2>
-        <p style="font-size: 0.8rem; opacity: 0.85; margin-bottom: 12px;">Instant stream with ID3 & Vorbis tag extraction.</p>
+        <p style="font-size: 0.8rem; opacity: 0.85; margin-bottom: 12px;">Instant stream without background interruption.</p>
         <button class="icon-button" id="btn-hero-shuffle" style="width: auto; height: auto; border-radius: 10px; padding: 8px 16px; background: rgba(255,255,255,0.25); font-weight: 500;">
           Shuffle All Tracks
         </button>
@@ -806,7 +799,7 @@
       <div class="track-list" id="main-track-list"></div>
     </div>
 
-    <!-- View 4: Offline Storage (App-Specific Sandbox) -->
+    <!-- View 4: Offline Storage -->
     <div class="view-container" id="view-offline">
       <div class="view-header">
         <h1 class="view-title">Offline Library</h1>
@@ -834,27 +827,32 @@
       </div>
     </div>
 
-    <!-- View 6: DSP & Sound Engine -->
+    <!-- View 6: Audio Engine Specs -->
     <div class="view-container" id="view-dsp">
       <div class="view-header">
-        <h1 class="view-title">Equalizer</h1>
-        <p class="view-subtitle">Software DSP filter stack</p>
+        <h1 class="view-title">Audio Pipeline</h1>
+        <p class="view-subtitle">Direct Hardware Media Pipeline</p>
       </div>
       <div class="section-card">
+        <div class="metric-row"><span class="metric-label">Pipeline Mode</span><span class="metric-val" style="color:#10b981;">Direct Hardware (Non-Interrupted)</span></div>
+        <div class="metric-row"><span class="metric-label">WebAudio Interceptor</span><span class="metric-val">Bypassed (Zero Sleep Drop)</span></div>
         <div class="metric-row"><span class="metric-label">FLAC Vorbis Decoder</span><span class="metric-val">Hardware Native</span></div>
         <div class="metric-row"><span class="metric-label">ID3v2 Binary Parser</span><span class="metric-val">v2.3 / v2.4 Active</span></div>
-        <div class="metric-row"><span class="metric-label">Bitrate Buffer</span><span class="metric-val">Direct Stream</span></div>
       </div>
     </div>
 
-    <!-- View 7: Audio Visualizer -->
-    <div class="view-container" id="view-visualizer">
+    <!-- View 7: Current Track Details (Replacing Visualizer to safeguard background playback) -->
+    <div class="view-container" id="view-audioinfo">
       <div class="view-header">
-        <h1 class="view-title">Oscilloscope</h1>
-        <p class="view-subtitle">Real-time spectrum generation</p>
+        <h1 class="view-title">Track Info</h1>
+        <p class="view-subtitle">Metadata extracted from binary stream</p>
       </div>
       <div class="section-card">
-        <canvas class="visualizer-canvas" id="canvas-visualizer"></canvas>
+        <div class="metric-row"><span class="metric-label">Title</span><span class="metric-val" id="info-meta-title">--</span></div>
+        <div class="metric-row"><span class="metric-label">Artist</span><span class="metric-val" id="info-meta-artist">--</span></div>
+        <div class="metric-row"><span class="metric-label">Album</span><span class="metric-val" id="info-meta-album">--</span></div>
+        <div class="metric-row"><span class="metric-label">File Type</span><span class="metric-val" id="info-meta-format">--</span></div>
+        <div class="metric-row"><span class="metric-label">Source Mode</span><span class="metric-val" id="info-meta-source">--</span></div>
       </div>
     </div>
 
@@ -1004,13 +1002,12 @@
     </div>
   </div>
 
-  <audio id="core-audio-engine" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="core-audio-engine" preload="auto" playsinline webkit-playsinline></audio>
 
   <script>
     /**
-     * Aether Cloud & Offline Audio Engine
-     * Embedded ID3v2 / FLAC Vorbis metadata & picture parser
-     * IndexedDB Sandbox Storage Engine for iOS IPA
+     * Aether Direct Hardware Audio Pipeline
+     * WebAudio & AnalyserNode have been removed to preserve iOS background audio integrity.
      */
 
     const GITHUB_USER = "zhangzhanhang855";
@@ -1031,11 +1028,7 @@
       isRepeat: false,
       lyrics: [],
       cleanedLineCount: 0,
-      playedCount: 0,
-      audioCtx: null,
-      analyser: null,
-      dataArray: null,
-      visualizerSetup: false
+      playedCount: 0
     };
 
     const audio = document.getElementById('core-audio-engine');
@@ -1089,9 +1082,8 @@
 
         try {
           if (fileType === 'mp3') {
-            // Check ID3v2 Header: "ID3"
             if (view.getUint8(0) === 0x49 && view.getUint8(1) === 0x44 && view.getUint8(2) === 0x33) {
-              const version = view.getUint8(3); // 3 for ID3v2.3, 4 for ID3v2.4
+              const version = view.getUint8(3);
               const tagSize = BinaryMetadataParser.readSynchsafeInt(view, 6);
               let offset = 10;
 
@@ -1125,7 +1117,6 @@
               }
             }
           } else if (fileType === 'flac') {
-            // Check FLAC Marker: "fLaC"
             if (view.getUint8(0) === 0x66 && view.getUint8(1) === 0x4C && view.getUint8(2) === 0x61 && view.getUint8(3) === 0x43) {
               let offset = 4;
               let isLastBlock = false;
@@ -1138,14 +1129,12 @@
                 offset += 4;
 
                 if (blockType === 4) {
-                  // VORBIS_COMMENT
                   const commentData = new Uint8Array(arrayBuffer, offset, blockSize);
                   const parsedComments = BinaryMetadataParser.parseVorbisComment(commentData);
                   if (parsedComments.TITLE) metadata.title = parsedComments.TITLE;
                   if (parsedComments.ARTIST) metadata.artist = parsedComments.ARTIST;
                   if (parsedComments.ALBUM) metadata.album = parsedComments.ALBUM;
                 } else if (blockType === 6) {
-                  // PICTURE
                   metadata.artworkUrl = BinaryMetadataParser.parseFlacPicture(new DataView(arrayBuffer, offset, blockSize));
                 }
 
@@ -1183,7 +1172,6 @@
       static decodeAPICFrame(uint8Arr) {
         const encoding = uint8Arr[0];
         let offset = 1;
-        // Skip MIME type string
         let mime = "";
         while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
           mime += String.fromCharCode(uint8Arr[offset]);
@@ -1191,7 +1179,6 @@
         }
         offset++; // null terminator
         offset++; // picture type byte
-        // Skip description string
         if (encoding === 1 || encoding === 2) {
           while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) {
             offset += 2;
@@ -1245,7 +1232,7 @@
           }
           const descLength = view.getUint32(offset);
           offset += 4 + descLength;
-          offset += 16; // width, height, color depth, colors used
+          offset += 16;
           const dataLength = view.getUint32(offset);
           offset += 4;
           const imgBytes = new Uint8Array(view.buffer, view.byteOffset + offset, dataLength);
@@ -1335,9 +1322,7 @@
         let trimmed = line.trim();
         if (!trimmed) return;
 
-        // Verify it starts with timestamp like [00:00
         if (line.match(/^\[\d{2}:\d{2}/)) {
-          // Truncate "(翻译:" or "（翻译："
           const cutIdx1 = trimmed.indexOf('（翻译：');
           const cutIdx2 = trimmed.indexOf('(翻译：');
           const finalCut = cutIdx1 !== -1 ? cutIdx1 : cutIdx2;
@@ -1392,7 +1377,6 @@
        ========================================================================== */
     function setupAppleMediaSession(track) {
       if ('mediaSession' in navigator) {
-        // Required Format: Song Name = Song Name, Author region = Artist / Album
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.title,
           artist: `${track.artist} / ${track.album}`,
@@ -1434,7 +1418,6 @@
             const folderRes = await fetch(item.url);
             if (folderRes.ok) {
               const folderItems = await folderRes.json();
-              // Now matching both MP3 and FLAC
               const audioFiles = folderItems.filter(f => {
                 const lower = f.name.toLowerCase();
                 return lower.endsWith('.mp3') || lower.endsWith('.flac');
@@ -1572,7 +1555,7 @@
 
       showToast(`Loading: ${track.title}`);
 
-      // Handle stream source (check if offline blob exists)
+      // Handle stream source
       const offlineDb = await OfflineStorageEngine.initDB();
       const offlineRecord = await new Promise(r => {
         const tx = offlineDb.transaction("audio_files", "readonly");
@@ -1583,23 +1566,23 @@
 
       let audioSourceUrl = track.streamUrl;
       let bufferForParsing = null;
+      let isLocalSource = false;
 
       if (offlineRecord) {
         audioSourceUrl = URL.createObjectURL(offlineRecord.blob);
         bufferForParsing = await offlineRecord.blob.arrayBuffer();
+        isLocalSource = true;
       } else {
-        // Fetch binary chunk for real-time ID3/Vorbis parsing
         try {
           const res = await fetch(track.streamUrl);
           const blob = await res.blob();
           bufferForParsing = await blob.arrayBuffer();
           audioSourceUrl = URL.createObjectURL(blob);
         } catch (err) {
-          console.warn("Direct binary extraction failed, falling back to direct URL", err);
+          console.warn("Direct binary extraction failed, falling back to stream URL", err);
         }
       }
 
-      // Parse Binary ID3 / Vorbis Metadata if not parsed yet
       if (bufferForParsing) {
         const meta = await BinaryMetadataParser.parseAudioTags(bufferForParsing, track.format);
         if (meta.title) track.title = meta.title;
@@ -1607,7 +1590,6 @@
         if (meta.album) track.album = meta.album;
         if (meta.artworkUrl) track.artworkUrl = meta.artworkUrl;
 
-        // Refresh UI with parsed tags
         const thumb = document.getElementById(`thumb-${track.id}`);
         const titleEl = document.getElementById(`title-${track.id}`);
         const metaEl = document.getElementById(`meta-${track.id}`);
@@ -1616,19 +1598,27 @@
         if (metaEl) metaEl.textContent = `${track.artist} • ${track.album}`;
       }
 
-      // Populate Mini Player
+      // Update Mini Player
       document.getElementById('mini-title').textContent = track.title;
       document.getElementById('mini-artist').textContent = `${track.artist} / ${track.album}`;
       document.getElementById('mini-cover').src = track.artworkUrl;
 
-      // Populate Full Player
+      // Update Full Player
       document.getElementById('player-title').textContent = track.title;
       document.getElementById('player-artist-album').textContent = `${track.artist} / ${track.album}`;
       document.getElementById('player-main-art').src = track.artworkUrl;
 
+      // Update Track Info View
+      document.getElementById('info-meta-title').textContent = track.title;
+      document.getElementById('info-meta-artist').textContent = track.artist;
+      document.getElementById('info-meta-album').textContent = track.album;
+      document.getElementById('info-meta-format').textContent = track.format.toUpperCase();
+      document.getElementById('info-meta-source').textContent = isLocalSource ? "Offline Sandbox" : "GitHub Raw Stream";
+
       // Register Apple Control Center Metadata
       setupAppleMediaSession(track);
 
+      // Clean & set source directly to native audio element
       audio.src = audioSourceUrl;
       audio.load();
 
@@ -1746,7 +1736,6 @@
     }
 
     function executePlay() {
-      initWebAudioVisualizer();
       audio.play().then(() => {
         AppState.isPlaying = true;
         updatePlayIcons(true);
@@ -1866,39 +1855,6 @@
       document.getElementById('stat-played').textContent = AppState.playedCount;
     }
 
-    function initWebAudioVisualizer() {
-      if (AppState.visualizerSetup) return;
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        AppState.audioCtx = new AudioCtx();
-        const src = AppState.audioCtx.createMediaElementSource(audio);
-        AppState.analyser = AppState.audioCtx.createAnalyser();
-        AppState.analyser.fftSize = 64;
-        src.connect(AppState.analyser);
-        AppState.analyser.connect(AppState.audioCtx.destination);
-        AppState.dataArray = new Uint8Array(AppState.analyser.frequencyBinCount);
-        AppState.visualizerSetup = true;
-        drawVisualizerFrame();
-      } catch (e) {}
-    }
-
-    function drawVisualizerFrame() {
-      requestAnimationFrame(drawVisualizerFrame);
-      if (!AppState.analyser) return;
-      const canvas = document.getElementById('canvas-visualizer');
-      const ctx = canvas.getContext('2d');
-      AppState.analyser.getByteFrequencyData(AppState.dataArray);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / AppState.dataArray.length) * 1.5;
-      let x = 0;
-      for (let i = 0; i < AppState.dataArray.length; i++) {
-        const barHeight = (AppState.dataArray[i] / 255) * canvas.height;
-        ctx.fillStyle = `rgba(59, 130, 246, ${AppState.dataArray[i] / 255 + 0.2})`;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-        x += barWidth;
-      }
-    }
-
     document.getElementById('mini-play-toggle').addEventListener('click', (e) => {
       e.stopPropagation();
       AppState.isPlaying ? executePause() : executePlay();
@@ -1955,15 +1911,7 @@
       }
     });
 
-    function resizeCanvas() {
-      const canvas = document.getElementById('canvas-visualizer');
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = 120;
-    }
-    window.addEventListener('resize', resizeCanvas);
-
     window.addEventListener('DOMContentLoaded', () => {
-      resizeCanvas();
       syncRemoteRepository();
     });
   </script>
