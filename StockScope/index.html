@@ -2,39 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Aether Audio Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aether Admin Console</title>
 
-  <!-- Google Sans Typography -->
+  <!-- Google Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-display: 'Google Sans Display', var(--font-main);
-      --bg-base: #0a0e17;
-      --bg-card: rgba(23, 32, 54, 0.7);
-      --bg-card-hover: rgba(36, 50, 84, 0.85);
-      --accent-primary: #3b82f6;
+      --bg-base: #090d16;
+      --bg-surface: rgba(22, 30, 49, 0.7);
+      --bg-surface-hover: rgba(33, 44, 71, 0.9);
+      --accent-blue: #3b82f6;
       --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-      --accent-glow: rgba(59, 130, 246, 0.35);
+      --accent-glow: rgba(59, 130, 246, 0.3);
+      --status-green: #10b981;
+      --status-red: #ef4444;
+      --status-amber: #f59e0b;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
-      --text-muted: #64748b;
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --safe-area-top: env(safe-area-inset-top, 0px);
-      --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-      --tab-bar-height: 64px;
-      --mini-player-height: 68px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -43,2157 +40,585 @@
       background-color: var(--bg-base);
       color: var(--text-main);
       font-family: var(--font-main);
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      position: fixed;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
     }
 
+    /* Ambient Glow */
     .ambient-glow {
-      position: absolute;
-      top: -120px;
+      position: fixed;
+      top: -100px;
       left: 50%;
       transform: translateX(-50%);
-      width: 420px;
-      height: 420px;
-      background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.06) 50%, transparent 70%);
-      filter: blur(60px);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.04) 50%, transparent 70%);
+      filter: blur(80px);
       pointer-events: none;
       z-index: 0;
     }
 
-    header {
-      padding-top: calc(var(--safe-area-top) + 12px);
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-subtle);
-      background: rgba(10, 14, 23, 0.75);
-    }
-
-    .header-branding {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: var(--accent-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px var(--accent-glow);
-    }
-
-    .brand-logo svg {
-      width: 16px;
-      height: 16px;
-      fill: #fff;
-    }
-
-    .header-title {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .icon-button {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-main);
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .icon-button:active {
-      transform: scale(0.92);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .icon-button svg {
-      width: 18px;
-      height: 18px;
-      fill: currentColor;
-    }
-
-    main {
-      flex: 1;
+    .container {
+      width: 100%;
+      max-width: 900px;
       position: relative;
-      overflow: hidden;
       z-index: 1;
     }
 
-    .view-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 20px;
-      padding-bottom: calc(var(--tab-bar-height) + var(--mini-player-height) + var(--safe-area-bottom) + 30px);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(12px);
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-
-    .view-container.active {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-
-    .view-header {
-      margin-bottom: 20px;
-    }
-
-    .view-title {
-      font-family: var(--font-display);
-      font-size: 1.7rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .view-subtitle {
-      color: var(--text-sub);
-      font-size: 0.85rem;
-    }
-
-    .quick-view-scroll {
+    header {
       display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .quick-view-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .view-chip {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 8px 14px;
-      white-space: nowrap;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-sub);
-      cursor: pointer;
-    }
-
-    .view-chip.active {
-      background: var(--accent-primary);
-      color: #fff;
-      border-color: var(--accent-primary);
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 14px;
-    }
-
-    .playlist-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: transform 0.2s;
-    }
-
-    .playlist-card:active {
-      transform: scale(0.96);
-    }
-
-    .playlist-folder-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      background: rgba(59, 130, 246, 0.15);
-      color: var(--accent-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
-
-    .playlist-folder-icon svg {
-      width: 28px;
-      height: 28px;
-      fill: currentColor;
-    }
-
-    .playlist-name {
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: var(--text-main);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: 100%;
-    }
-
-    .playlist-count {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .track-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .track-item {
-      display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
+      align-items: center;
+      margin-bottom: 28px;
     }
 
-    .track-item:active {
-      background: var(--bg-card-hover);
-    }
-
-    .track-item.playing {
-      border-color: rgba(59, 130, 246, 0.6);
-      background: rgba(59, 130, 246, 0.12);
-    }
-
-    .track-item-left {
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 12px;
-      overflow: hidden;
-      flex: 1;
+      gap: 10px;
     }
 
-    .track-thumb {
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
-      background: #1e293b;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .track-info {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .track-title {
-      font-size: 0.9rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-meta {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .format-tag {
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent-primary);
+    .brand-badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
       font-weight: 700;
       text-transform: uppercase;
     }
 
-    .download-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .download-btn.downloaded {
-      color: #10b981;
-    }
-
-    .download-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: currentColor;
-    }
-
-    .section-card {
-      background: var(--bg-card);
+    .card {
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 14px;
+      border-radius: 18px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .section-title {
-      font-size: 0.95rem;
+    .card-title {
+      font-size: 1.05rem;
       font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .metric-row {
+      margin-bottom: 14px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border-subtle);
+      justify-content: space-between;
     }
 
-    .metric-row:last-child {
-      border-bottom: none;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
 
-    .metric-label {
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
       color: var(--text-sub);
-      font-size: 0.85rem;
+      margin-bottom: 6px;
     }
 
-    .metric-val {
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-
-    .app-input {
+    input, select {
       width: 100%;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 12px 14px;
+      border-radius: 10px;
+      padding: 10px 14px;
       color: var(--text-main);
       font-family: var(--font-main);
       font-size: 0.9rem;
       outline: none;
-      margin-bottom: 12px;
       transition: border-color 0.2s;
     }
 
-    .app-input:focus {
-      border-color: var(--accent-primary);
+    input:focus, select:focus {
+      border-color: var(--accent-blue);
     }
 
-    .btn-action {
-      width: 100%;
+    .btn {
       background: var(--accent-gradient);
       border: none;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 10px 18px;
       color: #fff;
       font-family: var(--font-main);
+      font-size: 0.88rem;
       font-weight: 700;
-      font-size: 0.9rem;
       cursor: pointer;
-      box-shadow: 0 4px 16px var(--accent-glow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       transition: opacity 0.2s, transform 0.1s;
     }
 
-    .btn-action:active {
-      transform: scale(0.98);
+    .btn:active {
+      transform: scale(0.97);
       opacity: 0.9;
     }
 
     .btn-secondary {
       background: rgba(255, 255, 255, 0.08);
-      box-shadow: none;
-      margin-top: 8px;
+      color: var(--text-main);
     }
 
-    /* Mini Player */
-    .mini-player {
-      position: absolute;
-      bottom: calc(var(--tab-bar-height) + var(--safe-area-bottom) + 8px);
-      left: 12px;
-      right: 12px;
-      height: var(--mini-player-height);
-      background: rgba(23, 32, 54, 0.92);
-      backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      z-index: 20;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-      cursor: pointer;
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--status-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
-    .mini-cover {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: #1e293b;
-      margin-right: 12px;
-      object-fit: cover;
-      flex-shrink: 0;
+    .btn-warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--status-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
-    .mini-meta {
-      flex: 1;
-      overflow: hidden;
+    .btn-success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--status-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
-    .mini-title {
+    /* Table Component */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
       font-size: 0.88rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .mini-artist {
-      font-size: 0.72rem;
+    th {
       color: var(--text-sub);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
-    }
-
-    .mini-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mini-btn {
-      background: none;
-      border: none;
-      color: var(--text-main);
-      cursor: pointer;
-      padding: 6px;
-      display: flex;
-      align-items: center;
-    }
-
-    .mini-btn svg {
-      width: 22px;
-      height: 22px;
-      fill: currentColor;
-    }
-
-    /* Full Player Modal */
-    .full-player-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-base);
-      z-index: 100;
-      transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      padding-top: var(--safe-area-top);
-      padding-bottom: var(--safe-area-bottom);
-    }
-
-    .full-player-overlay.open {
-      transform: translateY(0);
-    }
-
-    .player-header {
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .player-views-nav {
-      display: flex;
-      gap: 16px;
-    }
-
-    .player-nav-pill {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px 8px;
-    }
-
-    .player-nav-pill.active {
-      color: var(--text-main);
-      font-weight: 700;
-      border-bottom: 2px solid var(--accent-primary);
-    }
-
-    .player-stage {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stage-section {
-      position: absolute;
-      inset: 0;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .stage-section.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .artwork-wrapper {
-      width: 270px;
-      height: 270px;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
-      margin-bottom: 28px;
-      background: #1e293b;
-    }
-
-    .artwork-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .lyrics-container {
-      width: 100%;
-      height: 100%;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: calc(50vh - 120px) 20px 50vh 20px;
-      mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,1) 75%, transparent 100%);
-      -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,1) 75%, transparent 100%);
-    }
-
-    .lyric-line {
-      font-size: 1.2rem;
-      font-weight: 700;
-      line-height: 1.8;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.3);
-      transition: color 0.3s ease, transform 0.3s ease;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .lyric-line.active {
-      color: #ffffff;
-      transform: scale(1.08);
-      text-shadow: 0 0 16px rgba(255, 255, 255, 0.5);
-    }
-
-    .player-dock {
-      padding: 16px 28px 30px 28px;
-    }
-
-    .playback-timeline {
-      width: 100%;
-      margin-bottom: 20px;
-    }
-
-    .progress-bar-container {
-      position: relative;
-      width: 100%;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    .progress-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 0%;
-      background: var(--accent-gradient);
-      border-radius: 3px;
-    }
-
-    .progress-times {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .dock-controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      margin-bottom: 10px;
-    }
-
-    .primary-ctrl {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: var(--accent-gradient);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 20px var(--accent-glow);
-    }
-
-    .primary-ctrl svg {
-      width: 28px;
-      height: 28px;
-      fill: currentColor;
-    }
-
-    .tab-bar {
-      height: var(--tab-bar-height);
-      padding-bottom: var(--safe-area-bottom);
-      background: rgba(10, 14, 23, 0.85);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 10;
-      position: relative;
-    }
-
-    .tab-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.65rem;
       font-weight: 500;
-      gap: 4px;
-      cursor: pointer;
-      width: 20%;
-    }
-
-    .tab-item.active {
-      color: var(--accent-primary);
-    }
-
-    .tab-item svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-
-    .toast-popup {
-      position: fixed;
-      top: calc(var(--safe-area-top) + 60px);
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background: rgba(30, 41, 59, 0.95);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-subtle);
-      padding: 10px 20px;
-      border-radius: 24px;
-      font-size: 0.82rem;
-      color: #fff;
-      pointer-events: none;
-      opacity: 0;
-      transition: all 0.25s ease;
-      z-index: 300;
-    }
-
-    .toast-popup.visible {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    /* Auth & Activation Layer */
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 14, 23, 0.95);
-      backdrop-filter: blur(30px);
-      z-index: 250;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .auth-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 340px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .auth-tabs {
-      display: flex;
-      margin-bottom: 20px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
-    .auth-tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px 0;
-      color: var(--text-sub);
-      font-weight: 500;
-      font-size: 0.9rem;
-      cursor: pointer;
+    td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
     }
 
-    .auth-tab.active {
+    tr:hover td {
+      background: var(--bg-surface-hover);
+    }
+
+    .code-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      letter-spacing: 0.5px;
       color: #fff;
-      border-bottom: 2px solid var(--accent-primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .status-badge.unlocked {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--status-green);
+    }
+
+    .status-badge.locked {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--status-red);
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Login Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.95);
+      backdrop-filter: blur(30px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 360px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid var(--border-subtle);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      color: #fff;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .toast.active {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
 
   <div class="ambient-glow"></div>
-  <div id="toast" class="toast-popup">Notification</div>
+  <div id="toast" class="toast">Notification</div>
 
-  <!-- Header -->
-  <header>
-    <div class="header-branding">
-      <div class="brand-logo">
-        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+  <!-- Admin Login Barrier -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="login-box">
+      <h2 style="font-size: 1.3rem; margin-bottom: 6px;">Admin Access</h2>
+      <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px;">Enter security key to manage activation codes.</p>
+      <div class="form-group">
+        <label>Admin Secret Key</label>
+        <input type="password" id="input-admin-key" placeholder="••••••••••••••••" />
       </div>
-      <span class="header-title">Aether</span>
-    </div>
-    <div class="header-actions">
-      <button class="icon-button" id="btn-refresh" title="Sync Cloud">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-      </button>
-      <button class="icon-button" id="btn-quick-settings" title="Settings">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- 10 View Switcher Bar -->
-  <div style="padding: 10px 20px 0 20px; z-index: 5;">
-    <div class="quick-view-scroll" id="view-switcher-chips">
-      <div class="view-chip active" data-target="view-explore">Explore</div>
-      <div class="view-chip" data-target="view-playlists">Playlists</div>
-      <div class="view-chip" data-target="view-tracks">All Songs</div>
-      <div class="view-chip" data-target="view-offline">Offline Storage</div>
-      <div class="view-chip" data-target="view-lyrics">Live Lyrics</div>
-      <div class="view-chip" data-target="view-dsp">Audio Engine</div>
-      <div class="view-chip" data-target="view-audioinfo">Track Info</div>
-      <div class="view-chip" data-target="view-stats">Analytics</div>
-      <div class="view-chip" data-target="view-history">History</div>
-      <div class="view-chip" data-target="view-account">Account</div>
+      <button class="btn" id="btn-login" style="width: 100%; margin-top: 8px;">Authenticate</button>
     </div>
   </div>
 
-  <main>
-    <!-- View 1: Explore -->
-    <div class="view-container active" id="view-explore">
-      <div class="view-header">
-        <h1 class="view-title">Listen Now</h1>
-        <p class="view-subtitle">Authenticated FLAC/MP3 Cloud Engine</p>
+  <!-- Main Console -->
+  <div class="container" id="main-content" style="display: none;">
+    <header>
+      <div class="brand-title">
+        <span>Aether Console</span>
+        <span class="brand-badge">PROD GATEWAY</span>
       </div>
-      <div class="section-card" style="background: var(--accent-gradient); border: none;">
-        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">Smart Shuffle</h2>
-        <p style="font-size: 0.8rem; opacity: 0.85; margin-bottom: 12px;">Instant stream verified via Cloudflare Workers.</p>
-        <button class="icon-button" id="btn-hero-shuffle" style="width: auto; height: auto; border-radius: 10px; padding: 8px 16px; background: rgba(255,255,255,0.25); font-weight: 500;">
-          Shuffle All Tracks
-        </button>
-      </div>
-      <h2 style="font-size: 1rem; font-weight: 700; margin: 16px 0 10px 0;">Playlists</h2>
-      <div class="card-grid" id="explore-playlists-grid"></div>
-    </div>
+      <button class="btn btn-secondary" id="btn-logout">Exit Session</button>
+    </header>
 
-    <!-- View 2: Playlists -->
-    <div class="view-container" id="view-playlists">
-      <div class="view-header">
-        <h1 class="view-title">Collections</h1>
-        <p class="view-subtitle">Folder structures inside `musiconly`</p>
+    <!-- Generator Section -->
+    <div class="card">
+      <div class="card-title">
+        <span>Create Activation Codes</span>
       </div>
-      <div class="card-grid" id="all-playlists-grid"></div>
-    </div>
-
-    <!-- View 3: All Songs -->
-    <div class="view-container" id="view-tracks">
-      <div class="view-header">
-        <h1 class="view-title" id="tracks-view-header">All Cloud Tracks</h1>
-        <p class="view-subtitle" id="tracks-view-count">Loading stream entries...</p>
-      </div>
-      <div class="track-list" id="main-track-list"></div>
-    </div>
-
-    <!-- View 4: Offline Storage -->
-    <div class="view-container" id="view-offline">
-      <div class="view-header">
-        <h1 class="view-title">Offline Library</h1>
-        <p class="view-subtitle">Downloaded tracks stored inside App's Sandbox</p>
-      </div>
-      <div class="section-card">
-        <div class="metric-row">
-          <span class="metric-label">Sandbox Storage Used</span>
-          <span class="metric-val" id="storage-usage-val">0 MB</span>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Custom Specific Code (Optional)</label>
+          <input type="text" id="gen-custom" placeholder="e.g. VIP-SPECIAL-2026" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Batch Generation Count (When custom code is empty)</label>
+          <input type="number" id="gen-count" min="1" max="50" value="5" />
         </div>
       </div>
-      <div class="track-list" id="offline-track-list"></div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button class="btn" id="btn-generate">Generate Codes to MongoDB</button>
+      </div>
     </div>
 
-    <!-- View 5: Live Lyrics Focus -->
-    <div class="view-container" id="view-lyrics">
-      <div class="view-header">
-        <h1 class="view-title">Lyrics Stream</h1>
-        <p class="view-subtitle">Parsing lines starting with [00:00 - Translation Tag Filtered</p>
-      </div>
-      <div class="section-card" style="height: calc(100vh - 300px); display: flex; flex-direction: column;">
-        <div class="lyrics-container" id="standalone-lyrics-container">
-          <div class="lyric-line">No audio currently streaming</div>
+    <!-- Active Codes List -->
+    <div class="card">
+      <div class="card-title">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span>Database Codes</span>
+          <span id="label-count" style="font-size: 0.8rem; color: var(--text-sub); font-weight: 400;">0 total</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="search-code" placeholder="Filter codes..." style="width: 180px; padding: 6px 12px; font-size: 0.8rem;" />
+          <button class="btn btn-secondary" id="btn-refresh" style="padding: 6px 12px; font-size: 0.8rem;">Refresh</button>
         </div>
       </div>
-    </div>
 
-    <!-- View 6: Audio Pipeline -->
-    <div class="view-container" id="view-dsp">
-      <div class="view-header">
-        <h1 class="view-title">Audio Pipeline</h1>
-        <p class="view-subtitle">Direct Hardware Media Pipeline</p>
-      </div>
-      <div class="section-card">
-        <div class="metric-row"><span class="metric-label">Pipeline Mode</span><span class="metric-val" style="color:#10b981;">Direct Hardware</span></div>
-        <div class="metric-row"><span class="metric-label">FLAC Vorbis Decoder</span><span class="metric-val">Hardware Native</span></div>
-        <div class="metric-row"><span class="metric-label">ID3v2 Binary Parser</span><span class="metric-val">v2.3 / v2.4 Active</span></div>
-      </div>
-    </div>
-
-    <!-- View 7: Current Track Details -->
-    <div class="view-container" id="view-audioinfo">
-      <div class="view-header">
-        <h1 class="view-title">Track Info</h1>
-        <p class="view-subtitle">Metadata extracted from binary stream</p>
-      </div>
-      <div class="section-card">
-        <div class="metric-row"><span class="metric-label">Title</span><span class="metric-val" id="info-meta-title">--</span></div>
-        <div class="metric-row"><span class="metric-label">Artist</span><span class="metric-val" id="info-meta-artist">--</span></div>
-        <div class="metric-row"><span class="metric-label">Album</span><span class="metric-val" id="info-meta-album">--</span></div>
-        <div class="metric-row"><span class="metric-label">File Type</span><span class="metric-val" id="info-meta-format">--</span></div>
-        <div class="metric-row"><span class="metric-label">Source Mode</span><span class="metric-val" id="info-meta-source">--</span></div>
-      </div>
-    </div>
-
-    <!-- View 8: Diagnostics & Analytics -->
-    <div class="view-container" id="view-stats">
-      <div class="view-header">
-        <h1 class="view-title">Insights</h1>
-        <p class="view-subtitle">Runtime and session stats</p>
-      </div>
-      <div class="section-card">
-        <div class="metric-row"><span class="metric-label">Folders Parsed</span><span class="metric-val" id="stat-folders">0</span></div>
-        <div class="metric-row"><span class="metric-label">Cloud Entries</span><span class="metric-val" id="stat-songs">0</span></div>
-        <div class="metric-row"><span class="metric-label">Offline Tracks</span><span class="metric-val" id="stat-offline">0</span></div>
-        <div class="metric-row"><span class="metric-label">Songs Streamed</span><span class="metric-val" id="stat-played">0</span></div>
-        <div class="metric-row"><span class="metric-label">Cleaned Lyric Lines</span><span class="metric-val" id="stat-lyric-lines">0 lines</span></div>
-      </div>
-    </div>
-
-    <!-- View 9: Playback History -->
-    <div class="view-container" id="view-history">
-      <div class="view-header">
-        <h1 class="view-title">Recent Plays</h1>
-        <p class="view-subtitle">Tracks streamed during this session</p>
-      </div>
-      <div class="track-list" id="history-track-list">
-        <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 30px;">No tracks recorded yet.</p>
-      </div>
-    </div>
-
-    <!-- View 10: Account & License Management -->
-    <div class="view-container" id="view-account">
-      <div class="view-header">
-        <h1 class="view-title">Account</h1>
-        <p class="view-subtitle">MongoDB user profile via Cloudflare Workers</p>
-      </div>
-      <div class="section-card">
-        <div class="metric-row"><span class="metric-label">Username</span><span class="metric-val" id="profile-username">--</span></div>
-        <div class="metric-row"><span class="metric-label">License Status</span><span class="metric-val" id="profile-status" style="color:#10b981;">Activated</span></div>
-        <div class="metric-row"><span class="metric-label">Bound Code</span><span class="metric-val" id="profile-code">--</span></div>
-      </div>
-      <button class="btn-action btn-secondary" id="btn-logout" style="color: #ef4444;">Log Out</button>
-    </div>
-  </main>
-
-  <!-- Auth Modal Layer (Login / Register) -->
-  <div class="auth-overlay" id="auth-modal">
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <div class="auth-tab active" id="tab-auth-login">Sign In</div>
-        <div class="auth-tab" id="tab-auth-register">Register</div>
-      </div>
-      <div id="auth-form">
-        <input type="text" class="app-input" id="auth-input-user" placeholder="Username" autocomplete="off" />
-        <input type="password" class="app-input" id="auth-input-pass" placeholder="Password" />
-        <button class="btn-action" id="btn-auth-submit">Sign In</button>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Activation Code</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th style="text-align: right;">Operations</th>
+            </tr>
+          </thead>
+          <tbody id="codes-table-body">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-sub);">Loading stored keys...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-
-  <!-- Activation Code Modal Layer -->
-  <div class="auth-overlay" id="activation-modal">
-    <div class="auth-card">
-      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Activate Account</h2>
-      <p style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 16px;">Please enter an unused redemption code stored in MongoDB to activate your account.</p>
-      <input type="text" class="app-input" id="activation-input-code" placeholder="e.g. AETH-XXXX-XXXX" autocomplete="off" />
-      <button class="btn-action" id="btn-activation-submit">Redeem Code</button>
-    </div>
-  </div>
-
-  <!-- Mini Player Component -->
-  <div class="mini-player" id="mini-player">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%231e293b'/%3E%3C/svg%3E" class="mini-cover" id="mini-cover" alt="Thumb" />
-    <div class="mini-meta" id="mini-meta-click">
-      <div class="mini-title" id="mini-title">Ready to Stream</div>
-      <div class="mini-artist" id="mini-artist">Select a track</div>
-    </div>
-    <div class="mini-controls">
-      <button class="mini-btn" id="mini-play-toggle">
-        <svg viewBox="0 0 24 24" id="mini-play-icon"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <button class="mini-btn" id="mini-next-btn">
-        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Bottom App Tab Bar -->
-  <nav class="tab-bar">
-    <button class="tab-item active" data-target="view-explore">
-      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      <span>Explore</span>
-    </button>
-    <button class="tab-item" data-target="view-playlists">
-      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-      <span>Library</span>
-    </button>
-    <button class="tab-item" data-target="view-tracks">
-      <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-      <span>Tracks</span>
-    </button>
-    <button class="tab-item" data-target="view-offline">
-      <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-      <span>Offline</span>
-    </button>
-    <button class="tab-item" data-target="view-account">
-      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      <span>Account</span>
-    </button>
-  </nav>
-
-  <!-- Full Screen Audio Player Modal -->
-  <div class="full-player-overlay" id="full-player">
-    <div class="player-header">
-      <button class="icon-button" id="btn-dismiss-player">
-        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-      </button>
-      <div class="player-views-nav">
-        <div class="player-nav-pill active" id="pill-art-tab">Artwork</div>
-        <div class="player-nav-pill" id="pill-lyric-tab">Lyrics</div>
-      </div>
-      <button class="icon-button" id="btn-download-current">
-        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-      </button>
-    </div>
-
-    <div class="player-stage">
-      <div class="stage-section active" id="stage-artwork">
-        <div class="artwork-wrapper">
-          <img src="" id="player-main-art" class="artwork-img" alt="Artwork" />
-        </div>
-        <div style="text-align: center; width: 100%; max-width: 320px;">
-          <h2 id="player-title" style="font-size: 1.3rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">No Media</h2>
-          <p id="player-artist-album" style="font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Unknown Artist / Album</p>
-        </div>
-      </div>
-
-      <div class="stage-section" id="stage-lyrics">
-        <div class="lyrics-container" id="player-lyrics-container">
-          <div class="lyric-line">No lyric data found</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="player-dock">
-      <div class="playback-timeline">
-        <div class="progress-bar-container" id="progress-touch-bar">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-times">
-          <span id="label-time-current">0:00</span>
-          <span id="label-time-duration">0:00</span>
-        </div>
-      </div>
-
-      <div class="dock-controls">
-        <button class="icon-button" id="btn-shuffle-toggle" style="background: none; border: none;">
-          <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-        </button>
-        <button class="icon-button" id="btn-prev-track" style="width: 44px; height: 44px;">
-          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        </button>
-        <button class="primary-ctrl" id="btn-primary-play">
-          <svg viewBox="0 0 24 24" id="main-play-icon"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="icon-button" id="btn-next-track" style="width: 44px; height: 44px;">
-          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-        </button>
-        <button class="icon-button" id="btn-repeat-toggle" style="background: none; border: none;">
-          <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <audio id="core-audio-engine" preload="auto" playsinline webkit-playsinline></audio>
 
   <script>
-    /**
-     * Aether Direct Hardware Audio Pipeline
-     * Cloudflare Workers Backend Gateway Interface
-     */
+    // 你的 Cloudflare Worker API 域名
+    const API_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
 
-    // !!! 将此处更换为您真实的 Cloudflare Workers 路由/域名 !!!
-    const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
+    let adminKey = localStorage.getItem('aether_admin_key') || "";
+    let cachedCodes = [];
 
-    const GITHUB_USER = "zhangzhanhang855";
-    const GITHUB_REPO = "musiconly";
-    const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
-    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
-
-    const AppState = {
-      user: null,
-      playlists: {},
-      allTracks: [],
-      offlineTracks: [],
-      history: [],
-      currentTrack: null,
-      currentPlaylistKey: null,
-      currentTrackIndex: -1,
-      isPlaying: false,
-      isShuffle: false,
-      isRepeat: false,
-      lyrics: [],
-      cleanedLineCount: 0,
-      playedCount: 0
-    };
-
-    const audio = document.getElementById('core-audio-engine');
     const toast = document.getElementById('toast');
-    const mainPlayIcon = document.getElementById('main-play-icon');
-    const miniPlayIcon = document.getElementById('mini-play-icon');
-    const progressFill = document.getElementById('progress-fill');
-    const progressTouchBar = document.getElementById('progress-touch-bar');
-    const labelCurrentTime = document.getElementById('label-time-current');
-    const labelDuration = document.getElementById('label-time-duration');
-    const fullPlayer = document.getElementById('full-player');
-
-    const authModal = document.getElementById('auth-modal');
-    const activationModal = document.getElementById('activation-modal');
-    let currentAuthMode = 'login';
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('visible');
-      setTimeout(() => toast.classList.remove('visible'), 2400);
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('active');
+      setTimeout(() => toast.classList.remove('active'), 2500);
     }
 
-    function navigateToView(viewId) {
-      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.view-chip').forEach(c => c.classList.remove('active'));
-
-      const targetView = document.getElementById(viewId);
-      if (targetView) targetView.classList.add('active');
-
-      const activeTab = document.querySelector(`.tab-item[data-target="${viewId}"]`);
-      if (activeTab) activeTab.classList.add('active');
-
-      const activeChip = document.querySelector(`.view-chip[data-target="${viewId}"]`);
-      if (activeChip) {
-        activeChip.classList.add('active');
-        activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
-    }
-
-    document.querySelectorAll('.tab-item, .view-chip').forEach(el => {
-      el.addEventListener('click', () => {
-        const target = el.getAttribute('data-target');
-        if (target) navigateToView(target);
-      });
-    });
-
-    /* ==========================================================================
-       Authentication & Activation Engine (via Cloudflare Workers)
-       ========================================================================== */
-    class AuthService {
-      static init() {
-        const cached = localStorage.getItem('aether_user');
-        if (cached) {
-          try {
-            AppState.user = JSON.parse(cached);
-            AuthService.checkActivationStatus();
-          } catch (e) {
-            AuthService.showLogin();
-          }
-        } else {
-          AuthService.showLogin();
-        }
-      }
-
-      static showLogin() {
-        authModal.classList.add('active');
-        activationModal.classList.remove('active');
-      }
-
-      static checkActivationStatus() {
-        if (!AppState.user) {
-          AuthService.showLogin();
+    // 初始化检查
+    async function initAuth() {
+      if (adminKey) {
+        const ok = await verifyKey(adminKey);
+        if (ok) {
+          showDashboard();
           return;
         }
-
-        if (!AppState.user.isActivated) {
-          authModal.classList.remove('active');
-          activationModal.classList.add('active');
-        } else {
-          authModal.classList.remove('active');
-          activationModal.classList.remove('active');
-          AuthService.updateProfileUI();
-        }
       }
-
-      static updateProfileUI() {
-        if (AppState.user) {
-          document.getElementById('profile-username').textContent = AppState.user.username;
-          document.getElementById('profile-status').textContent = AppState.user.isActivated ? "Activated" : "Not Activated";
-          document.getElementById('profile-code').textContent = AppState.user.redeemedCode || "--";
-        }
-      }
-
-      static async login(username, password) {
-        try {
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Login failed");
-
-          AppState.user = data.user;
-          localStorage.setItem('aether_user', JSON.stringify(data.user));
-          showToast(`Welcome, ${data.user.username}`);
-          AuthService.checkActivationStatus();
-        } catch (e) {
-          showToast(e.message);
-        }
-      }
-
-      static async register(username, password) {
-        try {
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Registration failed");
-
-          AppState.user = data.user;
-          localStorage.setItem('aether_user', JSON.stringify(data.user));
-          showToast("Registered! Please redeem code.");
-          AuthService.checkActivationStatus();
-        } catch (e) {
-          showToast(e.message);
-        }
-      }
-
-      static async redeemCode(code) {
-        try {
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/redeem`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: AppState.user.username, code: code.trim() })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Redemption failed");
-
-          AppState.user.isActivated = true;
-          AppState.user.redeemedCode = code.trim();
-          localStorage.setItem('aether_user', JSON.stringify(AppState.user));
-
-          showToast("Activation Successful!");
-          activationModal.classList.remove('active');
-          AuthService.updateProfileUI();
-        } catch (e) {
-          showToast(e.message);
-        }
-      }
-
-      static logout() {
-        AppState.user = null;
-        localStorage.removeItem('aether_user');
-        AuthService.showLogin();
-        showToast("Logged out successfully");
-      }
+      document.getElementById('login-modal').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'none';
     }
 
-    document.getElementById('tab-auth-login').addEventListener('click', () => {
-      currentAuthMode = 'login';
-      document.getElementById('tab-auth-login').classList.add('active');
-      document.getElementById('tab-auth-register').classList.remove('active');
-      document.getElementById('btn-auth-submit').textContent = "Sign In";
-    });
-
-    document.getElementById('tab-auth-register').addEventListener('click', () => {
-      currentAuthMode = 'register';
-      document.getElementById('tab-auth-register').classList.add('active');
-      document.getElementById('tab-auth-login').classList.remove('active');
-      document.getElementById('btn-auth-submit').textContent = "Register Account";
-    });
-
-    document.getElementById('btn-auth-submit').addEventListener('click', () => {
-      const u = document.getElementById('auth-input-user').value.trim();
-      const p = document.getElementById('auth-input-pass').value.trim();
-      if (!u || !p) return showToast("Please enter username and password");
-      if (currentAuthMode === 'login') {
-        AuthService.login(u, p);
-      } else {
-        AuthService.register(u, p);
-      }
-    });
-
-    document.getElementById('btn-activation-submit').addEventListener('click', () => {
-      const c = document.getElementById('activation-input-code').value.trim();
-      if (!c) return showToast("Please enter activation code");
-      AuthService.redeemCode(c);
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', () => AuthService.logout());
-
-    /* ==========================================================================
-       Native Binary Metadata Parser (ID3v2 & FLAC Vorbis Comment / Picture)
-       ========================================================================== */
-    class BinaryMetadataParser {
-      static async parseAudioTags(arrayBuffer, fileType) {
-        const view = new DataView(arrayBuffer);
-        const metadata = { title: null, artist: null, album: null, artworkUrl: null };
-
-        try {
-          if (fileType === 'mp3') {
-            if (view.getUint8(0) === 0x49 && view.getUint8(1) === 0x44 && view.getUint8(2) === 0x33) {
-              const version = view.getUint8(3);
-              const tagSize = BinaryMetadataParser.readSynchsafeInt(view, 6);
-              let offset = 10;
-
-              while (offset < tagSize + 10 && offset < view.byteLength - 10) {
-                const frameId = String.fromCharCode(
-                  view.getUint8(offset), view.getUint8(offset+1),
-                  view.getUint8(offset+2), view.getUint8(offset+3)
-                );
-                
-                if (!frameId.match(/^[A-Z0-9]{4}$/)) break;
-
-                const frameSize = (version === 4)
-                  ? BinaryMetadataParser.readSynchsafeInt(view, offset + 4)
-                  : view.getUint32(offset + 4);
-
-                if (frameSize <= 0 || offset + 10 + frameSize > view.byteLength) break;
-
-                const frameData = new Uint8Array(arrayBuffer, offset + 10, frameSize);
-
-                if (frameId === 'TIT2') {
-                  metadata.title = BinaryMetadataParser.decodeTextFrame(frameData);
-                } else if (frameId === 'TPE1') {
-                  metadata.artist = BinaryMetadataParser.decodeTextFrame(frameData);
-                } else if (frameId === 'TALB') {
-                  metadata.album = BinaryMetadataParser.decodeTextFrame(frameData);
-                } else if (frameId === 'APIC') {
-                  metadata.artworkUrl = BinaryMetadataParser.decodeAPICFrame(frameData);
-                }
-
-                offset += 10 + frameSize;
-              }
-            }
-          } else if (fileType === 'flac') {
-            if (view.getUint8(0) === 0x66 && view.getUint8(1) === 0x4C && view.getUint8(2) === 0x61 && view.getUint8(3) === 0x43) {
-              let offset = 4;
-              let isLastBlock = false;
-
-              while (!isLastBlock && offset < view.byteLength) {
-                const headerByte = view.getUint8(offset);
-                isLastBlock = (headerByte & 0x80) !== 0;
-                const blockType = headerByte & 0x7F;
-                const blockSize = (view.getUint8(offset + 1) << 16) | (view.getUint8(offset + 2) << 8) | view.getUint8(offset + 3);
-                offset += 4;
-
-                if (blockType === 4) {
-                  const commentData = new Uint8Array(arrayBuffer, offset, blockSize);
-                  const parsedComments = BinaryMetadataParser.parseVorbisComment(commentData);
-                  if (parsedComments.TITLE) metadata.title = parsedComments.TITLE;
-                  if (parsedComments.ARTIST) metadata.artist = parsedComments.ARTIST;
-                  if (parsedComments.ALBUM) metadata.album = parsedComments.ALBUM;
-                } else if (blockType === 6) {
-                  metadata.artworkUrl = BinaryMetadataParser.parseFlacPicture(new DataView(arrayBuffer, offset, blockSize));
-                }
-
-                offset += blockSize;
-              }
-            }
-          }
-        } catch (e) {
-          console.warn("Binary tag parser exception:", e);
-        }
-
-        return metadata;
-      }
-
-      static readSynchsafeInt(view, offset) {
-        return (view.getUint8(offset) << 21) |
-               (view.getUint8(offset + 1) << 14) |
-               (view.getUint8(offset + 2) << 7) |
-               view.getUint8(offset + 3);
-      }
-
-      static decodeTextFrame(uint8Arr) {
-        if (uint8Arr.length <= 1) return "";
-        const encoding = uint8Arr[0];
-        const bytes = uint8Arr.slice(1);
-        try {
-          if (encoding === 0) return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, '');
-          if (encoding === 1) return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '');
-          if (encoding === 2) return new TextDecoder('utf-16be').decode(bytes).replace(/\0/g, '');
-          if (encoding === 3) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
-        } catch (e) {}
-        return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
-      }
-
-      static decodeAPICFrame(uint8Arr) {
-        const encoding = uint8Arr[0];
-        let offset = 1;
-        let mime = "";
-        while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
-          mime += String.fromCharCode(uint8Arr[offset]);
-          offset++;
-        }
-        offset++;
-        offset++;
-        if (encoding === 1 || encoding === 2) {
-          while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) {
-            offset += 2;
-          }
-          offset += 2;
-        } else {
-          while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
-            offset++;
-          }
-          offset++;
-        }
-
-        const imgBytes = uint8Arr.slice(offset);
-        const blob = new Blob([imgBytes], { type: mime || 'image/jpeg' });
-        return URL.createObjectURL(blob);
-      }
-
-      static parseVorbisComment(uint8Arr) {
-        const view = new DataView(uint8Arr.buffer, uint8Arr.byteOffset, uint8Arr.byteLength);
-        let offset = 0;
-        const vendorLength = view.getUint32(offset, true);
-        offset += 4 + vendorLength;
-
-        const userCommentListLength = view.getUint32(offset, true);
-        offset += 4;
-
-        const comments = {};
-        for (let i = 0; i < userCommentListLength; i++) {
-          if (offset + 4 > uint8Arr.length) break;
-          const commentLength = view.getUint32(offset, true);
-          offset += 4;
-          const commentStr = new TextDecoder('utf-8').decode(uint8Arr.slice(offset, offset + commentLength));
-          offset += commentLength;
-          const eqIdx = commentStr.indexOf('=');
-          if (eqIdx !== -1) {
-            const key = commentStr.substring(0, eqIdx).toUpperCase();
-            const val = commentStr.substring(eqIdx + 1);
-            comments[key] = val;
-          }
-        }
-        return comments;
-      }
-
-      static parseFlacPicture(view) {
-        try {
-          const mimeLength = view.getUint32(4);
-          let offset = 8;
-          let mime = "";
-          for (let i = 0; i < mimeLength; i++) {
-            mime += String.fromCharCode(view.getUint8(offset++));
-          }
-          const descLength = view.getUint32(offset);
-          offset += 4 + descLength;
-          offset += 16;
-          const dataLength = view.getUint32(offset);
-          offset += 4;
-          const imgBytes = new Uint8Array(view.buffer, view.byteOffset + offset, dataLength);
-          const blob = new Blob([imgBytes], { type: mime || 'image/jpeg' });
-          return URL.createObjectURL(blob);
-        } catch (e) {
-          return null;
-        }
-      }
-    }
-
-    /* ==========================================================================
-       iOS App Sandbox Storage Engine (IndexedDB Layer for Audio Blobs)
-       ========================================================================== */
-    class OfflineStorageEngine {
-      static async initDB() {
-        return new Promise((resolve, reject) => {
-          const req = indexedDB.open("AetherOfflineStore", 1);
-          req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains("audio_files")) {
-              db.createObjectStore("audio_files", { keyPath: "id" });
-            }
-          };
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      static async saveTrack(track, audioBlob, parsedMeta) {
-        const db = await OfflineStorageEngine.initDB();
-        return new Promise((resolve, reject) => {
-          const tx = db.transaction("audio_files", "readwrite");
-          const store = tx.objectStore("audio_files");
-
-          const record = {
-            id: track.id,
-            fileName: track.fileName,
-            folder: track.folder,
-            blob: audioBlob,
-            title: parsedMeta.title || track.title,
-            artist: parsedMeta.artist || track.artist,
-            album: parsedMeta.album || track.album,
-            format: track.format,
-            timestamp: Date.now()
-          };
-
-          const req = store.put(record);
-          req.onsuccess = () => resolve(record);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      static async getAllOfflineTracks() {
-        const db = await OfflineStorageEngine.initDB();
-        return new Promise((resolve, reject) => {
-          const tx = db.transaction("audio_files", "readonly");
-          const store = tx.objectStore("audio_files");
-          const req = store.getAll();
-          req.onsuccess = () => resolve(req.result || []);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      static async isTrackDownloaded(id) {
-        const db = await OfflineStorageEngine.initDB();
-        return new Promise((resolve) => {
-          const tx = db.transaction("audio_files", "readonly");
-          const store = tx.objectStore("audio_files");
-          const req = store.get(id);
-          req.onsuccess = () => resolve(!!req.result);
-          req.onerror = () => resolve(false);
-        });
-      }
-    }
-
-    /* ==========================================================================
-       Robust Lyric Parser with Translation Elimination
-       ========================================================================== */
-    function parseLrcRobust(rawLrcContent) {
-      const parsed = [];
-      const lines = rawLrcContent.split(/\r?\n/);
-      let translationFilterCount = 0;
-      const timestampRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
-
-      lines.forEach(line => {
-        let trimmed = line.trim();
-        if (!trimmed) return;
-
-        if (line.match(/^\[\d{2}:\d{2}/)) {
-          const cutIdx1 = trimmed.indexOf('（翻译：');
-          const cutIdx2 = trimmed.indexOf('(翻译：');
-          const finalCut = cutIdx1 !== -1 ? cutIdx1 : cutIdx2;
-
-          if (finalCut !== -1) {
-            trimmed = trimmed.substring(0, finalCut).trim();
-            translationFilterCount++;
-          }
-
-          let match;
-          timestampRegex.lastIndex = 0;
-          const timestamps = [];
-
-          while ((match = timestampRegex.exec(trimmed)) !== null) {
-            const min = parseInt(match[1], 10);
-            const sec = parseInt(match[2], 10);
-            const ms = match[3] ? parseInt(match[3].padEnd(3, '0').substring(0, 3), 10) : 0;
-            timestamps.push(min * 60 + sec + ms / 1000);
-          }
-
-          const text = trimmed.replace(/\[\d{2}:\d{2}(?:\.\d{2,3})?\]/g, '').trim();
-          if (text) {
-            timestamps.forEach(t => parsed.push({ time: t, text }));
-          }
-        }
-      });
-
-      AppState.cleanedLineCount += translationFilterCount;
-      document.getElementById('stat-lyric-lines').textContent = `${AppState.cleanedLineCount} lines`;
-      return parsed.sort((a, b) => a.time - b.time);
-    }
-
-    function generatePlaceholderArtwork(title) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 512;
-      const ctx = canvas.getContext('2d');
-      const grad = ctx.createLinearGradient(0, 0, 512, 512);
-      grad.addColorStop(0, '#1e3a8a');
-      grad.addColorStop(1, '#6b21a8');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 512, 512);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px Google Sans';
-      ctx.textAlign = 'center';
-      ctx.fillText(title ? title.substring(0, 14) : 'Aether', 256, 265);
-      return canvas.toDataURL('image/png');
-    }
-
-    /* ==========================================================================
-       iOS Control Center MediaSession Protocol Integration
-       ========================================================================== */
-    function setupAppleMediaSession(track) {
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: track.title,
-          artist: `${track.artist} / ${track.album}`,
-          album: track.album,
-          artwork: [
-            { src: track.artworkUrl, sizes: '256x256', type: 'image/png' },
-            { src: track.artworkUrl, sizes: '512x512', type: 'image/png' }
-          ]
-        });
-
-        navigator.mediaSession.setActionHandler('play', () => executePlay());
-        navigator.mediaSession.setActionHandler('pause', () => executePause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playPreviousTrack());
-        navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
-        navigator.mediaSession.setActionHandler('seekto', (d) => {
-          if (d.seekTime && audio.duration) audio.currentTime = d.seekTime;
-        });
-      }
-    }
-
-    /* ==========================================================================
-       Remote Sync & Format Matching
-       ========================================================================== */
-    async function syncRemoteRepository() {
-      if (!AppState.user || !AppState.user.isActivated) return;
-
-      showToast("Syncing with GitHub...");
+    async function verifyKey(key) {
       try {
-        const res = await fetch(API_BASE);
-        if (!res.ok) throw new Error("API rate-limit or inaccessible");
-        const items = await res.json();
-
-        AppState.playlists = {};
-        AppState.allTracks = [];
-
-        for (const item of items) {
-          if (item.type === "dir") {
-            const folderName = item.name;
-            AppState.playlists[folderName] = [];
-
-            const folderRes = await fetch(item.url);
-            if (folderRes.ok) {
-              const folderItems = await folderRes.json();
-              const audioFiles = folderItems.filter(f => {
-                const lower = f.name.toLowerCase();
-                return lower.endsWith('.mp3') || lower.endsWith('.flac');
-              });
-
-              audioFiles.forEach(f => {
-                const lower = f.name.toLowerCase();
-                const format = lower.endsWith('.flac') ? 'flac' : 'mp3';
-                const baseName = f.name.substring(0, f.name.lastIndexOf('.'));
-                const matchedLrc = folderItems.find(x => x.name.toLowerCase() === `${baseName.toLowerCase()}.lrc`);
-
-                let title = baseName;
-                let artist = "Various Artists";
-                if (baseName.includes(' - ')) {
-                  const parts = baseName.split(' - ');
-                  artist = parts[0].trim();
-                  title = parts.slice(1).join(' - ').trim();
-                }
-
-                const trackObj = {
-                  id: f.sha,
-                  fileName: f.name,
-                  format: format,
-                  title: title,
-                  artist: artist,
-                  album: folderName,
-                  streamUrl: f.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(f.name)}`,
-                  lrcUrl: matchedLrc ? (matchedLrc.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(matchedLrc.name)}`) : null,
-                  artworkUrl: generatePlaceholderArtwork(title),
-                  folder: folderName,
-                  isParsed: false
-                };
-
-                AppState.playlists[folderName].push(trackObj);
-                AppState.allTracks.push(trackObj);
-              });
-            }
-          }
-        }
-
-        renderPlaylistsUI();
-        renderTrackListUI(AppState.allTracks, "All Cloud Tracks");
-        await loadOfflineTracks();
-        updateMetrics();
-        showToast("Sync completed");
+        const res = await fetch(`${API_ENDPOINT}/api/admin/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminKey: key })
+        });
+        return res.ok;
       } catch (e) {
-        console.error(e);
-        showToast("Cloud sync failed");
+        return false;
       }
     }
 
-    function renderPlaylistsUI() {
-      const exploreGrid = document.getElementById('explore-playlists-grid');
-      const allGrid = document.getElementById('all-playlists-grid');
-      exploreGrid.innerHTML = '';
-      allGrid.innerHTML = '';
+    function showDashboard() {
+      document.getElementById('login-modal').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      loadCodes();
+    }
 
-      Object.keys(AppState.playlists).forEach(name => {
-        const count = AppState.playlists[name].length;
-        const cardHTML = `
-          <div class="playlist-card" data-folder="${name}">
-            <div class="playlist-folder-icon">
-              <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+    document.getElementById('btn-login').addEventListener('click', async () => {
+      const input = document.getElementById('input-admin-key').value.trim();
+      if (!input) return showToast("Please input admin secret");
+
+      const valid = await verifyKey(input);
+      if (valid) {
+        adminKey = input;
+        localStorage.setItem('aether_admin_key', adminKey);
+        showDashboard();
+        showToast("Access Granted");
+      } else {
+        showToast("Invalid Security Key");
+      }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      adminKey = "";
+      localStorage.removeItem('aether_admin_key');
+      location.reload();
+    });
+
+    // 读取激活码列表
+    async function loadCodes() {
+      try {
+        const res = await fetch(`${API_ENDPOINT}/api/admin/list-codes`, {
+          headers: { 'x-admin-key': adminKey }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to fetch list");
+
+        cachedCodes = data.codes || [];
+        renderTable(cachedCodes);
+      } catch (e) {
+        showToast(e.message);
+      }
+    }
+
+    function renderTable(codes) {
+      const tbody = document.getElementById('codes-table-body');
+      tbody.innerHTML = '';
+      document.getElementById('label-count').textContent = `${codes.length} active in MongoDB`;
+
+      if (codes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-sub); padding: 24px;">No unused activation codes found in database.</td></tr>`;
+        return;
+      }
+
+      codes.forEach(item => {
+        const tr = document.createElement('tr');
+        const isLocked = item.isLocked;
+        const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleString() : '--';
+
+        tr.innerHTML = `
+          <td>
+            <span class="code-text" style="${isLocked ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${item.code}</span>
+          </td>
+          <td>
+            <span class="status-badge ${isLocked ? 'locked' : 'unlocked'}">
+              ${isLocked ? '● Locked' : '● Ready'}
+            </span>
+          </td>
+          <td style="color: var(--text-sub); font-size: 0.8rem;">${dateStr}</td>
+          <td style="text-align: right;">
+            <div class="actions-cell" style="justify-content: flex-end;">
+              <button class="btn btn-secondary copy-btn" data-code="${item.code}" style="padding: 4px 10px; font-size: 0.75rem;">Copy</button>
+              <button class="btn ${isLocked ? 'btn-success' : 'btn-warning'} lock-btn" data-id="${item.id}" data-state="${isLocked}" style="padding: 4px 10px; font-size: 0.75rem;">
+                ${isLocked ? 'Unlock' : 'Lock'}
+              </button>
+              <button class="btn btn-danger del-btn" data-id="${item.id}" style="padding: 4px 10px; font-size: 0.75rem;">Delete</button>
             </div>
-            <div class="playlist-name">${name}</div>
-            <div class="playlist-count">${count} Tracks</div>
-          </div>
+          </td>
         `;
-        exploreGrid.insertAdjacentHTML('beforeend', cardHTML);
-        allGrid.insertAdjacentHTML('beforeend', cardHTML);
+        tbody.appendChild(tr);
       });
 
-      document.querySelectorAll('.playlist-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const folder = card.getAttribute('data-folder');
-          if (folder && AppState.playlists[folder]) {
-            renderTrackListUI(AppState.playlists[folder], folder);
-            navigateToView('view-tracks');
+      // 绑定行按钮操作
+      tbody.querySelectorAll('.copy-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          navigator.clipboard.writeText(b.getAttribute('data-code'));
+          showToast("Code copied to clipboard");
+        });
+      });
+
+      tbody.querySelectorAll('.lock-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const id = b.getAttribute('data-id');
+          const currentState = b.getAttribute('data-state') === 'true';
+          toggleLock(id, !currentState);
+        });
+      });
+
+      tbody.querySelectorAll('.del-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const id = b.getAttribute('data-id');
+          if (confirm("Are you sure you want to permanently delete this redemption code?")) {
+            deleteCode(id);
           }
         });
       });
     }
 
-    async function renderTrackListUI(tracks, headerTitle) {
-      const container = document.getElementById('main-track-list');
-      document.getElementById('tracks-view-header').textContent = headerTitle;
-      document.getElementById('tracks-view-count').textContent = `${tracks.length} tracks available`;
-      container.innerHTML = '';
+    // 创建激活码
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+      const customCode = document.getElementById('gen-custom').value.trim();
+      const count = parseInt(document.getElementById('gen-count').value, 10) || 1;
 
-      for (let i = 0; i < tracks.length; i++) {
-        const t = tracks[i];
-        const isDownloaded = await OfflineStorageEngine.isTrackDownloaded(t.id);
-        const item = document.createElement('div');
-        item.className = 'track-item';
-        item.innerHTML = `
-          <div class="track-item-left">
-            <img src="${t.artworkUrl}" class="track-thumb" id="thumb-${t.id}" alt="Art" />
-            <div class="track-info">
-              <div class="track-title" id="title-${t.id}">${t.title}</div>
-              <div class="track-meta" id="meta-${t.id}">${t.artist} • ${t.album}</div>
-            </div>
-          </div>
-          <div class="track-actions">
-            <span class="format-tag">${t.format}</span>
-            <button class="download-btn ${isDownloaded ? 'downloaded' : ''}" data-id="${t.id}">
-              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-            </button>
-          </div>
-        `;
-
-        item.querySelector('.track-item-left').addEventListener('click', () => {
-          AppState.currentPlaylistKey = tracks;
-          playTrackByIndex(i);
-        });
-
-        item.querySelector('.download-btn').addEventListener('click', (e) => {
-          e.stopPropagation();
-          downloadTrackForOffline(t);
-        });
-
-        container.appendChild(item);
-      }
-    }
-
-    /* ==========================================================================
-       Playback & Binary Tag Hook Execution
-       ========================================================================== */
-    async function playTrackByIndex(index) {
-      if (!AppState.user || !AppState.user.isActivated) {
-        showToast("Please activate your account first");
-        AuthService.checkActivationStatus();
-        return;
-      }
-
-      const activeSet = AppState.currentPlaylistKey || AppState.allTracks;
-      if (index < 0 || index >= activeSet.length) return;
-
-      AppState.currentTrackIndex = index;
-      const track = activeSet[index];
-      AppState.currentTrack = track;
-
-      showToast(`Loading: ${track.title}`);
-
-      const offlineDb = await OfflineStorageEngine.initDB();
-      const offlineRecord = await new Promise(r => {
-        const tx = offlineDb.transaction("audio_files", "readonly");
-        const req = tx.objectStore("audio_files").get(track.id);
-        req.onsuccess = () => r(req.result);
-        req.onerror = () => r(null);
-      });
-
-      let audioSourceUrl = track.streamUrl;
-      let bufferForParsing = null;
-      let isLocalSource = false;
-
-      if (offlineRecord) {
-        audioSourceUrl = URL.createObjectURL(offlineRecord.blob);
-        bufferForParsing = await offlineRecord.blob.arrayBuffer();
-        isLocalSource = true;
-      } else {
-        try {
-          const res = await fetch(track.streamUrl);
-          const blob = await res.blob();
-          bufferForParsing = await blob.arrayBuffer();
-          audioSourceUrl = URL.createObjectURL(blob);
-        } catch (err) {
-          console.warn("Direct binary extraction failed, falling back to stream URL", err);
-        }
-      }
-
-      if (bufferForParsing) {
-        const meta = await BinaryMetadataParser.parseAudioTags(bufferForParsing, track.format);
-        if (meta.title) track.title = meta.title;
-        if (meta.artist) track.artist = meta.artist;
-        if (meta.album) track.album = meta.album;
-        if (meta.artworkUrl) track.artworkUrl = meta.artworkUrl;
-
-        const thumb = document.getElementById(`thumb-${track.id}`);
-        const titleEl = document.getElementById(`title-${track.id}`);
-        const metaEl = document.getElementById(`meta-${track.id}`);
-        if (thumb && meta.artworkUrl) thumb.src = meta.artworkUrl;
-        if (titleEl) titleEl.textContent = track.title;
-        if (metaEl) metaEl.textContent = `${track.artist} • ${track.album}`;
-      }
-
-      document.getElementById('mini-title').textContent = track.title;
-      document.getElementById('mini-artist').textContent = `${track.artist} / ${track.album}`;
-      document.getElementById('mini-cover').src = track.artworkUrl;
-
-      document.getElementById('player-title').textContent = track.title;
-      document.getElementById('player-artist-album').textContent = `${track.artist} / ${track.album}`;
-      document.getElementById('player-main-art').src = track.artworkUrl;
-
-      document.getElementById('info-meta-title').textContent = track.title;
-      document.getElementById('info-meta-artist').textContent = track.artist;
-      document.getElementById('info-meta-album').textContent = track.album;
-      document.getElementById('info-meta-format').textContent = track.format.toUpperCase();
-      document.getElementById('info-meta-source').textContent = isLocalSource ? "Offline Sandbox" : "GitHub Raw Stream";
-
-      setupAppleMediaSession(track);
-
-      audio.src = audioSourceUrl;
-      audio.load();
-
-      fetchLyricsForTrack(track);
-      executePlay();
-
-      AppState.history.unshift(track);
-      renderHistoryUI();
-      AppState.playedCount++;
-      updateMetrics();
-
-      document.querySelectorAll('.track-item').forEach((it, i) => {
-        it.classList.toggle('playing', i === index);
-      });
-    }
-
-    async function downloadTrackForOffline(track) {
-      showToast(`Downloading: ${track.title}`);
       try {
-        const res = await fetch(track.streamUrl);
-        const blob = await res.blob();
-        const arrayBuf = await blob.arrayBuffer();
-        const meta = await BinaryMetadataParser.parseAudioTags(arrayBuf, track.format);
+        const res = await fetch(`${API_ENDPOINT}/api/admin/create-codes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': adminKey
+          },
+          body: JSON.stringify({ customCode, count })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to create codes");
 
-        await OfflineStorageEngine.saveTrack(track, blob, meta);
-        await loadOfflineTracks();
-        showToast("Saved to offline sandbox");
-
-        const btn = document.querySelector(`.download-btn[data-id="${track.id}"]`);
-        if (btn) btn.classList.add('downloaded');
+        showToast(data.message);
+        document.getElementById('gen-custom').value = '';
+        loadCodes();
       } catch (e) {
-        showToast("Download failed");
+        showToast(e.message);
       }
-    }
+    });
 
-    async function loadOfflineTracks() {
-      const offline = await OfflineStorageEngine.getAllOfflineTracks();
-      AppState.offlineTracks = offline;
-      document.getElementById('stat-offline').textContent = offline.length;
-
-      let totalBytes = 0;
-      offline.forEach(o => { if (o.blob) totalBytes += o.blob.size; });
-      document.getElementById('storage-usage-val').textContent = `${(totalBytes / (1024 * 1024)).toFixed(2)} MB`;
-
-      const listContainer = document.getElementById('offline-track-list');
-      listContainer.innerHTML = '';
-
-      if (offline.length === 0) {
-        listContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 20px;">No offline downloads stored yet.</p>`;
-        return;
-      }
-
-      offline.forEach((t, idx) => {
-        const item = document.createElement('div');
-        item.className = 'track-item';
-        item.innerHTML = `
-          <div class="track-item-left">
-            <div class="track-info">
-              <div class="track-title">${t.title}</div>
-              <div class="track-meta">${t.artist} • ${t.album}</div>
-            </div>
-          </div>
-          <div class="track-actions">
-            <span class="format-tag" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">OFFLINE</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          AppState.currentPlaylistKey = offline;
-          playTrackByIndex(idx);
-        });
-        listContainer.appendChild(item);
-      });
-    }
-
-    async function fetchLyricsForTrack(track) {
-      AppState.lyrics = [];
-      const sContainer = document.getElementById('standalone-lyrics-container');
-      const pContainer = document.getElementById('player-lyrics-container');
-
-      sContainer.innerHTML = '<div class="lyric-line">Syncing lyrics...</div>';
-      pContainer.innerHTML = '<div class="lyric-line">Syncing lyrics...</div>';
-
-      if (!track.lrcUrl) {
-        sContainer.innerHTML = '<div class="lyric-line">No companion LRC found</div>';
-        pContainer.innerHTML = '<div class="lyric-line">No companion LRC found</div>';
-        return;
-      }
-
+    // 切换锁定
+    async function toggleLock(id, newLockState) {
       try {
-        const res = await fetch(track.lrcUrl);
-        const raw = await res.text();
-        const parsed = parseLrcRobust(raw);
-        AppState.lyrics = parsed;
-
-        if (parsed.length === 0) {
-          sContainer.innerHTML = '<div class="lyric-line">No valid timestamps discovered</div>';
-          pContainer.innerHTML = '<div class="lyric-line">No valid timestamps discovered</div>';
-          return;
-        }
-
-        const nodes = parsed.map(l => `<div class="lyric-line" data-time="${l.time}">${l.text}</div>`).join('');
-        sContainer.innerHTML = nodes;
-        pContainer.innerHTML = nodes;
-
-        document.querySelectorAll('.lyric-line').forEach(line => {
-          line.addEventListener('click', () => {
-            const tm = parseFloat(line.getAttribute('data-time'));
-            if (!isNaN(tm)) audio.currentTime = tm;
-          });
+        const res = await fetch(`${API_ENDPOINT}/api/admin/toggle-lock`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': adminKey
+          },
+          body: JSON.stringify({ id, isLocked: newLockState })
         });
-      } catch (err) {
-        sContainer.innerHTML = '<div class="lyric-line">Lyrics unavailable</div>';
-        pContainer.innerHTML = '<div class="lyric-line">Lyrics unavailable</div>';
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "State toggle error");
+
+        showToast(data.message);
+        loadCodes();
+      } catch (e) {
+        showToast(e.message);
       }
     }
 
-    function executePlay() {
-      audio.play().then(() => {
-        AppState.isPlaying = true;
-        updatePlayIcons(true);
-        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-      }).catch(err => {
-        showToast("Tap to permit audio playback");
-      });
-    }
+    // 物理删除
+    async function deleteCode(id) {
+      try {
+        const res = await fetch(`${API_ENDPOINT}/api/admin/delete-code`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': adminKey
+          },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Delete failed");
 
-    function executePause() {
-      audio.pause();
-      AppState.isPlaying = false;
-      updatePlayIcons(false);
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-    }
-
-    function updatePlayIcons(playing) {
-      const playPath = "M8 5v14l11-7z";
-      const pausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
-      const path = playing ? pausePath : playPath;
-      mainPlayIcon.querySelector('path').setAttribute('d', path);
-      miniPlayIcon.querySelector('path').setAttribute('d', path);
-    }
-
-    function playNextTrack() {
-      const activeSet = AppState.currentPlaylistKey || AppState.allTracks;
-      if (activeSet.length === 0) return;
-      let next = AppState.currentTrackIndex + 1;
-      if (AppState.isShuffle) next = Math.floor(Math.random() * activeSet.length);
-      else if (next >= activeSet.length) next = 0;
-      playTrackByIndex(next);
-    }
-
-    function playPreviousTrack() {
-      const activeSet = AppState.currentPlaylistKey || AppState.allTracks;
-      if (activeSet.length === 0) return;
-      let prev = AppState.currentTrackIndex - 1;
-      if (prev < 0) prev = activeSet.length - 1;
-      playTrackByIndex(prev);
-    }
-
-    audio.addEventListener('timeupdate', () => {
-      if (!audio.duration) return;
-      const cur = audio.currentTime;
-      const dur = audio.duration;
-      progressFill.style.width = `${(cur / dur) * 100}%`;
-      labelCurrentTime.textContent = formatDuration(cur);
-      labelDuration.textContent = formatDuration(dur);
-
-      if (AppState.lyrics.length > 0) {
-        let activeIdx = -1;
-        for (let i = 0; i < AppState.lyrics.length; i++) {
-          if (cur >= AppState.lyrics[i].time) activeIdx = i;
-          else break;
-        }
-        if (activeIdx !== -1) syncLyricScroll(activeIdx);
+        showToast(data.message);
+        loadCodes();
+      } catch (e) {
+        showToast(e.message);
       }
-    });
-
-    function syncLyricScroll(activeIdx) {
-      ['standalone-lyrics-container', 'player-lyrics-container'].forEach(id => {
-        const container = document.getElementById(id);
-        const lines = container.querySelectorAll('.lyric-line');
-        lines.forEach(l => l.classList.remove('active'));
-        const target = lines[activeIdx];
-        if (target) {
-          target.classList.add('active');
-          const top = target.offsetTop - container.offsetTop;
-          container.scrollTo({ top: top - container.clientHeight / 2 + target.clientHeight / 2, behavior: 'smooth' });
-        }
-      });
     }
 
-    audio.addEventListener('ended', () => {
-      if (AppState.isRepeat) {
-        audio.currentTime = 0;
-        executePlay();
+    // 本地搜索过滤
+    document.getElementById('search-code').addEventListener('input', (e) => {
+      const kw = e.target.value.trim().toLowerCase();
+      if (!kw) {
+        renderTable(cachedCodes);
       } else {
-        playNextTrack();
+        const filtered = cachedCodes.filter(c => c.code.toLowerCase().includes(kw));
+        renderTable(filtered);
       }
     });
 
-    function formatDuration(sec) {
-      if (isNaN(sec)) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
+    document.getElementById('btn-refresh').addEventListener('click', loadCodes);
 
-    progressTouchBar.addEventListener('click', (e) => {
-      const rect = progressTouchBar.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      if (audio.duration) audio.currentTime = pos * audio.duration;
-    });
-
-    function renderHistoryUI() {
-      const container = document.getElementById('history-track-list');
-      if (AppState.history.length === 0) return;
-      container.innerHTML = '';
-      AppState.history.forEach(t => {
-        const row = document.createElement('div');
-        row.className = 'track-item';
-        row.innerHTML = `
-          <div class="track-info">
-            <div class="track-title">${t.title}</div>
-            <div class="track-meta">${t.artist} • ${t.album}</div>
-          </div>
-          <div class="track-duration">Played</div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function updateMetrics() {
-      document.getElementById('stat-folders').textContent = Object.keys(AppState.playlists).length;
-      document.getElementById('stat-songs').textContent = AppState.allTracks.length;
-      document.getElementById('stat-played').textContent = AppState.playedCount;
-    }
-
-    document.getElementById('mini-play-toggle').addEventListener('click', (e) => {
-      e.stopPropagation();
-      AppState.isPlaying ? executePause() : executePlay();
-    });
-    document.getElementById('btn-primary-play').addEventListener('click', () => {
-      AppState.isPlaying ? executePause() : executePlay();
-    });
-    document.getElementById('mini-next-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      playNextTrack();
-    });
-    document.getElementById('btn-next-track').addEventListener('click', playNextTrack);
-    document.getElementById('btn-prev-track').addEventListener('click', playPreviousTrack);
-
-    document.getElementById('mini-player').addEventListener('click', () => fullPlayer.classList.add('open'));
-    document.getElementById('btn-dismiss-player').addEventListener('click', () => fullPlayer.classList.remove('open'));
-
-    document.getElementById('pill-art-tab').addEventListener('click', () => {
-      document.getElementById('pill-art-tab').classList.add('active');
-      document.getElementById('pill-lyric-tab').classList.remove('active');
-      document.getElementById('stage-artwork').classList.add('active');
-      document.getElementById('stage-lyrics').classList.remove('active');
-    });
-
-    document.getElementById('pill-lyric-tab').addEventListener('click', () => {
-      document.getElementById('pill-lyric-tab').classList.add('active');
-      document.getElementById('pill-art-tab').classList.remove('active');
-      document.getElementById('stage-lyrics').classList.add('active');
-      document.getElementById('stage-artwork').classList.remove('active');
-    });
-
-    document.getElementById('btn-shuffle-toggle').addEventListener('click', function() {
-      AppState.isShuffle = !AppState.isShuffle;
-      this.style.color = AppState.isShuffle ? 'var(--accent-primary)' : 'inherit';
-      showToast(AppState.isShuffle ? "Shuffle Enabled" : "Shuffle Disabled");
-    });
-
-    document.getElementById('btn-repeat-toggle').addEventListener('click', function() {
-      AppState.isRepeat = !AppState.isRepeat;
-      this.style.color = AppState.isRepeat ? 'var(--accent-primary)' : 'inherit';
-      showToast(AppState.isRepeat ? "Repeat Single" : "Repeat Off");
-    });
-
-    document.getElementById('btn-download-current').addEventListener('click', () => {
-      if (AppState.currentTrack) downloadTrackForOffline(AppState.currentTrack);
-    });
-
-    document.getElementById('btn-refresh').addEventListener('click', syncRemoteRepository);
-    document.getElementById('btn-quick-settings').addEventListener('click', () => navigateToView('view-account'));
-    document.getElementById('btn-hero-shuffle').addEventListener('click', () => {
-      if (AppState.allTracks.length > 0) {
-        AppState.currentPlaylistKey = AppState.allTracks;
-        playTrackByIndex(Math.floor(Math.random() * AppState.allTracks.length));
-      }
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      AuthService.init();
-      syncRemoteRepository();
-    });
+    // 运行
+    initAuth();
   </script>
 </body>
 </html>
