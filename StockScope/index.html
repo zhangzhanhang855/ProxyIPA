@@ -412,6 +412,50 @@
       font-size: 0.85rem;
     }
 
+    .app-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .app-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .btn-action {
+      width: 100%;
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-family: var(--font-main);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--accent-glow);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+      margin-top: 8px;
+    }
+
     /* Mini Player */
     .mini-player {
       position: absolute;
@@ -715,12 +759,65 @@
       pointer-events: none;
       opacity: 0;
       transition: all 0.25s ease;
-      z-index: 200;
+      z-index: 300;
     }
 
     .toast-popup.visible {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
+    }
+
+    /* Auth & Activation Layer */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 23, 0.95);
+      backdrop-filter: blur(30px);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .auth-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 340px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      color: var(--text-sub);
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .auth-tab.active {
+      color: #fff;
+      border-bottom: 2px solid var(--accent-primary);
     }
   </style>
 </head>
@@ -735,14 +832,14 @@
       <div class="brand-logo">
         <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
       </div>
-      <span class="header-title">JRmusic Premium</span>
+      <span class="header-title">Aether</span>
     </div>
     <div class="header-actions">
       <button class="icon-button" id="btn-refresh" title="Sync Cloud">
         <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
       </button>
       <button class="icon-button" id="btn-quick-settings" title="Settings">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </button>
     </div>
   </header>
@@ -759,7 +856,7 @@
       <div class="view-chip" data-target="view-audioinfo">Track Info</div>
       <div class="view-chip" data-target="view-stats">Analytics</div>
       <div class="view-chip" data-target="view-history">History</div>
-      <div class="view-chip" data-target="view-settings">System</div>
+      <div class="view-chip" data-target="view-account">Account</div>
     </div>
   </div>
 
@@ -768,11 +865,11 @@
     <div class="view-container active" id="view-explore">
       <div class="view-header">
         <h1 class="view-title">Listen Now</h1>
-        <p class="view-subtitle">Background-Optimized FLAC/MP3 Engine</p>
+        <p class="view-subtitle">Authenticated FLAC/MP3 Cloud Engine</p>
       </div>
       <div class="section-card" style="background: var(--accent-gradient); border: none;">
         <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">Smart Shuffle</h2>
-        <p style="font-size: 0.8rem; opacity: 0.85; margin-bottom: 12px;">Instant stream without background interruption.</p>
+        <p style="font-size: 0.8rem; opacity: 0.85; margin-bottom: 12px;">Instant stream verified via Cloudflare Workers.</p>
         <button class="icon-button" id="btn-hero-shuffle" style="width: auto; height: auto; border-radius: 10px; padding: 8px 16px; background: rgba(255,255,255,0.25); font-weight: 500;">
           Shuffle All Tracks
         </button>
@@ -827,21 +924,20 @@
       </div>
     </div>
 
-    <!-- View 6: Audio Engine Specs -->
+    <!-- View 6: Audio Pipeline -->
     <div class="view-container" id="view-dsp">
       <div class="view-header">
         <h1 class="view-title">Audio Pipeline</h1>
         <p class="view-subtitle">Direct Hardware Media Pipeline</p>
       </div>
       <div class="section-card">
-        <div class="metric-row"><span class="metric-label">Pipeline Mode</span><span class="metric-val" style="color:#10b981;">Direct Hardware (Non-Interrupted)</span></div>
-        <div class="metric-row"><span class="metric-label">WebAudio Interceptor</span><span class="metric-val">Bypassed (Zero Sleep Drop)</span></div>
+        <div class="metric-row"><span class="metric-label">Pipeline Mode</span><span class="metric-val" style="color:#10b981;">Direct Hardware</span></div>
         <div class="metric-row"><span class="metric-label">FLAC Vorbis Decoder</span><span class="metric-val">Hardware Native</span></div>
         <div class="metric-row"><span class="metric-label">ID3v2 Binary Parser</span><span class="metric-val">v2.3 / v2.4 Active</span></div>
       </div>
     </div>
 
-    <!-- View 7: Current Track Details (Replacing Visualizer to safeguard background playback) -->
+    <!-- View 7: Current Track Details -->
     <div class="view-container" id="view-audioinfo">
       <div class="view-header">
         <h1 class="view-title">Track Info</h1>
@@ -864,10 +960,10 @@
       </div>
       <div class="section-card">
         <div class="metric-row"><span class="metric-label">Folders Parsed</span><span class="metric-val" id="stat-folders">0</span></div>
-        <div class="metric-row"><span class="metric-label">Cloud Entries (MP3/FLAC)</span><span class="metric-val" id="stat-songs">0</span></div>
+        <div class="metric-row"><span class="metric-label">Cloud Entries</span><span class="metric-val" id="stat-songs">0</span></div>
         <div class="metric-row"><span class="metric-label">Offline Tracks</span><span class="metric-val" id="stat-offline">0</span></div>
         <div class="metric-row"><span class="metric-label">Songs Streamed</span><span class="metric-val" id="stat-played">0</span></div>
-        <div class="metric-row"><span class="metric-label">Cleaned Lyric Segments</span><span class="metric-val" id="stat-lyric-lines">0 lines</span></div>
+        <div class="metric-row"><span class="metric-label">Cleaned Lyric Lines</span><span class="metric-val" id="stat-lyric-lines">0 lines</span></div>
       </div>
     </div>
 
@@ -882,20 +978,45 @@
       </div>
     </div>
 
-    <!-- View 10: System Config -->
-    <div class="view-container" id="view-settings">
+    <!-- View 10: Account & License Management -->
+    <div class="view-container" id="view-account">
       <div class="view-header">
-        <h1 class="view-title">System Settings</h1>
-        <p class="view-subtitle">Internal parameters</p>
+        <h1 class="view-title">Account</h1>
+        <p class="view-subtitle">MongoDB user profile via Cloudflare Workers</p>
       </div>
       <div class="section-card">
-        <div class="section-title">Control Center Configuration</div>
-        <div class="metric-row"><span class="metric-label">Title Mapping</span><span class="metric-val">Exact Song Title</span></div>
-        <div class="metric-row"><span class="metric-label">Author / Subtitle Mapping</span><span class="metric-val">Artist / Album</span></div>
-        <div class="metric-row"><span class="metric-label">Control Center Lockscreen Lyrics</span><span class="metric-val">Disabled</span></div>
+        <div class="metric-row"><span class="metric-label">Username</span><span class="metric-val" id="profile-username">--</span></div>
+        <div class="metric-row"><span class="metric-label">License Status</span><span class="metric-val" id="profile-status" style="color:#10b981;">Activated</span></div>
+        <div class="metric-row"><span class="metric-label">Bound Code</span><span class="metric-val" id="profile-code">--</span></div>
       </div>
+      <button class="btn-action btn-secondary" id="btn-logout" style="color: #ef4444;">Log Out</button>
     </div>
   </main>
+
+  <!-- Auth Modal Layer (Login / Register) -->
+  <div class="auth-overlay" id="auth-modal">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-auth-login">Sign In</div>
+        <div class="auth-tab" id="tab-auth-register">Register</div>
+      </div>
+      <div id="auth-form">
+        <input type="text" class="app-input" id="auth-input-user" placeholder="Username" autocomplete="off" />
+        <input type="password" class="app-input" id="auth-input-pass" placeholder="Password" />
+        <button class="btn-action" id="btn-auth-submit">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activation Code Modal Layer -->
+  <div class="auth-overlay" id="activation-modal">
+    <div class="auth-card">
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Activate Account</h2>
+      <p style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 16px;">Please enter an unused redemption code stored in MongoDB to activate your account.</p>
+      <input type="text" class="app-input" id="activation-input-code" placeholder="e.g. AETH-XXXX-XXXX" autocomplete="off" />
+      <button class="btn-action" id="btn-activation-submit">Redeem Code</button>
+    </div>
+  </div>
 
   <!-- Mini Player Component -->
   <div class="mini-player" id="mini-player">
@@ -932,9 +1053,9 @@
       <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
       <span>Offline</span>
     </button>
-    <button class="tab-item" data-target="view-settings">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      <span>Config</span>
+    <button class="tab-item" data-target="view-account">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Account</span>
     </button>
   </nav>
 
@@ -1007,8 +1128,11 @@
   <script>
     /**
      * Aether Direct Hardware Audio Pipeline
-     * WebAudio & AnalyserNode have been removed to preserve iOS background audio integrity.
+     * Cloudflare Workers Backend Gateway Interface
      */
+
+    // !!! 将此处更换为您真实的 Cloudflare Workers 路由/域名 !!!
+    const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
 
     const GITHUB_USER = "zhangzhanhang855";
     const GITHUB_REPO = "musiconly";
@@ -1016,6 +1140,7 @@
     const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 
     const AppState = {
+      user: null,
       playlists: {},
       allTracks: [],
       offlineTracks: [],
@@ -1040,6 +1165,10 @@
     const labelCurrentTime = document.getElementById('label-time-current');
     const labelDuration = document.getElementById('label-time-duration');
     const fullPlayer = document.getElementById('full-player');
+
+    const authModal = document.getElementById('auth-modal');
+    const activationModal = document.getElementById('activation-modal');
+    let currentAuthMode = 'login';
 
     function showToast(message) {
       toast.textContent = message;
@@ -1071,6 +1200,154 @@
         if (target) navigateToView(target);
       });
     });
+
+    /* ==========================================================================
+       Authentication & Activation Engine (via Cloudflare Workers)
+       ========================================================================== */
+    class AuthService {
+      static init() {
+        const cached = localStorage.getItem('aether_user');
+        if (cached) {
+          try {
+            AppState.user = JSON.parse(cached);
+            AuthService.checkActivationStatus();
+          } catch (e) {
+            AuthService.showLogin();
+          }
+        } else {
+          AuthService.showLogin();
+        }
+      }
+
+      static showLogin() {
+        authModal.classList.add('active');
+        activationModal.classList.remove('active');
+      }
+
+      static checkActivationStatus() {
+        if (!AppState.user) {
+          AuthService.showLogin();
+          return;
+        }
+
+        if (!AppState.user.isActivated) {
+          authModal.classList.remove('active');
+          activationModal.classList.add('active');
+        } else {
+          authModal.classList.remove('active');
+          activationModal.classList.remove('active');
+          AuthService.updateProfileUI();
+        }
+      }
+
+      static updateProfileUI() {
+        if (AppState.user) {
+          document.getElementById('profile-username').textContent = AppState.user.username;
+          document.getElementById('profile-status').textContent = AppState.user.isActivated ? "Activated" : "Not Activated";
+          document.getElementById('profile-code').textContent = AppState.user.redeemedCode || "--";
+        }
+      }
+
+      static async login(username, password) {
+        try {
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Login failed");
+
+          AppState.user = data.user;
+          localStorage.setItem('aether_user', JSON.stringify(data.user));
+          showToast(`Welcome, ${data.user.username}`);
+          AuthService.checkActivationStatus();
+        } catch (e) {
+          showToast(e.message);
+        }
+      }
+
+      static async register(username, password) {
+        try {
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Registration failed");
+
+          AppState.user = data.user;
+          localStorage.setItem('aether_user', JSON.stringify(data.user));
+          showToast("Registered! Please redeem code.");
+          AuthService.checkActivationStatus();
+        } catch (e) {
+          showToast(e.message);
+        }
+      }
+
+      static async redeemCode(code) {
+        try {
+          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/redeem`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: AppState.user.username, code: code.trim() })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Redemption failed");
+
+          AppState.user.isActivated = true;
+          AppState.user.redeemedCode = code.trim();
+          localStorage.setItem('aether_user', JSON.stringify(AppState.user));
+
+          showToast("Activation Successful!");
+          activationModal.classList.remove('active');
+          AuthService.updateProfileUI();
+        } catch (e) {
+          showToast(e.message);
+        }
+      }
+
+      static logout() {
+        AppState.user = null;
+        localStorage.removeItem('aether_user');
+        AuthService.showLogin();
+        showToast("Logged out successfully");
+      }
+    }
+
+    document.getElementById('tab-auth-login').addEventListener('click', () => {
+      currentAuthMode = 'login';
+      document.getElementById('tab-auth-login').classList.add('active');
+      document.getElementById('tab-auth-register').classList.remove('active');
+      document.getElementById('btn-auth-submit').textContent = "Sign In";
+    });
+
+    document.getElementById('tab-auth-register').addEventListener('click', () => {
+      currentAuthMode = 'register';
+      document.getElementById('tab-auth-register').classList.add('active');
+      document.getElementById('tab-auth-login').classList.remove('active');
+      document.getElementById('btn-auth-submit').textContent = "Register Account";
+    });
+
+    document.getElementById('btn-auth-submit').addEventListener('click', () => {
+      const u = document.getElementById('auth-input-user').value.trim();
+      const p = document.getElementById('auth-input-pass').value.trim();
+      if (!u || !p) return showToast("Please enter username and password");
+      if (currentAuthMode === 'login') {
+        AuthService.login(u, p);
+      } else {
+        AuthService.register(u, p);
+      }
+    });
+
+    document.getElementById('btn-activation-submit').addEventListener('click', () => {
+      const c = document.getElementById('activation-input-code').value.trim();
+      if (!c) return showToast("Please enter activation code");
+      AuthService.redeemCode(c);
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => AuthService.logout());
 
     /* ==========================================================================
        Native Binary Metadata Parser (ID3v2 & FLAC Vorbis Comment / Picture)
@@ -1177,8 +1454,8 @@
           mime += String.fromCharCode(uint8Arr[offset]);
           offset++;
         }
-        offset++; // null terminator
-        offset++; // picture type byte
+        offset++;
+        offset++;
         if (encoding === 1 || encoding === 2) {
           while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) {
             offset += 2;
@@ -1401,6 +1678,8 @@
        Remote Sync & Format Matching
        ========================================================================== */
     async function syncRemoteRepository() {
+      if (!AppState.user || !AppState.user.isActivated) return;
+
       showToast("Syncing with GitHub...");
       try {
         const res = await fetch(API_BASE);
@@ -1546,6 +1825,12 @@
        Playback & Binary Tag Hook Execution
        ========================================================================== */
     async function playTrackByIndex(index) {
+      if (!AppState.user || !AppState.user.isActivated) {
+        showToast("Please activate your account first");
+        AuthService.checkActivationStatus();
+        return;
+      }
+
       const activeSet = AppState.currentPlaylistKey || AppState.allTracks;
       if (index < 0 || index >= activeSet.length) return;
 
@@ -1555,7 +1840,6 @@
 
       showToast(`Loading: ${track.title}`);
 
-      // Handle stream source
       const offlineDb = await OfflineStorageEngine.initDB();
       const offlineRecord = await new Promise(r => {
         const tx = offlineDb.transaction("audio_files", "readonly");
@@ -1598,27 +1882,22 @@
         if (metaEl) metaEl.textContent = `${track.artist} • ${track.album}`;
       }
 
-      // Update Mini Player
       document.getElementById('mini-title').textContent = track.title;
       document.getElementById('mini-artist').textContent = `${track.artist} / ${track.album}`;
       document.getElementById('mini-cover').src = track.artworkUrl;
 
-      // Update Full Player
       document.getElementById('player-title').textContent = track.title;
       document.getElementById('player-artist-album').textContent = `${track.artist} / ${track.album}`;
       document.getElementById('player-main-art').src = track.artworkUrl;
 
-      // Update Track Info View
       document.getElementById('info-meta-title').textContent = track.title;
       document.getElementById('info-meta-artist').textContent = track.artist;
       document.getElementById('info-meta-album').textContent = track.album;
       document.getElementById('info-meta-format').textContent = track.format.toUpperCase();
       document.getElementById('info-meta-source').textContent = isLocalSource ? "Offline Sandbox" : "GitHub Raw Stream";
 
-      // Register Apple Control Center Metadata
       setupAppleMediaSession(track);
 
-      // Clean & set source directly to native audio element
       audio.src = audioSourceUrl;
       audio.load();
 
@@ -1636,7 +1915,7 @@
     }
 
     async function downloadTrackForOffline(track) {
-      showToast(`Downloading to App Sandbox: ${track.title}`);
+      showToast(`Downloading: ${track.title}`);
       try {
         const res = await fetch(track.streamUrl);
         const blob = await res.blob();
@@ -1903,7 +2182,7 @@
     });
 
     document.getElementById('btn-refresh').addEventListener('click', syncRemoteRepository);
-    document.getElementById('btn-quick-settings').addEventListener('click', () => navigateToView('view-settings'));
+    document.getElementById('btn-quick-settings').addEventListener('click', () => navigateToView('view-account'));
     document.getElementById('btn-hero-shuffle').addEventListener('click', () => {
       if (AppState.allTracks.length > 0) {
         AppState.currentPlaylistKey = AppState.allTracks;
@@ -1912,6 +2191,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
+      AuthService.init();
       syncRemoteRepository();
     });
   </script>
