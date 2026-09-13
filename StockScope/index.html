@@ -11,6 +11,66 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
 
   <style>
+    /* iPad & 平板大螢幕專屬雙欄適配 (橫屏或寬度大於 768px) */
+@media (min-width: 768px) {
+  /* 全螢幕播放器切換為左右分欄 */
+  .immersive-modal .modal-middle-stage {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    gap: 40px;
+  }
+
+  /* 左欄：黑膠唱盤擴大 */
+  .immersive-modal #leaf-vinyl-stage {
+    position: relative !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    flex: 1;
+    max-width: 480px;
+  }
+
+  .vinyl-stage-assembly {
+    width: 380px;
+    height: 380px;
+  }
+  .vinyl-disc-surface {
+    width: 350px;
+    height: 350px;
+  }
+
+  /* 右欄：歌詞常駐顯示，不再需要手動切換標籤 */
+  .immersive-modal #leaf-lyrics-stream {
+    position: relative !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    flex: 1.2;
+    height: 80%;
+  }
+
+  .lyrics-render-container {
+    text-align: left;
+    align-items: flex-start;
+    padding: 20vh 0;
+  }
+  .lyric-phrase {
+    text-align: left;
+    font-size: 1.8rem;
+  }
+  .lyric-phrase.phrase-active {
+    font-size: 2.3rem;
+  }
+
+  /* 隱藏頂部的切換開關（雙欄模式下兩者並存） */
+  .stage-mode-switcher {
+    display: none;
+  }
+}
+
     /* -------------------------------------------------------------
        1. GLOBAL RESET & TOKENS
        ------------------------------------------------------------- */
