@@ -5,21 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Aether Pro — Native Audio Engine</title>
 
-  <!-- Google Sans Universal Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --ios-font: 'Google Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      --ios-font: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --ios-bg-base: #000000;
       --ios-card-glass: rgba(28, 28, 32, 0.65);
-      --ios-card-glass-elevated: rgba(44, 44, 48, 0.75);
       --ios-card-hover: rgba(58, 58, 62, 0.85);
       --ios-accent: #fa233b;
       --ios-accent-gradient: linear-gradient(135deg, #fa233b 0%, #fb586c 50%, #8b5cf6 100%);
-      --ios-blue: #007aff;
       --ios-green: #34c759;
       --ios-text-primary: #ffffff;
       --ios-text-secondary: rgba(235, 235, 245, 0.6);
@@ -30,7 +27,7 @@
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --tabbar-height: 56px;
-      --sidebar-width: 320px;
+      --sidebar-width: 300px;
       --miniplayer-height: 64px;
     }
 
@@ -59,33 +56,26 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Dynamic Aurora Mesh */
+    /* Dynamic Aurora */
     .aurora-mesh {
       position: fixed;
       inset: -40%;
       pointer-events: none;
       z-index: 0;
-      overflow: hidden;
       filter: blur(120px) saturate(220%);
-      opacity: 0.55;
-      transition: opacity 1.5s ease;
+      opacity: 0.5;
     }
-
     .mesh-node {
       position: absolute;
       border-radius: 50%;
       mix-blend-mode: screen;
       animation: floatMesh 28s ease-in-out infinite alternate;
     }
-
     .mesh-1 { top: 15%; left: 10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(250, 35, 59, 0.45) 0%, transparent 70%); }
     .mesh-2 { bottom: 20%; right: 15%; width: 700px; height: 700px; background: radial-gradient(circle, rgba(0, 122, 255, 0.4) 0%, transparent 70%); animation-duration: 36s; }
-    .mesh-3 { top: 40%; left: 45%; width: 550px; height: 550px; background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%); animation-duration: 30s; }
-
     @keyframes floatMesh {
-      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-      50% { transform: translate(80px, -50px) scale(1.15) rotate(140deg); }
-      100% { transform: translate(-70px, 80px) scale(0.9) rotate(280deg); }
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, 60px) scale(1.1); }
     }
 
     .cupertino-card {
@@ -95,29 +85,24 @@
       border: 1px solid var(--ios-separator-light);
       border-radius: 20px;
       padding: 18px;
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .cupertino-btn {
-      position: relative;
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid var(--ios-separator-light);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.35);
       border-radius: 9999px;
       color: var(--ios-text-primary);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: transform 0.15s ease;
     }
+    .cupertino-btn:active { transform: scale(0.94); }
 
-    .cupertino-btn:active { transform: scale(0.94); background: rgba(255, 255, 255, 0.16); }
-    .cupertino-btn-primary { background: var(--ios-accent-gradient); border: none; box-shadow: 0 6px 22px rgba(250, 35, 59, 0.5); }
-
-    /* Root Dual-column Viewport */
+    /* App Layout */
     #app-viewport-root {
       display: flex;
       width: 100vw;
@@ -166,8 +151,7 @@
       transition: all 0.2s ease;
       margin-bottom: 2px;
     }
-
-    .sidebar-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--ios-text-primary); }
+    .sidebar-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
     .sidebar-item.active { background: rgba(250, 35, 59, 0.15); color: var(--ios-accent); font-weight: 700; }
     .sidebar-item svg { width: 20px; height: 20px; fill: currentColor; }
 
@@ -212,9 +196,8 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(14px);
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
-
     .view-leaf-container.active-view {
       opacity: 1;
       pointer-events: auto;
@@ -238,8 +221,7 @@
       cursor: pointer;
       transition: all 0.25s ease;
     }
-
-    .folder-item-card:hover { background: var(--ios-card-hover); transform: translateY(-2px); }
+    .folder-item-card:active { transform: scale(0.96); }
     .folder-icon-circle {
       width: 64px;
       height: 64px;
@@ -265,7 +247,6 @@
       cursor: pointer;
       transition: all 0.2s ease;
     }
-
     .track-cell-ios:hover { background: var(--ios-card-hover); }
     .track-cell-ios.is-playing { border-color: rgba(250, 35, 59, 0.5); background: rgba(250, 35, 59, 0.14); }
 
@@ -288,7 +269,7 @@
     .btn-fav-toggle.is-fav { color: var(--ios-accent); }
     .btn-fav-toggle:active { transform: scale(1.2); }
 
-    /* Mini Player Strip */
+    /* Mini Player */
     #floating-mini-player {
       position: absolute;
       bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 8px);
@@ -304,16 +285,14 @@
       align-items: center;
       padding: 0 16px;
       z-index: 30;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
       cursor: pointer;
     }
-
     .mini-artwork-thumb { width: 44px; height: 44px; border-radius: 10px; background: #2c2c2e; margin-right: 14px; object-fit: cover; }
     .mini-details-box { flex: 1; overflow: hidden; }
     .mini-track-title { font-size: 0.92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mini-track-sub { font-size: 0.74rem; color: var(--ios-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 
-    /* Bottom Tabbar */
+    /* iPhone Tabbar */
     nav#iphone-tabbar {
       height: var(--tabbar-height);
       padding-bottom: var(--safe-bottom);
@@ -326,7 +305,6 @@
       align-items: center;
       z-index: 20;
     }
-
     .tabbar-item-btn {
       display: flex;
       flex-direction: column;
@@ -379,14 +357,14 @@
       .segmented-control-ios { display: none; }
     }
 
-    /* Modal Fullscreen Player */
+    /* Fullscreen Modal Player */
     #immersive-player-modal {
       position: fixed;
       inset: 0;
       background: #000000;
       z-index: 100;
       transform: translateY(100%);
-      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       padding-top: var(--safe-top);
@@ -423,7 +401,6 @@
       border-radius: 9999px;
       padding: 3px;
     }
-
     .segmented-tab {
       padding: 5px 16px;
       font-size: 0.78rem;
@@ -453,12 +430,12 @@
       padding: 20px 30px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      transition: opacity 0.35s ease, transform 0.35s ease;
       transform: scale(0.96);
     }
     .stage-leaf-page.active-leaf { opacity: 1; pointer-events: auto; transform: scale(1); }
 
-    /* Vinyl Simulation */
+    /* Vinyl */
     .turntable-chassis { position: relative; width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
     .platter-base-metal { position: absolute; inset: -12px; border-radius: 50%; background: radial-gradient(circle, #1a1a24 0%, #0d0d14 75%); border: 2px solid var(--ios-separator-light); }
     .vinyl-lp-disc {
@@ -494,7 +471,7 @@
     }
     .tonearm-assembly.is-playing { transform: rotate(0deg); }
 
-    /* Synced Lyrics */
+    /* Lyrics View */
     .lyrics-scroll-container {
       width: 100%;
       height: 100%;
@@ -507,7 +484,6 @@
       -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
       mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
     }
-
     .lyric-item-line {
       font-size: 1.45rem;
       font-weight: 500;
@@ -518,7 +494,6 @@
       cursor: pointer;
       width: 100%;
       padding: 10px 0;
-      transform-origin: center center;
     }
     .lyric-item-line.is-active {
       color: #ffffff;
@@ -548,26 +523,6 @@
       box-shadow: 0 4px 28px rgba(255, 255, 255, 0.4);
     }
 
-    /* Modals & Dialogs */
-    .auth-fullscreen-barrier {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(35px);
-      z-index: 250;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .auth-fullscreen-barrier.active-auth { opacity: 1; pointer-events: auto; }
-    .auth-glass-sheet { width: 100%; max-width: 360px; background: var(--ios-card-glass-elevated); border: 1px solid var(--ios-separator-light); border-radius: 24px; padding: 28px; }
-    .cupertino-input { width: 100%; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--ios-separator-light); border-radius: 12px; padding: 12px 16px; color: #fff; font-size: 0.92rem; outline: none; margin-bottom: 12px; }
-    
     .ios-toast-pill {
       position: fixed;
       top: calc(var(--safe-top) + 64px);
@@ -593,7 +548,6 @@
   <div class="aurora-mesh">
     <div class="mesh-node mesh-1"></div>
     <div class="mesh-node mesh-2"></div>
-    <div class="mesh-node mesh-3"></div>
   </div>
 
   <div id="app-toast-pill" class="ios-toast-pill">Notification</div>
@@ -623,7 +577,7 @@
       </div>
       <div class="sidebar-item" data-dest="stage-favorites">
         <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        <span>Favorite Tracks</span>
+        <span>Favorites</span>
       </div>
       <div class="sidebar-item" data-dest="stage-offline-vault">
         <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
@@ -632,22 +586,18 @@
 
       <div class="sidebar-section-title">
         <span>Playlists</span>
-        <button id="btn-create-playlist-side" style="background: none; border: none; color: var(--ios-accent); cursor: pointer; font-size: 1.1rem; font-weight: 700;">+</button>
+        <button id="btn-create-playlist-side" style="background: none; border: none; color: var(--ios-accent); cursor: pointer; font-size: 1.2rem; font-weight: 700;">+</button>
       </div>
       <div id="sidebar-custom-playlists" style="display: flex; flex-direction: column;"></div>
 
-      <div class="sidebar-section-title" style="margin-top: 16px;">Preferences</div>
+      <div class="sidebar-section-title" style="margin-top: 16px;">System</div>
       <div class="sidebar-item" data-dest="stage-lyrics-stream">
         <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
         <span>Live Lyrics</span>
       </div>
-      <div class="sidebar-item" data-dest="stage-account">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>Account & Push</span>
-      </div>
     </aside>
 
-    <!-- Main Workspace -->
+    <!-- Main Content -->
     <div id="app-workspace">
       <header id="ios-navbar">
         <span style="font-size: 1.2rem; font-weight: 700;" id="page-title-label">Listen Now</span>
@@ -655,22 +605,19 @@
           <button class="cupertino-btn" id="navbar-btn-sync" style="width: 36px; height: 36px;">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
           </button>
-          <button class="cupertino-btn" id="navbar-btn-account" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          </button>
         </div>
       </header>
 
       <main id="views-viewport">
-        <!-- View 1: Explore -->
+        <!-- Leaf 1: Explore -->
         <div class="view-leaf-container active-view" id="stage-explore">
           <h1 class="section-main-title">Listen Now</h1>
-          <p class="section-sub-title">Synced remote repo: zhangzhanhang855/musiconly</p>
+          <p class="section-sub-title">Guest Ready — Instant Playback Enabled</p>
 
           <div class="cupertino-card" style="background: var(--ios-accent-gradient); border: none; padding: 24px; margin-bottom: 24px;">
             <span style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Direct Hardware Stream</span>
             <h2 style="font-size: 1.6rem; font-weight: 700; margin: 4px 0 8px 0;">Aether Master Audio</h2>
-            <p style="font-size: 0.88rem; opacity: 0.9; margin-bottom: 18px;">Offline-first pipeline. Favorited songs are automatically cached into sandbox.</p>
+            <p style="font-size: 0.88rem; opacity: 0.9; margin-bottom: 18px;">No login required. Star any track to automatically save it for offline playback.</p>
             <button class="cupertino-btn" id="btn-smart-shuffle" style="padding: 10px 22px; font-weight: 700; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3);">
               Smart Shuffle All
             </button>
@@ -680,28 +627,28 @@
           <div class="cupertino-grid" id="grid-explore-folders"></div>
         </div>
 
-        <!-- View 2: Collections -->
+        <!-- Leaf 2: Collections -->
         <div class="view-leaf-container" id="stage-collections">
           <h1 class="section-main-title">Collections</h1>
-          <p class="section-sub-title">Remote folders categorized as individual playlists</p>
+          <p class="section-sub-title">Folders detected from repository</p>
           <div class="cupertino-grid" id="grid-collections-folders"></div>
         </div>
 
-        <!-- View 3: All Tracks -->
+        <!-- Leaf 3: All Tracks -->
         <div class="view-leaf-container" id="stage-all-tracks">
           <h1 class="section-main-title" id="headline-all-tracks">All Tracks</h1>
           <p class="section-sub-title" id="subtitle-all-tracks">Streaming catalogue</p>
           <div class="track-row-assembly" id="list-all-tracks"></div>
         </div>
 
-        <!-- View 4: Favorites (Auto-Downloaded Tracks) -->
+        <!-- Leaf 4: Favorites -->
         <div class="view-leaf-container" id="stage-favorites">
           <h1 class="section-main-title">Favorite Tracks</h1>
-          <p class="section-sub-title">Starred songs are automatically saved offline</p>
+          <p class="section-sub-title">Cached locally in sandbox</p>
           <div class="track-row-assembly" id="list-favorites-tracks"></div>
         </div>
 
-        <!-- View 5: Offline Vault -->
+        <!-- Leaf 5: Offline Vault -->
         <div class="view-leaf-container" id="stage-offline-vault">
           <h1 class="section-main-title">Offline Vault</h1>
           <p class="section-sub-title">All local songs play without syncing repo</p>
@@ -714,7 +661,7 @@
           <div class="track-row-assembly" id="list-offline-tracks"></div>
         </div>
 
-        <!-- View 6: Standalone Lyrics -->
+        <!-- Leaf 6: Standalone Lyrics -->
         <div class="view-leaf-container" id="stage-lyrics-stream">
           <h1 class="section-main-title">Live Lyrics</h1>
           <p class="section-sub-title">Universal decoded stream</p>
@@ -724,40 +671,9 @@
             </div>
           </div>
         </div>
-
-        <!-- View 7: Account & Push -->
-        <div class="view-leaf-container" id="stage-account">
-          <h1 class="section-main-title">Account & Services</h1>
-          <p class="section-sub-title">MongoDB user profile & 6:00 AM Morning Dispatch</p>
-          
-          <div class="cupertino-card" style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Username</span><span id="acc-disp-username">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">License Status</span><span id="acc-disp-status" style="color: var(--ios-green); font-weight: 700;">Activated</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Redeemed Code</span><span id="acc-disp-code">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
-              <div>
-                <div style="font-weight: 700;">Morning Dispatch (6:00 AM)</div>
-                <div style="font-size: 0.76rem; color: var(--ios-text-secondary);">Pushes a random downloaded track to wake you up</div>
-              </div>
-              <button class="cupertino-btn" id="btn-enable-push" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700;">
-                Enable Push
-              </button>
-            </div>
-          </div>
-
-          <button class="cupertino-btn" id="btn-sign-out" style="width: 100%; padding: 14px; color: var(--ios-accent); background: rgba(250, 35, 59, 0.12); border-color: rgba(250, 35, 59, 0.3); font-weight: 700;">
-            Sign Out
-          </button>
-        </div>
       </main>
 
-      <!-- Mini Floating Controller -->
+      <!-- Mini Player -->
       <div id="floating-mini-player">
         <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%231c1c1e'/%3E%3C/svg%3E" class="mini-artwork-thumb" id="mini-artwork-img" alt="Artwork" />
         <div class="mini-details-box" id="mini-click-expand">
@@ -794,10 +710,6 @@
         <button class="tabbar-item-btn" data-dest="stage-offline-vault">
           <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
           <span>Offline</span>
-        </button>
-        <button class="tabbar-item-btn" data-dest="stage-account">
-          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <span>Account</span>
         </button>
       </nav>
     </div>
@@ -881,53 +793,20 @@
     </div>
   </div>
 
-  <!-- Authentication Sheet -->
-  <div class="auth-fullscreen-barrier" id="barrier-auth-sheet">
-    <div class="auth-glass-sheet">
-      <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--ios-separator);">
-        <div style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-bottom: 2px solid var(--ios-accent); font-weight: 700;" id="tab-auth-login">Sign In</div>
-        <div style="flex: 1; text-align: center; padding: 10px; cursor: pointer; color: var(--ios-text-secondary);" id="tab-auth-register">Register</div>
-      </div>
-      <div>
-        <input type="text" class="cupertino-input" id="auth-username" placeholder="Username" autocomplete="off" />
-        <input type="password" class="cupertino-input" id="auth-password" placeholder="Password" />
-        <button class="cupertino-btn cupertino-btn-primary" id="btn-submit-auth" style="width: 100%; padding: 14px; font-weight: 700;">Sign In</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Key Redemption Sheet -->
-  <div class="auth-fullscreen-barrier" id="barrier-redeem-sheet">
-    <div class="auth-glass-sheet">
-      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px;">Activate Aether</h2>
-      <p style="font-size: 0.84rem; color: var(--ios-text-secondary); margin-bottom: 20px;">Redeem an unused activation key from MongoDB to continue.</p>
-      <input type="text" class="cupertino-input" id="redeem-key-field" placeholder="e.g. JR-XXXX-XXXX" autocomplete="off" />
-      <button class="cupertino-btn cupertino-btn-primary" id="btn-submit-redeem" style="width: 100%; padding: 14px; font-weight: 700;">Redeem Key</button>
-    </div>
-  </div>
-
   <audio id="core-audio-pipeline" preload="auto" playsinline webkit-playsinline></audio>
 
   <script>
-    /**
-     * =========================================================================
-     * AETHER PRO RUNTIME CORE (WITH OFFLINE-FIRST & AUTO-DOWNLOAD ENGINE)
-     * =========================================================================
-     */
-    const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
     const GITHUB_USER = "zhangzhanhang855";
     const GITHUB_REPO = "musiconly";
-    const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
     const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 
+    // App State
     const AppState = {
-      user: null,
       playlists: {},
       allTracks: [],
       offlineTracks: [],
       favorites: [],
       customPlaylists: {},
-      playHistory: [],
       currentActiveSet: null,
       currentTrackIndex: -1,
       currentTrack: null,
@@ -965,10 +844,6 @@
     const modalLyricsViewport = document.getElementById('modal-lyrics-viewport');
     const standaloneLyricsViewport = document.getElementById('standalone-lyrics-viewport');
 
-    const barrierAuth = document.getElementById('barrier-auth-sheet');
-    const barrierRedeem = document.getElementById('barrier-redeem-sheet');
-    let currentAuthMode = 'login';
-
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add('visible-toast');
@@ -995,8 +870,7 @@
         'stage-all-tracks': 'All Tracks',
         'stage-favorites': 'Favorite Tracks',
         'stage-offline-vault': 'Offline Vault',
-        'stage-lyrics-stream': 'Live Lyrics',
-        'stage-account': 'Account'
+        'stage-lyrics-stream': 'Live Lyrics'
       };
       document.getElementById('page-title-label').textContent = pageTitles[targetStageId] || 'Playlist';
     }
@@ -1009,15 +883,11 @@
     });
 
     /**
-     * =========================================================================
-     * 1. 雙字節通用自適應文本解碼器 (修復英文亂碼)
-     * =========================================================================
+     * 1. 文本解碼探針 (解決英文亂碼)
      */
     class UniversalTextDecoder {
       static decodeBuffer(uint8Arr) {
         if (!uint8Arr || uint8Arr.length === 0) return "";
-
-        // 1. BOM 簽名校驗
         if (uint8Arr.length >= 3 && uint8Arr[0] === 0xEF && uint8Arr[1] === 0xBB && uint8Arr[2] === 0xBF) {
           return new TextDecoder('utf-8').decode(uint8Arr.subarray(3));
         }
@@ -1028,7 +898,6 @@
           return new TextDecoder('utf-16be').decode(uint8Arr.subarray(2));
         }
 
-        // 2. 檢測英文 UTF-16 特有的 0x00 空字節排布
         let evenZeros = 0, oddZeros = 0;
         const checkLen = Math.min(uint8Arr.length, 512);
         for (let i = 0; i < checkLen; i++) {
@@ -1044,13 +913,11 @@
           try { return new TextDecoder('utf-16be').decode(uint8Arr); } catch(e) {}
         }
 
-        // 3. UTF-8 嚴格解碼
         try {
           const res = new TextDecoder('utf-8', { fatal: true }).decode(uint8Arr);
           if (res.includes('[') || res.includes(':')) return res;
         } catch(e) {}
 
-        // 4. GB18030 回退
         try {
           const gbk = new TextDecoder('gb18030').decode(uint8Arr);
           if (gbk.includes('[') || gbk.includes(':')) return gbk;
@@ -1070,7 +937,6 @@
       }
 
       let cleanText = rawText.replace(/\0/g, '').trim();
-
       if (!cleanText.match(/\[\d{1,3}:\d{1,2}/)) {
         try {
           const buf = new Uint8Array([...cleanText].map(c => c.charCodeAt(0) & 0xff));
@@ -1137,125 +1003,12 @@
     }
 
     /**
-     * =========================================================================
-     * 2. 二進制 ID3 / FLAC 元數據提取
-     * =========================================================================
-     */
-    class BinaryTagExtractor {
-      static async extract(arrayBuffer, format) {
-        const view = new DataView(arrayBuffer);
-        const meta = { title: null, artist: null, album: null, artworkUrl: null, embeddedLrc: null };
-
-        try {
-          if (format === 'mp3') {
-            if (view.getUint8(0) === 0x49 && view.getUint8(1) === 0x44 && view.getUint8(2) === 0x33) {
-              const version = view.getUint8(3);
-              const tagSize = (view.getUint8(6) << 21) | (view.getUint8(7) << 14) | (view.getUint8(8) << 7) | view.getUint8(9);
-              let offset = 10;
-
-              while (offset < tagSize + 10 && offset < view.byteLength - 10) {
-                const frameId = String.fromCharCode(view.getUint8(offset), view.getUint8(offset+1), view.getUint8(offset+2), view.getUint8(offset+3));
-                if (!frameId.match(/^[A-Z0-9]{4}$/)) break;
-
-                const frameSize = (version === 4)
-                  ? (view.getUint8(offset+4) << 21) | (view.getUint8(offset+5) << 14) | (view.getUint8(offset+6) << 7) | view.getUint8(offset+7)
-                  : view.getUint32(offset + 4);
-
-                if (frameSize <= 0 || offset + 10 + frameSize > view.byteLength) break;
-                const frameData = new Uint8Array(arrayBuffer, offset + 10, frameSize);
-
-                if (frameId === 'TIT2') meta.title = BinaryTagExtractor.decodeText(frameData);
-                else if (frameId === 'TPE1') meta.artist = BinaryTagExtractor.decodeText(frameData);
-                else if (frameId === 'TALB') meta.album = BinaryTagExtractor.decodeText(frameData);
-                else if (frameId === 'APIC') meta.artworkUrl = BinaryTagExtractor.decodeApic(frameData);
-                else if (frameId === 'USLT') meta.embeddedLrc = BinaryTagExtractor.decodeText(frameData.slice(4));
-
-                offset += 10 + frameSize;
-              }
-            }
-          } else if (format === 'flac') {
-            if (view.getUint8(0) === 0x66 && view.getUint8(1) === 0x4C && view.getUint8(2) === 0x61 && view.getUint8(3) === 0x43) {
-              let offset = 4;
-              let isLast = false;
-              while (!isLast && offset < view.byteLength) {
-                const header = view.getUint8(offset);
-                isLast = (header & 0x80) !== 0;
-                const type = header & 0x7F;
-                const blockSize = (view.getUint8(offset + 1) << 16) | (view.getUint8(offset + 2) << 8) | view.getUint8(offset + 3);
-                offset += 4;
-
-                if (type === 4) {
-                  const comments = BinaryTagExtractor.parseVorbis(new Uint8Array(arrayBuffer, offset, blockSize));
-                  if (comments.TITLE) meta.title = comments.TITLE;
-                  if (comments.ARTIST) meta.artist = comments.ARTIST;
-                  if (comments.ALBUM) meta.album = comments.ALBUM;
-                  if (comments.LYRICS) meta.embeddedLrc = comments.LYRICS;
-                } else if (type === 6) {
-                  meta.artworkUrl = BinaryTagExtractor.parseFlacPicture(new DataView(arrayBuffer, offset, blockSize));
-                }
-                offset += blockSize;
-              }
-            }
-          }
-        } catch (e) {}
-        return meta;
-      }
-
-      static decodeText(uint8Arr) {
-        if (!uint8Arr || uint8Arr.length <= 1) return "";
-        return UniversalTextDecoder.decodeBuffer(uint8Arr.slice(1)).replace(/\0/g, '');
-      }
-
-      static decodeApic(uint8Arr) {
-        let offset = 1;
-        while (offset < uint8Arr.length && uint8Arr[offset] !== 0) offset++;
-        offset += 2;
-        while (offset < uint8Arr.length && uint8Arr[offset] !== 0) offset++;
-        offset++;
-        const imgBytes = uint8Arr.slice(offset);
-        return URL.createObjectURL(new Blob([imgBytes], { type: 'image/jpeg' }));
-      }
-
-      static parseVorbis(uint8Arr) {
-        const view = new DataView(uint8Arr.buffer, uint8Arr.byteOffset, uint8Arr.byteLength);
-        let offset = 4 + view.getUint32(0, true);
-        const count = view.getUint32(offset, true);
-        offset += 4;
-        const result = {};
-        for (let i = 0; i < count; i++) {
-          if (offset + 4 > uint8Arr.length) break;
-          const len = view.getUint32(offset, true);
-          offset += 4;
-          const str = new TextDecoder('utf-8').decode(uint8Arr.slice(offset, offset + len));
-          offset += len;
-          const eq = str.indexOf('=');
-          if (eq !== -1) result[str.substring(0, eq).toUpperCase()] = str.substring(eq + 1);
-        }
-        return result;
-      }
-
-      static parseFlacPicture(view) {
-        try {
-          const mimeLen = view.getUint32(4);
-          let offset = 8 + mimeLen;
-          const descLen = view.getUint32(offset);
-          offset += 4 + descLen + 16;
-          const dataLen = view.getUint32(offset);
-          offset += 4;
-          return URL.createObjectURL(new Blob([new Uint8Array(view.buffer, view.byteOffset + offset, dataLen)], { type: 'image/jpeg' }));
-        } catch (e) { return null; }
-      }
-    }
-
-    /**
-     * =========================================================================
-     * 3. 持久化離線沙盒儲存 (INDEXEDDB - OFFLINE-FIRST)
-     * =========================================================================
+     * 2. IndexedDB (離線優先，免登入持久化)
      */
     class VaultEngine {
       static async open() {
         return new Promise((res, rej) => {
-          const req = indexedDB.open("AetherMasterStore", 3);
+          const req = indexedDB.open("AetherMasterStore", 4);
           req.onupgradeneeded = (e) => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains("tracks")) db.createObjectStore("tracks", { keyPath: "id" });
@@ -1266,7 +1019,7 @@
         });
       }
 
-      static async saveTrack(track, blob, meta) {
+      static async saveTrack(track, blob) {
         const db = await VaultEngine.open();
         return new Promise((res, rej) => {
           const tx = db.transaction("tracks", "readwrite");
@@ -1275,10 +1028,12 @@
             fileName: track.fileName,
             folder: track.folder,
             blob: blob,
-            title: meta.title || track.title,
-            artist: meta.artist || track.artist,
-            album: meta.album || track.album,
+            title: track.title,
+            artist: track.artist,
+            album: track.album,
             format: track.format,
+            artworkUrl: track.artworkUrl,
+            lrcUrl: track.lrcUrl,
             dateAdded: Date.now()
           };
           const req = tx.objectStore("tracks").put(record);
@@ -1328,94 +1083,151 @@
     }
 
     /**
-     * =========================================================================
-     * 4. 喜愛、自動下載與自建播放清單
-     * =========================================================================
+     * 3. 解決問題 1：使用單次 Git Tree API 同步 GitHub，永不超限
      */
-    async function toggleFavorite(track) {
-      const idx = AppState.favorites.findIndex(t => t.id === track.id);
-      if (idx !== -1) {
-        AppState.favorites.splice(idx, 1);
-        showToast(`Removed from Favorites: ${track.title}`);
-      } else {
-        AppState.favorites.unshift(track);
-        showToast(`Favorited: ${track.title} (Downloading offline...)`);
-        // 自動啟動後台下載到本地沙盒
-        triggerAutoDownload(track);
-      }
-
-      updateFavButtons();
-      renderFavoritesView();
-      await VaultEngine.saveMeta('favorites', AppState.favorites);
-      syncUserMetaRemote();
-    }
-
-    async function triggerAutoDownload(track) {
+    async function syncRemoteRepository() {
+      showToast("Syncing with GitHub Tree API...");
       try {
-        const isCached = await VaultEngine.exists(track.id);
-        if (isCached) return;
+        // 使用 recursive 1 次性獲取全庫
+        const treeUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/main?recursive=1`;
+        const res = await fetch(treeUrl);
+        if (!res.ok) throw new Error("API Limit reached or network error");
+        const data = await res.json();
 
-        const res = await fetch(track.streamUrl);
-        const blob = await res.blob();
-        const buf = await blob.arrayBuffer();
-        const meta = await BinaryTagExtractor.extract(buf, track.format);
+        if (!data.tree) throw new Error("Invalid tree format");
 
-        await VaultEngine.saveTrack(track, blob, meta);
-        await reloadOfflineVault();
-        showToast(`Saved to Offline: ${track.title}`);
+        AppState.playlists = {};
+        AppState.allTracks = [];
+
+        const audioExtensions = ['.mp3', '.flac', '.wav', '.m4a'];
+        const allFiles = data.tree.filter(item => item.type === "blob");
+
+        allFiles.forEach(file => {
+          const path = file.path;
+          const extMatch = audioExtensions.some(ext => path.toLowerCase().endsWith(ext));
+
+          if (extMatch) {
+            const parts = path.split('/');
+            let folderName = "Root";
+            let fileName = path;
+
+            if (parts.length > 1) {
+              folderName = parts[0];
+              fileName = parts.slice(1).join('/');
+            }
+
+            const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+            const matchedLrcFile = allFiles.find(f => f.path.toLowerCase() === `${folderName}/${baseName}.lrc`.toLowerCase());
+
+            let title = baseName;
+            let artist = "Various Artists";
+            if (baseName.includes(' - ')) {
+              const p = baseName.split(' - ');
+              artist = p[0].trim();
+              title = p.slice(1).join(' - ').trim();
+            }
+
+            const trackObj = {
+              id: file.sha,
+              fileName: fileName,
+              format: path.split('.').pop().toLowerCase(),
+              title: title,
+              artist: artist,
+              album: folderName,
+              streamUrl: `${RAW_BASE}/${encodeURIComponent(path)}`,
+              lrcUrl: matchedLrcFile ? `${RAW_BASE}/${encodeURIComponent(matchedLrcFile.path)}` : null,
+              artworkUrl: generateVectorPlaceholder(title),
+              folder: folderName
+            };
+
+            if (!AppState.playlists[folderName]) {
+              AppState.playlists[folderName] = [];
+            }
+            AppState.playlists[folderName].push(trackObj);
+            AppState.allTracks.push(trackObj);
+          }
+        });
+
+        renderPlaylistsView();
         renderTracksView(AppState.allTracks, "All Tracks");
+        await VaultEngine.saveMeta('cached_all_tracks', AppState.allTracks);
+        await VaultEngine.saveMeta('cached_playlists', AppState.playlists);
+        showToast(`Sync complete! ${AppState.allTracks.length} tracks indexed.`);
       } catch (err) {
-        console.warn("Auto-download failed:", err);
+        showToast("Cloud sync failed. Loading local database.");
+        // 若 API 失敗，從本機快取無縫載入
+        const cachedTracks = await VaultEngine.getMeta('cached_all_tracks');
+        const cachedPlaylists = await VaultEngine.getMeta('cached_playlists');
+        if (cachedTracks) {
+          AppState.allTracks = cachedTracks;
+          AppState.playlists = cachedPlaylists || {};
+          renderPlaylistsView();
+          renderTracksView(AppState.allTracks, "All Tracks (Cached)");
+        }
       }
     }
 
-    function updateFavButtons() {
-      if (!AppState.currentTrack) return;
-      const isFav = AppState.favorites.some(t => t.id === AppState.currentTrack.id);
-      miniFavBtn.classList.toggle('is-fav', isFav);
-      modalFavBtn.classList.toggle('is-fav', isFav);
+    function generateVectorPlaceholder(text) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 512, 512);
+      grad.addColorStop(0, '#1c1c1e');
+      grad.addColorStop(1, '#fa233b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 40px Google Sans';
+      ctx.textAlign = 'center';
+      ctx.fillText(text ? text.substring(0, 16) : 'Aether', 256, 268);
+      return c.toDataURL('image/png');
     }
 
-    function renderFavoritesView() {
-      const container = document.getElementById('list-favorites-tracks');
-      container.innerHTML = '';
+    function renderPlaylistsView() {
+      const exploreGrid = document.getElementById('grid-explore-folders');
+      const collectGrid = document.getElementById('grid-collections-folders');
+      exploreGrid.innerHTML = '';
+      collectGrid.innerHTML = '';
 
-      if (AppState.favorites.length === 0) {
-        container.innerHTML = `<p style="color: var(--ios-text-tertiary); text-align: center; margin-top: 40px;">No favorite tracks yet.</p>`;
-        return;
-      }
-
-      AppState.favorites.forEach((t, i) => {
-        const cell = document.createElement('div');
-        cell.className = 'track-cell-ios';
-        cell.innerHTML = `
-          <div class="track-cell-info-box">
-            <img src="${t.artworkUrl}" class="track-artwork-thumbnail" alt="Art" />
-            <div class="track-labels-column">
-              <div class="track-name-main">${t.title}</div>
-              <div class="track-artist-sub">${t.artist} • ${t.album}</div>
+      Object.keys(AppState.playlists).forEach(name => {
+        const count = AppState.playlists[name].length;
+        const html = `
+          <div class="folder-item-card" data-folder="${name}">
+            <div class="folder-icon-circle">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
             </div>
+            <div class="folder-name-text" style="font-weight:700; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${name}</div>
+            <div style="font-size:0.75rem; color:var(--ios-text-secondary); margin-top:4px;">${count} Tracks</div>
           </div>
-          <span style="color: var(--ios-accent); font-size: 1.2rem;">★</span>
         `;
-        cell.querySelector('.track-cell-info-box').onclick = () => {
-          AppState.currentActiveSet = AppState.favorites;
-          playTrackByIndex(i);
+        exploreGrid.insertAdjacentHTML('beforeend', html);
+        collectGrid.insertAdjacentHTML('beforeend', html);
+      });
+
+      document.querySelectorAll('.folder-item-card').forEach(c => {
+        c.onclick = () => {
+          const f = c.getAttribute('data-folder');
+          if (f && AppState.playlists[f]) {
+            renderTracksView(AppState.playlists[f], f);
+            switchStageView('stage-all-tracks');
+          }
         };
-        container.appendChild(cell);
       });
     }
 
-    // 自建播放清單管理
-    async function createNewPlaylist(name) {
+    /**
+     * 4. 解決問題 2：自建 Playlist 0 毫秒極速創建（樂觀本地更新）
+     */
+    async function createNewPlaylistOptimistic(name) {
       if (!name) return;
       if (AppState.customPlaylists[name]) return showToast("Playlist already exists");
 
+      // 立即寫入本地狀態與 IndexedDB
       AppState.customPlaylists[name] = [];
-      await VaultEngine.saveMeta('customPlaylists', AppState.customPlaylists);
       renderCustomPlaylistsNav();
-      syncUserMetaRemote();
-      showToast(`Playlist created: ${name}`);
+      showToast(`Created: ${name}`);
+      await VaultEngine.saveMeta('customPlaylists', AppState.customPlaylists);
     }
 
     function renderCustomPlaylistsNav() {
@@ -1438,134 +1250,77 @@
       });
     }
 
-    async function syncUserMetaRemote() {
-      if (!AppState.user) return;
-      try {
-        await fetch(`${CF_WORKER_ENDPOINT}/api/user/sync-meta`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: AppState.user.username,
-            favorites: AppState.favorites,
-            customPlaylists: AppState.customPlaylists
-          })
-        });
-      } catch (e) {}
-    }
-
     /**
-     * =========================================================================
-     * 5. 早上 6:00 推送訂閱與消息跳轉播放核心
-     * =========================================================================
+     * 5. 喜愛、自動下載與零網絡播放
      */
-    async function registerMorningPush() {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        return showToast("Push Notification not supported on this platform");
+    async function toggleFavorite(track) {
+      const idx = AppState.favorites.findIndex(t => t.id === track.id);
+      if (idx !== -1) {
+        AppState.favorites.splice(idx, 1);
+        showToast(`Removed from Favorites: ${track.title}`);
+      } else {
+        AppState.favorites.unshift(track);
+        showToast(`Saved to Favorites: ${track.title}`);
+        triggerAutoDownload(track);
       }
 
+      updateFavButtons();
+      renderFavoritesView();
+      await VaultEngine.saveMeta('favorites', AppState.favorites);
+    }
+
+    async function triggerAutoDownload(track) {
       try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return showToast("Notification permission denied");
+        const isCached = await VaultEngine.exists(track.id);
+        if (isCached) return;
 
-        // 註冊極簡 Service Worker
-        const swRegistration = await navigator.serviceWorker.register('./sw.js').catch(async () => {
-          // 動態生成 Service Worker Blob
-          const swCode = `
-            self.addEventListener('push', e => {
-              const data = e.data.json();
-              e.waitUntil(
-                self.registration.showNotification(data.title, {
-                  body: data.body,
-                  icon: './icon.png',
-                  data: { actionUrl: data.actionUrl, trackId: data.trackId }
-                })
-              );
-            });
-            self.addEventListener('notificationclick', e => {
-              e.notification.close();
-              e.waitUntil(
-                clients.matchAll({ type: 'window' }).then(clis => {
-                  for (let client of clis) {
-                    if (client.url && 'focus' in client) {
-                      client.focus();
-                      client.postMessage({ action: 'PLAY_TRACK', trackId: e.notification.data.trackId });
-                      return;
-                    }
-                  }
-                  if (clients.openWindow) clients.openWindow(e.notification.data.actionUrl);
-                })
-              );
-            });
-          `;
-          const blob = new Blob([swCode], { type: 'application/javascript' });
-          return navigator.serviceWorker.register(URL.createObjectURL(blob));
-        });
-
-        // 訂閱推送
-        const subscription = await swRegistration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U"
-        });
-
-        // 上傳到 Workers
-        await fetch(`${CF_WORKER_ENDPOINT}/api/push/subscribe`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: AppState.user.username,
-            subscription: subscription
-          })
-        });
-
-        showToast("6:00 AM Morning Dispatch Active");
-        document.getElementById('btn-enable-push').textContent = "Subscribed";
-        document.getElementById('btn-enable-push').style.color = "var(--ios-green)";
+        const res = await fetch(track.streamUrl);
+        const blob = await res.blob();
+        await VaultEngine.saveTrack(track, blob);
+        await reloadOfflineVault();
+        showToast(`Offline Download Ready: ${track.title}`);
       } catch (err) {
-        showToast("Push registration error: " + err.message);
+        console.warn("Download failed:", err);
       }
     }
 
-    // 監聽 Service Worker 發送的播放指令（點擊通知喚醒）
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', async (event) => {
-        if (event.data && event.data.action === 'PLAY_TRACK') {
-          playTrackByIdDirect(event.data.trackId);
-        }
+    function updateFavButtons() {
+      if (!AppState.currentTrack) return;
+      const isFav = AppState.favorites.some(t => t.id === AppState.currentTrack.id);
+      miniFavBtn.classList.toggle('is-fav', isFav);
+      modalFavBtn.classList.toggle('is-fav', isFav);
+    }
+
+    function renderFavoritesView() {
+      const container = document.getElementById('list-favorites-tracks');
+      container.innerHTML = '';
+      if (AppState.favorites.length === 0) {
+        container.innerHTML = `<p style="color: var(--ios-text-tertiary); text-align: center; margin-top: 40px;">No favorite tracks yet.</p>`;
+        return;
+      }
+      AppState.favorites.forEach((t, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'track-cell-ios';
+        cell.innerHTML = `
+          <div class="track-cell-info-box">
+            <img src="${t.artworkUrl}" class="track-artwork-thumbnail" alt="Art" />
+            <div class="track-labels-column">
+              <div class="track-name-main">${t.title}</div>
+              <div class="track-artist-sub">${t.artist} • ${t.album}</div>
+            </div>
+          </div>
+          <span style="color: var(--ios-accent); font-size: 1.2rem;">★</span>
+        `;
+        cell.querySelector('.track-cell-info-box').onclick = () => {
+          AppState.currentActiveSet = AppState.favorites;
+          playTrackByIndex(i);
+        };
+        container.appendChild(cell);
       });
     }
 
-    // 監聽 URL 啟動參數
-    function checkUrlLaunchParams() {
-      const params = new URLSearchParams(window.location.search);
-      const action = params.get('action');
-      const trackId = params.get('trackId');
-      if (action === 'play' && trackId) {
-        playTrackByIdDirect(trackId);
-      }
-    }
-
-    async function playTrackByIdDirect(trackId) {
-      // 優先從本地離線庫檢索
-      const allOffline = await VaultEngine.getAll();
-      const localTrack = allOffline.find(t => t.id === trackId);
-      if (localTrack) {
-        AppState.currentActiveSet = allOffline;
-        const idx = allOffline.findIndex(t => t.id === trackId);
-        playTrackByIndex(idx);
-        showToast(`Morning Play: ${localTrack.title}`);
-        return;
-      }
-      // 否則從全量列表檢索
-      const idx = AppState.allTracks.findIndex(t => t.id === trackId);
-      if (idx !== -1) {
-        playTrackByIndex(idx);
-      }
-    }
-
     /**
-     * =========================================================================
-     * 6. 播放調度引擎 (離線優先 / 零網絡即開即播)
-     * =========================================================================
+     * 6. 解決問題 3：免登錄直接播放（訪客零門檻）
      */
     async function playTrackByIndex(idx) {
       const currentSet = AppState.currentActiveSet || AppState.allTracks;
@@ -1580,33 +1335,8 @@
       const vaultRecord = allVault.find(x => x.id === track.id);
 
       let playUrl = track.streamUrl;
-      let bufferForParser = null;
-
       if (vaultRecord) {
-        // 本地沙盒離線秒播
         playUrl = URL.createObjectURL(vaultRecord.blob);
-        bufferForParser = await vaultRecord.blob.arrayBuffer();
-      } else {
-        // 在線流式播放並提取標籤
-        try {
-          const res = await fetch(track.streamUrl);
-          const blob = await res.blob();
-          bufferForParser = await blob.arrayBuffer();
-          playUrl = URL.createObjectURL(blob);
-        } catch (e) {
-          playUrl = track.streamUrl;
-        }
-      }
-
-      let parsedEmbeddedLrc = null;
-
-      if (bufferForParser) {
-        const meta = await BinaryTagExtractor.extract(bufferForParser, track.format);
-        if (meta.title) track.title = meta.title;
-        if (meta.artist) track.artist = meta.artist;
-        if (meta.album) track.album = meta.album;
-        if (meta.artworkUrl) track.artworkUrl = meta.artworkUrl;
-        if (meta.embeddedLrc) parsedEmbeddedLrc = meta.embeddedLrc;
       }
 
       // 更新 UI 狀態
@@ -1625,17 +1355,11 @@
       audio.src = playUrl;
       audio.load();
 
-      // 讀取歌詞：外部 .lrc 優先，內嵌標籤兜底
-      loadLyricsFlow(track, parsedEmbeddedLrc);
-
+      loadLyricsFlow(track);
       executePlay();
-
-      AppState.playHistory.unshift(track);
-      renderHistoryView();
     }
 
-    async function loadLyricsFlow(track, embeddedFallback) {
-      let lrcFound = false;
+    async function loadLyricsFlow(track) {
       if (track.lrcUrl) {
         try {
           const res = await fetch(track.lrcUrl);
@@ -1643,17 +1367,13 @@
             const buffer = await res.arrayBuffer();
             const rawLrc = UniversalTextDecoder.decodeBuffer(new Uint8Array(buffer));
             if (rawLrc && rawLrc.trim()) {
-              lrcFound = true;
               processLyrics(rawLrc);
+              return;
             }
           }
         } catch (e) {}
       }
-
-      if (!lrcFound) {
-        if (embeddedFallback) processLyrics(embeddedFallback);
-        else processLyrics(null);
-      }
+      processLyrics(null);
     }
 
     function executePlay() {
@@ -1762,11 +1482,6 @@
       }
     }
 
-    /**
-     * =========================================================================
-     * 7. 渲染視圖與組件事件
-     * =========================================================================
-     */
     async function renderTracksView(tracks, headline) {
       const container = document.getElementById('list-all-tracks');
       document.getElementById('headline-all-tracks').textContent = headline;
@@ -1843,31 +1558,7 @@
       });
     }
 
-    function renderHistoryView() {
-      const container = document.getElementById('list-history-tracks');
-      if (AppState.playHistory.length === 0) return;
-      container.innerHTML = '';
-      AppState.playHistory.forEach(t => {
-        const row = document.createElement('div');
-        row.className = 'track-cell-ios';
-        row.innerHTML = `
-          <div class="track-labels-column">
-            <div class="track-name-main">${t.title}</div>
-            <div class="track-artist-sub">${t.artist} • ${t.album}</div>
-          </div>
-          <span style="font-size: 0.72rem; color: var(--ios-text-tertiary);">Played</span>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function updateDiagnostics() {
-      document.getElementById('diag-val-playlists').textContent = Object.keys(AppState.playlists).length;
-      document.getElementById('diag-val-tracks').textContent = AppState.allTracks.length;
-      document.getElementById('diag-val-offline').textContent = AppState.offlineTracks.length;
-    }
-
-    // Controls Binds
+    // Event Binds
     miniFavBtn.onclick = (e) => { e.stopPropagation(); if (AppState.currentTrack) toggleFavorite(AppState.currentTrack); };
     modalFavBtn.onclick = () => { if (AppState.currentTrack) toggleFavorite(AppState.currentTrack); };
 
@@ -1914,22 +1605,16 @@
     };
 
     document.getElementById('navbar-btn-sync').onclick = syncRemoteRepository;
-    document.getElementById('btn-enable-push').onclick = registerMorningPush;
 
     document.getElementById('btn-create-playlist-side').onclick = () => {
       const name = prompt("Enter new playlist name:");
-      if (name) createNewPlaylist(name.trim());
+      if (name && name.trim()) createNewPlaylistOptimistic(name.trim());
     };
 
     /**
-     * =========================================================================
-     * 8. 系統啟動引導 (OFFLINE-FIRST 優先啟動，無需依賴網絡)
-     * =========================================================================
+     * 7. 啟動加載 (離線優先，零等待)
      */
     window.addEventListener('DOMContentLoaded', async () => {
-      AuthClient.init();
-
-      // 1. 首屏本地數據瞬時恢復 (無需等 GitHub 返回即可播放)
       const cachedFavs = await VaultEngine.getMeta('favorites');
       if (cachedFavs) AppState.favorites = cachedFavs;
       renderFavoritesView();
@@ -1940,16 +1625,17 @@
 
       await reloadOfflineVault();
 
-      // 如果有離線歌曲，先將離線庫掛載為默認播放清單
-      if (AppState.offlineTracks.length > 0) {
-        AppState.currentActiveSet = AppState.offlineTracks;
-        renderTracksView(AppState.offlineTracks, "Offline Vault");
+      // 先嘗試從快取讀取曲庫並掛載，不需要聯網即可點擊播放
+      const cachedTracks = await VaultEngine.getMeta('cached_all_tracks');
+      const cachedRepoPlaylists = await VaultEngine.getMeta('cached_playlists');
+      if (cachedTracks && cachedTracks.length > 0) {
+        AppState.allTracks = cachedTracks;
+        AppState.playlists = cachedRepoPlaylists || {};
+        renderPlaylistsView();
+        renderTracksView(AppState.allTracks, "All Tracks (Offline Cached)");
       }
 
-      // 2. 檢測通知點擊跳轉播放指令
-      checkUrlLaunchParams();
-
-      // 3. 後台靜默同步倉庫（不阻塞本地庫即開即用）
+      // 後台非同步進行 GitHub Git Trees 單次拉取，自動更新最新曲目
       syncRemoteRepository();
     });
   </script>
