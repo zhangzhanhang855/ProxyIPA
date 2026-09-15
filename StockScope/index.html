@@ -12,7 +12,7 @@
 
   <style>
     /* ==========================================================================
-       THEME CONFIGURATION & GLOBAL TOKENS
+       THEME CONFIGURATION & GLOBAL DESIGN SYSTEM
        ========================================================================== */
     :root {
       --bg-base: #0a0b0e;
@@ -57,7 +57,6 @@
       display: flex;
     }
 
-    /* Scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -82,7 +81,7 @@
     }
 
     /* ==========================================================================
-       SIDEBAR INTERFACE
+       SIDEBAR NAVIGATION
        ========================================================================== */
     aside.sidebar {
       width: var(--sidebar-width);
@@ -235,7 +234,7 @@
     }
 
     /* ==========================================================================
-       MAIN VIEWPORT LAYOUT
+       VIEWPORT & TOP BAR
        ========================================================================== */
     main.main-viewport {
       flex: 1;
@@ -773,12 +772,12 @@
     }
 
     /* ==========================================================================
-       MODAL: HIGH-AESTHETIC AUTHENTICATION & REDEEM HUB
+       AUTHENTICATION & REDEEM HUB MODAL
        ========================================================================== */
     .app-modal-layer {
       position: fixed;
       inset: 0;
-      background: rgba(5, 7, 10, 0.82);
+      background: rgba(5, 7, 10, 0.85);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
       display: none;
@@ -994,14 +993,6 @@
       transform: scale(0.98);
     }
 
-    .redeem-section-box {
-      border-top: 1px solid var(--border-subtle);
-      padding-top: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
     .auth-alert-message {
       font-size: 0.8rem;
       text-align: center;
@@ -1017,7 +1008,7 @@
       color: #00b894;
     }
 
-    /* Guest Banner Block */
+    /* Guest Interceptor Screen */
     .guest-gate-overlay {
       position: absolute;
       top: 64px;
@@ -1049,6 +1040,123 @@
       line-height: 1.5;
     }
 
+    /* ==========================================================================
+       CUSTOM TOAST & PROMPT DIALOG ENGINE (REPLACING ALERT / PROMPT)
+       ========================================================================== */
+    #ui-toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .ui-toast {
+      pointer-events: auto;
+      min-width: 280px;
+      max-width: 380px;
+      background: rgba(24, 27, 34, 0.95);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      font-size: 0.88rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .ui-toast.success {
+      border-left-color: #00b894;
+    }
+    .ui-toast.info {
+      border-left-color: #0984e3;
+    }
+    .ui-toast.error {
+      border-left-color: #ff4757;
+    }
+
+    .ui-toast-content {
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .toast-fade-out {
+      opacity: 0 !important;
+      transform: translateY(-10px) !important;
+    }
+
+    /* Interactive Custom Prompt Modal */
+    #custom-prompt-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    #custom-prompt-modal.is-open {
+      display: flex;
+    }
+
+    .prompt-box-dialog {
+      background: linear-gradient(165deg, rgba(28, 32, 43, 0.98), rgba(16, 18, 24, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 24px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .prompt-title-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .prompt-desc-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .prompt-actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
     @media (max-width: 768px) {
       aside.sidebar { display: none; }
       .track-row-item { grid-template-columns: 36px 1fr 60px 40px; }
@@ -1056,10 +1164,35 @@
       .player-left-meta { width: 60%; }
       .player-center-ctrls { width: 40%; }
       .playback-scrub-wrap, .player-right-options { display: none; }
+      #ui-toast-container {
+        left: 20px;
+        right: 20px;
+        top: 20px;
+      }
+      .ui-toast {
+        min-width: unset;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
+
+  <!-- Toast Notification Stack -->
+  <div id="ui-toast-container"></div>
+
+  <!-- Custom Input / Prompt Dialog -->
+  <div id="custom-prompt-modal">
+    <div class="prompt-box-dialog">
+      <div class="prompt-title-text" id="custom-prompt-title">New Playlist</div>
+      <div class="prompt-desc-text" id="custom-prompt-desc">Enter a title for your new playlist.</div>
+      <input type="text" class="aesthetic-input" id="custom-prompt-input" style="padding-left: 14px;" />
+      <div class="prompt-actions-bar">
+        <button class="btn" onclick="CustomPrompt.cancel()">Cancel</button>
+        <button class="btn btn-primary" onclick="CustomPrompt.confirm()">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <div id="app-container">
 
@@ -1073,7 +1206,7 @@
       <button class="btn-submit-action" style="padding: 12px 28px;" onclick="AuthModalController.openModal('login')">Sign In to Continue</button>
     </div>
 
-    <!-- Sidebar Layout -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="brand-header">
         <div class="brand-logo-disc"></div>
@@ -1200,7 +1333,7 @@
 
       <canvas id="visualizer-canvas"></canvas>
 
-      <!-- Player Bar -->
+      <!-- Bottom Audio Player -->
       <footer class="bottom-player">
         <div class="player-left-meta">
           <div class="player-album-thumb" id="player-disc-icon">
@@ -1251,7 +1384,7 @@
   </div>
 
   <!-- ==========================================================================
-       BEAUTIFIED AUTHENTICATION & REDEMPTION HUB
+       AUTHENTICATION & REDEEM MODAL
        ========================================================================== -->
   <div class="app-modal-layer" id="modal-auth-hub">
     <div class="auth-card-dialog">
@@ -1272,7 +1405,6 @@
       </div>
 
       <div class="auth-form-body">
-        <!-- Credential Fields for Login / Register -->
         <div id="auth-credentials-group">
           <div class="input-field-block">
             <span class="input-label-text">Username</span>
@@ -1295,7 +1427,6 @@
           </button>
         </div>
 
-        <!-- Redemption Input Group -->
         <div id="auth-redeem-group" style="display: none;">
           <div class="input-field-block">
             <span class="input-label-text">Activation License Key</span>
@@ -1316,15 +1447,77 @@
   </div>
 
   <!-- ==========================================================================
-       JAVASCRIPT ARCHITECTURE & CLIENT ENGINE
+       APPLICATION ENGINE SCRIPT
        ========================================================================== -->
   <script>
     const CONFIG = {
-      WORKER_API_BASE: "https://your-worker-subdomain.workers.dev",
+      WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
       GITHUB_REPO: "zhangzhanhang855/musiconly",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
       DB_VERSION: 1
+    };
+
+    /**
+     * Custom Toast Notification System (Replaces Alert)
+     */
+    const UIToast = {
+      show(message, type = 'info', duration = 3200) {
+        const container = document.getElementById("ui-toast-container");
+        const toast = document.createElement("div");
+        toast.className = `ui-toast ${type}`;
+
+        let iconSvg = '';
+        if (type === 'success') {
+          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#00b894"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+        } else if (type === 'error') {
+          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4757"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
+        } else {
+          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#0984e3"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`;
+        }
+
+        toast.innerHTML = `${iconSvg}<div class="ui-toast-content">${message}</div>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.classList.add("toast-fade-out");
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 300);
+        }, duration);
+      }
+    };
+
+    /**
+     * Custom Modal Prompt System (Replaces window.prompt)
+     */
+    const CustomPrompt = {
+      resolver: null,
+
+      show(title, desc, defaultVal = '') {
+        return new Promise((resolve) => {
+          CustomPrompt.resolver = resolve;
+          document.getElementById("custom-prompt-title").innerText = title;
+          document.getElementById("custom-prompt-desc").innerText = desc;
+          const input = document.getElementById("custom-prompt-input");
+          input.value = defaultVal;
+          document.getElementById("custom-prompt-modal").classList.add("is-open");
+          input.focus();
+        });
+      },
+
+      confirm() {
+        const val = document.getElementById("custom-prompt-input").value;
+        document.getElementById("custom-prompt-modal").classList.remove("is-open");
+        if (CustomPrompt.resolver) CustomPrompt.resolver(val);
+        CustomPrompt.resolver = null;
+      },
+
+      cancel() {
+        document.getElementById("custom-prompt-modal").classList.remove("is-open");
+        if (CustomPrompt.resolver) CustomPrompt.resolver(null);
+        CustomPrompt.resolver = null;
+      }
     };
 
     const PlaybackState = {
@@ -1407,7 +1600,7 @@
     };
 
     /**
-     * Beautiful Modal & Auth Controller
+     * Auth Controller
      */
     const AuthModalController = {
       currentTab: 'login',
@@ -1418,7 +1611,6 @@
       },
 
       closeModal() {
-        // If user is not logged in, enforce login interceptor
         if (!PlaybackState.currentUser) {
           AuthModalController.showMessage("Please log in to continue", true);
           return;
@@ -1492,11 +1684,14 @@
 
           AuthModalController.setSession(data.user);
           AuthModalController.showMessage("Authentication successful!", false);
+          UIToast.show(`Welcome back, ${data.user.username}!`, 'success');
+
           setTimeout(() => {
             document.getElementById("modal-auth-hub").classList.remove("is-open");
-          }, 800);
+          }, 600);
         } catch (err) {
           AuthModalController.showMessage(err.message, true);
+          UIToast.show(err.message, 'error');
         }
       },
 
@@ -1522,11 +1717,15 @@
 
           const addedDownloads = data.grantedQuota || 50;
           PlaybackState.quotaRemainder += addedDownloads;
+          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
           UIFeedback.updateQuotaVisuals();
+
           AuthModalController.showMessage(`Activated! Added +${addedDownloads} downloads.`, false);
+          UIToast.show(`License Activated! Added +${addedDownloads} downloads.`, 'success');
           document.getElementById("auth-input-license").value = "";
         } catch (err) {
           AuthModalController.showMessage(err.message, true);
+          UIToast.show(err.message, 'error');
         }
       },
 
@@ -1543,7 +1742,6 @@
         localStorage.setItem("jrmusic_session", JSON.stringify(userObj));
         localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
 
-        // Remove guest lock
         document.getElementById("guest-gate-lock").style.display = "none";
         UIFeedback.updateUserVisuals();
       },
@@ -1569,7 +1767,9 @@
     const RepoSyncEngine = {
       async syncFromGitHub() {
         try {
-          UIFeedback.setHeadline("Traversing GitHub tree...");
+          UIFeedback.setHeadline("Syncing GitHub repository...");
+          UIToast.show("Connecting to GitHub Tree API...", "info");
+
           const repoRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}`);
           if (!repoRes.ok) throw new Error("Could not connect to GitHub repository.");
           const repoInfo = await repoRes.json();
@@ -1608,9 +1808,10 @@
           });
 
           RepoSyncEngine.renderRecommendedGrid();
-          UIFeedback.setHeadline("Repository Synchronized");
+          UIFeedback.setHeadline("Discover & Stream");
+          UIToast.show(`Synced ${PlaybackState.flatTrackIndex.length} audio tracks successfully.`, "success");
         } catch (err) {
-          alert("Repo sync failure: " + err.message);
+          UIToast.show(`Sync Error: ${err.message}`, "error");
           UIFeedback.setHeadline("Discover & Stream");
         }
       },
@@ -1711,8 +1912,10 @@
         const idx = PlaybackState.favorites.findIndex(f => f.path === track.path);
         if (idx >= 0) {
           PlaybackState.favorites.splice(idx, 1);
+          UIToast.show(`Removed "${track.title}" from favorites`, "info");
         } else {
           PlaybackState.favorites.push(track);
+          UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
         document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
@@ -1727,18 +1930,20 @@
 
         const track = JSON.parse(decodeURIComponent(encoded));
         if (PlaybackState.offlineCacheCatalog.has(track.path)) {
-          alert("This audio track is already downloaded.");
+          UIToast.show("This track is already cached offline.", "info");
           return;
         }
 
         if (PlaybackState.quotaRemainder <= 0) {
-          alert("Download quota depleted. Please redeem an activation code to add downloads.");
+          UIToast.show("Offline quota depleted! Please redeem an activation key.", "error");
           AuthModalController.openModal('redeem');
           return;
         }
 
         try {
           UIFeedback.setHeadline(`Downloading: ${track.title}...`);
+          UIToast.show(`Downloading "${track.title}" to offline storage...`, "info");
+
           const res = await fetch(track.url);
           if (!res.ok) throw new Error("Binary download failed.");
           const blob = await res.blob();
@@ -1748,9 +1953,9 @@
           localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
           UIFeedback.updateQuotaVisuals();
           TrackListView.refreshCurrentView();
-          alert(`Saved "${track.title}" locally. Remaining: ${PlaybackState.quotaRemainder}`);
+          UIToast.show(`Saved "${track.title}" locally! (${PlaybackState.quotaRemainder} remaining)`, "success");
         } catch (e) {
-          alert("Download failure: " + e.message);
+          UIToast.show(`Download failed: ${e.message}`, "error");
         } finally {
           UIFeedback.setHeadline("Discover & Stream");
         }
@@ -1786,7 +1991,7 @@
     };
 
     /**
-     * Audio Playback Engine
+     * Audio Engine
      */
     const AudioEngine = {
       sink: document.getElementById("core-audio-sink"),
@@ -1800,6 +2005,7 @@
         AudioEngine.sink.onended = AudioEngine.nextTrack;
         AudioEngine.sink.onerror = () => {
           document.getElementById("lbl-now-playing-sub").innerText = "Stream error";
+          UIToast.show("Audio stream playback encountered an error", "error");
         };
 
         const canvas = document.getElementById("visualizer-canvas");
@@ -1848,7 +2054,6 @@
       },
 
       async loadAndPlay(track) {
-        // Enforce strict login gate
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
           return;
@@ -1867,6 +2072,7 @@
         if (cachedBlob) {
           AudioEngine.sink.src = URL.createObjectURL(cachedBlob);
           document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Offline Storage`;
+          UIToast.show(`Playing "${track.title}" from local storage`, "info");
         } else {
           AudioEngine.sink.src = track.url;
           document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Lossless Stream`;
@@ -1956,7 +2162,7 @@
     };
 
     /**
-     * Custom Playlists Engine
+     * Custom Playlists Engine (Using CustomPrompt Modal)
      */
     const CustomPlaylistsModule = {
       inspectPlaylist(index) {
@@ -1965,16 +2171,17 @@
         TrackListView.renderList(pl.name, pl.tracks);
       },
 
-      promptNewPlaylist() {
+      async promptNewPlaylist() {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
           return;
         }
-        const name = prompt("Enter a name for your custom playlist:");
+
+        const name = await CustomPrompt.show("Create Playlist", "Enter a title for your new playlist:", "My Playlist");
         if (name && name.trim()) {
           PlaybackState.customPlaylists.push({ name: name.trim(), tracks: [] });
           TrackListView.syncUserData();
-          alert(`Playlist "${name.trim()}" created.`);
+          UIToast.show(`Playlist "${name.trim()}" created!`, "success");
         }
       }
     };
@@ -2037,7 +2244,7 @@
       }
     };
 
-    // System Startup
+    // Application Bootstrap
     window.addEventListener("DOMContentLoaded", async () => {
       await OfflineAudioStore.init();
       AudioEngine.init();
