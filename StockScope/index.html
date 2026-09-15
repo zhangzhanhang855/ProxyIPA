@@ -3,2878 +3,2047 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Aether Pro — Native Audio Engine</title>
+  <title>JRmusic Premium</title>
 
-  <!-- Google Sans Universal Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Google+Sans+Display:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Typography: Product Sans & Roboto Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <style>
-    /* =========================================================================
-       1. CUPERTINO & APPLE HIG SYSTEM VARIABLES
-       ========================================================================= */
+    /* ==========================================================================
+       THEME CONFIGURATION & GLOBAL TOKENS
+       ========================================================================== */
     :root {
-      --ios-font: 'Google Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-      --ios-bg-base: #000000;
-      --ios-bg-grouped: #0a0a0c;
-      --ios-card-glass: rgba(28, 28, 32, 0.65);
-      --ios-card-glass-elevated: rgba(44, 44, 48, 0.75);
-      --ios-card-hover: rgba(58, 58, 62, 0.85);
-      --ios-accent: #fa233b;
-      --ios-accent-gradient: linear-gradient(135deg, #fa233b 0%, #fb586c 50%, #8b5cf6 100%);
-      --ios-blue: #007aff;
-      --ios-green: #34c759;
-      --ios-orange: #ff9500;
-      --ios-text-primary: #ffffff;
-      --ios-text-secondary: rgba(235, 235, 245, 0.6);
-      --ios-text-tertiary: rgba(235, 235, 245, 0.3);
-      --ios-separator: rgba(84, 84, 88, 0.35);
-      --ios-separator-light: rgba(255, 255, 255, 0.12);
-      
+      --bg-base: #0a0b0e;
+      --bg-sidebar: #12141a;
+      --bg-surface: #181b22;
+      --bg-surface-elevated: #222631;
+      --bg-surface-hover: #2b303e;
+      --accent: #ff4757;
+      --accent-hover: #ff6b81;
+      --accent-dim: rgba(255, 71, 87, 0.15);
+      --accent-glow: rgba(255, 71, 87, 0.35);
+      --text-main: #f8f9fa;
+      --text-secondary: #9aa0a6;
+      --text-muted: #5f6368;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 71, 87, 0.6);
+      --font-stack: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Roboto Mono', monospace;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
-      
-      --tabbar-height: 56px;
-      --sidebar-width: 320px;
-      --miniplayer-height: 64px;
+      --player-height: 84px;
+      --sidebar-width: 250px;
     }
 
-    *, *::before, *::after {
+    * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
-      font-family: var(--ios-font) !important;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
-      background-color: var(--ios-bg-base);
-      color: var(--ios-text-primary);
-      overflow: hidden;
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-base);
+      color: var(--text-main);
       height: 100vh;
       width: 100vw;
-      position: fixed;
-      display: flex;
-      flex-direction: column;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* =========================================================================
-       2. DYNAMIC AURORA MESH BACKGROUND
-       ========================================================================= */
-    .aurora-mesh {
-      position: fixed;
-      inset: -40%;
-      pointer-events: none;
-      z-index: 0;
       overflow: hidden;
-      filter: blur(120px) saturate(220%);
-      opacity: 0.55;
-      transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .mesh-node {
-      position: absolute;
-      border-radius: 50%;
-      mix-blend-mode: screen;
-      animation: floatMesh 28s ease-in-out infinite alternate;
-    }
-
-    .mesh-1 {
-      top: 15%;
-      left: 10%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(250, 35, 59, 0.45) 0%, transparent 70%);
-    }
-
-    .mesh-2 {
-      bottom: 20%;
-      right: 15%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(0, 122, 255, 0.4) 0%, transparent 70%);
-      animation-duration: 36s;
-    }
-
-    .mesh-3 {
-      top: 40%;
-      left: 45%;
-      width: 550px;
-      height: 550px;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
-      animation-duration: 30s;
-    }
-
-    @keyframes floatMesh {
-      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-      50% { transform: translate(80px, -50px) scale(1.15) rotate(140deg); }
-      100% { transform: translate(-70px, 80px) scale(0.9) rotate(280deg); }
-    }
-
-    /* =========================================================================
-       3. NATIVE LIQUID GLASS / BLUR PANELS
-       ========================================================================= */
-    .cupertino-glass {
-      background: var(--ios-card-glass);
-      backdrop-filter: blur(50px) saturate(210%);
-      -webkit-backdrop-filter: blur(50px) saturate(210%);
-      border: 1px solid var(--ios-separator-light);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-    }
-
-    .cupertino-glass-elevated {
-      background: var(--ios-card-glass-elevated);
-      backdrop-filter: blur(60px) saturate(220%);
-      -webkit-backdrop-filter: blur(60px) saturate(220%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.3);
-    }
-
-    .cupertino-card {
-      background: var(--ios-card-glass);
-      backdrop-filter: blur(35px) saturate(190%);
-      -webkit-backdrop-filter: blur(35px) saturate(190%);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 20px;
-      padding: 16px;
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .cupertino-btn {
-      position: relative;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid var(--ios-separator-light);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.35);
-      border-radius: 9999px;
-      color: var(--ios-text-primary);
       display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    .cupertino-btn:active {
-      transform: scale(0.94);
-      background: rgba(255, 255, 255, 0.16);
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
 
-    .cupertino-btn-primary {
-      background: var(--ios-accent-gradient);
-      border: none;
-      box-shadow: 0 6px 22px rgba(250, 35, 59, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.5);
-    }
-
-    /* =========================================================================
-       4. IPADOS SIDEBAR & DUAL-COLUMN LAYOUT
-       ========================================================================= */
-    #app-viewport-root {
+    #app-container {
       display: flex;
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      z-index: 10;
-      overflow: hidden;
-    }
-
-    /* iPadOS Master Sidebar */
-    aside#ipados-sidebar {
-      display: none;
-      width: var(--sidebar-width);
-      height: 100%;
-      background: rgba(14, 14, 18, 0.7);
-      backdrop-filter: blur(45px);
-      -webkit-backdrop-filter: blur(45px);
-      border-right: 1px solid var(--ios-separator);
-      padding: calc(var(--safe-top) + 20px) 16px var(--safe-bottom) 16px;
-      flex-direction: column;
-      z-index: 25;
-      flex-shrink: 0;
-    }
-
-    .sidebar-section-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--ios-text-tertiary);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 12px 14px 6px 14px;
-    }
-
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--ios-text-secondary);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 2px;
-    }
-
-    .sidebar-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--ios-text-primary);
-    }
-
-    .sidebar-item.active {
-      background: rgba(250, 35, 59, 0.15);
-      color: var(--ios-accent);
-      font-weight: 700;
-    }
-
-    .sidebar-item svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-
-    /* Main Center Container */
-    #app-workspace {
       flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      height: 100vh;
       overflow: hidden;
+      position: relative;
     }
 
-    header#ios-navbar {
-      padding-top: calc(var(--safe-top) + 10px);
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-bottom: 12px;
+    /* ==========================================================================
+       SIDEBAR INTERFACE
+       ========================================================================== */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(35px);
-      -webkit-backdrop-filter: blur(35px);
-      border-bottom: 1px solid var(--ios-separator);
+      flex-direction: column;
+      flex-shrink: 0;
+      padding-top: var(--safe-top);
       z-index: 20;
     }
 
-    .nav-brand-group {
+    .brand-header {
+      padding: 24px 20px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .nav-brand-disc {
-      width: 34px;
-      height: 34px;
+    .brand-logo-disc {
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: var(--ios-accent-gradient);
+      background: linear-gradient(135deg, var(--accent), #e84118);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 16px rgba(250, 35, 59, 0.4);
+      box-shadow: 0 0 12px var(--accent-glow);
     }
 
-    .nav-brand-title {
-      font-size: 1.2rem;
+    .brand-logo-disc::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bg-base);
+    }
+
+    .brand-title {
+      font-size: 1.28rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.5px;
+      color: #fff;
     }
 
-    /* Stage Views Region */
-    main#views-viewport {
+    .brand-sub {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-left: 4px;
+      letter-spacing: 1px;
+    }
+
+    nav.nav-menu {
       flex: 1;
-      position: relative;
-      overflow: hidden;
-      z-index: 5;
-    }
-
-    .view-leaf-container {
-      position: absolute;
-      inset: 0;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 24px;
-      padding-bottom: calc(var(--tabbar-height) + var(--miniplayer-height) + var(--safe-bottom) + 30px);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(14px);
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .view-leaf-container.active-view {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-
-    .section-headline-box {
-      margin-bottom: 24px;
-    }
-
-    .section-main-title {
-      font-size: 2.1rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 4px;
-    }
-
-    .section-sub-title {
-      color: var(--ios-text-secondary);
-      font-size: 0.9rem;
-    }
-
-    /* Grid Layouts */
-    .cupertino-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 16px;
-    }
-
-    .folder-item-card {
-      background: var(--ios-card-glass);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 20px;
-      padding: 18px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
+      gap: 4px;
     }
 
-    .folder-item-card:hover {
-      background: var(--ios-card-hover);
-      transform: translateY(-2px);
-    }
-
-    .folder-item-card:active {
-      transform: scale(0.96);
-    }
-
-    .folder-icon-circle {
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
-      background: rgba(250, 35, 59, 0.15);
-      color: var(--ios-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-    }
-
-    .folder-name-text {
+    .nav-group-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1.2px;
+      padding: 12px 14px 6px 14px;
       font-weight: 700;
-      font-size: 0.95rem;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .folder-sub-text {
-      font-size: 0.76rem;
-      color: var(--ios-text-secondary);
-      margin-top: 4px;
-    }
-
-    /* Table & Rows */
-    .track-row-assembly {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .track-cell-ios {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--ios-card-glass);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .track-cell-ios:hover {
-      background: var(--ios-card-hover);
-    }
-
-    .track-cell-ios.is-playing {
-      border-color: rgba(250, 35, 59, 0.5);
-      background: rgba(250, 35, 59, 0.14);
-    }
-
-    .track-cell-info-box {
+    .nav-link {
       display: flex;
       align-items: center;
       gap: 14px;
-      overflow: hidden;
-      flex: 1;
-    }
-
-    .track-artwork-thumbnail {
-      width: 46px;
-      height: 46px;
+      padding: 12px 16px;
       border-radius: 10px;
-      background: #1c1c1e;
-      object-fit: cover;
-      flex-shrink: 0;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .track-labels-column {
+    .nav-link:hover {
+      background: var(--bg-surface);
+      color: #fff;
+    }
+
+    .nav-link.active {
+      background: var(--bg-surface-elevated);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .nav-link svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .avatar-disc {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .user-text-info {
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      flex: 1;
     }
 
-    .track-name-main {
-      font-size: 0.94rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-artist-sub {
-      font-size: 0.78rem;
-      color: var(--ios-text-secondary);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .badge-capsule {
-      font-size: 0.65rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--ios-accent);
+    .user-name-label {
+      font-size: 0.88rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Native Slider (Cupertino) */
-    .cupertino-slider {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 5px;
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.2);
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .user-quota-stat {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
     }
 
-    .cupertino-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-      transition: transform 0.2s ease;
+    /* ==========================================================================
+       MAIN VIEWPORT LAYOUT
+       ========================================================================== */
+    main.main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding-top: var(--safe-top);
+      position: relative;
     }
 
-    .cupertino-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.3);
-    }
-
-    /* =========================================================================
-       5. FLOATING MINI CONTROLLER
-       ========================================================================= */
-    #floating-mini-player {
-      position: absolute;
-      bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 8px);
-      left: 12px;
-      right: 12px;
-      height: var(--miniplayer-height);
-      background: rgba(28, 28, 32, 0.92);
-      backdrop-filter: blur(40px) saturate(220%);
-      -webkit-backdrop-filter: blur(40px) saturate(220%);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 22px;
+    header.action-header {
+      height: 64px;
       display: flex;
       align-items: center;
-      padding: 0 16px;
-      z-index: 30;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
-      cursor: pointer;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(18, 20, 26, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10;
     }
 
-    .mini-artwork-thumb {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: #2c2c2e;
-      margin-right: 14px;
-      object-fit: cover;
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
-    }
-
-    .mini-details-box {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .mini-track-title {
-      font-size: 0.92rem;
+    .header-left-title {
+      font-size: 1.1rem;
       font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: #fff;
     }
 
-    .mini-track-sub {
-      font-size: 0.74rem;
-      color: var(--ios-text-secondary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
-    }
-
-    .mini-controls-cluster {
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    /* Bottom Tabbar for iPhone */
-    nav#iphone-tabbar {
-      height: var(--tabbar-height);
-      padding-bottom: var(--safe-bottom);
-      background: rgba(14, 14, 18, 0.88);
-      backdrop-filter: blur(35px);
-      -webkit-backdrop-filter: blur(35px);
-      border-top: 1px solid var(--ios-separator);
-      display: flex;
-      justify-content: space-around;
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: var(--font-stack);
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
-      z-index: 20;
+      gap: 8px;
+      transition: all 0.2s ease;
     }
 
-    .tabbar-item-btn {
+    .btn:hover {
+      background: var(--bg-surface-elevated);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+    }
+
+    .content-scrollable {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+      padding-bottom: calc(var(--player-height) + 32px + var(--safe-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .view-section-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-head-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-heading-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    .flow-grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 20px;
+    }
+
+    .playback-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: none;
-      border: none;
-      color: var(--ios-text-tertiary);
-      font-size: 0.68rem;
-      font-weight: 500;
-      gap: 4px;
+      aspect-ratio: 1;
       cursor: pointer;
-      width: 20%;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s, border-color 0.2s;
     }
 
-    .tabbar-item-btn.active-tab {
-      color: var(--ios-accent);
+    .playback-card:hover {
+      transform: translateY(-5px);
+      background: var(--bg-surface-elevated);
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
-    .tabbar-item-btn svg {
-      width: 22px;
-      height: 22px;
+    .playback-card:active {
+      transform: scale(0.97);
+    }
+
+    .card-vector-icon-wrap {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .card-vector-icon-wrap svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--text-secondary);
+      transition: fill 0.2s;
+    }
+
+    .playback-card:hover .card-vector-icon-wrap svg {
+      fill: #fff;
+    }
+
+    .playback-card.fav-theme .card-vector-icon-wrap {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+
+    .playback-card.fav-theme .card-vector-icon-wrap svg {
+      fill: var(--accent);
+    }
+
+    .card-title-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card-subtitle-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    /* Track List Table */
+    .track-table-scroller {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .track-row-item {
+      display: grid;
+      grid-template-columns: 48px 1fr 120px 100px 90px;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .track-row-item:hover {
+      background: var(--bg-surface-elevated);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .track-row-item.current-playing {
+      background: var(--bg-surface-elevated);
+      border-color: var(--accent);
+    }
+
+    .track-col-index {
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track-col-index svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--accent);
+      display: none;
+    }
+
+    .track-row-item.current-playing .track-col-index span {
+      display: none;
+    }
+    .track-row-item.current-playing .track-col-index svg {
+      display: block;
+    }
+
+    .track-col-primary {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding-right: 12px;
+    }
+
+    .track-name-text {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .track-row-item.current-playing .track-name-text {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .track-folder-path {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .track-col-type {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .track-col-cache-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .status-dot.cached {
+      background: #00b894;
+      box-shadow: 0 0 6px #00b894;
+    }
+
+    .track-col-ctrls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .icon-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .icon-action-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .icon-action-btn.active-fav {
+      color: var(--accent);
+    }
+
+    .icon-action-btn svg {
+      width: 18px;
+      height: 18px;
       fill: currentColor;
     }
 
-    /* =========================================================================
-       6. IMMERSIVE FULL-SCREEN MODAL (SPLIT-VIEW ON IPAD)
-       ========================================================================= */
-    #immersive-player-modal {
-      position: fixed;
-      inset: 0;
-      background: #000000;
-      z-index: 100;
-      transform: translateY(100%);
-      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      flex-direction: column;
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
-      overflow: hidden;
-    }
-
-    #immersive-player-modal.active-open {
-      transform: translateY(0);
-    }
-
-    .modal-ambient-blur-backdrop {
+    /* ==========================================================================
+       BOTTOM PLAYER
+       ========================================================================== */
+    footer.bottom-player {
       position: absolute;
-      inset: -30%;
-      background-size: cover;
-      background-position: center;
-      filter: blur(100px) brightness(0.25) saturate(2.4);
-      z-index: 0;
-      opacity: 0.8;
-      transition: background-image 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-      pointer-events: none;
-    }
-
-    .modal-header-toolbar {
-      position: relative;
-      z-index: 15;
-      padding: 12px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .segmented-control-ios {
-      display: flex;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 9999px;
-      padding: 3px;
-    }
-
-    .segmented-tab {
-      padding: 5px 16px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--ios-text-secondary);
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .segmented-tab.active-segment {
-      background: var(--ios-accent-gradient);
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(250, 35, 59, 0.4);
-    }
-
-    /* Dynamic Stage Viewport */
-    .modal-content-stage {
-      position: relative;
-      z-index: 10;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* iPadOS Enhanced Split-View */
-    @media (min-width: 768px) {
-      aside#ipados-sidebar {
-        display: flex;
-      }
-
-      nav#iphone-tabbar {
-        display: none;
-      }
-
-      #floating-mini-player {
-        left: calc(var(--sidebar-width) + 20px);
-        right: 20px;
-      }
-
-      /* Modal Split-View on iPad */
-      #immersive-player-modal .modal-content-stage {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 40px;
-        gap: 40px;
-      }
-
-      #immersive-player-modal #leaf-vinyl-stage {
-        position: relative !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        transform: none !important;
-        flex: 1;
-        max-width: 480px;
-      }
-
-      #immersive-player-modal #leaf-lyrics-stage {
-        position: relative !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        transform: none !important;
-        flex: 1.2;
-        height: 85%;
-      }
-
-      .lyrics-scroll-container {
-        text-align: left !important;
-        align-items: flex-start !important;
-        padding: 25vh 0 !important;
-      }
-
-      .lyric-item-line {
-        text-align: left !important;
-        font-size: 2rem !important;
-      }
-
-      .lyric-item-line.is-active {
-        font-size: 2.6rem !important;
-      }
-
-      .segmented-control-ios {
-        display: none;
-      }
-    }
-
-    .stage-leaf-page {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 30px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      transform: scale(0.96);
-    }
-
-    .stage-leaf-page.active-leaf {
-      opacity: 1;
-      pointer-events: auto;
-      transform: scale(1);
-    }
-
-    /* Vinyl Turntable Mechanism */
-    .turntable-chassis {
-      position: relative;
-      width: 320px;
-      height: 320px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-
-    .platter-base-metal {
-      position: absolute;
-      inset: -12px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #1a1a24 0%, #0d0d14 75%);
-      border: 2px solid var(--ios-separator-light);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(0, 0, 0, 0.9);
-    }
-
-    .vinyl-lp-disc {
-      position: absolute;
-      width: 290px;
-      height: 290px;
-      border-radius: 50%;
-      background: repeating-radial-gradient(
-        circle at 50% 50%,
-        #08080c 0px,
-        #15151c 1.5px,
-        #08080c 3px
-      );
-      box-shadow: 0 12px 45px rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.6s linear;
-    }
-
-    .vinyl-lp-disc.is-rotating {
-      animation: spinVinyl 20s linear infinite;
-    }
-
-    .vinyl-lp-disc.is-paused {
-      animation-play-state: paused;
-    }
-
-    @keyframes spinVinyl {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .vinyl-center-art-disc {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 3px solid rgba(255, 255, 255, 0.25);
-      position: relative;
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.7);
-    }
-
-    .vinyl-center-art-disc img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .spindle-pin {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid #000;
-    }
-
-    .tonearm-assembly {
-      position: absolute;
-      top: -30px;
-      right: -20px;
-      width: 90px;
-      height: 200px;
-      pointer-events: none;
-      transform-origin: 30px 30px;
-      transition: transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transform: rotate(-35deg);
-      z-index: 20;
-    }
-
-    .tonearm-assembly.is-playing {
-      transform: rotate(0deg);
-    }
-
-    /* Apple Music Stream Lyrics */
-    .lyrics-scroll-container {
-      width: 100%;
-      height: 100%;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: calc(45vh - 120px) 24px 45vh 24px;
-      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
-      mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
-    }
-
-    .lyric-item-line {
-      font-size: 1.45rem;
-      font-weight: 500;
-      line-height: 1.55;
-      text-align: center;
-      color: var(--ios-text-tertiary);
-      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-      cursor: pointer;
-      width: 100%;
-      padding: 10px 0;
-      transform-origin: center center;
-    }
-
-    .lyric-item-line:hover {
-      color: var(--ios-text-secondary);
-    }
-
-    .lyric-item-line.is-active {
-      color: #ffffff;
-      font-size: 1.95rem;
-      font-weight: 700;
-      transform: scale(1.05);
-      text-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 35px rgba(250, 35, 59, 0.45);
-    }
-
-    /* Modal Bottom Controls Deck */
-    .modal-bottom-deck {
-      position: relative;
-      z-index: 15;
-      padding: 16px 36px 36px 36px;
-    }
-
-    .modal-timeline-box {
-      width: 100%;
-      margin-bottom: 22px;
-    }
-
-    .modal-progress-bar-ios {
-      position: relative;
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.16);
-      border-radius: 9999px;
-      cursor: pointer;
-    }
-
-    .modal-progress-fill-ios {
-      position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
-      height: 100%;
-      width: 0%;
-      background: var(--ios-accent-gradient);
-      border-radius: 9999px;
-    }
-
-    .modal-timestamp-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.75rem;
-      color: var(--ios-text-secondary);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .modal-transport-cluster {
+      right: 0;
+      height: calc(var(--player-height) + var(--safe-bottom));
+      background: rgba(18, 20, 26, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      margin-bottom: 12px;
+      justify-content: space-between;
+      padding: 0 24px var(--safe-bottom) 24px;
+      z-index: 50;
     }
 
-    .modal-play-btn-large {
-      width: 70px;
-      height: 70px;
+    .player-left-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 28%;
+      overflow: hidden;
+    }
+
+    .player-album-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .player-album-thumb svg {
+      width: 26px;
+      height: 26px;
+      fill: var(--text-muted);
+    }
+
+    .player-title-bundle {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .meta-track-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .meta-track-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .player-center-ctrls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 44%;
+    }
+
+    .ctrl-buttons-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .circle-play-btn {
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: #ffffff;
+      background: #fff;
       color: #000;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 28px rgba(255, 255, 255, 0.4);
-      transition: transform 0.15s ease;
+      transition: transform 0.15s, background 0.15s;
     }
 
-    .modal-play-btn-large:active {
-      transform: scale(0.92);
+    .circle-play-btn:hover {
+      transform: scale(1.05);
+      background: #e1e2e6;
     }
 
-    .modal-play-btn-large svg {
-      width: 30px;
-      height: 30px;
+    .circle-play-btn:active {
+      transform: scale(0.95);
+    }
+
+    .circle-play-btn svg {
+      width: 20px;
+      height: 20px;
       fill: currentColor;
     }
 
-    /* VU Simulator */
-    .vu-channel-row {
+    .playback-scrub-wrap {
+      width: 100%;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 6px;
     }
 
-    .vu-track-groove {
+    .timestamp-text {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 40px;
+      text-align: center;
+    }
+
+    .progress-bar-rail {
       flex: 1;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 9999px;
-      overflow: hidden;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      position: relative;
+      cursor: pointer;
     }
 
-    .vu-level-fill {
+    .progress-bar-fill {
       height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
       width: 0%;
-      background: linear-gradient(90deg, var(--ios-green) 0%, var(--ios-orange) 70%, var(--ios-accent) 100%);
-      transition: width 0.1s ease;
+      position: relative;
     }
 
-    /* Native Toast */
-    .ios-toast-pill {
-      position: fixed;
-      top: calc(var(--safe-top) + 64px);
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background: rgba(28, 28, 32, 0.95);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid var(--ios-separator-light);
-      padding: 10px 22px;
-      border-radius: 9999px;
-      font-size: 0.84rem;
-      color: #fff;
+    .player-right-options {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      width: 28%;
+    }
+
+    .vol-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 120px;
+    }
+
+    input[type="range"].custom-range {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      height: 4px;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"].custom-range::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    #visualizer-canvas {
+      position: absolute;
+      bottom: var(--player-height);
+      left: 0;
+      right: 0;
+      height: 40px;
       pointer-events: none;
-      opacity: 0;
-      transition: all 0.25s ease;
-      z-index: 300;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      z-index: 5;
+      opacity: 0.4;
     }
 
-    .ios-toast-pill.visible-toast {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    /* Auth Barrier Modals */
-    .auth-fullscreen-barrier {
+    /* ==========================================================================
+       MODAL: HIGH-AESTHETIC AUTHENTICATION & REDEEM HUB
+       ========================================================================== */
+    .app-modal-layer {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(35px);
-      -webkit-backdrop-filter: blur(35px);
-      z-index: 250;
+      background: rgba(5, 7, 10, 0.82);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .app-modal-layer.is-open {
+      display: flex;
+    }
+
+    .auth-card-dialog {
+      background: linear-gradient(165deg, rgba(28, 32, 43, 0.95), rgba(16, 18, 24, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 71, 87, 0.12);
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .auth-card-dialog::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .auth-header {
+      padding: 32px 32px 20px 32px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      padding: 24px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+      text-align: center;
+      position: relative;
     }
 
-    .auth-fullscreen-barrier.active-auth {
-      opacity: 1;
-      pointer-events: auto;
+    .auth-modal-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
     }
 
-    .auth-glass-sheet {
-      width: 100%;
-      max-width: 360px;
-      background: var(--ios-card-glass-elevated);
-      border: 1px solid var(--ios-separator-light);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+    .auth-modal-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
     }
 
-    .cupertino-input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--ios-separator-light);
+    .auth-icon-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .auth-icon-badge svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--accent);
+    }
+
+    .auth-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .auth-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .auth-tabs-segmented {
+      display: flex;
+      margin: 0 32px 24px 32px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
       border-radius: 12px;
-      padding: 12px 16px;
-      color: var(--ios-text-primary);
-      font-size: 0.92rem;
-      outline: none;
-      margin-bottom: 12px;
+      border: 1px solid var(--border-subtle);
     }
 
-    .cupertino-input:focus {
-      border-color: var(--ios-accent);
-      background: rgba(255, 255, 255, 0.1);
+    .auth-tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-stack);
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .auth-tab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .auth-form-body {
+      padding: 0 32px 32px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-field-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-label-text {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .input-wrapper-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper-inner svg {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+      transition: fill 0.2s;
+    }
+
+    .aesthetic-input {
+      width: 100%;
+      background: rgba(10, 11, 14, 0.7);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 13px 14px 13px 44px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: var(--font-stack);
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .aesthetic-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-dim);
+    }
+
+    .aesthetic-input:focus + svg {
+      fill: var(--accent);
+    }
+
+    .btn-submit-action {
+      background: linear-gradient(135deg, var(--accent), #e84118);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-stack);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+      box-shadow: 0 4px 18px var(--accent-glow);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .btn-submit-action:hover {
+      opacity: 0.95;
+    }
+
+    .btn-submit-action:active {
+      transform: scale(0.98);
+    }
+
+    .redeem-section-box {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .auth-alert-message {
+      font-size: 0.8rem;
+      text-align: center;
+      min-height: 18px;
+      font-family: var(--font-mono);
+    }
+
+    .auth-alert-message.error {
+      color: #ff6b81;
+    }
+
+    .auth-alert-message.success {
+      color: #00b894;
+    }
+
+    /* Guest Banner Block */
+    .guest-gate-overlay {
+      position: absolute;
+      top: 64px;
+      bottom: var(--player-height);
+      left: 0;
+      right: 0;
+      background: rgba(10, 11, 14, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .guest-gate-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .guest-gate-desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      max-width: 420px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      aside.sidebar { display: none; }
+      .track-row-item { grid-template-columns: 36px 1fr 60px 40px; }
+      .track-col-type { display: none; }
+      .player-left-meta { width: 60%; }
+      .player-center-ctrls { width: 40%; }
+      .playback-scrub-wrap, .player-right-options { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Light Backdrops -->
-  <div class="aurora-mesh">
-    <div class="mesh-node mesh-1"></div>
-    <div class="mesh-node mesh-2"></div>
-    <div class="mesh-node mesh-3"></div>
-  </div>
+  <div id="app-container">
 
-  <div id="app-toast-pill" class="ios-toast-pill">Notification</div>
+    <!-- Guest Intercept Screen if Not Authenticated -->
+    <div class="guest-gate-overlay" id="guest-gate-lock">
+      <div class="auth-icon-badge" style="width: 72px; height: 72px; border-radius: 22px;">
+        <svg viewBox="0 0 24 24" style="width: 36px; height: 36px;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      </div>
+      <div class="guest-gate-title">JRmusic Premium Access</div>
+      <p class="guest-gate-desc">Please log in to your account or register to stream lossless audio from the repository and unlock offline caching.</p>
+      <button class="btn-submit-action" style="padding: 12px 28px;" onclick="AuthModalController.openModal('login')">Sign In to Continue</button>
+    </div>
 
-  <!-- Root Viewport -->
-  <div id="app-viewport-root">
-
-    <!-- iPadOS Master Sidebar (Adaptive Split-View on iPad) -->
-    <aside id="ipados-sidebar">
-      <div class="nav-brand-group" style="margin-bottom: 24px; padding-left: 8px;">
-        <div class="nav-brand-disc">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    <!-- Sidebar Layout -->
+    <aside class="sidebar">
+      <div class="brand-header">
+        <div class="brand-logo-disc"></div>
+        <div>
+          <span class="brand-title">JRmusic</span>
+          <span class="brand-sub">Premium</span>
         </div>
-        <span class="nav-brand-title">JRmusic Premium</span>
       </div>
 
-      <div class="sidebar-section-title">Library</div>
-      <div class="sidebar-item active" data-dest="stage-explore">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <span>Listen Now</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-collections">
-        <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-        <span>Collections</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-all-tracks">
-        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-        <span>All Tracks</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-offline-vault">
-        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-        <span>Your JR Musics</span>
-      </div>
+      <nav class="nav-menu">
+        <div class="nav-group-label">Library</div>
+        <div class="nav-link active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>Main & home</span>
+        </div>
+        <div class="nav-link" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          <span>Offlines</span>
+        </div>
+        <div class="nav-link" id="nav-account" onclick="AuthModalController.openModal('login')">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>Account</span>
+        </div>
+        <div class="nav-link" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>All musics</span>
+        </div>
+        <div class="nav-link" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
+          <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+          <span>My playlists</span>
+        </div>
+      </nav>
 
-      <div class="sidebar-section-title" style="margin-top: 16px;">Tools & Engine</div>
-      <div class="sidebar-item" data-dest="stage-lyrics-stream">
-        <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
-        <span>Live Lyrics</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-dsp-engine">
-        <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
-        <span>Hardware DSP</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-track-meta">
-        <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-        <span>Track Meta</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-diagnostics">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-        <span>Diagnostics</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-history">
-        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-        <span>History</span>
-      </div>
-      <div class="sidebar-item" data-dest="stage-account">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>JR Account</span>
+      <div class="sidebar-user">
+        <div class="user-profile-badge" onclick="AuthModalController.openModal('redeem')">
+          <div class="avatar-disc" id="user-avatar-initial">?</div>
+          <div class="user-text-info">
+            <span class="user-name-label" id="user-display-name">Not Signed In</span>
+            <span class="user-quota-stat" id="user-quota-label">DL Quota: 0</span>
+          </div>
+        </div>
       </div>
     </aside>
 
-    <!-- Main Dynamic Workplace (Right Side on iPad, Full Screen on iPhone) -->
-    <div id="app-workspace">
-      
-      <!-- Top Navigation Header -->
-      <header id="ios-navbar">
-        <div class="nav-brand-group">
-          <span class="nav-brand-title" id="page-title-label">Listen Now</span>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="cupertino-btn" id="navbar-btn-sync" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+    <!-- Main Viewport -->
+    <main class="main-viewport">
+      <header class="action-header">
+        <div class="header-left-title" id="stage-title">Discover & Stream</div>
+        <div class="header-actions">
+          <button class="btn" onclick="RepoSyncEngine.syncFromGitHub()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            Sync (G5)
           </button>
-          <button class="cupertino-btn" id="navbar-btn-account" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <button class="btn" onclick="AuthModalController.openModal('login')">Account</button>
+          <button class="btn btn-primary" onclick="AppNavigation.switchStage('offlines')">
+            <span>Offline</span>
+            <span class="btn-badge" id="header-quota-badge">0</span>
           </button>
         </div>
       </header>
 
-      <!-- Viewport Leaf Stage Stack -->
-      <main id="views-viewport">
-        
-        <!-- Leaf 1: Explore -->
-        <div class="view-leaf-container active-view" id="stage-explore">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Listen Now</h1>
-            <p class="section-sub-title">JRmusic is online right now. Start Listen.</p>
+      <div class="content-scrollable" id="main-scroll-pane">
+        <!-- Section: Start Listening -->
+        <section class="view-section-container" id="section-start-listening">
+          <div class="section-head-row">
+            <h2 class="section-heading-text">Start Listening</h2>
+            <div class="section-divider-line"></div>
           </div>
 
-          <div class="cupertino-card" style="background: var(--ios-accent-gradient); border: none; padding: 24px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-              <span style="width: 8px; height: 8px; border-radius: 50%; background: #ffffff;"></span>
-              <span style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Direct Hardware Stream</span>
+          <div class="flow-grid-cards">
+            <div class="playback-card fav-theme" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
+              <div class="card-vector-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <div class="card-title-label">Favorite Musics</div>
+              <div class="card-subtitle-label" id="fav-counter-label">0 songs</div>
             </div>
-            <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 6px;">Hi-Res Audio Engine</h2>
-            <p style="font-size: 0.88rem; opacity: 0.9; margin-bottom: 18px;">Zero WebAudio interruptions. Full background playback continuity.</p>
-            <button class="cupertino-btn" id="btn-smart-shuffle" style="padding: 10px 22px; font-weight: 700; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3);">
-              Smart Shuffle All
+
+            <div class="playback-card" onclick="CustomPlaylistsModule.inspectPlaylist(0)">
+              <div class="card-vector-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+              </div>
+              <div class="card-title-label" id="pl-slot-0-name">Playlist 1</div>
+              <div class="card-subtitle-label">Custom Playlist</div>
+            </div>
+
+            <div class="playback-card" onclick="CustomPlaylistsModule.inspectPlaylist(1)">
+              <div class="card-vector-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+              </div>
+              <div class="card-title-label" id="pl-slot-1-name">Playlist 2</div>
+              <div class="card-subtitle-label">Custom Playlist</div>
+            </div>
+
+            <div class="playback-card" onclick="CustomPlaylistsModule.promptNewPlaylist()">
+              <div class="card-vector-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              </div>
+              <div class="card-title-label">+ New Playlist</div>
+              <div class="card-subtitle-label">Create collection</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Recommended For You -->
+        <section class="view-section-container" id="section-recommended">
+          <div class="section-head-row">
+            <h2 class="section-heading-text">Recommended For you</h2>
+            <div class="section-divider-line"></div>
+          </div>
+          <div class="flow-grid-cards" id="repo-folders-grid"></div>
+        </section>
+
+        <!-- Section: Track Listing -->
+        <section class="view-section-container" id="section-track-listing" style="display: none;">
+          <div class="section-head-row">
+            <h2 class="section-heading-text" id="listing-heading">Tracks</h2>
+            <div class="section-divider-line"></div>
+            <button class="btn" onclick="TrackListView.hideListing()">Back to Overview</button>
+          </div>
+          <div class="track-table-scroller" id="track-items-container"></div>
+        </section>
+      </div>
+
+      <canvas id="visualizer-canvas"></canvas>
+
+      <!-- Player Bar -->
+      <footer class="bottom-player">
+        <div class="player-left-meta">
+          <div class="player-album-thumb" id="player-disc-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
+          </div>
+          <div class="player-title-bundle">
+            <div class="meta-track-title" id="lbl-now-playing-title">Ready for Playback</div>
+            <div class="meta-track-sub" id="lbl-now-playing-sub">Select an audio stream</div>
+          </div>
+        </div>
+
+        <div class="player-center-ctrls">
+          <div class="ctrl-buttons-bar">
+            <button class="icon-action-btn" onclick="AudioEngine.prevTrack()">
+              <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            <button class="circle-play-btn" id="btn-master-play" onclick="AudioEngine.togglePlayState()">
+              <svg viewBox="0 0 24 24" id="play-btn-vector"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="icon-action-btn" onclick="AudioEngine.nextTrack()">
+              <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
             </button>
           </div>
 
-          <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">Collections</h2>
-          <div class="cupertino-grid" id="grid-explore-folders"></div>
-        </div>
-
-        <!-- Leaf 2: Collections -->
-        <div class="view-leaf-container" id="stage-collections">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Playlists</h1>
-            <p class="section-sub-title">Remote folders categorized as individual playlists</p>
-          </div>
-          <div class="cupertino-grid" id="grid-collections-folders"></div>
-        </div>
-
-        <!-- Leaf 3: All Tracks -->
-        <div class="view-leaf-container" id="stage-all-tracks">
-          <div class="section-headline-box">
-            <h1 class="section-main-title" id="headline-all-tracks">All Tracks</h1>
-            <p class="section-sub-title" id="subtitle-all-tracks">Streaming catalogue</p>
-          </div>
-          <div class="track-row-assembly" id="list-all-tracks"></div>
-        </div>
-
-        <!-- Leaf 4: Offline Vault -->
-        <div class="view-leaf-container" id="stage-offline-vault">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Your JR Music</h1>
-            <p class="section-sub-title">Binary audio files stored in the local App</p>
-          </div>
-          <div class="cupertino-card" style="margin-bottom: 18px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: var(--ios-text-secondary); font-size: 0.9rem;">Offline Storage Used</span>
-              <span style="font-weight: 700; font-size: 0.9rem;" id="label-storage-usage">0.00 MB</span>
+          <div class="playback-scrub-wrap">
+            <span class="timestamp-text" id="lbl-time-elapsed">0:00</span>
+            <div class="progress-bar-rail" id="seek-rail" onclick="AudioEngine.seek(event)">
+              <div class="progress-bar-fill" id="seek-fill"></div>
             </div>
-          </div>
-          <div class="track-row-assembly" id="list-offline-tracks"></div>
-        </div>
-
-        <!-- Leaf 5: Standalone Lyrics -->
-        <div class="view-leaf-container" id="stage-lyrics-stream">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Live Lyrics</h1>
-            <p class="section-sub-title">Dual-engine decoding (UTF-8, UTF-16, GB18030 with translations filtered)</p>
-          </div>
-          <div class="cupertino-card" style="height: calc(100vh - 280px); display: flex; flex-direction: column;">
-            <div class="lyrics-scroll-container" id="standalone-lyrics-viewport">
-              <div class="lyric-item-line">No media currently active</div>
-            </div>
+            <span class="timestamp-text" id="lbl-time-duration">0:00</span>
           </div>
         </div>
 
-        <!-- Leaf 6: Hardware DSP -->
-        <div class="view-leaf-container" id="stage-dsp-engine">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Hardware DSP</h1>
-            <p class="section-sub-title">CoreAudio hardware direct pipeline</p>
-          </div>
-          <div class="cupertino-card">
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Direct Media Pipeline</span>
-              <span style="color: var(--ios-green); font-weight: 700;">Native Active</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Background Sleep Protection</span>
-              <span style="font-weight: 700;">AVAudioSession Mode</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-              <span style="color: var(--ios-text-secondary);">WebAudio Interceptor</span>
-              <span style="font-weight: 700;">Bypassed</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leaf 7: Track Details -->
-        <div class="view-leaf-container" id="stage-track-meta">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Track Info</h1>
-            <p class="section-sub-title">Binary tag block metadata extraction</p>
-          </div>
-          <div class="cupertino-card">
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Title</span><span id="meta-disp-title">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Artist</span><span id="meta-disp-artist">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Album</span><span id="meta-disp-album">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Codec Format</span><span id="meta-disp-codec">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-              <span style="color: var(--ios-text-secondary);">Stream Origin</span><span id="meta-disp-origin">--</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leaf 8: Diagnostics -->
-        <div class="view-leaf-container" id="stage-diagnostics">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Diagnostics</h1>
-            <p class="section-sub-title">Runtime telemetry and telemetry metrics</p>
-          </div>
-          <div class="cupertino-card">
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Synced Playlists</span><span id="diag-val-playlists">0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Total Indexed Tracks</span><span id="diag-val-tracks">0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Cached in Sandbox</span><span id="diag-val-offline">0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Session Plays</span><span id="diag-val-plays">0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-              <span style="color: var(--ios-text-secondary);">Filtered Translation Segments</span><span id="diag-val-stripped">0 lines</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leaf 9: History -->
-        <div class="view-leaf-container" id="stage-history">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Recent Plays</h1>
-            <p class="section-sub-title">Audio streams executed in current runtime</p>
-          </div>
-          <div class="track-row-assembly" id="list-history-tracks">
-            <p style="color: var(--ios-text-tertiary); text-align: center; margin-top: 40px;">No tracks logged in this session.</p>
-          </div>
-        </div>
-
-        <!-- Leaf 10: Account -->
-        <div class="view-leaf-container" id="stage-account">
-          <div class="section-headline-box">
-            <h1 class="section-main-title">Your JR Account</h1>
-            <p class="section-sub-title">Your JR account activation status & Premium</p>
-          </div>
-          <div class="cupertino-card" style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">JR username</span><span id="acc-disp-username">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">License Status</span><span id="acc-disp-status" style="color: var(--ios-green); font-weight: 700;">Activated</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-              <span style="color: var(--ios-text-secondary);">Redeemed Premium Code</span><span id="acc-disp-code">--</span>
-            </div>
-          </div>
-          <button class="cupertino-btn" id="btn-sign-out" style="width: 100%; padding: 14px; color: var(--ios-accent); background: rgba(250, 35, 59, 0.12); border-color: rgba(250, 35, 59, 0.3); font-weight: 700;">
-            Sign Out
+        <div class="player-right-options">
+          <button class="icon-action-btn" id="btn-fav-active-track" onclick="AudioEngine.toggleCurrentFavorite()">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           </button>
+          <div class="vol-slider-wrap">
+            <svg width="18" height="18" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+            <input type="range" class="custom-range" id="vol-range" min="0" max="1" step="0.01" value="0.8" oninput="AudioEngine.setVolume(this.value)" />
+          </div>
         </div>
 
-      </main>
+        <audio id="core-audio-sink" preload="metadata"></audio>
+      </footer>
+    </main>
 
-      <!-- Floating Mini Controller Strip -->
-      <div id="floating-mini-player">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%231c1c1e'/%3E%3C/svg%3E" class="mini-artwork-thumb" id="mini-artwork-img" alt="Artwork" />
-        <div class="mini-details-box" id="mini-click-expand">
-          <div class="mini-track-title" id="mini-text-title">Ready to Stream</div>
-          <div class="mini-track-sub" id="mini-text-sub">Select a track</div>
-        </div>
-        <div class="mini-controls-cluster">
-          <button class="cupertino-btn" id="mini-btn-play" style="width: 38px; height: 38px; border: none; background: none;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" id="mini-play-icon-svg"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="cupertino-btn" id="mini-btn-skip" style="width: 38px; height: 38px; border: none; background: none;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- iPhone Cupertino Tabbar -->
-      <nav id="iphone-tabbar">
-        <button class="tabbar-item-btn active-tab" data-dest="stage-explore">
-          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span>Listen Now</span>
-        </button>
-        <button class="tabbar-item-btn" data-dest="stage-collections">
-          <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-          <span>Library</span>
-        </button>
-        <button class="tabbar-item-btn" data-dest="stage-all-tracks">
-          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-          <span>Tracks</span>
-        </button>
-        <button class="tabbar-item-btn" data-dest="stage-offline-vault">
-          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-          <span>Offline</span>
-        </button>
-        <button class="tabbar-item-btn" data-dest="stage-account">
-          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <span>Account</span>
-        </button>
-      </nav>
-
-    </div>
   </div>
 
-  <!-- Full-Screen Modal Player with iPadOS Split-View & Turntable -->
-  <div id="immersive-player-modal">
-    <div class="modal-ambient-blur-backdrop" id="modal-blur-canvas"></div>
-
-    <!-- Modal Header -->
-    <div class="modal-header-toolbar">
-      <button class="cupertino-btn" id="btn-dismiss-modal" style="width: 38px; height: 38px;">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-      </button>
-
-      <!-- Segmented Control for iPhone, Hidden on iPad (Split-view auto displayed) -->
-      <div class="segmented-control-ios">
-        <div class="segmented-tab active-segment" id="tab-seg-turntable">Stage</div>
-        <div class="segmented-tab" id="tab-seg-lyrics">Lyrics</div>
-        <div class="segmented-tab" id="tab-seg-studio">Studio</div>
-      </div>
-
-      <button class="cupertino-btn" id="btn-modal-download" style="width: 38px; height: 38px;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-      </button>
-    </div>
-
-    <!-- Modal Middle Dynamic Stage -->
-    <div class="modal-content-stage">
+  <!-- ==========================================================================
+       BEAUTIFIED AUTHENTICATION & REDEMPTION HUB
+       ========================================================================== -->
+  <div class="app-modal-layer" id="modal-auth-hub">
+    <div class="auth-card-dialog">
+      <button class="auth-modal-close" onclick="AuthModalController.closeModal()">&times;</button>
       
-      <!-- Leaf 1: Vinyl Record Assembly -->
-      <div class="stage-leaf-page active-leaf" id="leaf-vinyl-stage">
-        <div class="turntable-chassis">
-          <div class="platter-base-metal"></div>
-          <div class="vinyl-lp-disc is-rotating is-paused" id="vinyl-disc-actor">
-            <div class="vinyl-center-art-disc">
-              <img src="" id="vinyl-label-image" alt="Vinyl Art" />
-              <div class="spindle-pin"></div>
-            </div>
-          </div>
-          <svg class="tonearm-assembly" id="tonearm-actor" viewBox="0 0 90 200">
-            <circle cx="30" cy="30" r="18" fill="#2c2c2e" stroke="#48484a" stroke-width="3" />
-            <circle cx="30" cy="30" r="8" fill="#e5e5ea" />
-            <path d="M30 30 L45 140 L35 180" fill="none" stroke="#e5e5ea" stroke-width="4" stroke-linecap="round" />
-            <rect x="25" y="175" width="20" height="22" rx="4" fill="#fa233b" />
-          </svg>
+      <div class="auth-header">
+        <div class="auth-icon-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
         </div>
-
-        <div style="text-align: center; max-width: 320px; width: 100%;">
-          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: rgba(255,255,255,0.08); margin-bottom: 8px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #fa233b;"></span>
-            <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;">24-BIT / 96KHZ LOSSLESS</span>
-          </div>
-          <h2 id="modal-display-title" style="font-size: 1.45rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">No Media Active</h2>
-          <p id="modal-display-sub" style="font-size: 0.92rem; color: var(--ios-text-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Unknown Artist / Album</p>
-        </div>
+        <div class="auth-title" id="auth-modal-title">Welcome to JRmusic</div>
+        <div class="auth-subtitle" id="auth-modal-desc">Sign in to unlock lossless cloud playback and offline sync</div>
       </div>
 
-      <!-- Leaf 2: Full Synchronized Lyrics -->
-      <div class="stage-leaf-page" id="leaf-lyrics-stage">
-        <div class="lyrics-scroll-container" id="modal-lyrics-viewport">
-          <div class="lyric-item-line">No lyric data found</div>
-        </div>
+      <div class="auth-tabs-segmented">
+        <button class="auth-tab-btn active" id="tab-btn-login" onclick="AuthModalController.switchTab('login')">Sign In</button>
+        <button class="auth-tab-btn" id="tab-btn-register" onclick="AuthModalController.switchTab('register')">Register</button>
+        <button class="auth-tab-btn" id="tab-btn-redeem" onclick="AuthModalController.switchTab('redeem')">Redeem</button>
       </div>
 
-      <!-- Leaf 3: Studio VU Metrics -->
-      <div class="stage-leaf-page" id="leaf-studio-stage">
-        <div style="width: 100%; max-width: 480px;">
-          <div class="cupertino-card" style="padding: 18px; margin-bottom: 16px;">
-            <h3 style="font-size: 0.78rem; font-weight: 700; color: var(--ios-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;">Stereo Peak Level (RMS)</h3>
-            <div class="vu-channel-row">
-              <span style="font-size: 0.75rem; font-weight: 700; width: 16px;">L</span>
-              <div class="vu-track-groove"><div class="vu-level-fill" id="vu-channel-l"></div></div>
-            </div>
-            <div class="vu-channel-row">
-              <span style="font-size: 0.75rem; font-weight: 700; width: 16px;">R</span>
-              <div class="vu-track-groove"><div class="vu-level-fill" id="vu-channel-r"></div></div>
+      <div class="auth-form-body">
+        <!-- Credential Fields for Login / Register -->
+        <div id="auth-credentials-group">
+          <div class="input-field-block">
+            <span class="input-label-text">Username</span>
+            <div class="input-wrapper-inner">
+              <input type="text" class="aesthetic-input" id="auth-input-user" placeholder="Enter username" />
+              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
           </div>
-          <div class="cupertino-card" style="padding: 18px;">
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--ios-separator);">
-              <span style="color: var(--ios-text-secondary);">Decoded Stream</span><span id="studio-disp-codec">--</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-              <span style="color: var(--ios-text-secondary);">Lyric Engine Source</span><span id="studio-disp-lrc-source">--</span>
+
+          <div class="input-field-block" style="margin-top: 8px;">
+            <span class="input-label-text">Password</span>
+            <div class="input-wrapper-inner">
+              <input type="password" class="aesthetic-input" id="auth-input-pass" placeholder="••••••••" />
+              <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             </div>
           </div>
-        </div>
-      </div>
 
-    </div>
-
-    <!-- Modal Transport Deck -->
-    <div class="modal-bottom-deck">
-      <div class="modal-timeline-box">
-        <div class="modal-progress-bar-ios" id="modal-seek-groove">
-          <div class="modal-progress-fill-ios" id="modal-seek-fill"></div>
+          <button class="btn-submit-action" id="btn-auth-primary-submit" onclick="AuthModalController.handlePrimaryAuth()">
+            <span>Sign In to JRmusic</span>
+          </button>
         </div>
-        <div class="modal-timestamp-row">
-          <span id="modal-time-current">0:00</span>
-          <span id="modal-time-total">0:00</span>
-        </div>
-      </div>
 
-      <div class="modal-transport-cluster">
-        <button class="cupertino-btn" id="modal-btn-shuffle" style="width: 44px; height: 44px; border: none; background: none;">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-        </button>
-        <button class="cupertino-btn" id="modal-btn-prev" style="width: 48px; height: 48px;">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        </button>
-        <button class="modal-play-btn-large" id="modal-btn-play">
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" id="modal-play-icon-svg"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="cupertino-btn" id="modal-btn-next" style="width: 48px; height: 48px;">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-        </button>
-        <button class="cupertino-btn" id="modal-btn-repeat" style="width: 44px; height: 44px; border: none; background: none;">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-        </button>
+        <!-- Redemption Input Group -->
+        <div id="auth-redeem-group" style="display: none;">
+          <div class="input-field-block">
+            <span class="input-label-text">Activation License Key</span>
+            <div class="input-wrapper-inner">
+              <input type="text" class="aesthetic-input" id="auth-input-license" placeholder="Enter key (e.g. VIP-2026-X)" />
+              <svg viewBox="0 0 24 24"><path d="M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2zM20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16z"/></svg>
+            </div>
+          </div>
+
+          <button class="btn-submit-action" onclick="AuthModalController.handleRedeem()">
+            <span>Activate License Key</span>
+          </button>
+        </div>
+
+        <div class="auth-alert-message" id="auth-feedback-text"></div>
       </div>
     </div>
   </div>
 
-  <!-- Authentication Barrier Sheet -->
-  <div class="auth-fullscreen-barrier" id="barrier-auth-sheet">
-    <div class="auth-glass-sheet">
-      <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--ios-separator);">
-        <div style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-bottom: 2px solid var(--ios-accent); font-weight: 700;" id="tab-auth-login">Sign In</div>
-        <div style="flex: 1; text-align: center; padding: 10px; cursor: pointer; color: var(--ios-text-secondary);" id="tab-auth-register">Register</div>
-      </div>
-      <div>
-        <input type="text" class="cupertino-input" id="auth-username" placeholder="Username" autocomplete="off" />
-        <input type="password" class="cupertino-input" id="auth-password" placeholder="Password" />
-        <button class="cupertino-btn cupertino-btn-primary" id="btn-submit-auth" style="width: 100%; padding: 14px; font-weight: 700; font-size: 0.95rem;">
-          Sign In
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Key Redemption Barrier Sheet -->
-  <div class="auth-fullscreen-barrier" id="barrier-redeem-sheet">
-    <div class="auth-glass-sheet">
-      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px;">Activate Aether</h2>
-      <p style="font-size: 0.84rem; color: var(--ios-text-secondary); margin-bottom: 20px;">Redeem an unused activation key from MongoDB to continue.</p>
-      <input type="text" class="cupertino-input" id="redeem-key-field" placeholder="e.g. JR-XXXX-XXXX" autocomplete="off" />
-      <button class="cupertino-btn cupertino-btn-primary" id="btn-submit-redeem" style="width: 100%; padding: 14px; font-weight: 700; font-size: 0.95rem;">
-        Redeem Key
-      </button>
-    </div>
-  </div>
-
-  <!-- Native Direct Audio Pipeline -->
-  <audio id="core-audio-pipeline" preload="auto" playsinline webkit-playsinline></audio>
-
-  <!-- Part 1 結束，緊接 Part 2 腳本庫 -->
-    <script>
-    /**
-     * =========================================================================
-     * AETHER PRO RUNTIME JAVASCRIPT CORE
-     * =========================================================================
-     */
-
-    const CF_WORKER_ENDPOINT = "https://jrmusic-premium.zhangzhanhang855.workers.dev";
-    const GITHUB_USER = "zhangzhanhang855";
-    const GITHUB_REPO = "musiconly";
-    const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
-    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
-
-    // Global App State Machine
-    const AppState = {
-      user: null,
-      playlists: {},
-      allTracks: [],
-      offlineTracks: [],
-      playHistory: [],
-      currentActiveSet: null,
-      currentTrackIndex: -1,
-      currentTrack: null,
-      isPlaying: false,
-      isShuffle: false,
-      isRepeat: false,
-      lyrics: [],
-      currentLyricIndex: -1,
-      totalStrippedLines: 0,
-      sessionPlayCount: 0,
-      vuTimer: null
+  <!-- ==========================================================================
+       JAVASCRIPT ARCHITECTURE & CLIENT ENGINE
+       ========================================================================== -->
+  <script>
+    const CONFIG = {
+      WORKER_API_BASE: "https://your-worker-subdomain.workers.dev",
+      GITHUB_REPO: "zhangzhanhang855/musiconly",
+      DEFAULT_DOWNLOAD_QUOTA: 10,
+      DB_NAME: "JRMusicOfflineStore",
+      DB_VERSION: 1
     };
 
-    // DOM References
-    const audio = document.getElementById('core-audio-pipeline');
-    const toast = document.getElementById('app-toast-pill');
-
-    const miniTextTitle = document.getElementById('mini-text-title');
-    const miniTextSub = document.getElementById('mini-text-sub');
-    const miniArtworkImg = document.getElementById('mini-artwork-img');
-    const miniPlayIconSvg = document.getElementById('mini-play-icon-svg');
-
-    const modalImmersive = document.getElementById('immersive-player-modal');
-    const modalBlurCanvas = document.getElementById('modal-blur-canvas');
-    const modalDisplayTitle = document.getElementById('modal-display-title');
-    const modalDisplaySub = document.getElementById('modal-display-sub');
-    const vinylDiscActor = document.getElementById('vinyl-disc-actor');
-    const vinylLabelImage = document.getElementById('vinyl-label-image');
-    const tonearmActor = document.getElementById('tonearm-actor');
-    const modalPlayIconSvg = document.getElementById('modal-play-icon-svg');
-
-    const modalSeekGroove = document.getElementById('modal-seek-groove');
-    const modalSeekFill = document.getElementById('modal-seek-fill');
-    const modalTimeCurrent = document.getElementById('modal-time-current');
-    const modalTimeTotal = document.getElementById('modal-time-total');
-
-    const modalLyricsViewport = document.getElementById('modal-lyrics-viewport');
-    const standaloneLyricsViewport = document.getElementById('standalone-lyrics-viewport');
-
-    const barrierAuth = document.getElementById('barrier-auth-sheet');
-    const barrierRedeem = document.getElementById('barrier-redeem-sheet');
-    let currentAuthMode = 'login';
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('visible-toast');
-      setTimeout(() => toast.classList.remove('visible-toast'), 2500);
-    }
-
-    // Unified Stage Routing for iPhone & iPad
-    function switchStageView(targetStageId) {
-      document.querySelectorAll('.view-leaf-container').forEach(v => v.classList.remove('active-view'));
-      document.querySelectorAll('.tabbar-item-btn').forEach(t => t.classList.remove('active-tab'));
-      document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-
-      const target = document.getElementById(targetStageId);
-      if (target) target.classList.add('active-view');
-
-      const matchedTab = document.querySelector(`.tabbar-item-btn[data-dest="${targetStageId}"]`);
-      if (matchedTab) matchedTab.classList.add('active-tab');
-
-      const matchedSidebar = document.querySelector(`.sidebar-item[data-dest="${targetStageId}"]`);
-      if (matchedSidebar) matchedSidebar.classList.add('active');
-
-      const pageTitles = {
-        'stage-explore': 'Listen Now',
-        'stage-collections': 'Collections',
-        'stage-all-tracks': 'All Tracks',
-        'stage-offline-vault': 'Offline Vault',
-        'stage-lyrics-stream': 'Live Lyrics',
-        'stage-dsp-engine': 'Hardware DSP',
-        'stage-track-meta': 'Track Details',
-        'stage-diagnostics': 'Diagnostics',
-        'stage-history': 'Recent Plays',
-        'stage-account': 'Account'
-      };
-      document.getElementById('page-title-label').textContent = pageTitles[targetStageId] || 'Aether Pro';
-    }
-
-    document.querySelectorAll('.tabbar-item-btn, .sidebar-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dest = btn.getAttribute('data-dest');
-        if (dest) switchStageView(dest);
-      });
-    });
+    const PlaybackState = {
+      currentUser: null,
+      sessionToken: null,
+      quotaRemainder: 0,
+      repoTree: {},
+      flatTrackIndex: [],
+      currentPlaylist: [],
+      currentTrackPointer: -1,
+      favorites: [],
+      customPlaylists: [
+        { name: "Playlist 1", tracks: [] },
+        { name: "Playlist 2", tracks: [] }
+      ],
+      offlineCacheCatalog: new Set()
+    };
 
     /**
-     * =========================================================================
-     * 1. 雙字節容錯文本解碼探針 (徹底杜絕英文歌詞亂碼)
-     * =========================================================================
+     * IndexedDB Audio Storage Module
      */
-    class UniversalTextDecoder {
-      static decodeBuffer(uint8Arr) {
-        if (!uint8Arr || uint8Arr.length === 0) return "";
+    const OfflineAudioStore = {
+      db: null,
 
-        // 1. 精準 BOM 簽名探測
-        if (uint8Arr.length >= 3 && uint8Arr[0] === 0xEF && uint8Arr[1] === 0xBB && uint8Arr[2] === 0xBF) {
-          return new TextDecoder('utf-8').decode(uint8Arr.subarray(3));
-        }
-        if (uint8Arr.length >= 2 && uint8Arr[0] === 0xFF && uint8Arr[1] === 0xFE) {
-          return new TextDecoder('utf-16le').decode(uint8Arr.subarray(2));
-        }
-        if (uint8Arr.length >= 2 && uint8Arr[0] === 0xFE && uint8Arr[1] === 0xFF) {
-          return new TextDecoder('utf-16be').decode(uint8Arr.subarray(2));
-        }
-
-        // 2. 探測無 BOM 的 UTF-16 特徵（英文 ASCII 字符會出現大量交替的 0x00）
-        let evenZeros = 0, oddZeros = 0;
-        const checkLen = Math.min(uint8Arr.length, 512);
-        for (let i = 0; i < checkLen; i++) {
-          if (uint8Arr[i] === 0x00) {
-            if (i % 2 === 0) evenZeros++;
-            else oddZeros++;
-          }
-        }
-        if (oddZeros > 10 && oddZeros > evenZeros * 2) {
-          try { return new TextDecoder('utf-16le').decode(uint8Arr); } catch(e) {}
-        }
-        if (evenZeros > 10 && evenZeros > oddZeros * 2) {
-          try { return new TextDecoder('utf-16be').decode(uint8Arr); } catch(e) {}
-        }
-
-        // 3. 嘗試嚴格 UTF-8 解碼（所有正規英文字符集及現代標準均在此處理）
-        try {
-          const res = new TextDecoder('utf-8', { fatal: true }).decode(uint8Arr);
-          if (res.includes('[') || res.includes(':')) {
-            return res;
-          }
-        } catch(e) {}
-
-        // 4. 針對中文 MP3 遺留編碼回退至 GB18030
-        try {
-          const gbkRes = new TextDecoder('gb18030').decode(uint8Arr);
-          if (gbkRes.includes('[') || gbkRes.includes(':')) {
-            return gbkRes;
-          }
-        } catch(e) {}
-
-        // 5. 終極兜底（非嚴格 UTF-8）
-        return new TextDecoder('utf-8').decode(uint8Arr);
-      }
-    }
-
-    function aggressivelyFindLyrics(tags) {
-      if (!tags) return "";
-
-      const extract = (obj) => {
-        if (!obj) return "";
-        if (typeof obj === 'string') return obj;
-        if (typeof obj.text === 'string') return obj.text;
-        if (typeof obj.lyrics === 'string') return obj.lyrics;
-        if (obj.data) {
-          if (typeof obj.data === 'string') return obj.data;
-          if (typeof obj.data.text === 'string') return obj.data.text;
-          if (obj.data instanceof Uint8Array || Array.isArray(obj.data)) {
-            return UniversalTextDecoder.decodeBuffer(new Uint8Array(obj.data));
-          }
-        }
-        return "";
-      };
-
-      let primary = extract(tags.lyrics) || extract(tags.USLT) || extract(tags.SYLT);
-      if (primary && primary.includes('[')) return primary;
-
-      for (let key in tags) {
-        const item = tags[key];
-        const arr = Array.isArray(item) ? item : [item];
-        
-        for (let i of arr) {
-          let txt = extract(i);
-          if (typeof txt === 'string' && txt.includes('[00:')) return txt;
-          
-          if (i && i.data) {
-            let deepTxt = extract(i.data.data) || extract(i.data);
-            if (typeof deepTxt === 'string' && deepTxt.includes('[00:')) return deepTxt;
-          }
-        }
-      }
-      return primary; 
-    }
-
-    function processLyrics(rawText, source) {
-      if (!rawText || typeof rawText !== 'string') {
-        AppState.lyrics = [];
-        const fallback = '<div class="lyric-item-line">Instrumental Track</div>';
-        modalLyricsViewport.innerHTML = fallback;
-        standaloneLyricsViewport.innerHTML = fallback;
-        document.getElementById('studio-disp-lrc-source').textContent = "None (Instrumental)";
-        return;
-      }
-
-      let cleanText = rawText.replace(/\0/g, '').trim();
-
-      // 雙字節流二次修復
-      if (!cleanText.match(/\[\d{1,3}:\d{1,2}/)) {
-        try {
-          const buf = new Uint8Array([...cleanText].map(c => c.charCodeAt(0) & 0xff));
-          const rec = UniversalTextDecoder.decodeBuffer(buf);
-          if (rec.match(/\[\d{1,3}:\d{1,2}/)) {
-            cleanText = rec;
-          }
-        } catch(e) {}
-      }
-
-      const lines = cleanText.split(/\r?\n/);
-      const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
-      const parsedLyrics = [];
-      let strippedCount = 0;
-
-      for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-
-        let match;
-        let timeTags = [];
-        timeReg.lastIndex = 0;
-
-        while ((match = timeReg.exec(line)) !== null) {
-          const m = parseInt(match[1], 10);
-          const s = parseInt(match[2], 10);
-          const msStr = match[3] || '0';
-          const ms = parseInt(msStr.padEnd(3, '0').slice(0, 3), 10);
-          timeTags.push(m * 60 + s + ms / 1000);
-        }
-
-        if (timeTags.length > 0) {
-          let text = line.replace(/\[\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?\]/g, '').trim();
-          
-          // 嚴格清除（翻譯：...）或 (translation:...)
-          const preCut = text;
-          text = text.replace(/[（(](?:翻译|translation)[：:].*?[）)]/gi, '').trim();
-          if (text !== preCut) strippedCount++;
-
-          for (let t of timeTags) {
-            parsedLyrics.push({ time: t, text: text || '...' });
-          }
-        }
-      }
-
-      AppState.totalStrippedLines += strippedCount;
-      document.getElementById('diag-val-stripped').textContent = `${AppState.totalStrippedLines} lines`;
-
-      if (parsedLyrics.length > 0) {
-        parsedLyrics.sort((a, b) => a.time - b.time);
-        AppState.lyrics = parsedLyrics;
-
-        const renderedHTML = parsedLyrics.map((l, i) => 
-          `<div class="lyric-item-line" id="lyric-item-${i}" data-time="${l.time}">
-             <span>${l.text}</span>
-           </div>`
-        ).join('');
-
-        modalLyricsViewport.innerHTML = renderedHTML;
-        standaloneLyricsViewport.innerHTML = renderedHTML;
-
-        document.querySelectorAll('.lyric-item-line').forEach(node => {
-          node.onclick = () => {
-            const tm = parseFloat(node.getAttribute('data-time'));
-            if (!isNaN(tm)) {
-              audio.currentTime = tm;
-              if (audio.paused) executePlay();
-            }
-          };
-        });
-
-        document.getElementById('studio-disp-lrc-source').textContent = source || "Synchronized";
-      } else {
-        AppState.lyrics = [];
-        const plainHTML = `<div style="text-align: left; opacity: 0.6; line-height: 2; padding: 20px;">${cleanText}</div>`;
-        modalLyricsViewport.innerHTML = plainHTML;
-        standaloneLyricsViewport.innerHTML = plainHTML;
-        document.getElementById('studio-disp-lrc-source').textContent = `Plain Text (${source})`;
-      }
-    }
-
-    /**
-     * =========================================================================
-     * 2. NATIVE BINARY ID3V2 & FLAC EXTRACTOR
-     * =========================================================================
-     */
-    class BinaryTagExtractor {
-      static async extract(arrayBuffer, format) {
-        const view = new DataView(arrayBuffer);
-        const meta = { title: null, artist: null, album: null, artworkUrl: null, embeddedLrc: null };
-
-        try {
-          if (format === 'mp3') {
-            if (view.getUint8(0) === 0x49 && view.getUint8(1) === 0x44 && view.getUint8(2) === 0x33) {
-              const version = view.getUint8(3);
-              const tagSize = BinaryTagExtractor.readSynchsafe(view, 6);
-              let offset = 10;
-
-              while (offset < tagSize + 10 && offset < view.byteLength - 10) {
-                const frameId = String.fromCharCode(
-                  view.getUint8(offset), view.getUint8(offset+1),
-                  view.getUint8(offset+2), view.getUint8(offset+3)
-                );
-
-                if (!frameId.match(/^[A-Z0-9]{4}$/)) break;
-
-                const frameSize = (version === 4)
-                  ? BinaryTagExtractor.readSynchsafe(view, offset + 4)
-                  : view.getUint32(offset + 4);
-
-                if (frameSize <= 0 || offset + 10 + frameSize > view.byteLength) break;
-                const frameData = new Uint8Array(arrayBuffer, offset + 10, frameSize);
-
-                if (frameId === 'TIT2') meta.title = BinaryTagExtractor.decodeString(frameData);
-                else if (frameId === 'TPE1') meta.artist = BinaryTagExtractor.decodeString(frameData);
-                else if (frameId === 'TALB') meta.album = BinaryTagExtractor.decodeString(frameData);
-                else if (frameId === 'APIC') meta.artworkUrl = BinaryTagExtractor.decodeApic(frameData);
-                else if (frameId === 'USLT' || frameId === 'SYLT') meta.embeddedLrc = BinaryTagExtractor.decodeLyricsFrame(frameData);
-
-                offset += 10 + frameSize;
-              }
-            }
-          } else if (format === 'flac') {
-            if (view.getUint8(0) === 0x66 && view.getUint8(1) === 0x4C && view.getUint8(2) === 0x61 && view.getUint8(3) === 0x43) {
-              let offset = 4;
-              let isLast = false;
-
-              while (!isLast && offset < view.byteLength) {
-                const header = view.getUint8(offset);
-                isLast = (header & 0x80) !== 0;
-                const type = header & 0x7F;
-                const blockSize = (view.getUint8(offset + 1) << 16) | (view.getUint8(offset + 2) << 8) | view.getUint8(offset + 3);
-                offset += 4;
-
-                if (type === 4) {
-                  const comments = BinaryTagExtractor.parseVorbis(new Uint8Array(arrayBuffer, offset, blockSize));
-                  if (comments.TITLE) meta.title = comments.TITLE;
-                  if (comments.ARTIST) meta.artist = comments.ARTIST;
-                  if (comments.ALBUM) meta.album = comments.ALBUM;
-                  if (comments.LYRICS) meta.embeddedLrc = comments.LYRICS;
-                } else if (type === 6) {
-                  meta.artworkUrl = BinaryTagExtractor.parseFlacPicture(new DataView(arrayBuffer, offset, blockSize));
-                }
-                offset += blockSize;
-              }
-            }
-          }
-        } catch (e) {
-          console.warn("BinaryTagExtractor exception:", e);
-        }
-        return meta;
-      }
-
-      static readSynchsafe(view, offset) {
-        return (view.getUint8(offset) << 21) |
-               (view.getUint8(offset + 1) << 14) |
-               (view.getUint8(offset + 2) << 7) |
-               view.getUint8(offset + 3);
-      }
-
-      static decodeString(uint8Arr) {
-        if (!uint8Arr || uint8Arr.length <= 1) return "";
-        const enc = uint8Arr[0];
-        const bytes = uint8Arr.slice(1);
-
-        try {
-          if (enc === 0) {
-            let isAscii = true;
-            for (let b of bytes) { if (b > 127) { isAscii = false; break; } }
-            if (isAscii) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
-            try { return new TextDecoder('gb18030').decode(bytes).replace(/\0/g, ''); } 
-            catch (e) { return new TextDecoder('iso-8859-1').decode(bytes).replace(/\0/g, ''); }
-          }
-          if (enc === 1) return new TextDecoder('utf-16').decode(bytes).replace(/\0/g, '');
-          if (enc === 2) return new TextDecoder('utf-16be').decode(bytes).replace(/\0/g, '');
-          if (enc === 3) return new TextDecoder('utf-8').decode(bytes).replace(/\0/g, '');
-        } catch (e) {}
-
-        return UniversalTextDecoder.decodeBuffer(bytes).replace(/\0/g, '');
-      }
-
-      static decodeLyricsFrame(uint8Arr) {
-        if (!uint8Arr || uint8Arr.length < 5) return "";
-        const enc = uint8Arr[0];
-        let offset = 4;
-        if (enc === 1 || enc === 2) {
-          while (offset + 1 < uint8Arr.length) {
-            if (uint8Arr[offset] === 0x00 && uint8Arr[offset + 1] === 0x00) {
-              offset += 2;
-              break;
-            }
-            offset += 2;
-          }
-        } else {
-          while (offset < uint8Arr.length) {
-            if (uint8Arr[offset] === 0x00) {
-              offset += 1;
-              break;
-            }
-            offset += 1;
-          }
-        }
-
-        const lyricBytes = uint8Arr.slice(offset);
-        try {
-          if (enc === 0) {
-            let isAscii = true;
-            for (let b of lyricBytes) { if (b > 127) { isAscii = false; break; } }
-            if (isAscii) return new TextDecoder('utf-8').decode(lyricBytes);
-            return new TextDecoder('gb18030').decode(lyricBytes);
-          }
-          if (enc === 1) return new TextDecoder('utf-16').decode(lyricBytes);
-          if (enc === 2) return new TextDecoder('utf-16be').decode(lyricBytes);
-          if (enc === 3) return new TextDecoder('utf-8').decode(lyricBytes);
-        } catch(e) {}
-
-        return UniversalTextDecoder.decodeBuffer(lyricBytes);
-      }
-
-      static decodeApic(uint8Arr) {
-        const enc = uint8Arr[0];
-        let offset = 1;
-        let mime = "";
-        while (offset < uint8Arr.length && uint8Arr[offset] !== 0) {
-          mime += String.fromCharCode(uint8Arr[offset++]);
-        }
-        offset++;
-        offset++;
-        if (enc === 1 || enc === 2) {
-          while (offset + 1 < uint8Arr.length && !(uint8Arr[offset] === 0 && uint8Arr[offset + 1] === 0)) offset += 2;
-          offset += 2;
-        } else {
-          while (offset < uint8Arr.length && uint8Arr[offset] !== 0) offset++;
-          offset++;
-        }
-        const imgBytes = uint8Arr.slice(offset);
-        return URL.createObjectURL(new Blob([imgBytes], { type: mime || 'image/jpeg' }));
-      }
-
-      static parseVorbis(uint8Arr) {
-        const view = new DataView(uint8Arr.buffer, uint8Arr.byteOffset, uint8Arr.byteLength);
-        let offset = 0;
-        const vendorLen = view.getUint32(offset, true);
-        offset += 4 + vendorLen;
-        const count = view.getUint32(offset, true);
-        offset += 4;
-        const result = {};
-
-        for (let i = 0; i < count; i++) {
-          if (offset + 4 > uint8Arr.length) break;
-          const len = view.getUint32(offset, true);
-          offset += 4;
-          const str = new TextDecoder('utf-8').decode(uint8Arr.slice(offset, offset + len));
-          offset += len;
-          const eq = str.indexOf('=');
-          if (eq !== -1) {
-            result[str.substring(0, eq).toUpperCase()] = str.substring(eq + 1);
-          }
-        }
-        return result;
-      }
-
-      static parseFlacPicture(view) {
-        try {
-          const mimeLen = view.getUint32(4);
-          let offset = 8;
-          let mime = "";
-          for (let i = 0; i < mimeLen; i++) mime += String.fromCharCode(view.getUint8(offset++));
-          const descLen = view.getUint32(offset);
-          offset += 4 + descLen + 16;
-          const dataLen = view.getUint32(offset);
-          offset += 4;
-          const imgBytes = new Uint8Array(view.buffer, view.byteOffset + offset, dataLen);
-          return URL.createObjectURL(new Blob([imgBytes], { type: mime || 'image/jpeg' }));
-        } catch (e) {
-          return null;
-        }
-      }
-    }
-
-    /**
-     * =========================================================================
-     * 3. INDEXEDDB PERSISTENT STORAGE VAULT
-     * =========================================================================
-     */
-    class VaultEngine {
-      static async open() {
-        return new Promise((res, rej) => {
-          const req = indexedDB.open("AetherMasterStore", 2);
+      async init() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
           req.onupgradeneeded = (e) => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains("tracks")) {
-              db.createObjectStore("tracks", { keyPath: "id" });
+            if (!db.objectStoreNames.contains("audio_blobs")) {
+              db.createObjectStore("audio_blobs", { keyPath: "path" });
             }
           };
-          req.onsuccess = () => res(req.result);
-          req.onerror = () => rej(req.error);
-        });
-      }
-
-      static async save(track, blob, meta) {
-        const db = await VaultEngine.open();
-        return new Promise((res, rej) => {
-          const tx = db.transaction("tracks", "readwrite");
-          const store = tx.objectStore("tracks");
-          const record = {
-            id: track.id,
-            fileName: track.fileName,
-            folder: track.folder,
-            blob: blob,
-            title: meta.title || track.title,
-            artist: meta.artist || track.artist,
-            album: meta.album || track.album,
-            format: track.format,
-            dateAdded: Date.now()
+          req.onsuccess = (e) => {
+            OfflineAudioStore.db = e.target.result;
+            OfflineAudioStore.refreshCatalog().then(resolve);
           };
-          const req = store.put(record);
-          req.onsuccess = () => res(record);
-          req.onerror = () => rej(req.error);
+          req.onerror = (err) => reject(err);
         });
-      }
+      },
 
-      static async getAll() {
-        const db = await VaultEngine.open();
-        return new Promise((res) => {
-          const tx = db.transaction("tracks", "readonly");
-          const req = tx.objectStore("tracks").getAll();
-          req.onsuccess = () => res(req.result || []);
-          req.onerror = () => res([]);
+      async saveTrackBlob(path, title, blob) {
+        return new Promise((resolve, reject) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readwrite");
+          const store = tx.objectStore("audio_blobs");
+          store.put({ path, title, blob, timestamp: Date.now() });
+          tx.oncomplete = () => {
+            PlaybackState.offlineCacheCatalog.add(path);
+            resolve();
+          };
+          tx.onerror = (err) => reject(err);
         });
-      }
+      },
 
-      static async exists(id) {
-        const db = await VaultEngine.open();
-        return new Promise((res) => {
-          const tx = db.transaction("tracks", "readonly");
-          const req = tx.objectStore("tracks").get(id);
-          req.onsuccess = () => res(!!req.result);
-          req.onerror = () => res(false);
+      async getTrackBlob(path) {
+        return new Promise((resolve) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
+          const store = tx.objectStore("audio_blobs");
+          const req = store.get(path);
+          req.onsuccess = () => resolve(req.result ? req.result.blob : null);
+          req.onerror = () => resolve(null);
         });
+      },
+
+      async getAllCachedRecords() {
+        return new Promise((resolve) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
+          const store = tx.objectStore("audio_blobs");
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+      },
+
+      async refreshCatalog() {
+        const records = await OfflineAudioStore.getAllCachedRecords();
+        PlaybackState.offlineCacheCatalog.clear();
+        records.forEach(r => PlaybackState.offlineCacheCatalog.add(r.path));
       }
-    }
+    };
 
     /**
-     * =========================================================================
-     * 4. CLOUDFLARE AUTHENTICATION
-     * =========================================================================
+     * Beautiful Modal & Auth Controller
      */
-    class AuthClient {
-      static init() {
-        const cached = localStorage.getItem('aether_session_user');
-        if (cached) {
-          try {
-            AppState.user = JSON.parse(cached);
-            AuthClient.enforceActivation();
-          } catch (e) {
-            AuthClient.showAuthModal();
-          }
-        } else {
-          AuthClient.showAuthModal();
+    const AuthModalController = {
+      currentTab: 'login',
+
+      openModal(tab = 'login') {
+        document.getElementById("modal-auth-hub").classList.add("is-open");
+        AuthModalController.switchTab(tab);
+      },
+
+      closeModal() {
+        // If user is not logged in, enforce login interceptor
+        if (!PlaybackState.currentUser) {
+          AuthModalController.showMessage("Please log in to continue", true);
+          return;
         }
-      }
+        document.getElementById("modal-auth-hub").classList.remove("is-open");
+      },
 
-      static showAuthModal() {
-        barrierAuth.classList.add('active-auth');
-        barrierRedeem.classList.remove('active-auth');
-      }
+      switchTab(tab) {
+        AuthModalController.currentTab = tab;
+        document.getElementById("auth-feedback-text").innerText = "";
 
-      static enforceActivation() {
-        if (!AppState.user) {
-          AuthClient.showAuthModal();
+        const creds = document.getElementById("auth-credentials-group");
+        const redeem = document.getElementById("auth-redeem-group");
+        const tabLogin = document.getElementById("tab-btn-login");
+        const tabRegister = document.getElementById("tab-btn-register");
+        const tabRedeem = document.getElementById("tab-btn-redeem");
+        const submitBtn = document.getElementById("btn-auth-primary-submit");
+        const title = document.getElementById("auth-modal-title");
+        const desc = document.getElementById("auth-modal-desc");
+
+        tabLogin.classList.remove("active");
+        tabRegister.classList.remove("active");
+        tabRedeem.classList.remove("active");
+
+        if (tab === 'login') {
+          tabLogin.classList.add("active");
+          creds.style.display = "flex";
+          redeem.style.display = "none";
+          submitBtn.querySelector("span").innerText = "Sign In to JRmusic";
+          title.innerText = "Welcome to JRmusic";
+          desc.innerText = "Sign in to unlock lossless cloud playback and offline sync";
+        } else if (tab === 'register') {
+          tabRegister.classList.add("active");
+          creds.style.display = "flex";
+          redeem.style.display = "none";
+          submitBtn.querySelector("span").innerText = "Create JR Account";
+          title.innerText = "Create an Account";
+          desc.innerText = "Register your library credentials on the Corporate gateway";
+        } else if (tab === 'redeem') {
+          tabRedeem.classList.add("active");
+          creds.style.display = "none";
+          redeem.style.display = "flex";
+          title.innerText = "Redeem Activation Key";
+          desc.innerText = "Enter your administrator license to expand offline downloads";
+        }
+      },
+
+      showMessage(msg, isError = false) {
+        const el = document.getElementById("auth-feedback-text");
+        el.className = `auth-alert-message ${isError ? 'error' : 'success'}`;
+        el.innerText = msg;
+      },
+
+      async handlePrimaryAuth() {
+        const username = document.getElementById("auth-input-user").value.trim();
+        const password = document.getElementById("auth-input-pass").value.trim();
+        if (!username || !password) {
+          AuthModalController.showMessage("Username and password are required.", true);
           return;
         }
 
-        if (!AppState.user.isActivated) {
-          barrierAuth.classList.remove('active-auth');
-          barrierRedeem.classList.add('active-auth');
-        } else {
-          barrierAuth.classList.remove('active-auth');
-          barrierRedeem.classList.remove('active-auth');
-          AuthClient.updateProfileDisplay();
-        }
-      }
-
-      static updateProfileDisplay() {
-        if (AppState.user) {
-          document.getElementById('acc-disp-username').textContent = AppState.user.username;
-          document.getElementById('acc-disp-status').textContent = AppState.user.isActivated ? "Activated" : "Not Activated";
-          document.getElementById('acc-disp-code').textContent = AppState.user.redeemedCode || "--";
-        }
-      }
-
-      static async submitLogin(username, password) {
+        const endpoint = AuthModalController.currentTab === 'login' ? '/api/login' : '/api/register';
         try {
-          showToast("Signing In...");
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const res = await fetch(`${CONFIG.WORKER_API_BASE}${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
           });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Invalid credentials");
+          if (!res.ok) throw new Error(data.message || "Authentication rejected");
 
-          AppState.user = data.user;
-          localStorage.setItem('aether_session_user', JSON.stringify(data.user));
-          showToast(`Welcome back, ${data.user.username}`);
-          AuthClient.enforceActivation();
+          AuthModalController.setSession(data.user);
+          AuthModalController.showMessage("Authentication successful!", false);
+          setTimeout(() => {
+            document.getElementById("modal-auth-hub").classList.remove("is-open");
+          }, 800);
         } catch (err) {
-          showToast(err.message);
+          AuthModalController.showMessage(err.message, true);
         }
-      }
+      },
 
-      static async submitRegister(username, password) {
+      async handleRedeem() {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.showMessage("You must be signed in to redeem keys.", true);
+          return;
+        }
+        const code = document.getElementById("auth-input-license").value.trim();
+        if (!code) {
+          AuthModalController.showMessage("Please enter a valid key code.", true);
+          return;
+        }
+
         try {
-          showToast("Creating account...");
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+          const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/redeem`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: PlaybackState.currentUser.username, code })
           });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Registration failed");
+          if (!res.ok) throw new Error(data.message || "Redemption rejected.");
 
-          AppState.user = data.user;
-          localStorage.setItem('aether_session_user', JSON.stringify(data.user));
-          showToast("Registered. Enter key to activate.");
-          AuthClient.enforceActivation();
+          const addedDownloads = data.grantedQuota || 50;
+          PlaybackState.quotaRemainder += addedDownloads;
+          UIFeedback.updateQuotaVisuals();
+          AuthModalController.showMessage(`Activated! Added +${addedDownloads} downloads.`, false);
+          document.getElementById("auth-input-license").value = "";
         } catch (err) {
-          showToast(err.message);
+          AuthModalController.showMessage(err.message, true);
+        }
+      },
+
+      setSession(userObj) {
+        PlaybackState.currentUser = userObj;
+        PlaybackState.sessionToken = userObj.token;
+        PlaybackState.favorites = userObj.favorites || [];
+        PlaybackState.quotaRemainder = userObj.downloadQuota !== undefined ? userObj.downloadQuota : CONFIG.DEFAULT_DOWNLOAD_QUOTA;
+        PlaybackState.customPlaylists = userObj.customPlaylists || [
+          { name: "Playlist 1", tracks: [] },
+          { name: "Playlist 2", tracks: [] }
+        ];
+
+        localStorage.setItem("jrmusic_session", JSON.stringify(userObj));
+        localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
+
+        // Remove guest lock
+        document.getElementById("guest-gate-lock").style.display = "none";
+        UIFeedback.updateUserVisuals();
+      },
+
+      restoreSession() {
+        const stored = localStorage.getItem("jrmusic_session");
+        if (stored) {
+          try {
+            const user = JSON.parse(stored);
+            const savedQuota = localStorage.getItem("jrmusic_quota");
+            if (savedQuota !== null) user.downloadQuota = parseInt(savedQuota, 10);
+            AuthModalController.setSession(user);
+          } catch (e) {
+            localStorage.removeItem("jrmusic_session");
+          }
         }
       }
+    };
 
-      static async submitRedeem(code) {
+    /**
+     * GitHub Repository Sync Engine
+     */
+    const RepoSyncEngine = {
+      async syncFromGitHub() {
         try {
-          showToast("Redeeming key...");
-          const res = await fetch(`${CF_WORKER_ENDPOINT}/api/redeem`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: AppState.user.username, code: code.trim() })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Invalid or locked key");
+          UIFeedback.setHeadline("Traversing GitHub tree...");
+          const repoRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}`);
+          if (!repoRes.ok) throw new Error("Could not connect to GitHub repository.");
+          const repoInfo = await repoRes.json();
+          const defaultBranch = repoInfo.default_branch || "main";
 
-          AppState.user.isActivated = true;
-          AppState.user.redeemedCode = code.trim();
-          localStorage.setItem('aether_session_user', JSON.stringify(AppState.user));
+          const treeRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/${defaultBranch}?recursive=1`);
+          if (!treeRes.ok) throw new Error("Failed to traverse GitHub repository tree.");
+          const treeData = await treeRes.json();
 
-          showToast("Activation Successful");
-          barrierRedeem.classList.remove('active-auth');
-          AuthClient.updateProfileDisplay();
-        } catch (err) {
-          showToast(err.message);
-        }
-      }
+          PlaybackState.repoTree = {};
+          PlaybackState.flatTrackIndex = [];
 
-      static logout() {
-        AppState.user = null;
-        localStorage.removeItem('aether_session_user');
-        AuthClient.showAuthModal();
-        showToast("Signed out successfully");
-      }
-    }
-
-    document.getElementById('tab-auth-login').onclick = () => {
-      currentAuthMode = 'login';
-      document.getElementById('tab-auth-login').style.borderBottom = '2px solid var(--ios-accent)';
-      document.getElementById('tab-auth-login').style.color = '#fff';
-      document.getElementById('tab-auth-register').style.borderBottom = 'none';
-      document.getElementById('tab-auth-register').style.color = 'var(--ios-text-secondary)';
-      document.getElementById('btn-submit-auth').textContent = "Sign In";
-    };
-
-    document.getElementById('tab-auth-register').onclick = () => {
-      currentAuthMode = 'register';
-      document.getElementById('tab-auth-register').style.borderBottom = '2px solid var(--ios-accent)';
-      document.getElementById('tab-auth-register').style.color = '#fff';
-      document.getElementById('tab-auth-login').style.borderBottom = 'none';
-      document.getElementById('tab-auth-login').style.color = 'var(--ios-text-secondary)';
-      document.getElementById('btn-submit-auth').textContent = "Register";
-    };
-
-    document.getElementById('btn-submit-auth').onclick = () => {
-      const u = document.getElementById('auth-username').value.trim();
-      const p = document.getElementById('auth-password').value.trim();
-      if (!u || !p) return showToast("Please fill all fields");
-      if (currentAuthMode === 'login') AuthClient.submitLogin(u, p);
-      else AuthClient.submitRegister(u, p);
-    };
-
-    document.getElementById('btn-submit-redeem').onclick = () => {
-      const k = document.getElementById('redeem-key-field').value.trim();
-      if (!k) return showToast("Enter key to activate");
-      AuthClient.submitRedeem(k);
-    };
-
-    document.getElementById('btn-sign-out').onclick = () => AuthClient.logout();
-    document.getElementById('navbar-btn-account').onclick = () => switchStageView('stage-account');
-
-    /**
-     * =========================================================================
-     * 5. APPLE LOCKSCREEN MEDIASESSION ADAPTATION
-     * =========================================================================
-     */
-    function syncAppleMediaSession(track) {
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: track.title,
-          artist: `${track.artist} / ${track.album}`,
-          album: track.album,
-          artwork: [
-            { src: track.artworkUrl, sizes: '256x256', type: 'image/png' },
-            { src: track.artworkUrl, sizes: '512x512', type: 'image/png' }
-          ]
-        });
-
-        navigator.mediaSession.setActionHandler('play', () => executePlay());
-        navigator.mediaSession.setActionHandler('pause', () => executePause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
-        navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
-        navigator.mediaSession.setActionHandler('seekto', (e) => {
-          if (e.seekTime && audio.duration) audio.currentTime = e.seekTime;
-        });
-      }
-    }
-
-    /**
-     * =========================================================================
-     * 6. REMOTE SYNC & WORKSPACE DISPATCH
-     * =========================================================================
-     */
-    async function syncRemoteRepository() {
-      if (!AppState.user || !AppState.user.isActivated) return;
-
-      showToast("Syncing with GitHub...");
-      try {
-        const rootRes = await fetch(API_BASE);
-        if (!rootRes.ok) throw new Error("API Limit reached or repo not found");
-        const items = await rootRes.json();
-
-        AppState.playlists = {};
-        AppState.allTracks = [];
-
-        for (const item of items) {
-          if (item.type === "dir") {
-            const folderName = item.name;
-            AppState.playlists[folderName] = [];
-
-            const folderRes = await fetch(item.url);
-            if (folderRes.ok) {
-              const folderItems = await folderRes.json();
-              const audioFiles = folderItems.filter(f => {
-                const low = f.name.toLowerCase();
-                return low.endsWith('.mp3') || low.endsWith('.flac');
-              });
-
-              audioFiles.forEach(f => {
-                const low = f.name.toLowerCase();
-                const format = low.endsWith('.flac') ? 'flac' : 'mp3';
-                const baseName = f.name.substring(0, f.name.lastIndexOf('.'));
-                const matchedLrc = folderItems.find(x => x.name.toLowerCase() === `${baseName.toLowerCase()}.lrc`);
-
-                let title = baseName;
-                let artist = "Various Artists";
-                if (baseName.includes(' - ')) {
-                  const parts = baseName.split(' - ');
-                  artist = parts[0].trim();
-                  title = parts.slice(1).join(' - ').trim();
-                }
+          (treeData.tree || []).forEach(node => {
+            if (node.type === "blob") {
+              const lower = node.path.toLowerCase();
+              if (lower.endsWith(".mp3") || lower.endsWith(".flac")) {
+                const parts = node.path.split("/");
+                const folderName = parts.length > 1 ? parts.slice(0, -1).join("/") : "Root Library";
+                const fileName = parts[parts.length - 1];
 
                 const trackObj = {
-                  id: f.sha,
-                  fileName: f.name,
-                  format: format,
-                  title: title,
-                  artist: artist,
-                  album: folderName,
-                  streamUrl: f.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(f.name)}`,
-                  lrcUrl: matchedLrc ? (matchedLrc.download_url || `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(matchedLrc.name)}`) : null,
-                  artworkUrl: generateVectorPlaceholder(title),
-                  folder: folderName
+                  path: node.path,
+                  title: fileName.replace(/\.(mp3|flac)$/i, ""),
+                  fileName: fileName,
+                  extension: lower.endsWith(".flac") ? "FLAC" : "MP3",
+                  url: `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/${defaultBranch}/${encodeURI(node.path)}`
                 };
 
-                AppState.playlists[folderName].push(trackObj);
-                AppState.allTracks.push(trackObj);
-              });
-            }
-          }
-        }
-
-        renderPlaylistsView();
-        renderTracksView(AppState.allTracks, "All Tracks");
-        await reloadOfflineVault();
-        updateDiagnostics();
-        showToast("Synchronized successfully");
-      } catch (err) {
-        showToast("Cloud sync failed");
-      }
-    }
-
-    function generateVectorPlaceholder(text) {
-      const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 512;
-      const ctx = c.getContext('2d');
-      const grad = ctx.createLinearGradient(0, 0, 512, 512);
-      grad.addColorStop(0, '#1c1c1e');
-      grad.addColorStop(1, '#fa233b');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 512, 512);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 40px Google Sans';
-      ctx.textAlign = 'center';
-      ctx.fillText(text ? text.substring(0, 16) : 'Aether', 256, 268);
-      return c.toDataURL('image/png');
-    }
-
-    function renderPlaylistsView() {
-      const exploreGrid = document.getElementById('grid-explore-folders');
-      const collectGrid = document.getElementById('grid-collections-folders');
-      exploreGrid.innerHTML = '';
-      collectGrid.innerHTML = '';
-
-      Object.keys(AppState.playlists).forEach(name => {
-        const count = AppState.playlists[name].length;
-        const html = `
-          <div class="folder-item-card" data-folder="${name}">
-            <div class="folder-icon-circle">
-              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
-            </div>
-            <div class="folder-name-text">${name}</div>
-            <div class="folder-sub-text">${count} Tracks</div>
-          </div>
-        `;
-        exploreGrid.insertAdjacentHTML('beforeend', html);
-        collectGrid.insertAdjacentHTML('beforeend', html);
-      });
-
-      document.querySelectorAll('.folder-item-card').forEach(c => {
-        c.onclick = () => {
-          const f = c.getAttribute('data-folder');
-          if (f && AppState.playlists[f]) {
-            renderTracksView(AppState.playlists[f], f);
-            switchStageView('stage-all-tracks');
-          }
-        };
-      });
-    }
-
-    async function renderTracksView(tracks, headline) {
-      const container = document.getElementById('list-all-tracks');
-      document.getElementById('headline-all-tracks').textContent = headline;
-      document.getElementById('subtitle-all-tracks').textContent = `${tracks.length} streams available`;
-      container.innerHTML = '';
-
-      for (let i = 0; i < tracks.length; i++) {
-        const t = tracks[i];
-        const isOffline = await VaultEngine.exists(t.id);
-        const cell = document.createElement('div');
-        cell.className = 'track-cell-ios';
-        cell.innerHTML = `
-          <div class="track-cell-info-box">
-            <img src="${t.artworkUrl}" class="track-artwork-thumbnail" id="thumb-${t.id}" alt="Art" />
-            <div class="track-labels-column">
-              <div class="track-name-main" id="name-${t.id}">${t.title}</div>
-              <div class="track-artist-sub" id="author-${t.id}">${t.artist} • ${t.album}</div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="badge-capsule">${t.format}</span>
-            <button class="cupertino-btn btn-offline-download" data-id="${t.id}" style="width: 34px; height: 34px; color: ${isOffline ? '#34c759' : 'inherit'};">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-            </button>
-          </div>
-        `;
-
-        cell.querySelector('.track-cell-info-box').onclick = () => {
-          AppState.currentActiveSet = tracks;
-          playTrackByIndex(i);
-        };
-
-        cell.querySelector('.btn-offline-download').onclick = (e) => {
-          e.stopPropagation();
-          saveTrackOffline(t);
-        };
-
-        container.appendChild(cell);
-      }
-    }
-
-    /**
-     * =========================================================================
-     * 7. PLAYBACK DISPATCHER & HARDWARE PIPELINE
-     * =========================================================================
-     */
-    async function playTrackByIndex(idx) {
-      if (!AppState.user || !AppState.user.isActivated) {
-        showToast("Please activate this client first");
-        AuthClient.enforceActivation();
-        return;
-      }
-
-      const currentSet = AppState.currentActiveSet || AppState.allTracks;
-      if (idx < 0 || idx >= currentSet.length) return;
-
-      AppState.currentTrackIndex = idx;
-      const track = currentSet[idx];
-      AppState.currentTrack = track;
-
-      showToast(`Loading: ${track.title}`);
-
-      // Check Offline Vault
-      const allVault = await VaultEngine.getAll();
-      const vaultRecord = allVault.find(x => x.id === track.id);
-
-      let playUrl = track.streamUrl;
-      let bufferForParser = null;
-      let isLocal = false;
-
-      if (vaultRecord) {
-        playUrl = URL.createObjectURL(vaultRecord.blob);
-        bufferForParser = await vaultRecord.blob.arrayBuffer();
-        isLocal = true;
-      } else {
-        try {
-          const res = await fetch(track.streamUrl);
-          const blob = await res.blob();
-          bufferForParser = await blob.arrayBuffer();
-          playUrl = URL.createObjectURL(blob);
-        } catch (e) {
-          console.warn("Direct stream fetch failure, falling back to raw link");
-        }
-      }
-
-      let parsedEmbeddedLrc = null;
-
-      // Extract Native Binary Meta
-      if (bufferForParser) {
-        const meta = await BinaryTagExtractor.extract(bufferForParser, track.format);
-        if (meta.title) track.title = meta.title;
-        if (meta.artist) track.artist = meta.artist;
-        if (meta.album) track.album = meta.album;
-        if (meta.artworkUrl) track.artworkUrl = meta.artworkUrl;
-        if (meta.embeddedLrc) parsedEmbeddedLrc = meta.embeddedLrc;
-
-        const thumb = document.getElementById(`thumb-${track.id}`);
-        const nameEl = document.getElementById(`name-${track.id}`);
-        const authEl = document.getElementById(`author-${track.id}`);
-        if (thumb && meta.artworkUrl) thumb.src = meta.artworkUrl;
-        if (nameEl) nameEl.textContent = track.title;
-        if (authEl) authEl.textContent = `${track.artist} • ${track.album}`;
-      }
-
-      // Populate Mini Strip
-      miniTextTitle.textContent = track.title;
-      miniTextSub.textContent = `${track.artist} / ${track.album}`;
-      miniArtworkImg.src = track.artworkUrl;
-
-      // Populate Full Modal
-      modalDisplayTitle.textContent = track.title;
-      modalDisplaySub.textContent = `${track.artist} / ${track.album}`;
-      vinylLabelImage.src = track.artworkUrl;
-      modalBlurCanvas.style.backgroundImage = `url(${track.artworkUrl})`;
-
-      // Populate Meta Leaf
-      document.getElementById('meta-disp-title').textContent = track.title;
-      document.getElementById('meta-disp-artist').textContent = track.artist;
-      document.getElementById('meta-disp-album').textContent = track.album;
-      document.getElementById('meta-disp-codec').textContent = track.format.toUpperCase();
-      document.getElementById('meta-disp-origin').textContent = isLocal ? "App Sandbox Vault" : "Remote GitHub Raw";
-      document.getElementById('studio-disp-codec').textContent = `${track.format.toUpperCase()} (Hardware Output)`;
-
-      // MediaSession Protocol Registration
-      syncAppleMediaSession(track);
-
-      // Core Audio Execution
-      audio.src = playUrl;
-      audio.load();
-
-      // Retrieve Lyrics Flow
-      loadLyricsFlow(track, parsedEmbeddedLrc);
-
-      executePlay();
-
-      // Session History
-      AppState.playHistory.unshift(track);
-      if (AppState.playHistory.length > 30) AppState.playHistory.pop();
-      renderHistoryView();
-
-      AppState.sessionPlayCount++;
-      updateDiagnostics();
-
-      document.querySelectorAll('.track-cell-ios').forEach((el, i) => {
-        el.classList.toggle('is-playing', i === idx);
-      });
-    }
-
-    async function loadLyricsFlow(track, embeddedFallback) {
-      let lrcFound = false;
-
-      // 1. Check Remote Companion .lrc with UniversalTextDecoder (Fixes English encoding)
-      if (track.lrcUrl) {
-        try {
-          const res = await fetch(track.lrcUrl);
-          if (res.ok) {
-            const buffer = await res.arrayBuffer();
-            const rawLrc = UniversalTextDecoder.decodeBuffer(new Uint8Array(buffer));
-
-            if (rawLrc && rawLrc.trim()) {
-              lrcFound = true;
-              processLyrics(rawLrc, "External .LRC");
-            }
-          }
-        } catch (e) {}
-      }
-
-      // 2. Fallback to Embedded Binary Tags
-      if (!lrcFound) {
-        if (embeddedFallback) {
-          processLyrics(embeddedFallback, "Embedded ID3");
-        } else {
-          processLyrics(null, "");
-        }
-      }
-    }
-
-    function executePlay() {
-      audio.play().then(() => {
-        AppState.isPlaying = true;
-        updatePlayIcons(true);
-        vinylDiscActor.classList.remove('is-paused');
-        tonearmActor.classList.add('is-playing');
-        startVUSimulation();
-        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-      }).catch(() => {
-        showToast("Tap again to permit playback");
-      });
-    }
-
-    function executePause() {
-      audio.pause();
-      AppState.isPlaying = false;
-      updatePlayIcons(false);
-      vinylDiscActor.classList.add('is-paused');
-      tonearmActor.classList.remove('is-playing');
-      stopVUSimulation();
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-    }
-
-    function updatePlayIcons(playing) {
-      const playPath = "M8 5v14l11-7z";
-      const pausePath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
-      const path = playing ? pausePath : playPath;
-      miniPlayIconSvg.querySelector('path').setAttribute('d', path);
-      modalPlayIconSvg.querySelector('path').setAttribute('d', path);
-    }
-
-    function playNextTrack() {
-      const set = AppState.currentActiveSet || AppState.allTracks;
-      if (set.length === 0) return;
-      let next = AppState.currentTrackIndex + 1;
-      if (AppState.isShuffle) next = Math.floor(Math.random() * set.length);
-      else if (next >= set.length) next = 0;
-      playTrackByIndex(next);
-    }
-
-    function playPrevTrack() {
-      const set = AppState.currentActiveSet || AppState.allTracks;
-      if (set.length === 0) return;
-      let prev = AppState.currentTrackIndex - 1;
-      if (prev < 0) prev = set.length - 1;
-      playTrackByIndex(prev);
-    }
-
-    audio.ontimeupdate = () => {
-      if (!audio.duration) return;
-      const cur = audio.currentTime;
-      const dur = audio.duration;
-      const pct = (cur / dur) * 100;
-
-      modalSeekFill.style.width = `${pct}%`;
-      modalTimeCurrent.textContent = formatClock(cur);
-      modalTimeTotal.textContent = formatClock(dur);
-
-      // Auto-scrolling Lyric Sync
-      if (AppState.lyrics.length > 0) {
-        let activeIdx = -1;
-        for (let i = 0; i < AppState.lyrics.length; i++) {
-          if (cur >= AppState.lyrics[i].time) activeIdx = i;
-          else break;
-        }
-
-        if (activeIdx !== AppState.currentLyricIndex) {
-          document.querySelectorAll('.lyric-item-line').forEach(el => el.classList.remove('is-active'));
-          if (activeIdx !== -1) {
-            [modalLyricsViewport, standaloneLyricsViewport].forEach(box => {
-              const activeEl = box.querySelector(`#lyric-item-${activeIdx}`);
-              if (activeEl) {
-                activeEl.classList.add('is-active');
-                const scrollPos = activeEl.offsetTop - (box.clientHeight / 2) + (activeEl.clientHeight / 2);
-                box.scrollTo({ top: scrollPos, behavior: 'smooth' });
+                if (!PlaybackState.repoTree[folderName]) {
+                  PlaybackState.repoTree[folderName] = [];
+                }
+                PlaybackState.repoTree[folderName].push(trackObj);
+                PlaybackState.flatTrackIndex.push(trackObj);
               }
-            });
-          }
-          AppState.currentLyricIndex = activeIdx;
+            }
+          });
+
+          RepoSyncEngine.renderRecommendedGrid();
+          UIFeedback.setHeadline("Repository Synchronized");
+        } catch (err) {
+          alert("Repo sync failure: " + err.message);
+          UIFeedback.setHeadline("Discover & Stream");
+        }
+      },
+
+      renderRecommendedGrid() {
+        const grid = document.getElementById("repo-folders-grid");
+        grid.innerHTML = "";
+
+        const folders = Object.keys(PlaybackState.repoTree);
+        if (folders.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; color: var(--text-muted);">Press 'Sync (G5)' to pull tracks from GitHub.</div>`;
+          return;
+        }
+
+        folders.forEach(folder => {
+          const trackCount = PlaybackState.repoTree[folder].length;
+          const card = document.createElement("div");
+          card.className = "playback-card";
+          card.innerHTML = `
+            <div class="card-vector-icon-wrap">
+              <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div class="card-title-label">${folder}</div>
+            <div class="card-subtitle-label">${trackCount} track${trackCount === 1 ? '' : 's'}</div>
+          `;
+          card.onclick = () => TrackListView.renderList(folder, PlaybackState.repoTree[folder]);
+          grid.appendChild(card);
+        });
+      }
+    };
+
+    /**
+     * Track List View Manager
+     */
+    const TrackListView = {
+      renderList(title, trackArray) {
+        document.getElementById("section-start-listening").style.display = "none";
+        document.getElementById("section-recommended").style.display = "none";
+        const listingSection = document.getElementById("section-track-listing");
+        listingSection.style.display = "flex";
+
+        document.getElementById("listing-heading").innerText = title;
+        const container = document.getElementById("track-items-container");
+        container.innerHTML = "";
+
+        if (!trackArray || trackArray.length === 0) {
+          container.innerHTML = `<div style="padding: 20px; color: var(--text-muted); text-align: center;">No tracks found in this category.</div>`;
+          return;
+        }
+
+        trackArray.forEach((track, index) => {
+          const isCached = PlaybackState.offlineCacheCatalog.has(track.path);
+          const isFav = PlaybackState.favorites.some(f => f.path === track.path);
+          const isCurrent = AudioEngine.currentTrack && AudioEngine.currentTrack.path === track.path;
+
+          const row = document.createElement("div");
+          row.className = `track-row-item ${isCurrent ? 'current-playing' : ''}`;
+          row.innerHTML = `
+            <div class="track-col-index">
+              <span>${index + 1}</span>
+              <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="track-col-primary">
+              <span class="track-name-text">${track.title}</span>
+              <span class="track-folder-path">${track.path}</span>
+            </div>
+            <div class="track-col-type">${track.extension || 'AUDIO'}</div>
+            <div class="track-col-cache-status">
+              <span class="status-dot ${isCached ? 'cached' : ''}"></span>
+              <span>${isCached ? 'Offline' : 'Remote'}</span>
+            </div>
+            <div class="track-col-ctrls">
+              <button class="icon-action-btn ${isFav ? 'active-fav' : ''}" onclick="event.stopPropagation(); TrackListView.toggleFav('${encodeURIComponent(JSON.stringify(track))}')">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </button>
+              <button class="icon-action-btn" onclick="event.stopPropagation(); TrackListView.downloadTrack('${encodeURIComponent(JSON.stringify(track))}')" title="Save Offline">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              </button>
+            </div>
+          `;
+          row.onclick = () => {
+            PlaybackState.currentPlaylist = trackArray;
+            PlaybackState.currentTrackPointer = index;
+            AudioEngine.loadAndPlay(track);
+          };
+          container.appendChild(row);
+        });
+      },
+
+      hideListing() {
+        document.getElementById("section-start-listening").style.display = "flex";
+        document.getElementById("section-recommended").style.display = "flex";
+        document.getElementById("section-track-listing").style.display = "none";
+      },
+
+      toggleFav(encoded) {
+        const track = JSON.parse(decodeURIComponent(encoded));
+        const idx = PlaybackState.favorites.findIndex(f => f.path === track.path);
+        if (idx >= 0) {
+          PlaybackState.favorites.splice(idx, 1);
+        } else {
+          PlaybackState.favorites.push(track);
+        }
+        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
+        TrackListView.syncUserData();
+        TrackListView.refreshCurrentView();
+      },
+
+      async downloadTrack(encoded) {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
+
+        const track = JSON.parse(decodeURIComponent(encoded));
+        if (PlaybackState.offlineCacheCatalog.has(track.path)) {
+          alert("This audio track is already downloaded.");
+          return;
+        }
+
+        if (PlaybackState.quotaRemainder <= 0) {
+          alert("Download quota depleted. Please redeem an activation code to add downloads.");
+          AuthModalController.openModal('redeem');
+          return;
+        }
+
+        try {
+          UIFeedback.setHeadline(`Downloading: ${track.title}...`);
+          const res = await fetch(track.url);
+          if (!res.ok) throw new Error("Binary download failed.");
+          const blob = await res.blob();
+          await OfflineAudioStore.saveTrackBlob(track.path, track.title, blob);
+
+          PlaybackState.quotaRemainder--;
+          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
+          UIFeedback.updateQuotaVisuals();
+          TrackListView.refreshCurrentView();
+          alert(`Saved "${track.title}" locally. Remaining: ${PlaybackState.quotaRemainder}`);
+        } catch (e) {
+          alert("Download failure: " + e.message);
+        } finally {
+          UIFeedback.setHeadline("Discover & Stream");
+        }
+      },
+
+      async syncUserData() {
+        if (!PlaybackState.currentUser) return;
+        try {
+          await fetch(`${CONFIG.WORKER_API_BASE}/api/user/sync-meta`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: PlaybackState.currentUser.username,
+              favorites: PlaybackState.favorites,
+              customPlaylists: PlaybackState.customPlaylists
+            })
+          });
+        } catch (e) {
+          console.warn("Background sync failed", e);
+        }
+      },
+
+      refreshCurrentView() {
+        const title = document.getElementById("listing-heading").innerText;
+        if (title === "Favorite Musics") {
+          TrackListView.renderList(title, PlaybackState.favorites);
+        } else if (title === "All Library Audio") {
+          TrackListView.renderList(title, PlaybackState.flatTrackIndex);
+        } else if (PlaybackState.repoTree[title]) {
+          TrackListView.renderList(title, PlaybackState.repoTree[title]);
         }
       }
     };
 
-    audio.onended = () => {
-      if (AppState.isRepeat) {
-        audio.currentTime = 0;
-        executePlay();
-      } else {
-        playNextTrack();
-      }
-    };
-
-    function formatClock(sec) {
-      if (isNaN(sec)) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    modalSeekGroove.onclick = (e) => {
-      const rect = modalSeekGroove.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      if (audio.duration) audio.currentTime = pos * audio.duration;
-    };
-
-    function startVUSimulation() {
-      if (AppState.vuTimer) clearInterval(AppState.vuTimer);
-      const vuL = document.getElementById('vu-channel-l');
-      const vuR = document.getElementById('vu-channel-r');
-      AppState.vuTimer = setInterval(() => {
-        if (!AppState.isPlaying) return;
-        const rndL = Math.floor(Math.random() * 55) + 35;
-        const rndR = Math.floor(Math.random() * 55) + 35;
-        if (vuL) vuL.style.width = `${rndL}%`;
-        if (vuR) vuR.style.width = `${rndR}%`;
-      }, 120);
-    }
-
-    function stopVUSimulation() {
-      if (AppState.vuTimer) clearInterval(AppState.vuTimer);
-      const vuL = document.getElementById('vu-channel-l');
-      const vuR = document.getElementById('vu-channel-r');
-      if (vuL) vuL.style.width = '0%';
-      if (vuR) vuR.style.width = '0%';
-    }
-
     /**
-     * =========================================================================
-     * 8. OFFLINE VAULT & DIAGNOSTICS
-     * =========================================================================
+     * Audio Playback Engine
      */
-    async function saveTrackOffline(track) {
-      showToast(`Saving to Vault: ${track.title}`);
-      try {
-        const res = await fetch(track.streamUrl);
-        const blob = await res.blob();
-        const buf = await blob.arrayBuffer();
-        const meta = await BinaryTagExtractor.extract(buf, track.format);
+    const AudioEngine = {
+      sink: document.getElementById("core-audio-sink"),
+      currentTrack: null,
+      audioCtx: null,
+      analyser: null,
+      canvasCtx: null,
 
-        await VaultEngine.save(track, blob, meta);
-        await reloadOfflineVault();
-        showToast("Saved offline successfully");
-
-        const btn = document.querySelector(`.btn-offline-download[data-id="${track.id}"]`);
-        if (btn) btn.style.color = '#34c759';
-      } catch (err) {
-        showToast("Download failed");
-      }
-    }
-
-    async function reloadOfflineVault() {
-      const items = await VaultEngine.getAll();
-      AppState.offlineTracks = items;
-      document.getElementById('diag-val-offline').textContent = items.length;
-
-      let totalBytes = 0;
-      items.forEach(it => { if (it.blob) totalBytes += it.blob.size; });
-      document.getElementById('label-storage-usage').textContent = `${(totalBytes / (1024 * 1024)).toFixed(2)} MB`;
-
-      const container = document.getElementById('list-offline-tracks');
-      container.innerHTML = '';
-
-      if (items.length === 0) {
-        container.innerHTML = `<p style="color: var(--ios-text-tertiary); text-align: center; margin-top: 40px;">No offline downloads stored yet.</p>`;
-        return;
-      }
-
-      items.forEach((t, i) => {
-        const cell = document.createElement('div');
-        cell.className = 'track-cell-ios';
-        cell.innerHTML = `
-          <div class="track-cell-info-box">
-            <div class="track-labels-column">
-              <div class="track-name-main">${t.title}</div>
-              <div class="track-artist-sub">${t.artist} • ${t.album}</div>
-            </div>
-          </div>
-          <span class="badge-capsule" style="color: var(--ios-green);">OFFLINE</span>
-        `;
-        cell.onclick = () => {
-          AppState.currentActiveSet = items;
-          playTrackByIndex(i);
+      init() {
+        AudioEngine.sink.ontimeupdate = AudioEngine.onTimeUpdate;
+        AudioEngine.sink.onended = AudioEngine.nextTrack;
+        AudioEngine.sink.onerror = () => {
+          document.getElementById("lbl-now-playing-sub").innerText = "Stream error";
         };
-        container.appendChild(cell);
-      });
-    }
 
-    function renderHistoryView() {
-      const container = document.getElementById('list-history-tracks');
-      if (AppState.playHistory.length === 0) return;
-      container.innerHTML = '';
-      AppState.playHistory.forEach(t => {
-        const row = document.createElement('div');
-        row.className = 'track-cell-ios';
-        row.innerHTML = `
-          <div class="track-labels-column">
-            <div class="track-name-main">${t.title}</div>
-            <div class="track-artist-sub">${t.artist} • ${t.album}</div>
-          </div>
-          <span style="font-size: 0.72rem; color: var(--ios-text-tertiary);">Played</span>
-        `;
-        container.appendChild(row);
-      });
-    }
+        const canvas = document.getElementById("visualizer-canvas");
+        AudioEngine.canvasCtx = canvas.getContext("2d");
+        window.onresize = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = 40;
+        };
+        window.onresize();
+      },
 
-    function updateDiagnostics() {
-      document.getElementById('diag-val-playlists').textContent = Object.keys(AppState.playlists).length;
-      document.getElementById('diag-val-tracks').textContent = AppState.allTracks.length;
-      document.getElementById('diag-val-plays').textContent = AppState.sessionPlayCount;
-    }
+      initWebAudio() {
+        if (!AudioEngine.audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          AudioEngine.audioCtx = new AudioContext();
+          AudioEngine.analyser = AudioEngine.audioCtx.createAnalyser();
+          AudioEngine.analyser.fftSize = 64;
+          const source = AudioEngine.audioCtx.createMediaElementSource(AudioEngine.sink);
+          source.connect(AudioEngine.analyser);
+          AudioEngine.analyser.connect(AudioEngine.audioCtx.destination);
+          AudioEngine.renderWaveform();
+        }
+      },
 
-    /**
-     * =========================================================================
-     * 9. MODAL BUTTONS & SEGMENTED CONTROLS
-     * =========================================================================
-     */
-    document.getElementById('mini-btn-play').onclick = (e) => {
-      e.stopPropagation();
-      AppState.isPlaying ? executePause() : executePlay();
-    };
+      renderWaveform() {
+        requestAnimationFrame(AudioEngine.renderWaveform);
+        if (!AudioEngine.analyser) return;
 
-    document.getElementById('mini-btn-skip').onclick = (e) => {
-      e.stopPropagation();
-      playNextTrack();
-    };
+        const bufferLength = AudioEngine.analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        AudioEngine.analyser.getByteFrequencyData(dataArray);
 
-    document.getElementById('mini-click-expand').onclick = () => {
-      modalImmersive.classList.add('active-open');
-    };
+        const ctx = AudioEngine.canvasCtx;
+        const canvas = ctx.canvas;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    document.getElementById('btn-dismiss-modal').onclick = () => {
-      modalImmersive.classList.remove('active-open');
-    };
+        const barWidth = (canvas.width / bufferLength) * 1.5;
+        let x = 0;
 
-    document.getElementById('modal-btn-play').onclick = () => {
-      AppState.isPlaying ? executePause() : executePlay();
-    };
-    document.getElementById('modal-btn-next').onclick = playNextTrack;
-    document.getElementById('modal-btn-prev').onclick = playPrevTrack;
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          ctx.fillStyle = `rgba(255, 71, 87, ${dataArray[i] / 255 * 0.5})`;
+          ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+          x += barWidth;
+        }
+      },
 
-    document.getElementById('modal-btn-shuffle').onclick = function() {
-      AppState.isShuffle = !AppState.isShuffle;
-      this.style.color = AppState.isShuffle ? 'var(--ios-accent)' : 'inherit';
-      showToast(AppState.isShuffle ? "Shuffle Enabled" : "Shuffle Disabled");
-    };
+      async loadAndPlay(track) {
+        // Enforce strict login gate
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
 
-    document.getElementById('modal-btn-repeat').onclick = function() {
-      AppState.isRepeat = !AppState.isRepeat;
-      this.style.color = AppState.isRepeat ? 'var(--ios-accent)' : 'inherit';
-      showToast(AppState.isRepeat ? "Repeat Single" : "Repeat Off");
-    };
+        AudioEngine.initWebAudio();
+        if (AudioEngine.audioCtx && AudioEngine.audioCtx.state === 'suspended') {
+          AudioEngine.audioCtx.resume();
+        }
 
-    document.getElementById('btn-modal-download').onclick = () => {
-      if (AppState.currentTrack) saveTrackOffline(AppState.currentTrack);
-    };
+        AudioEngine.currentTrack = track;
+        document.getElementById("lbl-now-playing-title").innerText = track.title;
+        document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Loading...`;
 
-    // Segmented Controller Handling (For Phone viewports)
-    const tabSegTurntable = document.getElementById('tab-seg-turntable');
-    const tabSegLyrics = document.getElementById('tab-seg-lyrics');
-    const tabSegStudio = document.getElementById('tab-seg-studio');
+        const cachedBlob = await OfflineAudioStore.getTrackBlob(track.path);
+        if (cachedBlob) {
+          AudioEngine.sink.src = URL.createObjectURL(cachedBlob);
+          document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Offline Storage`;
+        } else {
+          AudioEngine.sink.src = track.url;
+          document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Lossless Stream`;
+        }
 
-    const leafVinylStage = document.getElementById('leaf-vinyl-stage');
-    const leafLyricsStage = document.getElementById('leaf-lyrics-stage');
-    const leafStudioStage = document.getElementById('leaf-studio-stage');
+        AudioEngine.sink.play().then(() => {
+          AudioEngine.updatePlayBtnIcon(true);
+        }).catch(err => {
+          AudioEngine.updatePlayBtnIcon(false);
+        });
 
-    tabSegTurntable.onclick = () => {
-      tabSegTurntable.classList.add('active-segment');
-      tabSegLyrics.classList.remove('active-segment');
-      tabSegStudio.classList.remove('active-segment');
+        document.querySelectorAll(".track-row-item").forEach(el => el.classList.remove("current-playing"));
+      },
 
-      leafVinylStage.classList.add('active-leaf');
-      leafLyricsStage.classList.remove('active-leaf');
-      leafStudioStage.classList.remove('active-leaf');
-    };
+      togglePlayState() {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
+        if (!AudioEngine.sink.src) return;
+        if (AudioEngine.sink.paused) {
+          AudioEngine.sink.play();
+          AudioEngine.updatePlayBtnIcon(true);
+        } else {
+          AudioEngine.sink.pause();
+          AudioEngine.updatePlayBtnIcon(false);
+        }
+      },
 
-    tabSegLyrics.onclick = () => {
-      tabSegLyrics.classList.add('active-segment');
-      tabSegTurntable.classList.remove('active-segment');
-      tabSegStudio.classList.remove('active-segment');
+      updatePlayBtnIcon(isPlaying) {
+        const svg = document.getElementById("play-btn-vector");
+        if (isPlaying) {
+          svg.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+        } else {
+          svg.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+        }
+      },
 
-      leafLyricsStage.classList.add('active-leaf');
-      leafVinylStage.classList.remove('active-leaf');
-      leafStudioStage.classList.remove('active-leaf');
-    };
+      nextTrack() {
+        if (PlaybackState.currentPlaylist.length === 0) return;
+        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer + 1) % PlaybackState.currentPlaylist.length;
+        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
+      },
 
-    tabSegStudio.onclick = () => {
-      tabSegStudio.classList.add('active-segment');
-      tabSegTurntable.classList.remove('active-segment');
-      tabSegLyrics.classList.remove('active-segment');
+      prevTrack() {
+        if (PlaybackState.currentPlaylist.length === 0) return;
+        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer - 1 + PlaybackState.currentPlaylist.length) % PlaybackState.currentPlaylist.length;
+        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
+      },
 
-      leafStudioStage.classList.add('active-leaf');
-      leafVinylStage.classList.remove('active-leaf');
-      leafLyricsStage.classList.remove('active-leaf');
-    };
+      onTimeUpdate() {
+        const curr = AudioEngine.sink.currentTime || 0;
+        const dur = AudioEngine.sink.duration || 0;
+        document.getElementById("lbl-time-elapsed").innerText = AudioEngine.formatTime(curr);
+        document.getElementById("lbl-time-duration").innerText = AudioEngine.formatTime(dur);
 
-    document.getElementById('btn-smart-shuffle').onclick = () => {
-      if (AppState.allTracks.length > 0) {
-        AppState.currentActiveSet = AppState.allTracks;
-        playTrackByIndex(Math.floor(Math.random() * AppState.allTracks.length));
+        if (dur > 0) {
+          const pct = (curr / dur) * 100;
+          document.getElementById("seek-fill").style.width = pct + "%";
+        }
+      },
+
+      seek(e) {
+        const rail = document.getElementById("seek-rail");
+        const rect = rail.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        if (AudioEngine.sink.duration) {
+          AudioEngine.sink.currentTime = ratio * AudioEngine.sink.duration;
+        }
+      },
+
+      setVolume(val) {
+        AudioEngine.sink.volume = parseFloat(val);
+      },
+
+      toggleCurrentFavorite() {
+        if (AudioEngine.currentTrack) {
+          TrackListView.toggleFav(encodeURIComponent(JSON.stringify(AudioEngine.currentTrack)));
+        }
+      },
+
+      formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
       }
     };
 
-    document.getElementById('navbar-btn-sync').onclick = syncRemoteRepository;
+    /**
+     * Custom Playlists Engine
+     */
+    const CustomPlaylistsModule = {
+      inspectPlaylist(index) {
+        const pl = PlaybackState.customPlaylists[index];
+        if (!pl) return;
+        TrackListView.renderList(pl.name, pl.tracks);
+      },
 
-    // Boot Engine
-    window.addEventListener('DOMContentLoaded', () => {
-      AuthClient.init();
-      syncRemoteRepository();
+      promptNewPlaylist() {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
+        const name = prompt("Enter a name for your custom playlist:");
+        if (name && name.trim()) {
+          PlaybackState.customPlaylists.push({ name: name.trim(), tracks: [] });
+          TrackListView.syncUserData();
+          alert(`Playlist "${name.trim()}" created.`);
+        }
+      }
+    };
+
+    /**
+     * Navigation & UI Presentation
+     */
+    const AppNavigation = {
+      switchStage(target) {
+        document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+
+        if (target === 'home') {
+          document.getElementById("nav-main-home").classList.add("active");
+          TrackListView.hideListing();
+          UIFeedback.setHeadline("Discover & Stream");
+        } else if (target === 'offlines') {
+          document.getElementById("nav-offlines").classList.add("active");
+          OfflineAudioStore.getAllCachedRecords().then(records => {
+            const list = records.map(r => ({
+              path: r.path,
+              title: r.title,
+              extension: r.path.endsWith('.flac') ? 'FLAC' : 'MP3',
+              url: ''
+            }));
+            TrackListView.renderList("Offline Storage", list);
+          });
+          UIFeedback.setHeadline("Offline Library");
+        } else if (target === 'all-musics') {
+          document.getElementById("nav-all-musics").classList.add("active");
+          TrackListView.renderList("All Library Audio", PlaybackState.flatTrackIndex);
+          UIFeedback.setHeadline("All Library Audio");
+        } else if (target === 'my-playlists') {
+          document.getElementById("nav-my-playlists").classList.add("active");
+          TrackListView.hideListing();
+          UIFeedback.setHeadline("User Playlists");
+        }
+      }
+    };
+
+    const UIFeedback = {
+      setHeadline(txt) {
+        document.getElementById("stage-title").innerText = txt;
+      },
+
+      updateQuotaVisuals() {
+        document.getElementById("user-quota-label").innerText = `DL Quota: ${PlaybackState.quotaRemainder}`;
+        document.getElementById("header-quota-badge").innerText = PlaybackState.quotaRemainder;
+      },
+
+      updateUserVisuals() {
+        if (PlaybackState.currentUser) {
+          const name = PlaybackState.currentUser.username;
+          document.getElementById("user-display-name").innerText = name;
+          document.getElementById("user-avatar-initial").innerText = name.charAt(0).toUpperCase();
+        } else {
+          document.getElementById("user-display-name").innerText = "Not Signed In";
+          document.getElementById("user-avatar-initial").innerText = "?";
+        }
+        UIFeedback.updateQuotaVisuals();
+      }
+    };
+
+    // System Startup
+    window.addEventListener("DOMContentLoaded", async () => {
+      await OfflineAudioStore.init();
+      AudioEngine.init();
+      AuthModalController.restoreSession();
+      UIFeedback.updateUserVisuals();
+      RepoSyncEngine.syncFromGitHub();
     });
   </script>
 </body>
