@@ -210,6 +210,13 @@
       font-weight: 700;
       color: var(--text-main);
       border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .avatar-disc img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .user-text-info {
@@ -397,6 +404,7 @@
       justify-content: center;
       margin-bottom: 14px;
       border: 1px solid var(--border-subtle);
+      overflow: hidden;
     }
 
     .card-vector-icon-wrap svg {
@@ -581,6 +589,112 @@
     }
 
     /* ==========================================================================
+       FULLSCREEN LYRICS & COVER VIEWER OVERLAY
+       ========================================================================== */
+    #lyrics-fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 10, 14, 0.96);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      z-index: 1500;
+      display: none;
+      flex-direction: column;
+      padding: calc(var(--safe-top) + 20px) 30px calc(var(--safe-bottom) + 30px) 30px;
+    }
+
+    #lyrics-fullscreen-overlay.is-open {
+      display: flex;
+    }
+
+    .lyrics-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+    }
+
+    .lyrics-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .lyrics-body-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 40px;
+      align-items: center;
+      overflow: hidden;
+      padding: 20px 0;
+    }
+
+    .lyrics-cover-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .lyrics-album-art {
+      width: 320px;
+      height: 320px;
+      max-width: 80vw;
+      max-height: 80vw;
+      border-radius: 20px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      object-fit: cover;
+      display: block;
+    }
+
+    .lyrics-scroll-col {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+      padding: 60px 0;
+      scroll-behavior: smooth;
+    }
+
+    .lyric-row {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      transition: color 0.25s, font-size 0.25s, transform 0.25s;
+      padding: 6px 12px;
+      line-height: 1.5;
+    }
+
+    .lyric-row:hover {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .lyric-row.active {
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 700;
+      transform: scale(1.02);
+      text-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ==========================================================================
        BOTTOM PLAYER
        ========================================================================== */
     footer.bottom-player {
@@ -604,8 +718,9 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      width: 28%;
+      width: 30%;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .player-album-thumb {
@@ -618,6 +733,15 @@
       justify-content: center;
       border: 1px solid var(--border-subtle);
       flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .player-album-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
     }
 
     .player-album-thumb svg {
@@ -643,7 +767,7 @@
 
     .meta-track-sub {
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: var(--accent);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -655,7 +779,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      width: 44%;
+      width: 42%;
     }
 
     .ctrl-buttons-bar {
@@ -760,19 +884,8 @@
       cursor: pointer;
     }
 
-    #visualizer-canvas {
-      position: absolute;
-      bottom: var(--player-height);
-      left: 0;
-      right: 0;
-      height: 40px;
-      pointer-events: none;
-      z-index: 5;
-      opacity: 0.4;
-    }
-
     /* ==========================================================================
-       AUTHENTICATION & REDEEM HUB MODAL
+       AUTHENTICATION & REDEEM MODAL
        ========================================================================== */
     .app-modal-layer {
       position: fixed;
@@ -1041,7 +1154,7 @@
     }
 
     /* ==========================================================================
-       CUSTOM TOAST & PROMPT DIALOG ENGINE (REPLACING ALERT / PROMPT)
+       CUSTOM TOAST & PROMPT DIALOG ENGINE
        ========================================================================== */
     #ui-toast-container {
       position: fixed;
@@ -1106,7 +1219,6 @@
       transform: translateY(-10px) !important;
     }
 
-    /* Interactive Custom Prompt Modal */
     #custom-prompt-modal {
       position: fixed;
       inset: 0;
@@ -1164,6 +1276,15 @@
       .player-left-meta { width: 60%; }
       .player-center-ctrls { width: 40%; }
       .playback-scrub-wrap, .player-right-options { display: none; }
+      .lyrics-body-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 16px;
+      }
+      .lyrics-album-art {
+        width: 160px;
+        height: 160px;
+      }
       #ui-toast-container {
         left: 20px;
         right: 20px;
@@ -1180,6 +1301,29 @@
 
   <!-- Toast Notification Stack -->
   <div id="ui-toast-container"></div>
+
+  <!-- Fullscreen Cover & Synced Lyrics Overlay -->
+  <div id="lyrics-fullscreen-overlay">
+    <div class="lyrics-top-nav">
+      <button class="lyrics-close-btn" onclick="LyricsView.close()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </button>
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-secondary);" id="lyrics-nav-song-name">Lyrics</div>
+      <div style="width: 38px;"></div>
+    </div>
+    <div class="lyrics-body-grid">
+      <div class="lyrics-cover-col">
+        <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23222631'><rect width='100' height='100'/></svg>" alt="Album Art" />
+        <div style="text-align: center;">
+          <h2 style="font-size: 1.3rem; color: #fff;" id="lyrics-modal-title">Track Title</h2>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;" id="lyrics-modal-artist">Artist</p>
+        </div>
+      </div>
+      <div class="lyrics-scroll-col" id="lyrics-lines-container">
+        <div class="lyric-row">Ready for playback...</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Custom Input / Prompt Dialog -->
   <div id="custom-prompt-modal">
@@ -1331,13 +1475,12 @@
         </section>
       </div>
 
-      <canvas id="visualizer-canvas"></canvas>
-
       <!-- Bottom Audio Player -->
       <footer class="bottom-player">
-        <div class="player-left-meta">
+        <div class="player-left-meta" onclick="LyricsView.open()">
           <div class="player-album-thumb" id="player-disc-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
+            <img id="player-thumb-img" src="" alt="Album Art" />
+            <svg id="player-thumb-fallback" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
           </div>
           <div class="player-title-bundle">
             <div class="meta-track-title" id="lbl-now-playing-title">Ready for Playback</div>
@@ -1368,8 +1511,11 @@
         </div>
 
         <div class="player-right-options">
+          <button class="icon-action-btn" title="Open Lyrics" onclick="LyricsView.open()">
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          </button>
           <button class="icon-action-btn" id="btn-fav-active-track" onclick="AudioEngine.toggleCurrentFavorite()">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           </button>
           <div class="vol-slider-wrap">
             <svg width="18" height="18" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
@@ -1377,6 +1523,7 @@
           </div>
         </div>
 
+        <!-- Master HTML5 Audio Sink (No Web Audio Routing to Prevent CORS Mute) -->
         <audio id="core-audio-sink" preload="metadata"></audio>
       </footer>
     </main>
@@ -1459,7 +1606,7 @@
     };
 
     /**
-     * Custom Toast Notification System (Replaces Alert)
+     * Custom Toast Notification System
      */
     const UIToast = {
       show(message, type = 'info', duration = 3200) {
@@ -1489,7 +1636,7 @@
     };
 
     /**
-     * Custom Modal Prompt System (Replaces window.prompt)
+     * Custom Modal Prompt System
      */
     const CustomPrompt = {
       resolver: null,
@@ -1520,6 +1667,92 @@
       }
     };
 
+    /**
+     * NetEase / ID3 Bruteforce Parser Engine (Extracts Cover & Synced Lyrics)
+     */
+    const MetaParser = {
+      parseBinary(arrayBuffer) {
+        const bytes = new Uint8Array(arrayBuffer);
+        let pictureUrl = null;
+        let rawLyrics = null;
+
+        // 1. Bruteforce search for embedded JPEG / PNG images (APIC / Album Art)
+        // JPEG magic: FF D8 FF
+        for (let i = 0; i < Math.min(bytes.length - 4, 3000000); i++) {
+          if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
+            // Find JPEG end: FF D9
+            for (let j = i + 10; j < Math.min(bytes.length - 2, i + 5000000); j++) {
+              if (bytes[j] === 0xFF && bytes[j+1] === 0xD9) {
+                const imgBlob = new Blob([bytes.subarray(i, j + 2)], { type: 'image/jpeg' });
+                pictureUrl = URL.createObjectURL(imgBlob);
+                break;
+              }
+            }
+            if (pictureUrl) break;
+          } else if (bytes[i] === 0x89 && bytes[i+1] === 0x50 && bytes[i+2] === 0x4E && bytes[i+3] === 0x47) { // PNG magic
+            for (let j = i + 8; j < Math.min(bytes.length - 8, i + 5000000); j++) {
+              if (bytes[j] === 0x49 && bytes[j+1] === 0x45 && bytes[j+2] === 0x4E && bytes[j+3] === 0x44) { // IEND
+                const imgBlob = new Blob([bytes.subarray(i, j + 8)], { type: 'image/png' });
+                pictureUrl = URL.createObjectURL(imgBlob);
+                break;
+              }
+            }
+            if (pictureUrl) break;
+          }
+        }
+
+        // 2. Bruteforce search for NetEase Cloud Music embedded LRC ([00:00 or [00:01)
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        // Sample first 1MB of header & last 1MB of footer
+        const headerChunk = decoder.decode(bytes.subarray(0, Math.min(bytes.length, 1024 * 1024)));
+        const lrcRegex = /\[\d{2}:\d{2}[\.:]\d{2,3}\][^\r\n]*/;
+        const match = headerChunk.match(lrcRegex);
+
+        if (match && match.index !== undefined) {
+          // Extract starting from the matched timestamp up to end of consecutive LRC lines
+          const subStr = headerChunk.substring(match.index);
+          const endIdx = subStr.search(/\x00|TAG/);
+          rawLyrics = endIdx > 0 ? subStr.substring(0, endIdx) : subStr.substring(0, 15000);
+        }
+
+        return {
+          pictureUrl,
+          parsedLyrics: rawLyrics ? this.cleanLyrics(rawLyrics) : []
+        };
+      },
+
+      // Clean lyrics and remove "(翻译：" annotations
+      cleanLyrics(lrcText) {
+        const lines = lrcText.split(/\r?\n/);
+        const result = [];
+        const timeExp = /\[(\d{2}):(\d{2})[\.:](\d{2,3})\]/g;
+
+        lines.forEach(line => {
+          timeExp.lastIndex = 0;
+          const match = timeExp.exec(line);
+          if (match) {
+            const min = parseInt(match[1], 10);
+            const sec = parseInt(match[2], 10);
+            const ms = match[3].length === 2 ? parseInt(match[3], 10) * 10 : parseInt(match[3], 10);
+            const totalSec = min * 60 + sec + ms / 1000;
+
+            // Strip timestamp
+            let text = line.replace(/\[\d{2}:\d{2}[\.:]\d{2,3}\]/g, '').trim();
+
+            // Strip "(翻译：" or "(翻譯：" and anything following it
+            text = text.replace(/[（\(](?:翻译|翻譯)[:：][^）\)]*[）\)]?/gi, '').trim();
+
+            if (text) {
+              result.push({ time: totalSec, text });
+            }
+          }
+        });
+
+        result.sort((a, b) => a.time - b.time);
+        return result;
+      }
+    };
+
     const PlaybackState = {
       currentUser: null,
       sessionToken: null,
@@ -1533,7 +1766,10 @@
         { name: "Playlist 1", tracks: [] },
         { name: "Playlist 2", tracks: [] }
       ],
-      offlineCacheCatalog: new Set()
+      offlineCacheCatalog: new Set(),
+      activeLyrics: [],
+      currentLyricIndex: -1,
+      activeCoverUrl: null
     };
 
     /**
@@ -1596,6 +1832,297 @@
         const records = await OfflineAudioStore.getAllCachedRecords();
         PlaybackState.offlineCacheCatalog.clear();
         records.forEach(r => PlaybackState.offlineCacheCatalog.add(r.path));
+      }
+    };
+
+    /**
+     * Fullscreen Lyrics & Cover Visualizer Controller
+     */
+    const LyricsView = {
+      open() {
+        if (!AudioEngine.currentTrack) {
+          UIToast.show("No active track is currently playing", "info");
+          return;
+        }
+        document.getElementById("lyrics-fullscreen-overlay").classList.add("is-open");
+        document.getElementById("lyrics-nav-song-name").innerText = AudioEngine.currentTrack.title;
+        document.getElementById("lyrics-modal-title").innerText = AudioEngine.currentTrack.title;
+        document.getElementById("lyrics-modal-artist").innerText = AudioEngine.currentTrack.artist || "JRmusic";
+        
+        const coverEl = document.getElementById("lyrics-hero-cover");
+        if (PlaybackState.activeCoverUrl) {
+          coverEl.src = PlaybackState.activeCoverUrl;
+        } else {
+          coverEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' fill='%231f222e'><rect width='300' height='300'/><text x='50%' y='50%' font-size='24' fill='%235f6368' text-anchor='middle' dominant-baseline='middle'>No Cover</text></svg>";
+        }
+
+        LyricsView.renderAllLines();
+      },
+
+      close() {
+        document.getElementById("lyrics-fullscreen-overlay").classList.remove("is-open");
+      },
+
+      renderAllLines() {
+        const container = document.getElementById("lyrics-lines-container");
+        container.innerHTML = "";
+
+        if (!PlaybackState.activeLyrics || PlaybackState.activeLyrics.length === 0) {
+          container.innerHTML = `<div class="lyric-row" style="color: var(--text-muted);">No synchronized lyrics embedded in this MP3</div>`;
+          return;
+        }
+
+        PlaybackState.activeLyrics.forEach((l, idx) => {
+          const row = document.createElement("div");
+          row.className = `lyric-row ${idx === PlaybackState.currentLyricIndex ? 'active' : ''}`;
+          row.id = `lrc-line-${idx}`;
+          row.innerText = l.text;
+          row.onclick = () => {
+            AudioEngine.sink.currentTime = l.time;
+          };
+          container.appendChild(row);
+        });
+      },
+
+      updateHighlight(currentTime) {
+        if (!PlaybackState.activeLyrics || PlaybackState.activeLyrics.length === 0) return;
+
+        let activeIdx = -1;
+        for (let i = 0; i < PlaybackState.activeLyrics.length; i++) {
+          if (currentTime >= PlaybackState.activeLyrics[i].time) {
+            activeIdx = i;
+          } else {
+            break;
+          }
+        }
+
+        if (activeIdx !== PlaybackState.currentLyricIndex && activeIdx !== -1) {
+          PlaybackState.currentLyricIndex = activeIdx;
+          const currentText = PlaybackState.activeLyrics[activeIdx].text;
+
+          // Update Now Playing subtext with real-time rolling lyric
+          document.getElementById("lbl-now-playing-sub").innerText = currentText;
+
+          // Update System Lockscreen / Control Center MediaSession Author with Current Lyric
+          MediaSessionController.updateCurrentLyric(currentText);
+
+          // Scroll lyrics list
+          const container = document.getElementById("lyrics-lines-container");
+          document.querySelectorAll(".lyric-row").forEach(el => el.classList.remove("active"));
+          const activeRow = document.getElementById(`lrc-line-${activeIdx}`);
+          if (activeRow) {
+            activeRow.classList.add("active");
+            activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+    };
+
+    /**
+     * iOS / Native System Control Center & Lockscreen MediaSession Controller
+     */
+    const MediaSessionController = {
+      init() {
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.setActionHandler('play', () => AudioEngine.togglePlayState());
+          navigator.mediaSession.setActionHandler('pause', () => AudioEngine.togglePlayState());
+          navigator.mediaSession.setActionHandler('previoustrack', () => AudioEngine.prevTrack());
+          navigator.mediaSession.setActionHandler('nexttrack', () => AudioEngine.nextTrack());
+          navigator.mediaSession.setActionHandler('seekto', (details) => {
+            if (details.seekTime && AudioEngine.sink.duration) {
+              AudioEngine.sink.currentTime = details.seekTime;
+            }
+          });
+        }
+      },
+
+      updateMetadata(track, coverUrl, lyricArtistText) {
+        if ('mediaSession' in navigator) {
+          const artwork = [];
+          if (coverUrl) {
+            artwork.push({ src: coverUrl, sizes: '512x512', type: 'image/jpeg' });
+          }
+
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title,
+            artist: lyricArtistText || "JRmusic", // Current lyric is assigned as author
+            album: "JRmusic Premium",
+            artwork: artwork
+          });
+        }
+      },
+
+      updateCurrentLyric(lyricText) {
+        if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
+          navigator.mediaSession.metadata.artist = lyricText;
+        }
+      }
+    };
+
+    /**
+     * Audio Engine (Direct Playback Without Web Audio Visualizer to Prevent WebKit Mute)
+     */
+    const AudioEngine = {
+      sink: document.getElementById("core-audio-sink"),
+      currentTrack: null,
+
+      init() {
+        // Direct event listening
+        this.sink.ontimeupdate = this.onTimeUpdate;
+        this.sink.onended = this.nextTrack;
+        this.sink.onerror = () => {
+          UIToast.show("Audio stream playback encountered an error", "error");
+        };
+        MediaSessionController.init();
+      },
+
+      async loadAndPlay(track) {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
+
+        this.currentTrack = track;
+        document.getElementById("lbl-now-playing-title").innerText = track.title;
+        document.getElementById("lbl-now-playing-sub").innerText = "Parsing metadata...";
+
+        // Reset previous state
+        PlaybackState.activeLyrics = [];
+        PlaybackState.currentLyricIndex = -1;
+        PlaybackState.activeCoverUrl = null;
+
+        // Reset UI visuals
+        const thumbImg = document.getElementById("player-thumb-img");
+        const thumbFallback = document.getElementById("player-thumb-fallback");
+        thumbImg.style.display = "none";
+        thumbFallback.style.display = "block";
+
+        // 1. Check local cache or fetch remote binary to perform bruteforce tag parsing
+        let audioBlob = await OfflineAudioStore.getTrackBlob(track.path);
+        if (audioBlob) {
+          this.sink.src = URL.createObjectURL(audioBlob);
+          this.parseAndSyncMetadata(audioBlob, track);
+        } else {
+          this.sink.src = track.url;
+          // Asynchronously fetch first chunk for cover & lyrics
+          fetch(track.url)
+            .then(res => res.blob())
+            .then(blob => this.parseAndSyncMetadata(blob, track))
+            .catch(() => {});
+        }
+
+        // 2. Play audio stream directly
+        try {
+          await this.sink.play();
+          this.updatePlayBtnIcon(true);
+        } catch (err) {
+          console.warn("Autoplay block or gesture required:", err);
+          this.updatePlayBtnIcon(false);
+        }
+
+        MediaSessionController.updateMetadata(track, null, "JRmusic");
+        document.querySelectorAll(".track-row-item").forEach(el => el.classList.remove("current-playing"));
+      },
+
+      async parseAndSyncMetadata(blob, track) {
+        try {
+          const buffer = await blob.arrayBuffer();
+          const parsed = MetaParser.parseBinary(buffer);
+
+          if (parsed.pictureUrl) {
+            PlaybackState.activeCoverUrl = parsed.pictureUrl;
+            const thumbImg = document.getElementById("player-thumb-img");
+            const thumbFallback = document.getElementById("player-thumb-fallback");
+            thumbImg.src = parsed.pictureUrl;
+            thumbImg.style.display = "block";
+            thumbFallback.style.display = "none";
+          }
+
+          if (parsed.parsedLyrics && parsed.parsedLyrics.length > 0) {
+            PlaybackState.activeLyrics = parsed.parsedLyrics;
+            UIToast.show("Synchronized lyrics & cover loaded", "success");
+          }
+
+          MediaSessionController.updateMetadata(track, parsed.pictureUrl, "JRmusic");
+        } catch (e) {
+          console.warn("Metadata bruteforce error:", e);
+        }
+      },
+
+      togglePlayState() {
+        if (!PlaybackState.currentUser) {
+          AuthModalController.openModal('login');
+          return;
+        }
+        if (!this.sink.src) return;
+        if (this.sink.paused) {
+          this.sink.play();
+          this.updatePlayBtnIcon(true);
+        } else {
+          this.sink.pause();
+          this.updatePlayBtnIcon(false);
+        }
+      },
+
+      updatePlayBtnIcon(isPlaying) {
+        const svg = document.getElementById("play-btn-vector");
+        if (isPlaying) {
+          svg.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+        } else {
+          svg.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+        }
+      },
+
+      nextTrack() {
+        if (PlaybackState.currentPlaylist.length === 0) return;
+        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer + 1) % PlaybackState.currentPlaylist.length;
+        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
+      },
+
+      prevTrack() {
+        if (PlaybackState.currentPlaylist.length === 0) return;
+        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer - 1 + PlaybackState.currentPlaylist.length) % PlaybackState.currentPlaylist.length;
+        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
+      },
+
+      onTimeUpdate() {
+        const curr = AudioEngine.sink.currentTime || 0;
+        const dur = AudioEngine.sink.duration || 0;
+        document.getElementById("lbl-time-elapsed").innerText = AudioEngine.formatTime(curr);
+        document.getElementById("lbl-time-duration").innerText = AudioEngine.formatTime(dur);
+
+        if (dur > 0) {
+          const pct = (curr / dur) * 100;
+          document.getElementById("seek-fill").style.width = pct + "%";
+        }
+
+        // Real-time lyric synchronization
+        LyricsView.updateHighlight(curr);
+      },
+
+      seek(e) {
+        const rail = document.getElementById("seek-rail");
+        const rect = rail.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        if (AudioEngine.sink.duration) {
+          AudioEngine.sink.currentTime = ratio * AudioEngine.sink.duration;
+        }
+      },
+
+      setVolume(val) {
+        AudioEngine.sink.volume = parseFloat(val);
+      },
+
+      toggleCurrentFavorite() {
+        if (this.currentTrack) {
+          TrackListView.toggleFav(encodeURIComponent(JSON.stringify(this.currentTrack)));
+        }
+      },
+
+      formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
       }
     };
 
@@ -1885,7 +2412,7 @@
             </div>
             <div class="track-col-ctrls">
               <button class="icon-action-btn ${isFav ? 'active-fav' : ''}" onclick="event.stopPropagation(); TrackListView.toggleFav('${encodeURIComponent(JSON.stringify(track))}')">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </button>
               <button class="icon-action-btn" onclick="event.stopPropagation(); TrackListView.downloadTrack('${encodeURIComponent(JSON.stringify(track))}')" title="Save Offline">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
@@ -1991,178 +2518,7 @@
     };
 
     /**
-     * Audio Engine
-     */
-    const AudioEngine = {
-      sink: document.getElementById("core-audio-sink"),
-      currentTrack: null,
-      audioCtx: null,
-      analyser: null,
-      canvasCtx: null,
-
-      init() {
-        AudioEngine.sink.ontimeupdate = AudioEngine.onTimeUpdate;
-        AudioEngine.sink.onended = AudioEngine.nextTrack;
-        AudioEngine.sink.onerror = () => {
-          document.getElementById("lbl-now-playing-sub").innerText = "Stream error";
-          UIToast.show("Audio stream playback encountered an error", "error");
-        };
-
-        const canvas = document.getElementById("visualizer-canvas");
-        AudioEngine.canvasCtx = canvas.getContext("2d");
-        window.onresize = () => {
-          canvas.width = window.innerWidth;
-          canvas.height = 40;
-        };
-        window.onresize();
-      },
-
-      initWebAudio() {
-        if (!AudioEngine.audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          AudioEngine.audioCtx = new AudioContext();
-          AudioEngine.analyser = AudioEngine.audioCtx.createAnalyser();
-          AudioEngine.analyser.fftSize = 64;
-          const source = AudioEngine.audioCtx.createMediaElementSource(AudioEngine.sink);
-          source.connect(AudioEngine.analyser);
-          AudioEngine.analyser.connect(AudioEngine.audioCtx.destination);
-          AudioEngine.renderWaveform();
-        }
-      },
-
-      renderWaveform() {
-        requestAnimationFrame(AudioEngine.renderWaveform);
-        if (!AudioEngine.analyser) return;
-
-        const bufferLength = AudioEngine.analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        AudioEngine.analyser.getByteFrequencyData(dataArray);
-
-        const ctx = AudioEngine.canvasCtx;
-        const canvas = ctx.canvas;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const barWidth = (canvas.width / bufferLength) * 1.5;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          const barHeight = (dataArray[i] / 255) * canvas.height;
-          ctx.fillStyle = `rgba(255, 71, 87, ${dataArray[i] / 255 * 0.5})`;
-          ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-          x += barWidth;
-        }
-      },
-
-      async loadAndPlay(track) {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
-          return;
-        }
-
-        AudioEngine.initWebAudio();
-        if (AudioEngine.audioCtx && AudioEngine.audioCtx.state === 'suspended') {
-          AudioEngine.audioCtx.resume();
-        }
-
-        AudioEngine.currentTrack = track;
-        document.getElementById("lbl-now-playing-title").innerText = track.title;
-        document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Loading...`;
-
-        const cachedBlob = await OfflineAudioStore.getTrackBlob(track.path);
-        if (cachedBlob) {
-          AudioEngine.sink.src = URL.createObjectURL(cachedBlob);
-          document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Offline Storage`;
-          UIToast.show(`Playing "${track.title}" from local storage`, "info");
-        } else {
-          AudioEngine.sink.src = track.url;
-          document.getElementById("lbl-now-playing-sub").innerText = `${track.extension || 'AUDIO'} · Lossless Stream`;
-        }
-
-        AudioEngine.sink.play().then(() => {
-          AudioEngine.updatePlayBtnIcon(true);
-        }).catch(err => {
-          AudioEngine.updatePlayBtnIcon(false);
-        });
-
-        document.querySelectorAll(".track-row-item").forEach(el => el.classList.remove("current-playing"));
-      },
-
-      togglePlayState() {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
-          return;
-        }
-        if (!AudioEngine.sink.src) return;
-        if (AudioEngine.sink.paused) {
-          AudioEngine.sink.play();
-          AudioEngine.updatePlayBtnIcon(true);
-        } else {
-          AudioEngine.sink.pause();
-          AudioEngine.updatePlayBtnIcon(false);
-        }
-      },
-
-      updatePlayBtnIcon(isPlaying) {
-        const svg = document.getElementById("play-btn-vector");
-        if (isPlaying) {
-          svg.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-        } else {
-          svg.innerHTML = `<path d="M8 5v14l11-7z"/>`;
-        }
-      },
-
-      nextTrack() {
-        if (PlaybackState.currentPlaylist.length === 0) return;
-        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer + 1) % PlaybackState.currentPlaylist.length;
-        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
-      },
-
-      prevTrack() {
-        if (PlaybackState.currentPlaylist.length === 0) return;
-        PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer - 1 + PlaybackState.currentPlaylist.length) % PlaybackState.currentPlaylist.length;
-        AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
-      },
-
-      onTimeUpdate() {
-        const curr = AudioEngine.sink.currentTime || 0;
-        const dur = AudioEngine.sink.duration || 0;
-        document.getElementById("lbl-time-elapsed").innerText = AudioEngine.formatTime(curr);
-        document.getElementById("lbl-time-duration").innerText = AudioEngine.formatTime(dur);
-
-        if (dur > 0) {
-          const pct = (curr / dur) * 100;
-          document.getElementById("seek-fill").style.width = pct + "%";
-        }
-      },
-
-      seek(e) {
-        const rail = document.getElementById("seek-rail");
-        const rect = rail.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        if (AudioEngine.sink.duration) {
-          AudioEngine.sink.currentTime = ratio * AudioEngine.sink.duration;
-        }
-      },
-
-      setVolume(val) {
-        AudioEngine.sink.volume = parseFloat(val);
-      },
-
-      toggleCurrentFavorite() {
-        if (AudioEngine.currentTrack) {
-          TrackListView.toggleFav(encodeURIComponent(JSON.stringify(AudioEngine.currentTrack)));
-        }
-      },
-
-      formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
-        return `${m}:${s < 10 ? '0' : ''}${s}`;
-      }
-    };
-
-    /**
-     * Custom Playlists Engine (Using CustomPrompt Modal)
+     * Custom Playlists Engine
      */
     const CustomPlaylistsModule = {
       inspectPlaylist(index) {
@@ -2244,7 +2600,7 @@
       }
     };
 
-    // Application Bootstrap
+    // System Startup
     window.addEventListener("DOMContentLoaded", async () => {
       await OfflineAudioStore.init();
       AudioEngine.init();
