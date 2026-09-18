@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
+  <!-- jsmediatags: 參考代碼使用的 ID3 深度標籤解析庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+
   <style>
     /* ==========================================================================
        DESIGN SYSTEM: CLOUDFLARE & VERCEL ENTERPRISE DARK SPEC
@@ -1111,7 +1114,7 @@
     }
 
     /* ==========================================================================
-       FULLSCREEN CINEMATIC LYRICS ENGINE
+       FULLSCREEN CINEMATIC LYRICS ENGINE (Single-Line Spotlight Display)
        ========================================================================== */
     #lyrics-fullscreen-overlay {
       position: fixed;
@@ -1180,38 +1183,49 @@
       object-fit: cover;
     }
 
-    .lyrics-scroll-col {
+    /* 單句聚焦歌詞展示區：居中、放大、其餘不顯示 */
+    .lyrics-single-spotlight-col {
       height: 100%;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-      padding: 80px 0;
-      scroll-behavior: smooth;
-    }
-
-    .lyric-row {
-      min-height: 50px;
-      display: flex;
       align-items: center;
-      font-size: 1.35rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.26);
-      cursor: pointer;
-      padding: 8px 16px;
-      line-height: 1.45;
-      transition: all 0.25s ease;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 30px;
+      position: relative;
     }
 
-    .lyric-row:hover { color: rgba(255, 255, 255, 0.75); }
-
-    .lyric-row.active {
-      color: #fff;
-      font-size: 1.85rem;
+    .spotlight-lyric-text {
+      font-size: 2.3rem;
       font-weight: 800;
-      transform: translateX(10px);
-      text-shadow: 0 0 25px var(--accent-glow);
+      line-height: 1.45;
+      color: #ffffff;
+      text-shadow: 0 0 35px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.8);
+      letter-spacing: -0.02em;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 1;
+      transform: scale(1);
+      max-width: 90%;
+    }
+
+    .spotlight-lyric-text.animating {
+      opacity: 0.2;
+      transform: scale(0.96);
+    }
+
+    .spotlight-source-badge {
+      position: absolute;
+      bottom: 24px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
     }
 
     /* Modal / Custom Prompt Dialog & Confirm Logout Dialog */
@@ -1296,6 +1310,7 @@
       .dock-scrub-bar, .dock-utilities-unit { display: none; }
       .lyrics-body-grid { grid-template-columns: 1fr; }
       .lyrics-album-art { width: 180px; height: 180px; }
+      .spotlight-lyric-text { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -1318,7 +1333,7 @@
     </div>
   </div>
 
-  <!-- Fullscreen Cover & Synced Lyrics Viewer -->
+  <!-- Fullscreen Cover & Single-Line Spotlight Lyrics Viewer -->
   <div id="lyrics-fullscreen-overlay">
     <div class="lyrics-top-nav">
       <button class="lyrics-close-btn" onclick="LyricsView.close()">
@@ -1335,8 +1350,10 @@
           <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;" id="lyrics-modal-artist">Artist</p>
         </div>
       </div>
-      <div class="lyrics-scroll-col" id="lyrics-lines-container">
-        <div class="lyric-row">Ready for playback...</div>
+      <!-- 右側單句歌詞顯示區：非滾動列表，僅顯示當前行 -->
+      <div class="lyrics-single-spotlight-col">
+        <div class="spotlight-lyric-text" id="lyrics-spotlight-line">Ready for playback...</div>
+        <div class="spotlight-source-badge" id="lyrics-source-badge">LYRICS ENGINE</div>
       </div>
     </div>
   </div>
@@ -1654,7 +1671,7 @@
     </footer>
   </div>
 
-  <!-- Compatibility Hooks (Inactive nodes preserved for zero-error logic binding) -->
+  <!-- Compatibility Hooks -->
   <div id="modal-auth-hub" style="display: none;"></div>
   <div id="guest-gate-lock" style="display: none;"></div>
   <div id="nav-account" style="display: none;"></div>
@@ -1731,78 +1748,100 @@
     };
 
     /**
-     * Binary Meta Parser (Cover & Synced Lyrics)
+     * 模仿參考代碼的深度歌詞探索與解析器 (ID3 遞歸搜索 + LRC 標籤解析)
      */
     const MetaParser = {
-      parseBinary(arrayBuffer) {
-        const bytes = new Uint8Array(arrayBuffer);
-        let pictureUrl = null;
-        let rawLyrics = null;
+      // 1. 深度搜尋 ID3 內部歌詞資訊（完全對標參考代碼）
+      aggressivelyFindLyrics(tags) {
+        if (!tags) return "";
 
-        for (let i = 0; i < Math.min(bytes.length - 4, 3000000); i++) {
-          if (bytes[i] === 0xFF && bytes[i+1] === 0xD8 && bytes[i+2] === 0xFF) {
-            for (let j = i + 10; j < Math.min(bytes.length - 2, i + 5000000); j++) {
-              if (bytes[j] === 0xFF && bytes[j+1] === 0xD9) {
-                const imgBlob = new Blob([bytes.subarray(i, j + 2)], { type: 'image/jpeg' });
-                pictureUrl = URL.createObjectURL(imgBlob);
-                break;
-              }
+        const extract = (obj) => {
+          if (!obj) return "";
+          if (typeof obj === 'string') return obj;
+          if (typeof obj.text === 'string') return obj.text;
+          if (typeof obj.lyrics === 'string') return obj.lyrics;
+          if (obj.data) {
+            if (typeof obj.data === 'string') return obj.data;
+            if (typeof obj.data.text === 'string') return obj.data.text;
+          }
+          return "";
+        };
+
+        let primary = extract(tags.lyrics) || extract(tags.USLT) || extract(tags.SYLT);
+        if (primary && primary.includes('[')) return primary;
+
+        for (let key in tags) {
+          const item = tags[key];
+          const arr = Array.isArray(item) ? item : [item];
+          
+          for (let i of arr) {
+            let txt = extract(i);
+            if (typeof txt === 'string' && txt.includes('[00:')) return txt;
+            
+            if (i && i.data) {
+              let deepTxt = extract(i.data.data) || extract(i.data);
+              if (typeof deepTxt === 'string' && deepTxt.includes('[00:')) return deepTxt;
             }
-            if (pictureUrl) break;
-          } else if (bytes[i] === 0x89 && bytes[i+1] === 0x50 && bytes[i+2] === 0x4E && bytes[i+3] === 0x47) {
-            for (let j = i + 8; j < Math.min(bytes.length - 8, i + 5000000); j++) {
-              if (bytes[j] === 0x49 && bytes[j+1] === 0x45 && bytes[j+2] === 0x4E && bytes[j+3] === 0x44) {
-                const imgBlob = new Blob([bytes.subarray(i, j + 8)], { type: 'image/png' });
-                pictureUrl = URL.createObjectURL(imgBlob);
-                break;
-              }
-            }
-            if (pictureUrl) break;
           }
         }
-
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const headerChunk = decoder.decode(bytes.subarray(0, Math.min(bytes.length, 1024 * 1024)));
-        const lrcRegex = /\[\d{2}:\d{2}[\.:]\d{2,3}\][^\r\n]*/;
-        const match = headerChunk.match(lrcRegex);
-
-        if (match && match.index !== undefined) {
-          const subStr = headerChunk.substring(match.index);
-          const endIdx = subStr.search(/\x00|TAG/);
-          rawLyrics = endIdx > 0 ? subStr.substring(0, endIdx) : subStr.substring(0, 15000);
-        }
-
-        return {
-          pictureUrl,
-          parsedLyrics: rawLyrics ? this.cleanLyrics(rawLyrics) : []
-        };
+        return primary || "";
       },
 
-      cleanLyrics(lrcText) {
-        const lines = lrcText.split(/\r?\n/);
-        const result = [];
-        const timeExp = /\[(\d{2}):(\d{2})[\.:](\d{2,3})\]/g;
+      // 2. 歌詞處理與解析引擎（模仿參考代碼，支持多時間軸展開及標註清洗）
+      processLyrics(rawText, source) {
+        const badgeEl = document.getElementById("lyrics-source-badge");
+        if (!rawText || typeof rawText !== 'string') {
+          PlaybackState.activeLyrics = [];
+          PlaybackState.currentLyricIndex = -1;
+          if (badgeEl) badgeEl.innerText = "INSTRUMENTAL";
+          LyricsView.renderSpotlightText("Instrumental / No Lyrics");
+          return;
+        }
 
-        lines.forEach(line => {
-          timeExp.lastIndex = 0;
-          const match = timeExp.exec(line);
-          if (match) {
-            const min = parseInt(match[1], 10);
-            const sec = parseInt(match[2], 10);
-            const ms = match[3].length === 2 ? parseInt(match[3], 10) * 10 : parseInt(match[3], 10);
-            const totalSec = min * 60 + sec + ms / 1000;
+        const cleanText = rawText.replace(/\0/g, '').trim();
+        const lines = cleanText.split(/\r?\n/);
+        const timeReg = /\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+        const parsed = [];
 
-            let text = line.replace(/\[\d{2}:\d{2}[\.:]\d{2,3}\]/g, '').trim();
-            text = text.replace(/[（\(](?:翻译|翻譯)[:：][^）\)]*[）\)]?/gi, '').trim();
+        for (let line of lines) {
+          line = line.trim();
+          if (!line) continue;
 
-            if (text) {
-              result.push({ time: totalSec, text });
+          let match;
+          let timeTags = [];
+          timeReg.lastIndex = 0;
+
+          while ((match = timeReg.exec(line)) !== null) {
+            const m = parseInt(match[1], 10);
+            const s = parseInt(match[2], 10);
+            const msStr = match[3] || '0';
+            const ms = parseInt(msStr.padEnd(3, '0').slice(0, 3), 10);
+            timeTags.push(m * 60 + s + ms / 1000);
+          }
+
+          if (timeTags.length > 0) {
+            let text = line.replace(/\[\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?\]/g, '').trim();
+            text = text.replace(/[（(](?:翻译|translation)[：:].*?[）)]/gi, '').trim();
+
+            for (let t of timeTags) {
+              parsed.push({ time: t, text: text || '...' });
             }
           }
-        });
+        }
 
-        result.sort((a, b) => a.time - b.time);
-        return result;
+        if (parsed.length > 0) {
+          parsed.sort((a, b) => a.time - b.time);
+          PlaybackState.activeLyrics = parsed;
+          PlaybackState.currentLyricIndex = -1;
+          if (badgeEl) badgeEl.innerText = source || "SYNCED LYRICS";
+          LyricsView.renderSpotlightText(parsed[0].text || "Ready for playback...");
+          UIToast.show(`Synchronized lyrics loaded (${source})`, "success");
+        } else {
+          PlaybackState.activeLyrics = [];
+          PlaybackState.currentLyricIndex = -1;
+          if (badgeEl) badgeEl.innerText = `TEXT [${source}]`;
+          LyricsView.renderSpotlightText(cleanText.substring(0, 100) || "No synchronized lyrics");
+        }
       }
     };
 
@@ -1889,7 +1928,7 @@
     };
 
     /**
-     * Lyrics View Controller
+     * Lyrics View Controller（單句聚焦顯示，其餘不顯示）
      */
     const LyricsView = {
       open() {
@@ -1909,30 +1948,27 @@
           coverEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' fill='%23141a24'><rect width='300' height='300'/><text x='50%' y='50%' font-size='22' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'>Lossless Stream</text></svg>";
         }
 
-        LyricsView.renderAllLines();
+        if (PlaybackState.currentLyricIndex >= 0 && PlaybackState.activeLyrics[PlaybackState.currentLyricIndex]) {
+          LyricsView.renderSpotlightText(PlaybackState.activeLyrics[PlaybackState.currentLyricIndex].text);
+        } else if (PlaybackState.activeLyrics.length > 0) {
+          LyricsView.renderSpotlightText(PlaybackState.activeLyrics[0].text);
+        } else {
+          LyricsView.renderSpotlightText("Ready for playback...");
+        }
       },
 
       close() {
         document.getElementById("lyrics-fullscreen-overlay").classList.remove("is-open");
       },
 
-      renderAllLines() {
-        const container = document.getElementById("lyrics-lines-container");
-        container.innerHTML = "";
-
-        if (!PlaybackState.activeLyrics || PlaybackState.activeLyrics.length === 0) {
-          container.innerHTML = `<div class="lyric-row" style="color: var(--text-muted);">No synchronized lyrics embedded in this MP3</div>`;
-          return;
-        }
-
-        PlaybackState.activeLyrics.forEach((l, idx) => {
-          const row = document.createElement("div");
-          row.className = `lyric-row ${idx === PlaybackState.currentLyricIndex ? 'active' : ''}`;
-          row.id = `lrc-line-${idx}`;
-          row.innerText = l.text;
-          row.onclick = () => { AudioEngine.sink.currentTime = l.time; };
-          container.appendChild(row);
-        });
+      renderSpotlightText(text) {
+        const lineEl = document.getElementById("lyrics-spotlight-line");
+        if (!lineEl) return;
+        lineEl.classList.add("animating");
+        setTimeout(() => {
+          lineEl.innerText = text || "♫ ...";
+          lineEl.classList.remove("animating");
+        }, 150);
       },
 
       updateHighlight(currentTime) {
@@ -1954,12 +1990,8 @@
           document.getElementById("lbl-now-playing-sub").innerText = currentText;
           MediaSessionController.updateCurrentLyric(currentText);
 
-          document.querySelectorAll(".lyric-row").forEach(el => el.classList.remove("active"));
-          const activeRow = document.getElementById(`lrc-line-${activeIdx}`);
-          if (activeRow) {
-            activeRow.classList.add("active");
-            activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+          // 大屏右側只切換顯示當前這一句
+          LyricsView.renderSpotlightText(currentText);
         }
       }
     };
@@ -2049,11 +2081,12 @@
 
         this.currentTrack = track;
         document.getElementById("lbl-now-playing-title").innerText = track.title;
-        document.getElementById("lbl-now-playing-sub").innerText = "Traversing binary stream...";
+        document.getElementById("lbl-now-playing-sub").innerText = "Traversing binary stream & lyrics...";
 
         PlaybackState.activeLyrics = [];
         PlaybackState.currentLyricIndex = -1;
         PlaybackState.activeCoverUrl = null;
+        LyricsView.renderSpotlightText("Searching lyrics...");
 
         const thumbImg = document.getElementById("player-thumb-img");
         const thumbFallback = document.getElementById("player-thumb-fallback");
@@ -2063,12 +2096,12 @@
         let audioBlob = await OfflineAudioStore.getTrackBlob(track.path);
         if (audioBlob) {
           this.sink.src = URL.createObjectURL(audioBlob);
-          this.parseAndSyncMetadata(audioBlob, track);
+          this.fetchAndParseMetadata(audioBlob, track);
         } else {
           this.sink.src = track.url;
           fetch(track.url)
             .then(res => res.blob())
-            .then(blob => this.parseAndSyncMetadata(blob, track))
+            .then(blob => this.fetchAndParseMetadata(blob, track))
             .catch(() => {});
         }
 
@@ -2084,28 +2117,64 @@
         document.querySelectorAll(".track-row-node").forEach(el => el.classList.remove("current-playing"));
       },
 
-      async parseAndSyncMetadata(blob, track) {
-        try {
-          const buffer = await blob.arrayBuffer();
-          const parsed = MetaParser.parseBinary(buffer);
+      // 雙軌歌詞與封面取得流程（完全遵循參考代碼）
+      async fetchAndParseMetadata(blob, track) {
+        let lyricsFound = false;
 
-          if (parsed.pictureUrl) {
-            PlaybackState.activeCoverUrl = parsed.pictureUrl;
-            const thumbImg = document.getElementById("player-thumb-img");
-            const thumbFallback = document.getElementById("player-thumb-fallback");
-            thumbImg.src = parsed.pictureUrl;
-            thumbImg.style.display = "block";
-            thumbFallback.style.display = "none";
-          }
+        // 1. 優先嘗試下載同目錄 .lrc 檔案（同參考代碼）
+        if (track.url) {
+          const lrcUrl = track.url.replace(/\.(mp3|flac|wav|m4a)$/i, '.lrc');
+          fetch(lrcUrl)
+            .then(res => { if (res.ok) return res.text(); throw new Error(); })
+            .then(lrcText => {
+              if (lrcText && lrcText.trim()) {
+                lyricsFound = true;
+                MetaParser.processLyrics(lrcText, 'LRC FILE');
+              }
+            })
+            .catch(() => {});
+        }
 
-          if (parsed.parsedLyrics && parsed.parsedLyrics.length > 0) {
-            PlaybackState.activeLyrics = parsed.parsedLyrics;
-            UIToast.show("Embedded cover & synchronized lyrics decoded", "success");
-          }
+        // 2. 借助 jsmediatags 深度讀取封面與 ID3 標籤內歌詞（同參考代碼）
+        if (window.jsmediatags) {
+          new window.jsmediatags.Reader(blob).read({
+            onSuccess: (tag) => {
+              // 封面解析
+              const pic = tag.tags.picture;
+              if (pic) {
+                const byteArray = new Uint8Array(pic.data);
+                const coverBlob = new Blob([byteArray], { type: pic.format });
+                const coverUrl = URL.createObjectURL(coverBlob);
+                PlaybackState.activeCoverUrl = coverUrl;
 
-          MediaSessionController.updateMetadata(track, parsed.pictureUrl, "JRmusic Cloud");
-        } catch (e) {
-          console.warn("Bruteforce parsing error:", e);
+                const thumbImg = document.getElementById("player-thumb-img");
+                const thumbFallback = document.getElementById("player-thumb-fallback");
+                thumbImg.src = coverUrl;
+                thumbImg.style.display = "block";
+                thumbFallback.style.display = "none";
+
+                const heroCover = document.getElementById("lyrics-hero-cover");
+                if (heroCover) heroCover.src = coverUrl;
+              }
+
+              // ID3 深度遞歸搜尋歌詞
+              if (!lyricsFound) {
+                const aggressiveLrc = MetaParser.aggressivelyFindLyrics(tag.tags);
+                if (aggressiveLrc) {
+                  lyricsFound = true;
+                  MetaParser.processLyrics(aggressiveLrc, 'ID3 TAG');
+                } else {
+                  MetaParser.processLyrics(null, '');
+                }
+              }
+
+              MediaSessionController.updateMetadata(track, PlaybackState.activeCoverUrl, "JRmusic Cloud");
+            },
+            onError: (err) => {
+              console.warn("jsmediatags read error:", err);
+              if (!lyricsFound) MetaParser.processLyrics(null, '');
+            }
+          });
         }
       },
 
