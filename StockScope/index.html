@@ -12,9 +12,9 @@
       --bg-surface-elevated: #131924;
       --bg-surface-hover: #1b2332;
       
-      --accent: #f38020;
-      --accent-glow: rgba(243, 128, 32, 0.4);
-      --accent-dim: rgba(243, 128, 32, 0.12);
+      --accent: #2563eb; /* 截图高亮品牌蓝 */
+      --accent-glow: rgba(37, 99, 235, 0.35);
+      --accent-dim: rgba(37, 99, 235, 0.12);
       --accent-cyan: #00d2ff;
       --accent-emerald: #10b981;
       
@@ -71,6 +71,138 @@
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
+    /* ==========================================================================
+       LIQUID GLASS FLOATING CAPSULE NAVBAR (仿图液态玻璃顶栏)
+       ========================================================================== */
+    header.liquid-nav-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding-top: max(var(--safe-top), 14px);
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 900;
+      pointer-events: none;
+    }
+
+    .liquid-glass-pill {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      
+      /* 核心液态玻璃质感拟真 */
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(35px) saturate(200%);
+      -webkit-backdrop-filter: blur(35px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 
+        0 12px 36px rgba(0, 0, 0, 0.35),
+        0 2px 8px rgba(0, 0, 0, 0.12),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 95vw;
+    }
+
+    .liquid-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 16px;
+      min-width: 64px;
+      border-radius: 20px;
+      cursor: pointer;
+      color: #2b303a;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .liquid-nav-item svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+      transition: transform 0.2s ease, fill 0.2s ease;
+    }
+
+    .liquid-nav-item span {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 3px;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+    }
+
+    .liquid-nav-item:active {
+      transform: scale(0.92);
+    }
+
+    /* 选中项的胶囊底衬效果 (复刻截图选中状态) */
+    .liquid-nav-item.active {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--accent);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .liquid-nav-item.active svg {
+      fill: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .liquid-nav-item.active span {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* 辅助功能分隔线与小微件 */
+    .liquid-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.08);
+      margin: 0 4px;
+    }
+
+    .liquid-quality-box {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      padding: 4px 8px;
+    }
+
+    .liquid-quality-select {
+      background: transparent;
+      border: none;
+      color: #1e293b;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .liquid-user-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #1e293b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-left: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
     /* AUTHENTICATION PORTAL */
     #fullscreen-auth-stage {
       position: fixed;
@@ -93,7 +225,7 @@
 
     .auth-banner-pane {
       flex: 1.15;
-      background: radial-gradient(circle at 10% 20%, rgba(243, 128, 32, 0.08) 0%, transparent 50%),
+      background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
                   radial-gradient(circle at 80% 80%, rgba(0, 210, 255, 0.04) 0%, transparent 60%),
                   #07090e;
       border-right: 1px solid var(--border-subtle);
@@ -109,7 +241,7 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #e05600);
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -124,7 +256,7 @@
       color: var(--accent);
       padding: 3px 8px;
       background: var(--accent-dim);
-      border: 1px solid rgba(243, 128, 32, 0.3);
+      border: 1px solid rgba(37, 99, 235, 0.3);
       border-radius: 6px;
       letter-spacing: 1px;
     }
@@ -223,7 +355,7 @@
     .cloud-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 
     .btn-cloud-action {
-      background: linear-gradient(135deg, var(--accent), #e05600);
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
       color: #fff;
       border: none;
       padding: 15px;
@@ -242,123 +374,23 @@
     .cloud-auth-feedback.error { color: #ff5265; }
     .cloud-auth-feedback.success { color: #10b981; }
 
-    /* WORKSPACE */
-    #workspace-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; z-index: 10; overflow: hidden; }
-
-    header.cockpit-top-bar {
-      padding-top: max(var(--safe-top), 24px);
-      padding-bottom: 12px;
-      padding-left: 36px;
-      padding-right: 36px;
-      min-height: calc(72px + max(var(--safe-top), 24px));
-      background: rgba(9, 12, 18, 0.9);
-      backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--border-subtle);
+    /* WORKSPACE BODY */
+    #workspace-container {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      z-index: 30;
-    }
-
-    .cockpit-left-brand { display: flex; align-items: center; gap: 16px; }
-    .cockpit-logo-node {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), #e05600);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 16px var(--accent-glow);
-    }
-    .cockpit-logo-node svg { width: 18px; height: 18px; fill: #fff; }
-    .cockpit-title-text { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.4px; color: #fff; }
-
-    .nav-tabs-rail {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 4px;
-      border-radius: 10px;
-      border: 1px solid var(--border-subtle);
-    }
-    .cockpit-tab-item {
-      padding: 8px 16px;
-      border-radius: 7px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-    .cockpit-tab-item:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
-    .cockpit-tab-item.active { background: var(--bg-surface-elevated); color: #fff; border: 1px solid var(--border-elevated); font-weight: 700; }
-    .cockpit-tab-item svg { width: 16px; height: 16px; fill: currentColor; }
-
-    .cockpit-right-account { display: flex; align-items: center; gap: 14px; }
-    
-    /* 商业音质选择胶囊 */
-    .quality-select-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-elevated);
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
-    .quality-select-wrapper span { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
-    .quality-dropdown {
-      background: transparent;
-      border: none;
-      color: var(--accent-cyan);
-      font-size: 0.76rem;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-    }
-    .quality-dropdown option { background: #0c1017; color: #fff; }
-
-    .badge-quota-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: var(--accent-dim);
-      border: 1px solid rgba(243, 128, 32, 0.3);
-      border-radius: 20px;
-      font-size: 0.76rem;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: var(--accent);
-      cursor: pointer;
-    }
-
-    .user-avatar-button {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-elevated);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.88rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: #fff;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 10;
+      overflow: hidden;
     }
 
     .cockpit-body-scroll {
       flex: 1;
       overflow-y: auto;
       padding: 32px 48px;
+      /* 为顶层浮动液态药丸留出充足顶部呼吸空间 */
+      padding-top: calc(var(--safe-top) + 84px);
       padding-bottom: calc(var(--player-dock-height) + 40px + var(--safe-bottom));
       display: flex;
       flex-direction: column;
@@ -367,7 +399,7 @@
 
     .hero-summary-deck { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; }
     .hero-panel-card {
-      background: radial-gradient(circle at 10% 10%, rgba(243, 128, 32, 0.08) 0%, transparent 60%), rgba(13, 17, 24, 0.7);
+      background: radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08) 0%, transparent 60%), rgba(13, 17, 24, 0.7);
       border: 1px solid var(--border-subtle);
       border-radius: 20px;
       padding: 32px;
@@ -396,7 +428,7 @@
       font-family: var(--font-stack);
       transition: all 0.2s ease;
     }
-    .control-pill-btn.primary { background: linear-gradient(135deg, var(--accent), #e05600); border-color: transparent; }
+    .control-pill-btn.primary { background: linear-gradient(135deg, var(--accent), #1d4ed8); border-color: transparent; }
     .control-pill-btn.danger { background: linear-gradient(135deg, #ff4757, #c0392b); border-color: transparent; }
 
     .hero-stats-card {
@@ -433,6 +465,8 @@
     .cockpit-card-icon svg { width: 24px; height: 24px; fill: var(--text-secondary); }
     .cockpit-card:hover .cockpit-card-icon { background: var(--accent-dim); }
     .cockpit-card:hover .cockpit-card-icon svg { fill: var(--accent); }
+    .cockpit-card.fav-theme .cockpit-card-icon { background: var(--accent-dim); }
+    .cockpit-card.fav-theme .cockpit-card-icon svg { fill: var(--accent); }
     .cockpit-card-title { font-size: 1rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cockpit-card-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
 
@@ -448,7 +482,7 @@
       cursor: pointer;
     }
     .track-row-node:hover { background: rgba(22, 28, 40, 0.8); }
-    .track-row-node.current-playing { background: linear-gradient(90deg, rgba(243, 128, 32, 0.12) 0%, rgba(13, 17, 24, 0.6) 100%); border-color: var(--accent); }
+    .track-row-node.current-playing { background: linear-gradient(90deg, rgba(37, 99, 235, 0.12) 0%, rgba(13, 17, 24, 0.6) 100%); border-color: var(--accent); }
     .track-idx-col { font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .track-idx-col svg { width: 18px; height: 18px; fill: var(--accent); display: none; }
     .track-row-node.current-playing .track-idx-col span { display: none; }
@@ -501,7 +535,7 @@
     .dock-scrub-bar { width: 100%; display: flex; align-items: center; gap: 12px; }
     .dock-time-stamp { font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); width: 40px; text-align: center; }
     .dock-progress-rail { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); position: relative; cursor: pointer; }
-    .dock-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #ff9a3d); border-radius: 2px; width: 0%; }
+    .dock-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #60a5fa); border-radius: 2px; width: 0%; }
 
     .dock-utilities-unit { display: flex; align-items: center; justify-content: flex-end; gap: 16px; width: 30%; }
     .dock-vol-wrap { display: flex; align-items: center; gap: 8px; width: 120px; }
@@ -556,7 +590,9 @@
     .toast-fade-out { opacity: 0 !important; transform: translateY(-10px) !important; }
 
     @media (max-width: 900px) {
-      header.cockpit-top-bar { padding-left: 16px; padding-right: 16px; }
+      .liquid-nav-item { min-width: 52px; padding: 5px 10px; }
+      .liquid-nav-item span { font-size: 10px; }
+      .liquid-divider, .liquid-quality-box { display: none; }
       #fullscreen-auth-stage { flex-direction: column; }
       .auth-banner-pane { display: none; }
       .hero-summary-deck { grid-template-columns: 1fr; }
@@ -575,6 +611,58 @@
 
   <div id="ui-toast-container"></div>
 
+  <!-- FLOATING LIQUID GLASS CAPSULE TOPBAR (仿图样式) -->
+  <header class="liquid-nav-wrapper">
+    <nav class="liquid-glass-pill">
+      <!-- 1. 资源 / 曲库 -->
+      <div class="liquid-nav-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        <span>资源</span>
+      </div>
+
+      <!-- 2. 控制台 (已激活高亮项) -->
+      <div class="liquid-nav-item active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span>控制台</span>
+      </div>
+
+      <!-- 3. 歌单 -->
+      <div class="liquid-nav-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        <span>歌单</span>
+      </div>
+
+      <!-- 4. 下载 / 离线 -->
+      <div class="liquid-nav-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+        <span>下载</span>
+      </div>
+
+      <!-- 5. 设置 / 账户 -->
+      <div class="liquid-nav-item" onclick="AuthModalController.handleAvatarClick()">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <span>设置</span>
+      </div>
+
+      <div class="liquid-divider"></div>
+
+      <!-- 音质切换下拉 -->
+      <div class="liquid-quality-box" title="切换当前流媒体解码与下载规格">
+        <select id="global-quality-selector" class="liquid-quality-select" onchange="MusicAPIEngine.onQualityChanged(this.value)">
+          <option value="standard">128K</option>
+          <option value="exhigh">320K</option>
+          <option value="lossless" selected>FLAC</option>
+          <option value="hires">Hi-Res</option>
+          <option value="jymaster">Master</option>
+        </select>
+      </div>
+
+      <!-- 头像 -->
+      <div class="liquid-user-btn" id="user-avatar-initial" onclick="AuthModalController.handleAvatarClick()" title="点击管理账户">?</div>
+    </nav>
+  </header>
+
+  <!-- 对话框与歌词浮窗 -->
   <div id="confirm-logout-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">確認登出</div>
@@ -623,7 +711,7 @@
     </div>
   </div>
 
-  <!-- AUTHENTICATION STAGE -->
+  <!-- 登录视窗 -->
   <div id="fullscreen-auth-stage">
     <div class="auth-banner-pane">
       <div>
@@ -726,56 +814,6 @@
 
   <!-- WORKSPACE -->
   <div id="workspace-container">
-    <header class="cockpit-top-bar">
-      <div class="cockpit-left-brand">
-        <div class="cockpit-logo-node">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-        </div>
-        <div class="cockpit-title-text" id="stage-title">Discover & Stream</div>
-      </div>
-
-      <nav class="nav-tabs-rail">
-        <div class="cockpit-tab-item active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
-          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span>Cockpit</span>
-        </div>
-        <div class="cockpit-tab-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
-          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-          <span>Search Library</span>
-        </div>
-        <div class="cockpit-tab-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
-          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-          <span>Offline Edge</span>
-        </div>
-        <div class="cockpit-tab-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
-          <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
-          <span>Playlists</span>
-        </div>
-      </nav>
-
-      <div class="cockpit-right-account">
-        <!-- 商业音质切换胶囊组件 -->
-        <div class="quality-select-wrapper" title="选择全局播放与下载的音质规格">
-          <span>SPEC:</span>
-          <select id="global-quality-selector" class="quality-dropdown" onchange="MusicAPIEngine.onQualityChanged(this.value)">
-            <option value="standard">Standard 128K</option>
-            <option value="exhigh">ExHigh 320K</option>
-            <option value="lossless" selected>FLAC Lossless</option>
-            <option value="hires">Hi-Res 24-Bit</option>
-            <option value="jymaster">Ultra Master</option>
-            <option value="sky">Immersive Sky</option>
-            <option value="dolby">Dolby Atmos</option>
-          </select>
-        </div>
-
-        <div class="badge-quota-pill" onclick="AuthModalController.openModal('redeem')" title="Remaining download quota">
-          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
-          <span id="user-quota-label">DL Quota: 0</span>
-        </div>
-        <div class="user-avatar-button" id="user-avatar-initial" onclick="AuthModalController.handleAvatarClick()" title="Account Options">?</div>
-      </div>
-    </header>
-
     <div class="cockpit-body-scroll" id="main-scroll-pane">
       <section class="hero-summary-deck" id="section-start-listening">
         <div class="hero-panel-card">
@@ -929,7 +967,7 @@
   <script>
     const CONFIG = {
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
-      // 此处替换为你真实的 Render 域名
+      // 请替换为你真实的 Render 域名
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
@@ -1224,10 +1262,7 @@
         throw new Error(json.data ? json.data.msg : "Failed to resolve stream");
       },
 
-      /**
-       * 直连极速下载并存入 IndexedDB
-       * 绕过后端文件转发，直接拉取官方 CDN 直链，解决下载太慢与网络中断问题
-       */
+      // 直连官方 CDN 极速下载并存入本地 IndexedDB
       async downloadDirect(songId) {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
@@ -1249,7 +1284,6 @@
         UIToast.show(`Requesting high-speed stream (${quality.toUpperCase()})...`, "info");
 
         try {
-          // 1. 获取包含官方 CDN url 与全套歌词的元数据
           const streamData = await MusicAPIEngine.resolveSongStream(songId, quality);
           if (!streamData || !streamData.url) {
             throw new Error("Unable to obtain official download URL");
@@ -1257,12 +1291,10 @@
 
           UIToast.show(`Fetching stream directly from CDN...`, "info");
 
-          // 2. 直接拉取音频 Blob
           const audioRes = await fetch(streamData.url);
           if (!audioRes.ok) throw new Error("Audio stream transmission interrupted");
           const blob = await audioRes.blob();
 
-          // 3. 构建本地离线凭据
           const trackRecord = {
             id: String(songId),
             title: streamData.name,
@@ -1274,10 +1306,8 @@
             tlyric: streamData.tlyric
           };
 
-          // 4. 持久化存入 IndexedDB
           await OfflineAudioStore.saveTrackBlob(trackRecord, blob);
 
-          // 5. 扣除云端配额
           PlaybackState.quotaRemainder--;
           localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
           UIFeedback.updateQuotaVisuals();
@@ -1477,7 +1507,6 @@
         }
 
         try {
-          // 1. 优先检测 IndexedDB 离线缓存
           const localRecord = await OfflineAudioStore.getTrackRecord(track.id);
 
           if (localRecord && localRecord.blob) {
@@ -1485,7 +1514,6 @@
             this.sink.src = URL.createObjectURL(localRecord.blob);
             MetaParser.parseFullLyrics(localRecord.lyric, localRecord.tlyric);
           } else {
-            // 2. 本地无缓存，按照当前选定音质在线解码
             let playUrl = track.resolvedUrl;
             let lyric = track.lyric;
             let tlyric = track.tlyric;
@@ -1858,7 +1886,6 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
-        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
@@ -1916,18 +1943,18 @@
 
     const AppNavigation = {
       async switchStage(target) {
-        document.querySelectorAll(".cockpit-tab-item").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".liquid-nav-item").forEach(el => el.classList.remove("active"));
 
         if (target === 'home') {
-          document.getElementById("nav-main-home").classList.add("active");
-          UIFeedback.setHeadline("Discover & Stream");
+          const el = document.getElementById("nav-main-home");
+          if (el) el.classList.add("active");
         } else if (target === 'all-musics') {
-          document.getElementById("nav-all-musics").classList.add("active");
+          const el = document.getElementById("nav-all-musics");
+          if (el) el.classList.add("active");
           TrackListView.renderList("Search Library", PlaybackState.flatTrackIndex);
-          UIFeedback.setHeadline("Search Library");
         } else if (target === 'offlines') {
-          document.getElementById("nav-offlines").classList.add("active");
-          UIFeedback.setHeadline("Offline Edge Vault");
+          const el = document.getElementById("nav-offlines");
+          if (el) el.classList.add("active");
           const records = await OfflineAudioStore.getAllCachedRecords();
           const list = records.map(r => ({
             id: String(r.id),
@@ -1941,17 +1968,13 @@
           }));
           TrackListView.renderList("Offline Edge Vault", list);
         } else if (target === 'my-playlists') {
-          document.getElementById("nav-my-playlists").classList.add("active");
-          UIFeedback.setHeadline("Custom Collections");
+          const el = document.getElementById("nav-my-playlists");
+          if (el) el.classList.add("active");
         }
       }
     };
 
     const UIFeedback = {
-      setHeadline(txt) {
-        document.getElementById("stage-title").innerText = txt;
-      },
-
       updateQuotaVisuals() {
         document.getElementById("user-quota-label").innerText = `DL Quota: ${PlaybackState.quotaRemainder}`;
         document.getElementById("header-quota-badge").innerText = PlaybackState.quotaRemainder;
