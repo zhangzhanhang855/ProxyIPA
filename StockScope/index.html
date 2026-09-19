@@ -25,7 +25,6 @@
       --border-subtle: rgba(255, 255, 255, 0.08);
       --border-elevated: rgba(255, 255, 255, 0.14);
       
-      /* 原生调用 iOS 级高精度苹方字体栈，零外链依赖 */
       --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Segoe UI", Roboto, sans-serif;
       --font-mono: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
       
@@ -1019,7 +1018,7 @@
         <div class="banner-copy-block">
           <h1 class="banner-headline">Enterprise Lossless Audio Network.</h1>
           <p class="banner-desc">
-            Decentralized FLAC audio decoding, real-time lyric synthesis, and direct lossless binary packaging for browsers.
+            Direct Netease API decoding, localized IndexedDB cache storage, and zero-latency studio FLAC audio streaming.
           </p>
         </div>
       </div>
@@ -1031,18 +1030,18 @@
             <div class="telemetry-value green">280+ POPs</div>
           </div>
           <div class="telemetry-card">
-            <div class="telemetry-label">Audio Pipeline</div>
-            <div class="telemetry-value cyan">FLAC / MP3</div>
+            <div class="telemetry-label">Local Cache</div>
+            <div class="telemetry-value cyan">IndexedDB</div>
           </div>
           <div class="telemetry-card">
-            <div class="telemetry-label">Edge Worker</div>
-            <div class="telemetry-value amber">99.99% Up</div>
+            <div class="telemetry-label">Audio Stream</div>
+            <div class="telemetry-value amber">Lossless</div>
           </div>
         </div>
 
         <div class="banner-footer-security" style="margin-top: 32px;">
           <div class="security-status-indicator"></div>
-          <span>Cloudflare Workers Engine Active · Secure TLS Transport</span>
+          <span>Cloudflare Workers & Render Infrastructure · Local Persistence Ready</span>
         </div>
       </div>
     </div>
@@ -1051,7 +1050,7 @@
       <div class="auth-console-container">
         <div class="console-header">
           <div class="console-title" id="auth-modal-title">Sign in to JRmusic</div>
-          <div class="console-subtitle" id="auth-modal-desc">Authenticate with Cloudflare Workers to manage your lossless quota.</div>
+          <div class="console-subtitle" id="auth-modal-desc">Authenticate to synchronize remote catalogs and access offline licenses.</div>
         </div>
 
         <div class="auth-segmented-switch">
@@ -1120,7 +1119,11 @@
         </div>
         <div class="cockpit-tab-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
           <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-          <span>Library</span>
+          <span>Search Library</span>
+        </div>
+        <div class="cockpit-tab-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          <span>Offline Edge</span>
         </div>
         <div class="cockpit-tab-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
           <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
@@ -1144,7 +1147,7 @@
             <div class="hero-title-tag">Global Audio Cloud</div>
             <div class="hero-big-title">Studio-Grade Audio Streaming.</div>
             <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.95rem; max-width: 520px;">
-              Enterprise API integration with direct in-browser decoding, synced lyrics, and full-length FLAC exports.
+              Enterprise API integration with offline IndexedDB persistent caching, synced lyrics, and full-length FLAC exports.
             </p>
           </div>
           
@@ -1157,6 +1160,10 @@
             <button class="control-pill-btn" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               <span>Favorite Tracks</span>
+            </button>
+            <button class="control-pill-btn" onclick="AppNavigation.switchStage('offlines')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent-emerald)"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              <span>Offline Edge Vault</span>
             </button>
             <button class="control-pill-btn" onclick="MusicAPIEngine.promptDirectParse()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
@@ -1171,12 +1178,12 @@
             <span class="stats-digit" id="user-display-name" style="font-size: 1.3rem;">Not Signed In</span>
           </div>
           <div class="stats-row-metric">
-            <span class="stats-label">Download Quota Balance</span>
-            <span class="stats-digit" id="header-quota-badge">0</span>
+            <span class="stats-label">Offline Local Stored</span>
+            <span class="stats-digit" id="offline-counter-label" style="color: var(--accent-emerald);">0 cached</span>
           </div>
           <div class="stats-row-metric">
-            <span class="stats-label">Favorites Stored</span>
-            <span class="stats-digit" id="fav-counter-label">0 songs</span>
+            <span class="stats-label">Download Quota Balance</span>
+            <span class="stats-digit" id="header-quota-badge">0</span>
           </div>
         </div>
       </section>
@@ -1195,19 +1202,19 @@
             <div class="cockpit-card-subtitle">Encrypted personal vault</div>
           </div>
 
+          <div class="cockpit-card" onclick="AppNavigation.switchStage('offlines')">
+            <div class="cockpit-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            </div>
+            <div class="cockpit-card-title">Offline Edge</div>
+            <div class="cockpit-card-subtitle">Local persistent store</div>
+          </div>
+
           <div class="cockpit-card" onclick="CustomPlaylistsModule.inspectPlaylist(0)">
             <div class="cockpit-card-icon">
               <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
             </div>
             <div class="cockpit-card-title" id="pl-slot-0-name">Playlist 1</div>
-            <div class="cockpit-card-subtitle">Custom playlist tracklist</div>
-          </div>
-
-          <div class="cockpit-card" onclick="CustomPlaylistsModule.inspectPlaylist(1)">
-            <div class="cockpit-card-icon">
-              <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-            </div>
-            <div class="cockpit-card-title" id="pl-slot-1-name">Playlist 2</div>
             <div class="cockpit-card-subtitle">Custom playlist tracklist</div>
           </div>
 
@@ -1286,9 +1293,11 @@
   <script>
     const CONFIG = {
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
-      // 此处替换为你 Render 部署的服务 URL
+      // 此处请替换为你真实的 Render 域名
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
-      DEFAULT_DOWNLOAD_QUOTA: 10
+      DEFAULT_DOWNLOAD_QUOTA: 10,
+      DB_NAME: "JRMusicOfflineStore",
+      DB_VERSION: 2
     };
 
     const UIToast = {
@@ -1341,6 +1350,88 @@
         document.getElementById("custom-prompt-modal").classList.remove("is-open");
         if (CustomPrompt.resolver) CustomPrompt.resolver(null);
         CustomPrompt.resolver = null;
+      }
+    };
+
+    /**
+     * IndexedDB 本地持久化离线引擎
+     */
+    const OfflineAudioStore = {
+      db: null,
+
+      async init() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("audio_blobs")) {
+              db.createObjectStore("audio_blobs", { keyPath: "id" });
+            }
+          };
+          req.onsuccess = (e) => {
+            OfflineAudioStore.db = e.target.result;
+            OfflineAudioStore.refreshCatalog().then(resolve);
+          };
+          req.onerror = (err) => reject(err);
+        });
+      },
+
+      async saveTrackBlob(trackObj, blob) {
+        return new Promise((resolve, reject) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readwrite");
+          const store = tx.objectStore("audio_blobs");
+          const record = {
+            id: String(trackObj.id),
+            title: trackObj.title,
+            artist: trackObj.artist,
+            album: trackObj.album,
+            picUrl: trackObj.picUrl,
+            lyric: trackObj.lyric || '',
+            tlyric: trackObj.tlyric || '',
+            blob: blob,
+            timestamp: Date.now()
+          };
+          store.put(record);
+          tx.oncomplete = () => {
+            PlaybackState.offlineCacheCatalog.add(String(trackObj.id));
+            OfflineAudioStore.updateCounterUI();
+            resolve();
+          };
+          tx.onerror = (err) => reject(err);
+        });
+      },
+
+      async getTrackRecord(songId) {
+        return new Promise((resolve) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
+          const store = tx.objectStore("audio_blobs");
+          const req = store.get(String(songId));
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      },
+
+      async getAllCachedRecords() {
+        return new Promise((resolve) => {
+          const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
+          const store = tx.objectStore("audio_blobs");
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+      },
+
+      async refreshCatalog() {
+        const records = await OfflineAudioStore.getAllCachedRecords();
+        PlaybackState.offlineCacheCatalog.clear();
+        records.forEach(r => PlaybackState.offlineCacheCatalog.add(String(r.id)));
+        OfflineAudioStore.updateCounterUI();
+      },
+
+      updateCounterUI() {
+        const count = PlaybackState.offlineCacheCatalog.size;
+        const lbl = document.getElementById("offline-counter-label");
+        if (lbl) lbl.innerText = `${count} cached`;
       }
     };
 
@@ -1425,6 +1516,7 @@
         { name: "Playlist 1", tracks: [] },
         { name: "Playlist 2", tracks: [] }
       ],
+      offlineCacheCatalog: new Set(),
       activeLyrics: [],
       currentLyricIndex: -1,
       activeCoverUrl: null
@@ -1452,7 +1544,7 @@
 
           if (json.status === 200 && Array.isArray(json.data)) {
             const tracks = json.data.map(item => ({
-              id: item.id,
+              id: String(item.id),
               title: item.name,
               artist: item.artists,
               album: item.album,
@@ -1488,9 +1580,15 @@
         throw new Error(json.data ? json.data.msg : "Failed to resolve stream");
       },
 
+      // 下载并持久化保存至 IndexedDB（同时减少 Worker 账户额度）
       async downloadDirect(songId, quality = 'lossless') {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
+          return;
+        }
+
+        if (PlaybackState.offlineCacheCatalog.has(String(songId))) {
+          UIToast.show("Track is already stored in local IndexedDB vault.", "info");
           return;
         }
 
@@ -1500,9 +1598,16 @@
           return;
         }
 
-        UIToast.show("Requesting lossless packaging pipeline...", "info");
+        UIToast.show("Fetching lossless stream & packaging locally...", "info");
 
         try {
+          // 1. 获取音轨及歌词元数据
+          let streamData = null;
+          try {
+            streamData = await MusicAPIEngine.resolveSongStream(songId, quality);
+          } catch(e) {}
+
+          // 2. 获取实际音频 Blob
           const xhr = new XMLHttpRequest();
           xhr.open("POST", `${CONFIG.BACKEND_API_BASE}/Download`, true);
           xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -1510,29 +1615,39 @@
 
           xhr.onload = async function () {
             if (xhr.status === 200) {
-              const encFilename = xhr.getResponseHeader("X-Download-Filename");
-              const filename = encFilename ? decodeURIComponent(encFilename) : "track.flac";
-              
               const blob = xhr.response;
-              const link = document.createElement("a");
-              link.href = window.URL.createObjectURL(blob);
-              link.download = filename;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              window.URL.revokeObjectURL(link.href);
+              const title = streamData ? streamData.name : `Track_${songId}`;
+              const artist = streamData ? streamData.ar_name : "Artist";
+              const album = streamData ? streamData.al_name : "Album";
+              const picUrl = streamData ? streamData.pic : "";
 
+              const trackRecord = {
+                id: String(songId),
+                title: title,
+                artist: artist,
+                album: album,
+                picUrl: picUrl,
+                lyric: streamData ? streamData.lyric : '',
+                tlyric: streamData ? streamData.tlyric : ''
+              };
+
+              // 存入 IndexedDB
+              await OfflineAudioStore.saveTrackBlob(trackRecord, blob);
+
+              // 扣除配额
               PlaybackState.quotaRemainder--;
               localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
               UIFeedback.updateQuotaVisuals();
-              UIToast.show(`Export completed: ${filename}`, "success");
+              TrackListView.refreshCurrentView();
+
+              UIToast.show(`Saved "${title}" to offline IndexedDB! (${PlaybackState.quotaRemainder} left)`, "success");
             } else {
               UIToast.show("Binary download generation failed", "error");
             }
           };
 
           xhr.onerror = function () {
-            UIToast.show("Network transmission error during download", "error");
+            UIToast.show("Network transmission error during offline caching", "error");
           };
 
           xhr.send(`id=${encodeURIComponent(songId)}&quality=${encodeURIComponent(quality)}`);
@@ -1553,7 +1668,7 @@
         try {
           const streamData = await MusicAPIEngine.resolveSongStream(songId);
           const track = {
-            id: songId,
+            id: String(songId),
             title: streamData.name,
             artist: streamData.ar_name,
             album: streamData.al_name,
@@ -1709,7 +1824,7 @@
 
         this.currentTrack = track;
         document.getElementById("lbl-now-playing-title").innerText = track.title;
-        document.getElementById("lbl-now-playing-sub").innerText = "Resolving audio stream from API...";
+        document.getElementById("lbl-now-playing-sub").innerText = "Checking local persistence...";
 
         PlaybackState.activeLyrics = [];
         PlaybackState.currentLyricIndex = -1;
@@ -1729,33 +1844,41 @@
         }
 
         try {
-          let playUrl = track.resolvedUrl;
-          let lyric = track.lyric;
-          let tlyric = track.tlyric;
+          // 1. 优先检测 IndexedDB 离线缓存
+          const localRecord = await OfflineAudioStore.getTrackRecord(track.id);
 
-          if (!playUrl) {
-            const streamData = await MusicAPIEngine.resolveSongStream(track.id, 'lossless');
-            playUrl = streamData.url;
-            lyric = streamData.lyric;
-            tlyric = streamData.tlyric;
-            track.resolvedUrl = playUrl;
-            track.artist = streamData.ar_name || track.artist;
-            track.album = streamData.al_name || track.album;
-            track.picUrl = streamData.pic || track.picUrl;
-            PlaybackState.activeCoverUrl = track.picUrl;
-            if (track.picUrl) {
-              thumbImg.src = track.picUrl;
-              thumbImg.style.display = "block";
-              thumbFallback.style.display = "none";
+          if (localRecord && localRecord.blob) {
+            document.getElementById("lbl-now-playing-sub").innerText = "Playing from Offline Edge Store (Local Blob)...";
+            this.sink.src = URL.createObjectURL(localRecord.blob);
+            MetaParser.parseFullLyrics(localRecord.lyric, localRecord.tlyric);
+          } else {
+            // 2. 本地无缓存，走 Render 云端 API 实时解码
+            let playUrl = track.resolvedUrl;
+            let lyric = track.lyric;
+            let tlyric = track.tlyric;
+
+            if (!playUrl) {
+              const streamData = await MusicAPIEngine.resolveSongStream(track.id, 'lossless');
+              playUrl = streamData.url;
+              lyric = streamData.lyric;
+              tlyric = streamData.tlyric;
+              track.resolvedUrl = playUrl;
+              track.artist = streamData.ar_name || track.artist;
+              track.album = streamData.al_name || track.album;
+              track.picUrl = streamData.pic || track.picUrl;
+              PlaybackState.activeCoverUrl = track.picUrl;
+              if (track.picUrl) {
+                thumbImg.src = track.picUrl;
+                thumbImg.style.display = "block";
+                thumbFallback.style.display = "none";
+              }
             }
-          }
 
-          if (!playUrl) {
-            throw new Error("Empty audio stream link returned by engine");
-          }
+            if (!playUrl) throw new Error("Empty audio stream link returned by engine");
 
-          this.sink.src = playUrl;
-          MetaParser.parseFullLyrics(lyric, tlyric);
+            this.sink.src = playUrl;
+            MetaParser.parseFullLyrics(lyric, tlyric);
+          }
 
           await this.sink.play();
           this.updatePlayBtnIcon(true);
@@ -2052,8 +2175,9 @@
         }
 
         trackArray.forEach((track, index) => {
+          const isCached = PlaybackState.offlineCacheCatalog.has(String(track.id));
           const isFav = PlaybackState.favorites.some(f => f.id === track.id);
-          const isCurrent = AudioEngine.currentTrack && AudioEngine.currentTrack.id === track.id;
+          const isCurrent = AudioEngine.currentTrack && String(AudioEngine.currentTrack.id) === String(track.id);
 
           const row = document.createElement("div");
           row.className = `track-row-node ${isCurrent ? 'current-playing' : ''}`;
@@ -2066,16 +2190,16 @@
               <span class="track-name-main">${track.title}</span>
               <span class="track-subpath">${track.artist} · ${track.album}</span>
             </div>
-            <div class="track-codec-col">FLAC / 24-BIT</div>
+            <div class="track-codec-col">FLAC / LOSSLESS</div>
             <div class="track-cache-col">
-              <span class="status-ping cached"></span>
-              <span>Cloud API</span>
+              <span class="status-ping ${isCached ? 'cached' : ''}"></span>
+              <span>${isCached ? 'Edge Cached' : 'Remote'}</span>
             </div>
             <div class="track-actions-col">
               <button class="action-icon-hit ${isFav ? 'active-fav' : ''}" onclick="event.stopPropagation(); TrackListView.toggleFav('${encodeURIComponent(JSON.stringify(track))}')">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </button>
-              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')" title="Direct browser download">
+              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')" title="Store in offline DB">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               </button>
             </div>
@@ -2099,7 +2223,6 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
-        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
@@ -2125,6 +2248,8 @@
         const title = document.getElementById("listing-heading").innerText;
         if (title === "Favorite Musics") {
           TrackListView.renderList(title, PlaybackState.favorites);
+        } else if (title === "Offline Edge Vault") {
+          AppNavigation.switchStage('offlines');
         } else if (title.startsWith("Search:")) {
           TrackListView.renderList(title, PlaybackState.flatTrackIndex);
         }
@@ -2154,7 +2279,7 @@
     };
 
     const AppNavigation = {
-      switchStage(target) {
+      async switchStage(target) {
         document.querySelectorAll(".cockpit-tab-item").forEach(el => el.classList.remove("active"));
 
         if (target === 'home') {
@@ -2162,8 +2287,22 @@
           UIFeedback.setHeadline("Discover & Stream");
         } else if (target === 'all-musics') {
           document.getElementById("nav-all-musics").classList.add("active");
-          TrackListView.renderList("All Library Audio", PlaybackState.flatTrackIndex);
-          UIFeedback.setHeadline("All Library Audio");
+          TrackListView.renderList("Search Library", PlaybackState.flatTrackIndex);
+          UIFeedback.setHeadline("Search Library");
+        } else if (target === 'offlines') {
+          document.getElementById("nav-offlines").classList.add("active");
+          UIFeedback.setHeadline("Offline Edge Vault");
+          const records = await OfflineAudioStore.getAllCachedRecords();
+          const list = records.map(r => ({
+            id: String(r.id),
+            title: r.title,
+            artist: r.artist,
+            album: r.album,
+            picUrl: r.picUrl,
+            lyric: r.lyric,
+            tlyric: r.tlyric
+          }));
+          TrackListView.renderList("Offline Edge Vault", list);
         } else if (target === 'my-playlists') {
           document.getElementById("nav-my-playlists").classList.add("active");
           UIFeedback.setHeadline("Custom Collections");
@@ -2191,10 +2330,12 @@
           document.getElementById("user-avatar-initial").innerText = "?";
         }
         UIFeedback.updateQuotaVisuals();
+        OfflineAudioStore.updateCounterUI();
       }
     };
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
+      await OfflineAudioStore.init();
       AudioEngine.init();
       AuthModalController.restoreSession();
       UIFeedback.updateUserVisuals();
