@@ -12,7 +12,7 @@
       --bg-surface-elevated: #131924;
       --bg-surface-hover: #1b2332;
       
-      --accent: #2563eb; /* 截图高亮品牌蓝 */
+      --accent: #2563eb;
       --accent-glow: rgba(37, 99, 235, 0.35);
       --accent-dim: rgba(37, 99, 235, 0.12);
       --accent-cyan: #00d2ff;
@@ -71,9 +71,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
-    /* ==========================================================================
-       LIQUID GLASS FLOATING CAPSULE NAVBAR (仿图液态玻璃顶栏)
-       ========================================================================== */
+    /* FLOATING LIQUID GLASS NAVBAR */
     header.liquid-nav-wrapper {
       position: fixed;
       top: 0;
@@ -95,8 +93,6 @@
       gap: 6px;
       padding: 6px 14px;
       border-radius: 9999px;
-      
-      /* 核心液态玻璃质感拟真 */
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(35px) saturate(200%);
       -webkit-backdrop-filter: blur(35px) saturate(200%);
@@ -139,11 +135,8 @@
       white-space: nowrap;
     }
 
-    .liquid-nav-item:active {
-      transform: scale(0.92);
-    }
+    .liquid-nav-item:active { transform: scale(0.92); }
 
-    /* 选中项的胶囊底衬效果 (复刻截图选中状态) */
     .liquid-nav-item.active {
       background: rgba(0, 0, 0, 0.06);
       color: var(--accent);
@@ -160,48 +153,10 @@
       color: var(--accent);
     }
 
-    /* 辅助功能分隔线与小微件 */
-    .liquid-divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(0, 0, 0, 0.08);
-      margin: 0 4px;
-    }
-
-    .liquid-quality-box {
-      display: flex;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 12px;
-      padding: 4px 8px;
-    }
-
-    .liquid-quality-select {
-      background: transparent;
-      border: none;
-      color: #1e293b;
-      font-size: 11px;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      outline: none;
-      cursor: pointer;
-    }
-
-    .liquid-user-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: #1e293b;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-left: 4px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
+    .liquid-divider { width: 1px; height: 24px; background: rgba(0, 0, 0, 0.08); margin: 0 4px; }
+    .liquid-quality-box { display: flex; align-items: center; background: rgba(0, 0, 0, 0.05); border-radius: 12px; padding: 4px 8px; }
+    .liquid-quality-select { background: transparent; border: none; color: #1e293b; font-size: 11px; font-weight: 700; font-family: var(--font-mono); outline: none; cursor: pointer; }
+    .liquid-user-btn { width: 30px; height: 30px; border-radius: 50%; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 4px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
 
     /* AUTHENTICATION PORTAL */
     #fullscreen-auth-stage {
@@ -217,11 +172,7 @@
       transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
     }
 
-    #fullscreen-auth-stage.stage-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
+    #fullscreen-auth-stage.stage-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
     .auth-banner-pane {
       flex: 1.15;
@@ -273,30 +224,10 @@
     }
     .banner-desc { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6; }
 
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .telemetry-card {
-      background: rgba(19, 25, 36, 0.5);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 16px;
-      backdrop-filter: blur(10px);
-    }
+    .telemetry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 10px; }
+    .telemetry-card { background: rgba(19, 25, 36, 0.5); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; backdrop-filter: blur(10px); }
     .telemetry-label { font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; }
-    .telemetry-value {
-      font-size: 1.25rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: #fff;
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .telemetry-value { font-size: 1.25rem; font-weight: 700; font-family: var(--font-mono); color: #fff; margin-top: 6px; display: flex; align-items: center; gap: 6px; }
     .telemetry-value.green { color: var(--accent-emerald); }
     .telemetry-value.cyan { color: var(--accent-cyan); }
     .telemetry-value.amber { color: var(--accent); }
@@ -374,22 +305,13 @@
     .cloud-auth-feedback.error { color: #ff5265; }
     .cloud-auth-feedback.success { color: #10b981; }
 
-    /* WORKSPACE BODY */
-    #workspace-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-      position: relative;
-      z-index: 10;
-      overflow: hidden;
-    }
+    /* WORKSPACE */
+    #workspace-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; z-index: 10; overflow: hidden; }
 
     .cockpit-body-scroll {
       flex: 1;
       overflow-y: auto;
       padding: 32px 48px;
-      /* 为顶层浮动液态药丸留出充足顶部呼吸空间 */
       padding-top: calc(var(--safe-top) + 84px);
       padding-bottom: calc(var(--player-dock-height) + 40px + var(--safe-bottom));
       display: flex;
@@ -543,7 +465,7 @@
     input[type="range"].dock-slider { appearance: none; -webkit-appearance: none; width: 100%; background: rgba(255, 255, 255, 0.1); height: 4px; border-radius: 2px; outline: none; }
     input[type="range"].dock-slider::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; }
 
-    /* SPOTLIGHT LYRICS */
+    /* SPOTLIGHT LYRICS & INTERACTIVE ARTIST */
     #lyrics-fullscreen-overlay {
       position: fixed;
       inset: 0;
@@ -560,10 +482,78 @@
     .lyrics-body-grid { flex: 1; display: grid; grid-template-columns: 1fr 1.3fr; gap: 50px; align-items: center; overflow: hidden; }
     .lyrics-cover-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
     .lyrics-album-art { width: 360px; height: 360px; max-width: 75vw; max-height: 75vw; border-radius: 20px; object-fit: cover; }
+    
+    /* 歌手点击交互胶囊 */
+    .lyrics-interactive-artist {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      margin-top: 6px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .lyrics-interactive-artist:hover {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+    .lyrics-interactive-artist svg { width: 14px; height: 14px; fill: currentColor; }
+
     .lyrics-single-spotlight-col { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 30px; position: relative; }
     .spotlight-lyric-text { font-size: 2.3rem; font-weight: 800; line-height: 1.45; color: #ffffff; text-shadow: 0 0 35px var(--accent-glow); transition: all 0.35s ease; max-width: 90%; }
     .spotlight-lyric-text.animating { opacity: 0.2; transform: scale(0.96); }
     .spotlight-source-badge { position: absolute; bottom: 24px; font-size: 0.75rem; font-family: var(--font-mono); font-weight: 600; color: var(--text-muted); padding: 4px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
+
+    /* MULTI-ARTIST SELECTION MODAL */
+    #artist-picker-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(18px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3100;
+      padding: 20px;
+    }
+    #artist-picker-modal.is-open { display: flex; }
+    .artist-picker-card {
+      background: #0f141d;
+      border: 1px solid var(--border-elevated);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    }
+    .artist-select-chip {
+      padding: 12px 18px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    .artist-select-chip:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateX(4px);
+    }
 
     /* MODAL */
     #custom-prompt-modal, #confirm-logout-modal {
@@ -611,34 +601,34 @@
 
   <div id="ui-toast-container"></div>
 
-  <!-- FLOATING LIQUID GLASS CAPSULE TOPBAR (仿图样式) -->
+  <!-- FLOATING LIQUID GLASS CAPSULE TOPBAR -->
   <header class="liquid-nav-wrapper">
     <nav class="liquid-glass-pill">
-      <!-- 1. 资源 / 曲库 -->
+      <!-- 资源 / 曲库 -->
       <div class="liquid-nav-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
         <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
         <span>资源</span>
       </div>
 
-      <!-- 2. 控制台 (已激活高亮项) -->
+      <!-- 控制台 -->
       <div class="liquid-nav-item active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
         <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
         <span>控制台</span>
       </div>
 
-      <!-- 3. 歌单 -->
+      <!-- 歌单 -->
       <div class="liquid-nav-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
         <span>歌单</span>
       </div>
 
-      <!-- 4. 下载 / 离线 -->
+      <!-- 下载 -->
       <div class="liquid-nav-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
         <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
         <span>下载</span>
       </div>
 
-      <!-- 5. 设置 / 账户 -->
+      <!-- 设置 -->
       <div class="liquid-nav-item" onclick="AuthModalController.handleAvatarClick()">
         <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         <span>设置</span>
@@ -662,7 +652,19 @@
     </nav>
   </header>
 
-  <!-- 对话框与歌词浮窗 -->
+  <!-- 多歌手选择模态框 -->
+  <div id="artist-picker-modal">
+    <div class="artist-picker-card">
+      <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">选择歌手检索</div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary);">该曲目包含多位参演艺术家，请选择需要检索的歌手：</div>
+      <div id="artist-chip-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+        <button class="control-pill-btn" onclick="ArtistPicker.close()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 对话框与歌词大屏浮窗 -->
   <div id="confirm-logout-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">確認登出</div>
@@ -687,9 +689,13 @@
     <div class="lyrics-body-grid">
       <div class="lyrics-cover-col">
         <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23141a24'><rect width='100' height='100'/></svg>" alt="Album Art" />
-        <div style="text-align: center;">
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
           <h2 style="font-size: 1.4rem; color: #fff;" id="lyrics-modal-title">Track Title</h2>
-          <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;" id="lyrics-modal-artist">Artist</p>
+          <!-- 核心交互：点击触发全量歌手曲目检索 -->
+          <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="点击检索该歌手的所有曲目">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span id="lyrics-modal-artist">Artist</span>
+          </div>
         </div>
       </div>
       <div class="lyrics-single-spotlight-col">
@@ -1028,6 +1034,34 @@
     };
 
     /**
+     * 多歌手智能选择处理器
+     */
+    const ArtistPicker = {
+      show(artistList) {
+        const container = document.getElementById("artist-chip-container");
+        container.innerHTML = "";
+        artistList.forEach(name => {
+          const chip = document.createElement("div");
+          chip.className = "artist-select-chip";
+          chip.innerHTML = `
+            <span>${name}</span>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          `;
+          chip.onclick = () => {
+            ArtistPicker.close();
+            LyricsView.close();
+            MusicAPIEngine.searchArtist(name);
+          };
+          container.appendChild(chip);
+        });
+        document.getElementById("artist-picker-modal").classList.add("is-open");
+      },
+      close() {
+        document.getElementById("artist-picker-modal").classList.remove("is-open");
+      }
+    };
+
+    /**
      * IndexedDB 本地持久化离线引擎
      */
     const OfflineAudioStore = {
@@ -1210,7 +1244,17 @@
           UIToast.show("Please enter a search keyword", "error");
           return;
         }
+        await MusicAPIEngine.executeSearch(keyword);
+      },
 
+      async searchArtist(artistName) {
+        document.getElementById("api-search-input").value = artistName;
+        AppNavigation.switchStage('home');
+        await MusicAPIEngine.executeSearch(artistName);
+        UIToast.show(`已显示歌手【${artistName}】的所有曲目`, "success");
+      },
+
+      async executeSearch(keyword) {
         UIToast.show(`Searching for "${keyword}"...`, "info");
         try {
           const formData = new FormData();
@@ -1262,7 +1306,6 @@
         throw new Error(json.data ? json.data.msg : "Failed to resolve stream");
       },
 
-      // 直连官方 CDN 极速下载并存入本地 IndexedDB
       async downloadDirect(songId) {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
@@ -1374,6 +1417,21 @@
 
       close() {
         document.getElementById("lyrics-fullscreen-overlay").classList.remove("is-open");
+      },
+
+      // 大屏歌手点击响应逻辑
+      onArtistClicked() {
+        if (!AudioEngine.currentTrack || !AudioEngine.currentTrack.artist) return;
+        const rawArtist = AudioEngine.currentTrack.artist;
+        // 拆分多歌手常用标点：/, 、 , & 空格
+        const artists = rawArtist.split(/[\/、,&]/).map(s => s.trim()).filter(Boolean);
+
+        if (artists.length <= 1) {
+          LyricsView.close();
+          MusicAPIEngine.searchArtist(artists[0] || rawArtist);
+        } else {
+          ArtistPicker.show(artists);
+        }
       },
 
       renderSpotlightText(text) {
@@ -1886,6 +1944,7 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
+        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
