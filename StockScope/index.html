@@ -129,13 +129,7 @@
       letter-spacing: 1px;
     }
 
-    .banner-copy-block {
-      max-width: 580px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 40px 0;
-    }
+    .banner-copy-block { max-width: 580px; display: flex; flex-direction: column; gap: 20px; margin: 40px 0; }
     .banner-headline {
       font-size: 3rem;
       font-weight: 800;
@@ -160,13 +154,7 @@
       padding: 16px;
       backdrop-filter: blur(10px);
     }
-    .telemetry-label {
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .telemetry-label { font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; }
     .telemetry-value {
       font-size: 1.25rem;
       font-weight: 700;
@@ -181,20 +169,8 @@
     .telemetry-value.cyan { color: var(--accent-cyan); }
     .telemetry-value.amber { color: var(--accent); }
 
-    .banner-footer-security {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .security-status-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
-    }
+    .banner-footer-security { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-muted); }
+    .security-status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); box-shadow: 0 0 10px var(--accent-emerald); }
 
     .auth-interaction-pane {
       flex: 0.95;
@@ -206,24 +182,12 @@
       padding: 40px;
       position: relative;
     }
-    .auth-console-container {
-      width: 100%;
-      max-width: 440px;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
+    .auth-console-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 28px; }
     .console-header { display: flex; flex-direction: column; gap: 8px; }
     .console-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.8px; color: #fff; }
     .console-subtitle { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4; }
 
-    .auth-segmented-switch {
-      display: flex;
-      background: #111622;
-      padding: 4px;
-      border-radius: 12px;
-      border: 1px solid var(--border-subtle);
-    }
+    .auth-segmented-switch { display: flex; background: #111622; padding: 4px; border-radius: 12px; border: 1px solid var(--border-subtle); }
     .auth-segmented-tab {
       flex: 1;
       padding: 10px 0;
@@ -237,34 +201,13 @@
       font-family: var(--font-stack);
       transition: all 0.2s ease;
     }
-    .auth-segmented-tab.active {
-      background: var(--bg-surface-elevated);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border-elevated);
-    }
+    .auth-segmented-tab.active { background: var(--bg-surface-elevated); color: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); border: 1px solid var(--border-elevated); }
 
     .auth-fields-block { display: flex; flex-direction: column; gap: 18px; }
     .field-group { display: flex; flex-direction: column; gap: 8px; }
-    .field-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-secondary);
-      display: flex;
-      justify-content: space-between;
-    }
-
+    .field-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); display: flex; justify-content: space-between; }
     .field-input-box { position: relative; display: flex; align-items: center; }
-    .field-input-box svg {
-      position: absolute;
-      left: 16px;
-      width: 18px;
-      height: 18px;
-      fill: var(--text-muted);
-      transition: fill 0.2s;
-    }
+    .field-input-box svg { position: absolute; left: 16px; width: 18px; height: 18px; fill: var(--text-muted); }
 
     .cloud-input {
       width: 100%;
@@ -276,12 +219,8 @@
       font-family: var(--font-stack);
       font-size: 0.95rem;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .cloud-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-dim);
-    }
+    .cloud-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 
     .btn-cloud-action {
       background: linear-gradient(135deg, var(--accent), #e05600);
@@ -297,31 +236,14 @@
       justify-content: center;
       gap: 8px;
       box-shadow: 0 4px 20px var(--accent-glow);
-      font-family: var(--font-stack);
-      transition: opacity 0.2s, transform 0.15s;
     }
-    .btn-cloud-action:hover { opacity: 0.94; transform: translateY(-1px); }
-    .btn-cloud-action:active { transform: scale(0.98); }
 
-    .cloud-auth-feedback {
-      min-height: 20px;
-      font-size: 0.82rem;
-      font-family: var(--font-mono);
-      text-align: center;
-    }
+    .cloud-auth-feedback { min-height: 20px; font-size: 0.82rem; font-family: var(--font-mono); text-align: center; }
     .cloud-auth-feedback.error { color: #ff5265; }
     .cloud-auth-feedback.success { color: #10b981; }
 
     /* WORKSPACE */
-    #workspace-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-      position: relative;
-      z-index: 10;
-      overflow: hidden;
-    }
+    #workspace-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative; z-index: 10; overflow: hidden; }
 
     header.cockpit-top-bar {
       padding-top: max(var(--safe-top), 24px);
@@ -331,7 +253,6 @@
       min-height: calc(72px + max(var(--safe-top), 24px));
       background: rgba(9, 12, 18, 0.9);
       backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
@@ -376,15 +297,34 @@
       transition: all 0.2s ease;
     }
     .cockpit-tab-item:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
-    .cockpit-tab-item.active {
-      background: var(--bg-surface-elevated);
-      color: #fff;
-      border: 1px solid var(--border-elevated);
-      font-weight: 700;
-    }
+    .cockpit-tab-item.active { background: var(--bg-surface-elevated); color: #fff; border: 1px solid var(--border-elevated); font-weight: 700; }
     .cockpit-tab-item svg { width: 16px; height: 16px; fill: currentColor; }
 
     .cockpit-right-account { display: flex; align-items: center; gap: 14px; }
+    
+    /* 商业音质选择胶囊 */
+    .quality-select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-elevated);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .quality-select-wrapper span { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .quality-dropdown {
+      background: transparent;
+      border: none;
+      color: var(--accent-cyan);
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .quality-dropdown option { background: #0c1017; color: #fff; }
+
     .badge-quota-pill {
       display: flex;
       align-items: center;
@@ -413,9 +353,7 @@
       font-weight: 700;
       cursor: pointer;
       color: #fff;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .user-avatar-button:hover { transform: scale(1.08); box-shadow: 0 0 14px rgba(255, 255, 255, 0.2); }
 
     .cockpit-body-scroll {
       flex: 1;
@@ -427,47 +365,21 @@
       gap: 36px;
     }
 
-    .hero-summary-deck {
-      display: grid;
-      grid-template-columns: 1.8fr 1fr;
-      gap: 24px;
-    }
+    .hero-summary-deck { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; }
     .hero-panel-card {
-      background: radial-gradient(circle at 10% 10%, rgba(243, 128, 32, 0.08) 0%, transparent 60%),
-                  rgba(13, 17, 24, 0.7);
+      background: radial-gradient(circle at 10% 10%, rgba(243, 128, 32, 0.08) 0%, transparent 60%), rgba(13, 17, 24, 0.7);
       border: 1px solid var(--border-subtle);
       border-radius: 20px;
       padding: 32px;
       backdrop-filter: blur(14px);
-      position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .hero-title-tag {
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: var(--accent);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .hero-big-title {
-      font-size: 2.2rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-top: 8px;
-      color: #fff;
-    }
-    .hero-status-pills {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
+    .hero-title-tag { font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--accent); letter-spacing: 1.5px; }
+    .hero-big-title { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-top: 8px; color: #fff; }
+    .hero-status-pills { display: flex; align-items: center; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
 
     .control-pill-btn {
       padding: 10px 20px;
@@ -484,20 +396,8 @@
       font-family: var(--font-stack);
       transition: all 0.2s ease;
     }
-    .control-pill-btn:hover {
-      border-color: var(--border-elevated);
-      background: var(--bg-surface-hover);
-    }
-    .control-pill-btn.primary {
-      background: linear-gradient(135deg, var(--accent), #e05600);
-      border-color: transparent;
-      box-shadow: 0 4px 16px var(--accent-glow);
-    }
-    .control-pill-btn.danger {
-      background: linear-gradient(135deg, #ff4757, #c0392b);
-      border-color: transparent;
-      box-shadow: 0 4px 16px rgba(255, 71, 87, 0.4);
-    }
+    .control-pill-btn.primary { background: linear-gradient(135deg, var(--accent), #e05600); border-color: transparent; }
+    .control-pill-btn.danger { background: linear-gradient(135deg, #ff4757, #c0392b); border-color: transparent; }
 
     .hero-stats-card {
       background: rgba(13, 17, 24, 0.7);
@@ -513,35 +413,11 @@
     .stats-digit { font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #fff; }
 
     .cockpit-section-block { display: flex; flex-direction: column; gap: 18px; }
-    .cockpit-section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 14px;
-    }
-    .section-title-label {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-title-label::before {
-      content: '';
-      width: 6px;
-      height: 18px;
-      background: var(--accent);
-      border-radius: 3px;
-    }
+    .cockpit-section-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; }
+    .section-title-label { font-size: 1.25rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .section-title-label::before { content: ''; width: 6px; height: 18px; background: var(--accent); border-radius: 3px; }
 
-    .grid-deck-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 20px;
-    }
+    .grid-deck-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
     .cockpit-card {
       background: rgba(13, 17, 24, 0.6);
       border: 1px solid var(--border-subtle);
@@ -550,37 +426,17 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
+      transition: all 0.22s ease;
     }
-    .cockpit-card:hover {
-      transform: translateY(-4px);
-      background: rgba(19, 25, 36, 0.9);
-      border-color: var(--border-elevated);
-      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
-    }
-    .cockpit-card-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      transition: all 0.2s ease;
-    }
+    .cockpit-card:hover { transform: translateY(-4px); background: rgba(19, 25, 36, 0.9); }
+    .cockpit-card-icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
     .cockpit-card-icon svg { width: 24px; height: 24px; fill: var(--text-secondary); }
-    .cockpit-card:hover .cockpit-card-icon { background: var(--accent-dim); border-color: var(--accent); }
+    .cockpit-card:hover .cockpit-card-icon { background: var(--accent-dim); }
     .cockpit-card:hover .cockpit-card-icon svg { fill: var(--accent); }
-    .cockpit-card.fav-theme .cockpit-card-icon { background: var(--accent-dim); border-color: var(--accent); }
-    .cockpit-card.fav-theme .cockpit-card-icon svg { fill: var(--accent); }
     .cockpit-card-title { font-size: 1rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cockpit-card-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
 
     .stream-pipeline-table { display: flex; flex-direction: column; gap: 6px; }
-
     .track-row-node {
       display: grid;
       grid-template-columns: 50px 1fr 140px 120px 100px;
@@ -590,69 +446,25 @@
       background: rgba(13, 17, 24, 0.4);
       border: 1px solid var(--border-subtle);
       cursor: pointer;
-      transition: all 0.2s ease;
     }
-    .track-row-node:hover {
-      background: rgba(22, 28, 40, 0.8);
-      border-color: var(--border-elevated);
-      transform: translateX(4px);
-    }
-    .track-row-node.current-playing {
-      background: linear-gradient(90deg, rgba(243, 128, 32, 0.12) 0%, rgba(13, 17, 24, 0.6) 100%);
-      border-color: var(--accent);
-    }
-    .track-idx-col {
-      font-size: 0.85rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .track-row-node:hover { background: rgba(22, 28, 40, 0.8); }
+    .track-row-node.current-playing { background: linear-gradient(90deg, rgba(243, 128, 32, 0.12) 0%, rgba(13, 17, 24, 0.6) 100%); border-color: var(--accent); }
+    .track-idx-col { font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .track-idx-col svg { width: 18px; height: 18px; fill: var(--accent); display: none; }
     .track-row-node.current-playing .track-idx-col span { display: none; }
     .track-row-node.current-playing .track-idx-col svg { display: block; }
-
     .track-meta-col { display: flex; flex-direction: column; overflow: hidden; padding-right: 16px; }
     .track-name-main { font-size: 0.95rem; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .track-row-node.current-playing .track-name-main { color: var(--accent); font-weight: 700; }
     .track-subpath { font-size: 0.74rem; font-family: var(--font-mono); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
 
-    .track-codec-col {
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      color: var(--accent-cyan);
-      background: rgba(0, 210, 255, 0.08);
-      padding: 3px 8px;
-      border-radius: 6px;
-      width: fit-content;
-    }
-    .track-cache-col {
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .track-codec-col { font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan); background: rgba(0, 210, 255, 0.08); padding: 3px 8px; border-radius: 6px; width: fit-content; }
+    .track-cache-col { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
     .status-ping { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
     .status-ping.cached { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
-
     .track-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-
-    .action-icon-hit {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-    .action-icon-hit:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+    .action-icon-hit { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; }
+    .action-icon-hit:hover { color: #fff; }
     .action-icon-hit.active-fav { color: var(--accent); }
     .action-icon-hit svg { width: 18px; height: 18px; fill: currentColor; }
 
@@ -665,35 +477,15 @@
       height: calc(var(--player-dock-height) + var(--safe-bottom));
       background: rgba(10, 13, 19, 0.94);
       backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
       border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 36px var(--safe-bottom) 36px;
       z-index: 50;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
     }
-    .dock-meta-unit {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      width: 30%;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .dock-cover-thumb {
-      width: 52px;
-      height: 52px;
-      border-radius: 10px;
-      background: #141a24;
-      border: 1px solid var(--border-elevated);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
+    .dock-meta-unit { display: flex; align-items: center; gap: 16px; width: 30%; overflow: hidden; cursor: pointer; }
+    .dock-cover-thumb { width: 52px; height: 52px; border-radius: 10px; background: #141a24; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
     .dock-cover-thumb img { width: 100%; height: 100%; object-fit: cover; display: none; }
     .dock-cover-thumb svg { width: 26px; height: 26px; fill: var(--text-muted); }
 
@@ -701,80 +493,28 @@
     .dock-track-title { font-size: 0.95rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dock-track-sub { font-size: 0.76rem; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
 
-    .dock-controls-unit {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      width: 40%;
-    }
+    .dock-controls-unit { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 40%; }
     .dock-buttons-row { display: flex; align-items: center; gap: 20px; }
-
-    .circle-play-trigger {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #fff;
-      color: #000;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-      transition: transform 0.2s ease;
-    }
-    .circle-play-trigger:hover { transform: scale(1.08); }
+    .circle-play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .circle-play-trigger svg { width: 20px; height: 20px; fill: currentColor; }
 
     .dock-scrub-bar { width: 100%; display: flex; align-items: center; gap: 12px; }
     .dock-time-stamp { font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); width: 40px; text-align: center; }
-
-    .dock-progress-rail {
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      position: relative;
-      cursor: pointer;
-    }
-    .dock-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #ff9a3d);
-      border-radius: 2px;
-      width: 0%;
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
+    .dock-progress-rail { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); position: relative; cursor: pointer; }
+    .dock-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #ff9a3d); border-radius: 2px; width: 0%; }
 
     .dock-utilities-unit { display: flex; align-items: center; justify-content: flex-end; gap: 16px; width: 30%; }
     .dock-vol-wrap { display: flex; align-items: center; gap: 8px; width: 120px; }
 
-    input[type="range"].dock-slider {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      height: 4px;
-      border-radius: 2px;
-      outline: none;
-    }
-    input[type="range"].dock-slider::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #fff;
-      cursor: pointer;
-    }
+    input[type="range"].dock-slider { appearance: none; -webkit-appearance: none; width: 100%; background: rgba(255, 255, 255, 0.1); height: 4px; border-radius: 2px; outline: none; }
+    input[type="range"].dock-slider::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; }
 
-    /* SPOTLIGHT LYRICS OVERLAY */
+    /* SPOTLIGHT LYRICS */
     #lyrics-fullscreen-overlay {
       position: fixed;
       inset: 0;
       background: radial-gradient(circle at center, rgba(14, 19, 28, 0.98) 0%, rgba(6, 8, 11, 0.99) 100%);
       backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
       z-index: 2000;
       display: none;
       flex-direction: column;
@@ -782,88 +522,14 @@
     }
     #lyrics-fullscreen-overlay.is-open { display: flex; }
     .lyrics-top-nav { display: flex; align-items: center; justify-content: space-between; height: 48px; }
-
-    .lyrics-close-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-subtle);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: #fff;
-      transition: background 0.2s;
-    }
-    .lyrics-close-btn:hover { background: rgba(255, 255, 255, 0.16); }
-
-    .lyrics-body-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1.3fr;
-      gap: 50px;
-      align-items: center;
-      overflow: hidden;
-      padding: 30px 0;
-    }
-    .lyrics-cover-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-    }
-    .lyrics-album-art {
-      width: 360px;
-      height: 360px;
-      max-width: 75vw;
-      max-height: 75vw;
-      border-radius: 20px;
-      background: #141a24;
-      border: 1px solid var(--border-elevated);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px var(--accent-glow);
-      object-fit: cover;
-    }
-
-    .lyrics-single-spotlight-col {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 30px;
-      position: relative;
-    }
-    .spotlight-lyric-text {
-      font-size: 2.3rem;
-      font-weight: 800;
-      line-height: 1.45;
-      color: #ffffff;
-      text-shadow: 0 0 35px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.8);
-      letter-spacing: -0.02em;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      opacity: 1;
-      transform: scale(1);
-      max-width: 90%;
-    }
+    .lyrics-close-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-subtle); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; }
+    .lyrics-body-grid { flex: 1; display: grid; grid-template-columns: 1fr 1.3fr; gap: 50px; align-items: center; overflow: hidden; }
+    .lyrics-cover-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+    .lyrics-album-art { width: 360px; height: 360px; max-width: 75vw; max-height: 75vw; border-radius: 20px; object-fit: cover; }
+    .lyrics-single-spotlight-col { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 30px; position: relative; }
+    .spotlight-lyric-text { font-size: 2.3rem; font-weight: 800; line-height: 1.45; color: #ffffff; text-shadow: 0 0 35px var(--accent-glow); transition: all 0.35s ease; max-width: 90%; }
     .spotlight-lyric-text.animating { opacity: 0.2; transform: scale(0.96); }
-
-    .spotlight-source-badge {
-      position: absolute;
-      bottom: 24px;
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding: 4px 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-    }
+    .spotlight-source-badge { position: absolute; bottom: 24px; font-size: 0.75rem; font-family: var(--font-mono); font-weight: 600; color: var(--text-muted); padding: 4px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
 
     /* MODAL */
     #custom-prompt-modal, #confirm-logout-modal {
@@ -871,7 +537,6 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -879,59 +544,19 @@
       padding: 20px;
     }
     #custom-prompt-modal.is-open, #confirm-logout-modal.is-open { display: flex; }
-
-    .prompt-box-dialog {
-      background: #0f141d;
-      border: 1px solid var(--border-elevated);
-      border-radius: 18px;
-      width: 100%;
-      max-width: 400px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
-    }
+    .prompt-box-dialog { background: #0f141d; border: 1px solid var(--border-elevated); border-radius: 18px; width: 100%; max-width: 400px; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
 
     /* TOAST */
-    #ui-toast-container {
-      position: fixed;
-      top: max(var(--safe-top), 24px);
-      right: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 9999;
-      pointer-events: none;
-    }
-    .ui-toast {
-      pointer-events: auto;
-      min-width: 300px;
-      background: #0f141d;
-      border: 1px solid var(--border-elevated);
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #fff;
-      font-size: 0.88rem;
-      animation: toastSlide 0.25s forwards;
-    }
+    #ui-toast-container { position: fixed; top: max(var(--safe-top), 24px); right: 28px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; pointer-events: none; }
+    .ui-toast { pointer-events: auto; min-width: 300px; background: #0f141d; border: 1px solid var(--border-elevated); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 10px; display: flex; align-items: center; gap: 12px; color: #fff; font-size: 0.88rem; animation: toastSlide 0.25s forwards; }
     .ui-toast.success { border-left-color: var(--accent-emerald); }
     .ui-toast.error { border-left-color: #ff4757; }
     .ui-toast.info { border-left-color: var(--accent-cyan); }
-
-    @keyframes toastSlide {
-      from { opacity: 0; transform: translateY(-15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes toastSlide { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     .toast-fade-out { opacity: 0 !important; transform: translateY(-10px) !important; }
 
     @media (max-width: 900px) {
-      header.cockpit-top-bar { padding-left: 20px; padding-right: 20px; }
+      header.cockpit-top-bar { padding-left: 16px; padding-right: 16px; }
       #fullscreen-auth-stage { flex-direction: column; }
       .auth-banner-pane { display: none; }
       .hero-summary-deck { grid-template-columns: 1fr; }
@@ -950,7 +575,6 @@
 
   <div id="ui-toast-container"></div>
 
-  <!-- Logout Dialog -->
   <div id="confirm-logout-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">確認登出</div>
@@ -964,7 +588,6 @@
     </div>
   </div>
 
-  <!-- Fullscreen Cover & Lyrics -->
   <div id="lyrics-fullscreen-overlay">
     <div class="lyrics-top-nav">
       <button class="lyrics-close-btn" onclick="LyricsView.close()">
@@ -988,7 +611,6 @@
     </div>
   </div>
 
-  <!-- Input Prompt Modal -->
   <div id="custom-prompt-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;" id="custom-prompt-title">New Playlist</div>
@@ -1018,7 +640,7 @@
         <div class="banner-copy-block">
           <h1 class="banner-headline">Enterprise Lossless Audio Network.</h1>
           <p class="banner-desc">
-            Direct Netease API decoding, localized IndexedDB cache storage, and zero-latency studio FLAC audio streaming.
+            Direct Netease API decoding, fast official CDN streams, and localized IndexedDB persistent cache.
           </p>
         </div>
       </div>
@@ -1034,8 +656,8 @@
             <div class="telemetry-value cyan">IndexedDB</div>
           </div>
           <div class="telemetry-card">
-            <div class="telemetry-label">Audio Stream</div>
-            <div class="telemetry-value amber">Lossless</div>
+            <div class="telemetry-label">Audio Pipeline</div>
+            <div class="telemetry-value amber">Studio FLAC</div>
           </div>
         </div>
 
@@ -1132,6 +754,20 @@
       </nav>
 
       <div class="cockpit-right-account">
+        <!-- 商业音质切换胶囊组件 -->
+        <div class="quality-select-wrapper" title="选择全局播放与下载的音质规格">
+          <span>SPEC:</span>
+          <select id="global-quality-selector" class="quality-dropdown" onchange="MusicAPIEngine.onQualityChanged(this.value)">
+            <option value="standard">Standard 128K</option>
+            <option value="exhigh">ExHigh 320K</option>
+            <option value="lossless" selected>FLAC Lossless</option>
+            <option value="hires">Hi-Res 24-Bit</option>
+            <option value="jymaster">Ultra Master</option>
+            <option value="sky">Immersive Sky</option>
+            <option value="dolby">Dolby Atmos</option>
+          </select>
+        </div>
+
         <div class="badge-quota-pill" onclick="AuthModalController.openModal('redeem')" title="Remaining download quota">
           <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
           <span id="user-quota-label">DL Quota: 0</span>
@@ -1147,7 +783,7 @@
             <div class="hero-title-tag">Global Audio Cloud</div>
             <div class="hero-big-title">Studio-Grade Audio Streaming.</div>
             <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.95rem; max-width: 520px;">
-              Enterprise API integration with offline IndexedDB persistent caching, synced lyrics, and full-length FLAC exports.
+              Direct CDN pipeline for rapid downloading, synced lyrics, and localized IndexedDB caching.
             </p>
           </div>
           
@@ -1293,7 +929,7 @@
   <script>
     const CONFIG = {
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
-      // 此处请替换为你真实的 Render 域名
+      // 此处替换为你真实的 Render 域名
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
@@ -1386,6 +1022,7 @@
             artist: trackObj.artist,
             album: trackObj.album,
             picUrl: trackObj.picUrl,
+            quality: trackObj.quality || 'lossless',
             lyric: trackObj.lyric || '',
             tlyric: trackObj.tlyric || '',
             blob: blob,
@@ -1508,6 +1145,7 @@
       currentUser: null,
       sessionToken: null,
       quotaRemainder: 0,
+      currentQuality: 'lossless',
       flatTrackIndex: [],
       currentPlaylist: [],
       currentTrackPointer: -1,
@@ -1523,6 +1161,11 @@
     };
 
     const MusicAPIEngine = {
+      onQualityChanged(val) {
+        PlaybackState.currentQuality = val;
+        UIToast.show(`Audio format switched to: ${val.toUpperCase()}`, "info");
+      },
+
       async search() {
         const keyword = document.getElementById("api-search-input").value.trim();
         if (!keyword) {
@@ -1534,7 +1177,7 @@
         try {
           const formData = new FormData();
           formData.append("keyword", keyword);
-          formData.append("limit", "25");
+          formData.append("limit", "30");
 
           const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Search`, {
             method: "POST",
@@ -1549,7 +1192,7 @@
               artist: item.artists,
               album: item.album,
               picUrl: item.picUrl,
-              level: 'lossless'
+              level: PlaybackState.currentQuality
             }));
 
             PlaybackState.flatTrackIndex = tracks;
@@ -1563,10 +1206,11 @@
         }
       },
 
-      async resolveSongStream(songId, level = 'lossless') {
+      async resolveSongStream(songId, level = null) {
+        const targetLevel = level || PlaybackState.currentQuality;
         const formData = new FormData();
         formData.append("url", songId);
-        formData.append("level", level);
+        formData.append("level", targetLevel);
         formData.append("type", "json");
 
         const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Song_V1`, {
@@ -1580,8 +1224,11 @@
         throw new Error(json.data ? json.data.msg : "Failed to resolve stream");
       },
 
-      // 下载并持久化保存至 IndexedDB（同时减少 Worker 账户额度）
-      async downloadDirect(songId, quality = 'lossless') {
+      /**
+       * 直连极速下载并存入 IndexedDB
+       * 绕过后端文件转发，直接拉取官方 CDN 直链，解决下载太慢与网络中断问题
+       */
+      async downloadDirect(songId) {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
           return;
@@ -1598,61 +1245,47 @@
           return;
         }
 
-        UIToast.show("Fetching lossless stream & packaging locally...", "info");
+        const quality = PlaybackState.currentQuality;
+        UIToast.show(`Requesting high-speed stream (${quality.toUpperCase()})...`, "info");
 
         try {
-          // 1. 获取音轨及歌词元数据
-          let streamData = null;
-          try {
-            streamData = await MusicAPIEngine.resolveSongStream(songId, quality);
-          } catch(e) {}
+          // 1. 获取包含官方 CDN url 与全套歌词的元数据
+          const streamData = await MusicAPIEngine.resolveSongStream(songId, quality);
+          if (!streamData || !streamData.url) {
+            throw new Error("Unable to obtain official download URL");
+          }
 
-          // 2. 获取实际音频 Blob
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", `${CONFIG.BACKEND_API_BASE}/Download`, true);
-          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-          xhr.responseType = "blob";
+          UIToast.show(`Fetching stream directly from CDN...`, "info");
 
-          xhr.onload = async function () {
-            if (xhr.status === 200) {
-              const blob = xhr.response;
-              const title = streamData ? streamData.name : `Track_${songId}`;
-              const artist = streamData ? streamData.ar_name : "Artist";
-              const album = streamData ? streamData.al_name : "Album";
-              const picUrl = streamData ? streamData.pic : "";
+          // 2. 直接拉取音频 Blob
+          const audioRes = await fetch(streamData.url);
+          if (!audioRes.ok) throw new Error("Audio stream transmission interrupted");
+          const blob = await audioRes.blob();
 
-              const trackRecord = {
-                id: String(songId),
-                title: title,
-                artist: artist,
-                album: album,
-                picUrl: picUrl,
-                lyric: streamData ? streamData.lyric : '',
-                tlyric: streamData ? streamData.tlyric : ''
-              };
-
-              // 存入 IndexedDB
-              await OfflineAudioStore.saveTrackBlob(trackRecord, blob);
-
-              // 扣除配额
-              PlaybackState.quotaRemainder--;
-              localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
-              UIFeedback.updateQuotaVisuals();
-              TrackListView.refreshCurrentView();
-
-              UIToast.show(`Saved "${title}" to offline IndexedDB! (${PlaybackState.quotaRemainder} left)`, "success");
-            } else {
-              UIToast.show("Binary download generation failed", "error");
-            }
+          // 3. 构建本地离线凭据
+          const trackRecord = {
+            id: String(songId),
+            title: streamData.name,
+            artist: streamData.ar_name,
+            album: streamData.al_name,
+            picUrl: streamData.pic,
+            quality: quality,
+            lyric: streamData.lyric,
+            tlyric: streamData.tlyric
           };
 
-          xhr.onerror = function () {
-            UIToast.show("Network transmission error during offline caching", "error");
-          };
+          // 4. 持久化存入 IndexedDB
+          await OfflineAudioStore.saveTrackBlob(trackRecord, blob);
 
-          xhr.send(`id=${encodeURIComponent(songId)}&quality=${encodeURIComponent(quality)}`);
+          // 5. 扣除云端配额
+          PlaybackState.quotaRemainder--;
+          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
+          UIFeedback.updateQuotaVisuals();
+          TrackListView.refreshCurrentView();
+
+          UIToast.show(`Downloaded "${streamData.name}"! (${PlaybackState.quotaRemainder} quota remaining)`, "success");
         } catch (e) {
-          UIToast.show(`Export error: ${e.message}`, "error");
+          UIToast.show(`Download failed: ${e.message}`, "error");
         }
       },
 
@@ -1666,7 +1299,7 @@
 
         UIToast.show(`Resolving audio asset #${songId}...`, "info");
         try {
-          const streamData = await MusicAPIEngine.resolveSongStream(songId);
+          const streamData = await MusicAPIEngine.resolveSongStream(songId, PlaybackState.currentQuality);
           const track = {
             id: String(songId),
             title: streamData.name,
@@ -1791,7 +1424,7 @@
         this.sink.ontimeupdate = this.onTimeUpdate;
         this.sink.onended = this.nextTrack;
         this.sink.onerror = () => {
-          UIToast.show("Audio stream playback encountered a network issue", "error");
+          UIToast.show("Audio stream playback encountered an error", "error");
         };
         MediaSessionController.init();
       },
@@ -1848,17 +1481,17 @@
           const localRecord = await OfflineAudioStore.getTrackRecord(track.id);
 
           if (localRecord && localRecord.blob) {
-            document.getElementById("lbl-now-playing-sub").innerText = "Playing from Offline Edge Store (Local Blob)...";
+            document.getElementById("lbl-now-playing-sub").innerText = `Offline Edge Mode · [${(localRecord.quality || 'LOSSLESS').toUpperCase()}]`;
             this.sink.src = URL.createObjectURL(localRecord.blob);
             MetaParser.parseFullLyrics(localRecord.lyric, localRecord.tlyric);
           } else {
-            // 2. 本地无缓存，走 Render 云端 API 实时解码
+            // 2. 本地无缓存，按照当前选定音质在线解码
             let playUrl = track.resolvedUrl;
             let lyric = track.lyric;
             let tlyric = track.tlyric;
 
-            if (!playUrl) {
-              const streamData = await MusicAPIEngine.resolveSongStream(track.id, 'lossless');
+            if (!playUrl || track.level !== PlaybackState.currentQuality) {
+              const streamData = await MusicAPIEngine.resolveSongStream(track.id, PlaybackState.currentQuality);
               playUrl = streamData.url;
               lyric = streamData.lyric;
               tlyric = streamData.tlyric;
@@ -1866,6 +1499,7 @@
               track.artist = streamData.ar_name || track.artist;
               track.album = streamData.al_name || track.album;
               track.picUrl = streamData.pic || track.picUrl;
+              track.level = PlaybackState.currentQuality;
               PlaybackState.activeCoverUrl = track.picUrl;
               if (track.picUrl) {
                 thumbImg.src = track.picUrl;
@@ -1874,8 +1508,9 @@
               }
             }
 
-            if (!playUrl) throw new Error("Empty audio stream link returned by engine");
+            if (!playUrl) throw new Error("Empty audio stream link returned");
 
+            document.getElementById("lbl-now-playing-sub").innerText = `Live Cloud Stream · [${PlaybackState.currentQuality.toUpperCase()}]`;
             this.sink.src = playUrl;
             MetaParser.parseFullLyrics(lyric, tlyric);
           }
@@ -2190,16 +1825,16 @@
               <span class="track-name-main">${track.title}</span>
               <span class="track-subpath">${track.artist} · ${track.album}</span>
             </div>
-            <div class="track-codec-col">FLAC / LOSSLESS</div>
+            <div class="track-codec-col">${(track.quality || PlaybackState.currentQuality).toUpperCase()}</div>
             <div class="track-cache-col">
               <span class="status-ping ${isCached ? 'cached' : ''}"></span>
-              <span>${isCached ? 'Edge Cached' : 'Remote'}</span>
+              <span>${isCached ? 'Edge Cached' : 'Cloud CDN'}</span>
             </div>
             <div class="track-actions-col">
               <button class="action-icon-hit ${isFav ? 'active-fav' : ''}" onclick="event.stopPropagation(); TrackListView.toggleFav('${encodeURIComponent(JSON.stringify(track))}')">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </button>
-              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')" title="Store in offline DB">
+              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')" title="Direct CDN download to IndexedDB">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               </button>
             </div>
@@ -2223,6 +1858,7 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
+        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
@@ -2299,6 +1935,7 @@
             artist: r.artist,
             album: r.album,
             picUrl: r.picUrl,
+            quality: r.quality,
             lyric: r.lyric,
             tlyric: r.tlyric
           }));
