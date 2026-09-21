@@ -12,6 +12,7 @@
       --bg-surface-elevated: #131924;
       --bg-surface-hover: #1b2332;
       
+      /* 默认普通用户冷光蓝主题 */
       --accent: #2563eb;
       --accent-glow: rgba(37, 99, 235, 0.35);
       --accent-dim: rgba(37, 99, 235, 0.12);
@@ -31,6 +32,47 @@
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --player-dock-height: 84px;
+      --trans-theme: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       PREMIUM 独享奢华黑金主题 (当用户为 isPremium 时动态激活)
+       ========================================================================== */
+    body.is-premium-tier {
+      --accent: #d97706; /* 奢华琥珀金 */
+      --accent-glow: rgba(217, 119, 6, 0.45);
+      --accent-dim: rgba(217, 119, 6, 0.16);
+      --accent-cyan: #fbbf24; /* 金黄色点缀 */
+      --border-elevated: rgba(251, 191, 36, 0.25);
+    }
+
+    body.is-premium-tier::before {
+      background-image: 
+        linear-gradient(to right, rgba(251, 191, 36, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(251, 191, 36, 0.03) 1px, transparent 1px);
+    }
+
+    body.is-premium-tier .brand-cube-icon,
+    body.is-premium-tier .cockpit-logo-node {
+      background: linear-gradient(135deg, #f59e0b, #b45309) !important;
+      box-shadow: 0 0 25px var(--accent-glow) !important;
+    }
+
+    body.is-premium-tier .btn-cloud-action,
+    body.is-premium-tier .control-pill-btn.primary {
+      background: linear-gradient(135deg, #f59e0b, #b45309) !important;
+      box-shadow: 0 4px 20px var(--accent-glow) !important;
+    }
+
+    body.is-premium-tier .dock-progress-fill {
+      background: linear-gradient(90deg, #f59e0b, #fde68a) !important;
+    }
+
+    body.is-premium-tier .liquid-nav-item.active svg {
+      fill: #d97706 !important;
+    }
+    body.is-premium-tier .liquid-nav-item.active span {
+      color: #d97706 !important;
     }
 
     * {
@@ -52,6 +94,7 @@
       overflow: hidden;
       letter-spacing: -0.015em;
       -webkit-font-smoothing: antialiased;
+      transition: var(--trans-theme);
     }
 
     body::before {
@@ -64,6 +107,7 @@
       background-size: 40px 40px;
       pointer-events: none;
       z-index: 0;
+      transition: var(--trans-theme);
     }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -104,6 +148,15 @@
         inset 0 -1px 2px rgba(0, 0, 0, 0.05);
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       max-width: 95vw;
+    }
+
+    body.is-premium-tier .liquid-glass-pill {
+      background: rgba(255, 251, 235, 0.92);
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      box-shadow: 
+        0 12px 36px rgba(0, 0, 0, 0.35),
+        0 0 20px rgba(245, 158, 11, 0.25),
+        inset 0 1.5px 1px #fff;
     }
 
     .liquid-nav-item {
@@ -156,7 +209,8 @@
     .liquid-divider { width: 1px; height: 24px; background: rgba(0, 0, 0, 0.08); margin: 0 4px; }
     .liquid-quality-box { display: flex; align-items: center; background: rgba(0, 0, 0, 0.05); border-radius: 12px; padding: 4px 8px; }
     .liquid-quality-select { background: transparent; border: none; color: #1e293b; font-size: 11px; font-weight: 700; font-family: var(--font-mono); outline: none; cursor: pointer; }
-    .liquid-user-btn { width: 30px; height: 30px; border-radius: 50%; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 4px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
+    .liquid-user-btn { width: 30px; height: 30px; border-radius: 50%; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 4px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); transition: background 0.3s; }
+    body.is-premium-tier .liquid-user-btn { background: linear-gradient(135deg, #f59e0b, #b45309); color: #fff; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
 
     /* AUTHENTICATION PORTAL */
     #fullscreen-auth-stage {
@@ -207,7 +261,7 @@
       color: var(--accent);
       padding: 3px 8px;
       background: var(--accent-dim);
-      border: 1px solid rgba(37, 99, 235, 0.3);
+      border: 1px solid var(--border-elevated);
       border-radius: 6px;
       letter-spacing: 1px;
     }
@@ -230,7 +284,7 @@
     .telemetry-value { font-size: 1.25rem; font-weight: 700; font-family: var(--font-mono); color: #fff; margin-top: 6px; display: flex; align-items: center; gap: 6px; }
     .telemetry-value.green { color: var(--accent-emerald); }
     .telemetry-value.cyan { color: var(--accent-cyan); }
-    .telemetry-value.amber { color: var(--accent); }
+    .telemetry-value.amber { color: #f59e0b; }
 
     .banner-footer-security { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-muted); }
     .security-status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); box-shadow: 0 0 10px var(--accent-emerald); }
@@ -321,7 +375,7 @@
 
     .hero-summary-deck { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; }
     .hero-panel-card {
-      background: radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08) 0%, transparent 60%), rgba(13, 17, 24, 0.7);
+      background: radial-gradient(circle at 10% 10%, var(--accent-dim) 0%, transparent 60%), rgba(13, 17, 24, 0.7);
       border: 1px solid var(--border-subtle);
       border-radius: 20px;
       padding: 32px;
@@ -404,7 +458,7 @@
       cursor: pointer;
     }
     .track-row-node:hover { background: rgba(22, 28, 40, 0.8); }
-    .track-row-node.current-playing { background: linear-gradient(90deg, rgba(37, 99, 235, 0.12) 0%, rgba(13, 17, 24, 0.6) 100%); border-color: var(--accent); }
+    .track-row-node.current-playing { background: linear-gradient(90deg, var(--accent-dim) 0%, rgba(13, 17, 24, 0.6) 100%); border-color: var(--accent); }
     .track-idx-col { font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .track-idx-col svg { width: 18px; height: 18px; fill: var(--accent); display: none; }
     .track-row-node.current-playing .track-idx-col span { display: none; }
@@ -414,7 +468,7 @@
     .track-row-node.current-playing .track-name-main { color: var(--accent); font-weight: 700; }
     .track-subpath { font-size: 0.74rem; font-family: var(--font-mono); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
 
-    .track-codec-col { font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan); background: rgba(0, 210, 255, 0.08); padding: 3px 8px; border-radius: 6px; width: fit-content; }
+    .track-codec-col { font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan); background: var(--accent-dim); padding: 3px 8px; border-radius: 6px; width: fit-content; }
     .track-cache-col { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
     .status-ping { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
     .status-ping.cached { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
@@ -483,7 +537,6 @@
     .lyrics-cover-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
     .lyrics-album-art { width: 360px; height: 360px; max-width: 75vw; max-height: 75vw; border-radius: 20px; object-fit: cover; }
     
-    /* 歌手点击交互胶囊 */
     .lyrics-interactive-artist {
       display: inline-flex;
       align-items: center;
@@ -499,8 +552,8 @@
       transition: all 0.2s ease;
     }
     .lyrics-interactive-artist:hover {
-      background: rgba(0, 210, 255, 0.15);
-      border-color: var(--accent-cyan);
+      background: var(--accent-dim);
+      border-color: var(--accent);
       transform: translateY(-2px);
     }
     .lyrics-interactive-artist svg { width: 14px; height: 14px; fill: currentColor; }
@@ -641,9 +694,9 @@
         <select id="global-quality-selector" class="liquid-quality-select" onchange="MusicAPIEngine.onQualityChanged(this.value)">
           <option value="standard">128K</option>
           <option value="exhigh">320K</option>
-          <option value="lossless" selected>FLAC</option>
-          <option value="hires">Hi-Res</option>
-          <option value="jymaster">Master</option>
+          <option value="lossless" selected>FLAC ★</option>
+          <option value="hires">Hi-Res ★</option>
+          <option value="jymaster">Master ★</option>
         </select>
       </div>
 
@@ -664,7 +717,7 @@
     </div>
   </div>
 
-  <!-- 对话框与歌词大屏浮窗 -->
+  <!-- 登出确认对话框 -->
   <div id="confirm-logout-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">確認登出</div>
@@ -678,6 +731,7 @@
     </div>
   </div>
 
+  <!-- 全屏歌词大屏浮窗 -->
   <div id="lyrics-fullscreen-overlay">
     <div class="lyrics-top-nav">
       <button class="lyrics-close-btn" onclick="LyricsView.close()">
@@ -691,9 +745,8 @@
         <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23141a24'><rect width='100' height='100'/></svg>" alt="Album Art" />
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
           <h2 style="font-size: 1.4rem; color: #fff;" id="lyrics-modal-title">Track Title</h2>
-          <!-- 核心交互：点击触发全量歌手曲目检索 -->
           <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="点击检索该歌手的所有曲目">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <span id="lyrics-modal-artist">Artist</span>
           </div>
         </div>
@@ -727,7 +780,7 @@
           </div>
           <div>
             <span class="banner-brand-title">JRmusic Cloud</span>
-            <span class="banner-brand-sub">EDGE PIPELINE</span>
+            <span class="banner-brand-sub" id="auth-tier-badge">STANDARD PIPELINE</span>
           </div>
         </div>
 
@@ -750,8 +803,8 @@
             <div class="telemetry-value cyan">IndexedDB</div>
           </div>
           <div class="telemetry-card">
-            <div class="telemetry-label">Audio Pipeline</div>
-            <div class="telemetry-value amber">Studio FLAC</div>
+            <div class="telemetry-label">Audio Tier</div>
+            <div class="telemetry-value amber" id="telemetry-tier-label">FLAC Lossless</div>
           </div>
         </div>
 
@@ -802,7 +855,7 @@
             <div class="field-group">
               <label class="field-label">Activation License Key</label>
               <div class="field-input-box">
-                <input type="text" class="cloud-input" id="auth-input-license" placeholder="e.g. VIP-2026-X" />
+                <input type="text" class="cloud-input" id="auth-input-license" placeholder="e.g. VIP-PREMIUM-2026" />
                 <svg viewBox="0 0 24 24"><path d="M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2zM20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16z"/></svg>
               </div>
             </div>
@@ -824,7 +877,7 @@
       <section class="hero-summary-deck" id="section-start-listening">
         <div class="hero-panel-card">
           <div>
-            <div class="hero-title-tag">Global Audio Cloud</div>
+            <div class="hero-title-tag" id="cockpit-tier-label">Global Audio Cloud · Standard Tier</div>
             <div class="hero-big-title">Studio-Grade Audio Streaming.</div>
             <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.95rem; max-width: 520px;">
               Direct CDN pipeline for rapid downloading, synced lyrics, and localized IndexedDB caching.
@@ -858,8 +911,8 @@
             <span class="stats-digit" id="user-display-name" style="font-size: 1.3rem;">Not Signed In</span>
           </div>
           <div class="stats-row-metric">
-            <span class="stats-label">Offline Local Stored</span>
-            <span class="stats-digit" id="offline-counter-label" style="color: var(--accent-emerald);">0 cached</span>
+            <span class="stats-label">Membership Status</span>
+            <span class="stats-digit" id="user-tier-label" style="font-size: 1.25rem;">Standard</span>
           </div>
           <div class="stats-row-metric">
             <span class="stats-label">Download Quota Balance</span>
@@ -973,11 +1026,12 @@
   <script>
     const CONFIG = {
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
-      // 请替换为你真实的 Render 域名
-      BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
+      BACKEND_API_BASE: "https://your-service-name.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
-      DB_VERSION: 2
+      DB_VERSION: 2,
+      // 需要 Premium 权限的音质
+      PREMIUM_QUALITIES: ['lossless', 'hires', 'jymaster', 'sky', 'dolby']
     };
 
     const UIToast = {
@@ -992,7 +1046,7 @@
         } else if (type === 'error') {
           iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4757"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
         } else {
-          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#00d2ff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`;
+          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`;
         }
 
         toast.innerHTML = `${iconSvg}<div style="flex:1;">${message}</div>`;
@@ -1033,9 +1087,6 @@
       }
     };
 
-    /**
-     * 多歌手智能选择处理器
-     */
     const ArtistPicker = {
       show(artistList) {
         const container = document.getElementById("artist-chip-container");
@@ -1061,9 +1112,6 @@
       }
     };
 
-    /**
-     * IndexedDB 本地持久化离线引擎
-     */
     const OfflineAudioStore = {
       db: null,
 
@@ -1103,7 +1151,6 @@
           store.put(record);
           tx.oncomplete = () => {
             PlaybackState.offlineCacheCatalog.add(String(trackObj.id));
-            OfflineAudioStore.updateCounterUI();
             resolve();
           };
           tx.onerror = (err) => reject(err);
@@ -1134,13 +1181,6 @@
         const records = await OfflineAudioStore.getAllCachedRecords();
         PlaybackState.offlineCacheCatalog.clear();
         records.forEach(r => PlaybackState.offlineCacheCatalog.add(String(r.id)));
-        OfflineAudioStore.updateCounterUI();
-      },
-
-      updateCounterUI() {
-        const count = PlaybackState.offlineCacheCatalog.size;
-        const lbl = document.getElementById("offline-counter-label");
-        if (lbl) lbl.innerText = `${count} cached`;
       }
     };
 
@@ -1234,8 +1274,17 @@
 
     const MusicAPIEngine = {
       onQualityChanged(val) {
+        // 校验音质是否需要 Premium 权限
+        if (CONFIG.PREMIUM_QUALITIES.includes(val) && (!PlaybackState.currentUser || !PlaybackState.currentUser.isPremium)) {
+          UIToast.show(`[${val.toUpperCase()}] 为 Premium 独享音质！请先兑换会员码。`, "error");
+          document.getElementById("global-quality-selector").value = 'exhigh';
+          PlaybackState.currentQuality = 'exhigh';
+          AuthModalController.openModal('redeem');
+          return;
+        }
+
         PlaybackState.currentQuality = val;
-        UIToast.show(`Audio format switched to: ${val.toUpperCase()}`, "info");
+        UIToast.show(`已切换目标音质: ${val.toUpperCase()}`, "info");
       },
 
       async search() {
@@ -1317,13 +1366,21 @@
           return;
         }
 
+        const quality = PlaybackState.currentQuality;
+
+        // 音质权限二次检查
+        if (CONFIG.PREMIUM_QUALITIES.includes(quality) && !PlaybackState.currentUser.isPremium) {
+          UIToast.show(`下载 [${quality.toUpperCase()}] 需 Premium 会员！`, "error");
+          AuthModalController.openModal('redeem');
+          return;
+        }
+
         if (PlaybackState.quotaRemainder <= 0) {
           UIToast.show("Download quota depleted! Please redeem an activation license.", "error");
           AuthModalController.openModal('redeem');
           return;
         }
 
-        const quality = PlaybackState.currentQuality;
         UIToast.show(`Requesting high-speed stream (${quality.toUpperCase()})...`, "info");
 
         try {
@@ -1419,11 +1476,9 @@
         document.getElementById("lyrics-fullscreen-overlay").classList.remove("is-open");
       },
 
-      // 大屏歌手点击响应逻辑
       onArtistClicked() {
         if (!AudioEngine.currentTrack || !AudioEngine.currentTrack.artist) return;
         const rawArtist = AudioEngine.currentTrack.artist;
-        // 拆分多歌手常用标点：/, 、 , & 空格
         const artists = rawArtist.split(/[\/、,&]/).map(s => s.trim()).filter(Boolean);
 
         if (artists.length <= 1) {
@@ -1540,6 +1595,13 @@
       async loadAndPlay(track) {
         if (!PlaybackState.currentUser) {
           AuthModalController.openModal('login');
+          return;
+        }
+
+        // 音质权限拦截
+        if (CONFIG.PREMIUM_QUALITIES.includes(PlaybackState.currentQuality) && !PlaybackState.currentUser.isPremium) {
+          UIToast.show(`当前音质 [${PlaybackState.currentQuality.toUpperCase()}] 为 Premium 独享，请兑换会员码。`, "error");
+          AuthModalController.openModal('redeem');
           return;
         }
 
@@ -1776,8 +1838,8 @@
           tabRedeem.classList.add("active");
           creds.style.display = "none";
           redeem.style.display = "flex";
-          title.innerText = "Redeem Activation License";
-          desc.innerText = "Enter your license token to increase direct download quota.";
+          title.innerText = "Redeem Premium License";
+          desc.innerText = "输入管理员发放的卡密，即刻激活全音质 Premium 权益及离线配额。";
         }
       },
 
@@ -1838,14 +1900,24 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.message || "Redemption failed.");
 
-          const addedDownloads = data.grantedQuota || 50;
+          const addedDownloads = data.grantedQuota || 0;
           PlaybackState.quotaRemainder += addedDownloads;
-          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
-          UIFeedback.updateQuotaVisuals();
+          if (data.isPremium) {
+            PlaybackState.currentUser.isPremium = true;
+          }
 
-          AuthModalController.showMessage(`License Verified: +${addedDownloads} downloads granted.`, false);
-          UIToast.show(`License Verified! +${addedDownloads} download quota added.`, 'success');
+          localStorage.setItem("jrmusic_session", JSON.stringify(PlaybackState.currentUser));
+          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
+
+          UIFeedback.updateUserVisuals();
+
+          AuthModalController.showMessage(data.message || "激活成功！", false);
+          UIToast.show(data.isPremium ? "👑 尊贵 Premium 会员已生效！" : `成功增加 ${addedDownloads} 下载配额`, 'success');
           document.getElementById("auth-input-license").value = "";
+
+          setTimeout(() => {
+            AuthModalController.closeModal();
+          }, 800);
         } catch (err) {
           AuthModalController.showMessage(err.message, true);
           UIToast.show(err.message, 'error');
@@ -1944,7 +2016,6 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
-        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
@@ -2035,11 +2106,27 @@
 
     const UIFeedback = {
       updateQuotaVisuals() {
-        document.getElementById("user-quota-label").innerText = `DL Quota: ${PlaybackState.quotaRemainder}`;
         document.getElementById("header-quota-badge").innerText = PlaybackState.quotaRemainder;
       },
 
       updateUserVisuals() {
+        const isPrem = !!(PlaybackState.currentUser && PlaybackState.currentUser.isPremium);
+
+        // 核心：动态激活黑金主题
+        if (isPrem) {
+          document.body.classList.add("is-premium-tier");
+          document.getElementById("user-tier-label").innerHTML = `<span style="color:#f59e0b;">👑 Premium VIP</span>`;
+          document.getElementById("cockpit-tier-label").innerText = "Global Audio Cloud · 👑 Premium Lossless Tier";
+          document.getElementById("auth-tier-badge").innerText = "PREMIUM PIPELINE";
+          document.getElementById("telemetry-tier-label").innerText = "24-Bit Master Hi-Res";
+        } else {
+          document.body.classList.remove("is-premium-tier");
+          document.getElementById("user-tier-label").innerText = "Standard Member";
+          document.getElementById("cockpit-tier-label").innerText = "Global Audio Cloud · Standard Tier";
+          document.getElementById("auth-tier-badge").innerText = "STANDARD PIPELINE";
+          document.getElementById("telemetry-tier-label").innerText = "Standard MP3";
+        }
+
         if (PlaybackState.currentUser) {
           const name = PlaybackState.currentUser.username;
           document.getElementById("user-display-name").innerText = name;
@@ -2049,7 +2136,6 @@
           document.getElementById("user-avatar-initial").innerText = "?";
         }
         UIFeedback.updateQuotaVisuals();
-        OfflineAudioStore.updateCounterUI();
       }
     };
 
