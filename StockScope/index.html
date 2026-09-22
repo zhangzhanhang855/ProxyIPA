@@ -42,7 +42,7 @@
       --accent: #d97706; /* 奢华琥珀金 */
       --accent-glow: rgba(217, 119, 6, 0.45);
       --accent-dim: rgba(217, 119, 6, 0.16);
-      --accent-cyan: #fbbf24; /* 金黄色点缀 */
+      --accent-cyan: #fbbf24;
       --border-elevated: rgba(251, 191, 36, 0.25);
     }
 
@@ -746,7 +746,7 @@
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
           <h2 style="font-size: 1.4rem; color: #fff;" id="lyrics-modal-title">Track Title</h2>
           <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="点击检索该歌手的所有曲目">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <span id="lyrics-modal-artist">Artist</span>
           </div>
         </div>
@@ -1030,7 +1030,6 @@
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
       DB_VERSION: 2,
-      // 需要 Premium 权限的音质
       PREMIUM_QUALITIES: ['lossless', 'hires', 'jymaster', 'sky', 'dolby']
     };
 
@@ -1274,7 +1273,6 @@
 
     const MusicAPIEngine = {
       onQualityChanged(val) {
-        // 校验音质是否需要 Premium 权限
         if (CONFIG.PREMIUM_QUALITIES.includes(val) && (!PlaybackState.currentUser || !PlaybackState.currentUser.isPremium)) {
           UIToast.show(`[${val.toUpperCase()}] 为 Premium 独享音质！请先兑换会员码。`, "error");
           document.getElementById("global-quality-selector").value = 'exhigh';
@@ -1368,7 +1366,6 @@
 
         const quality = PlaybackState.currentQuality;
 
-        // 音质权限二次检查
         if (CONFIG.PREMIUM_QUALITIES.includes(quality) && !PlaybackState.currentUser.isPremium) {
           UIToast.show(`下载 [${quality.toUpperCase()}] 需 Premium 会员！`, "error");
           AuthModalController.openModal('redeem');
@@ -1598,7 +1595,6 @@
           return;
         }
 
-        // 音质权限拦截
         if (CONFIG.PREMIUM_QUALITIES.includes(PlaybackState.currentQuality) && !PlaybackState.currentUser.isPremium) {
           UIToast.show(`当前音质 [${PlaybackState.currentQuality.toUpperCase()}] 为 Premium 独享，请兑换会员码。`, "error");
           AuthModalController.openModal('redeem');
@@ -1750,6 +1746,11 @@
       }
     };
 
+    /**
+     * =========================================================================
+     * AUTH MODAL CONTROLLER - 修复 WebKit 登录拦截与网络中断
+     * =========================================================================
+     */
     const AuthModalController = {
       currentTab: 'login',
 
@@ -1849,6 +1850,7 @@
         el.innerText = msg;
       },
 
+      // 修复核心：安全发包（添加容错与详细错误提示）
       async handlePrimaryAuth() {
         const username = document.getElementById("auth-input-user").value.trim();
         const password = document.getElementById("auth-input-pass").value.trim();
@@ -1857,15 +1859,31 @@
           return;
         }
 
-        const endpoint = AuthModalController.currentTab === 'login' ? '/api/login' : '/api/register';
+        const isLogin = AuthModalController.currentTab === 'login';
+        const endpoint = isLogin ? '/api/login' : '/api/register';
+
+        AuthModalController.showMessage("正在连接认证网关...", false);
+
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000); // 12秒超时
+
           const res = await fetch(`${CONFIG.WORKER_API_BASE}${endpoint}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password }),
+            signal: controller.signal
           });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Authentication rejected");
+
+          clearTimeout(timeoutId);
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.message || `认证被拒绝 (HTTP ${res.status})`);
+          }
 
           AuthModalController.setSession(data.user);
           AuthModalController.showMessage("Identity authorized. Connecting to workspace...", false);
@@ -1875,8 +1893,15 @@
             AuthModalController.closeModal();
           }, 600);
         } catch (err) {
-          AuthModalController.showMessage(err.message, true);
-          UIToast.show(err.message, 'error');
+          console.error("Auth Exception:", err);
+          let errorMsg = err.message;
+          if (err.name === 'AbortError') {
+            errorMsg = "连接超时，请检查后端网关或网络状态";
+          } else if (errorMsg.includes("Load failed") || errorMsg.includes("Failed to fetch")) {
+            errorMsg = "网络连接失败 (Worker 离线或跨域阻断)";
+          }
+          AuthModalController.showMessage(errorMsg, true);
+          UIToast.show(errorMsg, 'error');
         }
       },
 
@@ -1891,13 +1916,25 @@
           return;
         }
 
+        AuthModalController.showMessage("正在验证卡密有效性...", false);
+
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
+
           const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/redeem`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: PlaybackState.currentUser.username, code })
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: PlaybackState.currentUser.username, code }),
+            signal: controller.signal
           });
-          const data = await res.json();
+
+          clearTimeout(timeoutId);
+
+          const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.message || "Redemption failed.");
 
           const addedDownloads = data.grantedQuota || 0;
@@ -1919,8 +1956,15 @@
             AuthModalController.closeModal();
           }, 800);
         } catch (err) {
-          AuthModalController.showMessage(err.message, true);
-          UIToast.show(err.message, 'error');
+          console.error("Redeem Exception:", err);
+          let errorMsg = err.message;
+          if (err.name === 'AbortError') {
+            errorMsg = "连接超时，请重试";
+          } else if (errorMsg.includes("Load failed") || errorMsg.includes("Failed to fetch")) {
+            errorMsg = "兑换请求被中断 (网络异常)";
+          }
+          AuthModalController.showMessage(errorMsg, true);
+          UIToast.show(errorMsg, 'error');
         }
       },
 
@@ -2016,6 +2060,7 @@
           PlaybackState.favorites.push(track);
           UIToast.show(`Added "${track.title}" to favorites`, "success");
         }
+        document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length} songs`;
         TrackListView.syncUserData();
         TrackListView.refreshCurrentView();
       },
@@ -2112,7 +2157,6 @@
       updateUserVisuals() {
         const isPrem = !!(PlaybackState.currentUser && PlaybackState.currentUser.isPremium);
 
-        // 核心：动态激活黑金主题
         if (isPrem) {
           document.body.classList.add("is-premium-tier");
           document.getElementById("user-tier-label").innerHTML = `<span style="color:#f59e0b;">👑 Premium VIP</span>`;
