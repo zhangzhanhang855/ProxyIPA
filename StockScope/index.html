@@ -3,97 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>JRmusic Cloud · Enterprise Lossless Audio Infrastructure</title>
+  <title>JRmusic Cloud · Enterprise High-Fidelity Audio Operating System</title>
 
-  <!-- Typography & Icons -->
+  <!-- Google Typography Stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM CORE & DESIGN TOKENS
+       SECTION 01: CSS CUSTOM PROPERTIES & DESIGN TOKENS
        ========================================================================== */
     :root {
-      /* Studio Dark Archetype */
-      --bg-deep: #030712;
-      --bg-base: #080d1a;
-      --bg-surface: #0f172a;
-      --bg-surface-elevated: #1e293b;
-      --bg-surface-hover: #334155;
-      --bg-glass: rgba(15, 23, 42, 0.75);
-      --bg-glass-card: rgba(30, 41, 59, 0.55);
+      /* Archetype Background Layers */
+      --bg-void: #030508;
+      --bg-base: #06090e;
+      --bg-surface: #0a0f16;
+      --bg-surface-elevated: #101722;
+      --bg-surface-hover: #182232;
+      --bg-surface-active: #1f2c40;
+      --bg-glass: rgba(10, 15, 22, 0.78);
+      --bg-glass-card: rgba(16, 23, 34, 0.65);
+      --bg-glass-dock: rgba(6, 9, 14, 0.88);
+      --bg-glass-overlay: rgba(3, 5, 8, 0.94);
 
-      /* Accent Standard (Cobalt Electric & Cyan Glow) */
+      /* Structural Micro-borders */
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-medium: rgba(255, 255, 255, 0.12);
+      --border-elevated: rgba(255, 255, 255, 0.18);
+      --border-accent: rgba(59, 130, 246, 0.45);
+      --border-accent-strong: rgba(59, 130, 246, 0.8);
+
+      /* Core Color Palette: Deep Space Blue & Cyan */
       --accent: #3b82f6;
       --accent-hover: #2563eb;
-      --accent-glow: rgba(59, 130, 246, 0.45);
+      --accent-light: #60a5fa;
+      --accent-glow: rgba(59, 130, 246, 0.4);
       --accent-dim: rgba(59, 130, 246, 0.12);
-      --accent-cyan: #06b6d4;
-      --accent-cyan-glow: rgba(6, 182, 212, 0.35);
-      --accent-emerald: #10b981;
-      --accent-emerald-glow: rgba(16, 185, 129, 0.35);
-      --accent-rose: #f43f5e;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.35);
+      --cyan-dim: rgba(6, 182, 212, 0.12);
+      
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.35);
+      --emerald-dim: rgba(16, 185, 129, 0.12);
+
+      --rose: #f43f5e;
+      --rose-glow: rgba(244, 63, 94, 0.35);
+      --rose-dim: rgba(244, 63, 94, 0.12);
+
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      --amber-dim: rgba(245, 158, 11, 0.12);
 
       /* Typography Tokens */
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
+      --text-pure: #ffffff;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
       --text-dark: #0f172a;
 
-      /* Border Architecture */
-      --border-subtle: rgba(255, 255, 255, 0.07);
-      --border-elevated: rgba(255, 255, 255, 0.14);
-      --border-accent: rgba(59, 130, 246, 0.35);
+      --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-interface: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', "SF Mono", Consolas, Menlo, monospace;
 
-      /* Typography Stacks */
-      --font-stack: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-
-      /* Geometry & Spacing */
+      /* Spatial Metrics */
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --sidebar-width: 260px;
-      --player-dock-height: 94px;
+      --sidebar-width: 280px;
+      --dock-height: 96px;
+      --radius-xs: 4px;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 22px;
+      --radius-xl: 32px;
       --radius-full: 9999px;
 
-      /* Transition Physics */
-      --trans-spring: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      --trans-quick: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      /* Animation Physics */
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-out: cubic-bezier(0, 0, 0.2, 1);
     }
 
-    /* ==========================================================================
-       VIP PREMIUM LUXURY THEME (DYNAMIC ACTIVE)
-       ========================================================================== */
+    /* VIP Gold Luxury Mode Active Overrides */
     body.is-premium-tier {
       --accent: #f59e0b;
       --accent-hover: #d97706;
+      --accent-light: #fbbf24;
       --accent-glow: rgba(245, 158, 11, 0.5);
       --accent-dim: rgba(245, 158, 11, 0.15);
-      --accent-cyan: #fbbf24;
-      --accent-cyan-glow: rgba(251, 191, 36, 0.4);
+      --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
       --border-accent: rgba(245, 158, 11, 0.45);
-      --border-elevated: rgba(251, 191, 36, 0.3);
-    }
-
-    body.is-premium-tier .premium-gradient-fill {
-      background: linear-gradient(135deg, #fbbf24, #d97706) !important;
-      color: #000 !important;
-    }
-
-    body.is-premium-tier .brand-glow-halo {
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%) !important;
-    }
-
-    body.is-premium-tier .spectrum-bar {
-      background: linear-gradient(180deg, #fde68a, #f59e0b) !important;
+      --border-accent-strong: rgba(245, 158, 11, 0.85);
+      --cyan: #fbbf24;
+      --cyan-glow: rgba(251, 191, 36, 0.35);
     }
 
     /* ==========================================================================
-       BASE & RESET
+       SECTION 02: RESET & CORE BASE APPARATUS
        ========================================================================== */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -103,92 +112,87 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
       -webkit-tap-highlight-color: transparent;
+      outline: none;
     }
 
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: var(--bg-deep);
-      color: var(--text-primary);
-      font-family: var(--font-stack);
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-interface);
+      font-size: 14px;
+      line-height: 1.5;
       letter-spacing: -0.015em;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Background Studio Noise & Light Beams */
+    /* Spatial Holographic Ambience */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background: 
-        radial-gradient(ellipse at 15% 0%, rgba(59, 130, 246, 0.12), transparent 50%),
-        radial-gradient(ellipse at 85% 100%, rgba(6, 182, 212, 0.08), transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(15, 23, 42, 0.6), transparent 100%);
+        radial-gradient(circle at 10% 0%, var(--accent-glow) 0%, transparent 45%),
+        radial-gradient(circle at 90% 100%, var(--cyan-glow) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 50%, rgba(10, 15, 22, 0.7) 0%, transparent 100%);
       pointer-events: none;
       z-index: 0;
-      transition: var(--trans-spring);
+      transition: background 0.8s var(--ease-smooth);
     }
 
-    body.is-premium-tier::before {
-      background: 
-        radial-gradient(ellipse at 20% 0%, rgba(245, 158, 11, 0.15), transparent 55%),
-        radial-gradient(ellipse at 80% 100%, rgba(217, 119, 6, 0.1), transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(15, 23, 42, 0.7), transparent 100%);
-    }
-
-    /* Architectural Geometric Grid Pattern */
-    .app-ambient-grid {
+    /* Architectural Studio Mesh Grid */
+    .app-lattice-grid {
       position: fixed;
       inset: 0;
       background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 48px 48px;
+        linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
       z-index: 1;
     }
 
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    /* Studio Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: var(--radius-full); }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
     /* ==========================================================================
-       TOP NOTIFICATION TOAST NOTIFIER
+       SECTION 03: HUD NOTIFICATION & TELEMETRY TOAST SYSTEM
        ========================================================================== */
     #ui-toast-container {
       position: fixed;
-      top: max(var(--safe-top), 20px);
-      right: 24px;
+      top: max(var(--safe-top), 24px);
+      right: 28px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       z-index: 99999;
       pointer-events: none;
     }
 
     .ui-toast {
       pointer-events: auto;
-      min-width: 320px;
-      max-width: 440px;
-      padding: 14px 18px;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid var(--border-elevated);
+      min-width: 340px;
+      max-width: 460px;
+      padding: 16px 20px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border: 1px solid var(--border-medium);
       border-radius: var(--radius-md);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       gap: 14px;
-      color: #fff;
       font-size: 0.88rem;
       font-weight: 500;
-      animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      transition: var(--trans-quick);
+      color: #fff;
+      animation: toastIn 0.35s var(--ease-spring) forwards;
       position: relative;
       overflow: hidden;
     }
@@ -203,9 +207,9 @@
       background: var(--accent);
       box-shadow: 0 0 12px var(--accent);
     }
-    .ui-toast.success::before { background: var(--accent-emerald); box-shadow: 0 0 12px var(--accent-emerald); }
-    .ui-toast.error::before { background: var(--accent-rose); box-shadow: 0 0 12px var(--accent-rose); }
-    .ui-toast.info::before { background: var(--accent-cyan); box-shadow: 0 0 12px var(--accent-cyan); }
+    .ui-toast.success::before { background: var(--emerald); box-shadow: 0 0 12px var(--emerald); }
+    .ui-toast.error::before { background: var(--rose); box-shadow: 0 0 12px var(--rose); }
+    .ui-toast.info::before { background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
 
     @keyframes toastIn {
       from { opacity: 0; transform: translateY(-16px) scale(0.96); }
@@ -213,12 +217,12 @@
     }
     .toast-fade-out {
       opacity: 0 !important;
-      transform: translateY(-12px) scale(0.95) !important;
-      transition: all 0.25s ease !important;
+      transform: translateY(-10px) scale(0.96) !important;
+      transition: all 0.25s var(--ease-smooth) !important;
     }
 
     /* ==========================================================================
-       APP WORKSPACE LAYOUT (SIDEBAR + CONSOLE MAIN + DOCK)
+       SECTION 04: WORKSPACE SHELL (SIDEBAR + MAIN COCKPIT)
        ========================================================================== */
     #workspace-container {
       position: relative;
@@ -229,72 +233,79 @@
       overflow: hidden;
     }
 
-    /* Glass Studio Sidebar */
+    /* Left Console Studio Sidebar */
     aside.studio-sidebar {
       width: var(--sidebar-width);
       height: 100%;
-      background: rgba(10, 15, 26, 0.85);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
+      background: rgba(6, 9, 14, 0.85);
+      backdrop-filter: blur(36px);
+      -webkit-backdrop-filter: blur(36px);
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: calc(var(--safe-top) + 24px) 18px calc(var(--player-dock-height) + var(--safe-bottom) + 16px) 18px;
+      padding: calc(var(--safe-top) + 24px) 18px calc(var(--dock-height) + var(--safe-bottom) + 16px) 18px;
       z-index: 30;
-      transition: var(--trans-spring);
+      transition: var(--ease-spring);
     }
 
     .sidebar-brand-block {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       padding: 6px 10px 24px 10px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
     .brand-cube-badge {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-md);
-      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      background: var(--accent-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 24px var(--accent-glow);
+      box-shadow: 0 0 28px var(--accent-glow);
       position: relative;
       flex-shrink: 0;
     }
     .brand-cube-badge svg { width: 22px; height: 22px; fill: #fff; }
 
     .brand-text-block { display: flex; flex-direction: column; }
-    .brand-main-title { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.2; }
+    .brand-main-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #fff;
+      line-height: 1.15;
+    }
     .brand-sub-badge {
       font-size: 0.65rem;
       font-family: var(--font-mono);
       font-weight: 700;
       color: var(--accent);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       margin-top: 2px;
     }
 
-    /* Navigation Menu */
+    /* Navigation Sections */
     .sidebar-menu-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-top: 24px;
+      margin-top: 22px;
     }
 
     .menu-group-label {
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 6px 12px;
+      letter-spacing: 0.12em;
+      padding: 8px 12px;
     }
 
     .liquid-nav-item {
@@ -303,40 +314,42 @@
       gap: 14px;
       padding: 12px 14px;
       border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--trans-quick);
+      transition: all 0.2s var(--ease-smooth);
       position: relative;
+      border: 1px solid transparent;
     }
 
     .liquid-nav-item svg {
-      width: 20px;
-      height: 20px;
+      width: 19px;
+      height: 19px;
       fill: currentColor;
-      transition: var(--trans-quick);
+      transition: transform 0.2s ease;
     }
 
     .liquid-nav-item:hover {
       color: #fff;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-subtle);
     }
 
     .liquid-nav-item.active {
       color: #fff;
       background: var(--accent-dim);
-      border: 1px solid var(--border-accent);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      border-color: var(--border-accent);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
     }
     .liquid-nav-item.active svg {
       fill: var(--accent);
       transform: scale(1.08);
     }
 
-    /* Sidebar Footer Account Card */
+    /* Account / License User Tile */
     .sidebar-user-card {
-      background: var(--bg-glass-card);
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 12px 14px;
@@ -344,32 +357,32 @@
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
-      transition: var(--trans-quick);
+      transition: all 0.2s var(--ease-smooth);
     }
     .sidebar-user-card:hover {
-      background: var(--bg-surface-elevated);
-      border-color: var(--border-elevated);
+      border-color: var(--border-medium);
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
     .user-card-profile { display: flex; align-items: center; gap: 12px; overflow: hidden; }
     .liquid-user-btn {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: var(--bg-surface-elevated);
-      border: 1.5px solid var(--border-elevated);
+      border: 1.5px solid var(--border-medium);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: #fff;
       flex-shrink: 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     body.is-premium-tier .liquid-user-btn {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
+      background: linear-gradient(135deg, #fbbf24, #d97706);
       color: #000;
       border-color: #fde68a;
       box-shadow: 0 0 16px var(--accent-glow);
@@ -377,9 +390,9 @@
 
     .user-card-info { display: flex; flex-direction: column; overflow: hidden; }
     .user-card-name { font-size: 0.88rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-card-role { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); }
+    .user-card-role { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-dim); }
 
-    /* Studio Main Workstation Pane */
+    /* Main Console Body Viewport */
     main.studio-main-body {
       flex: 1;
       height: 100%;
@@ -389,7 +402,7 @@
       position: relative;
     }
 
-    /* Top Studio Operational Bar */
+    /* Top Studio Operational Action Bar */
     header.studio-action-bar {
       height: calc(var(--safe-top) + 68px);
       padding-top: var(--safe-top);
@@ -399,15 +412,16 @@
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      background: rgba(8, 13, 26, 0.7);
-      backdrop-filter: blur(20px);
+      background: rgba(6, 9, 14, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border-bottom: 1px solid var(--border-subtle);
       z-index: 25;
     }
 
     .search-dock-module {
       flex: 1;
-      max-width: 580px;
+      max-width: 620px;
       position: relative;
       display: flex;
       align-items: center;
@@ -417,27 +431,27 @@
       left: 16px;
       width: 18px;
       height: 18px;
-      fill: var(--text-muted);
+      fill: var(--text-dim);
       pointer-events: none;
-      transition: var(--trans-quick);
+      transition: fill 0.2s ease;
     }
 
     .cloud-input {
       width: 100%;
-      background: rgba(15, 23, 42, 0.85);
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-full);
       padding: 12px 18px 12px 46px;
       color: #fff;
-      font-family: var(--font-stack);
-      font-size: 0.9rem;
+      font-family: var(--font-interface);
+      font-size: 0.88rem;
       font-weight: 500;
       outline: none;
-      transition: var(--trans-quick);
+      transition: all 0.2s var(--ease-smooth);
     }
     .cloud-input:focus {
       border-color: var(--accent);
-      background: rgba(15, 23, 42, 0.98);
+      background: var(--bg-surface-elevated);
       box-shadow: 0 0 0 4px var(--accent-dim);
     }
     .cloud-input:focus + svg { fill: var(--accent); }
@@ -447,7 +461,7 @@
       right: 6px;
       top: 6px;
       bottom: 6px;
-      padding: 0 16px;
+      padding: 0 18px;
       border-radius: var(--radius-full);
       background: var(--accent);
       color: #fff;
@@ -458,9 +472,12 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
-    .search-quick-btn:hover { background: var(--accent-hover); box-shadow: 0 0 14px var(--accent-glow); }
+    .search-quick-btn:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
 
     .action-bar-right-controls {
       display: flex;
@@ -468,21 +485,21 @@
       gap: 16px;
     }
 
-    /* Quality Badge Module */
+    /* Quality Codec Selector Widget */
     .quality-spec-badge {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 6px 14px;
       background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-elevated);
+      border: 1px solid var(--border-medium);
       border-radius: var(--radius-full);
     }
     .quality-spec-badge label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--accent-cyan);
+      color: var(--cyan);
       text-transform: uppercase;
     }
     .liquid-quality-select {
@@ -490,28 +507,28 @@
       border: none;
       color: #fff;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       outline: none;
       cursor: pointer;
     }
     .liquid-quality-select option {
-      background: #0f172a;
+      background: #0a0f16;
       color: #fff;
     }
 
-    /* Master Scrollable Canvas */
+    /* Master Scrollable Canvas Area */
     .cockpit-body-scroll {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 32px 36px calc(var(--player-dock-height) + var(--safe-bottom) + 36px) 36px;
+      padding: 32px 36px calc(var(--dock-height) + var(--safe-bottom) + 36px) 36px;
       display: flex;
       flex-direction: column;
       gap: 36px;
     }
 
-    /* Hero Studio Telemetry Deck */
+    /* Hero Studio Telemetry Dashboard */
     .hero-summary-deck {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -520,15 +537,15 @@
 
     .hero-panel-card {
       position: relative;
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+      background: linear-gradient(135deg, rgba(16, 23, 34, 0.85) 0%, rgba(10, 15, 22, 0.95) 100%);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 32px;
+      padding: 34px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
     }
     .hero-panel-card::after {
       content: '';
@@ -542,7 +559,7 @@
     }
 
     .hero-title-tag {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-family: var(--font-mono);
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -550,61 +567,62 @@
       color: var(--accent);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .hero-title-tag::before {
       content: '';
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--accent);
       box-shadow: 0 0 10px var(--accent);
     }
 
     .hero-big-title {
-      font-size: 2.1rem;
+      font-family: var(--font-display);
+      font-size: 2.2rem;
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.15;
       color: #fff;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.04em;
       margin-top: 10px;
     }
 
     .hero-desc {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
+      font-size: 0.94rem;
+      color: var(--text-muted);
       line-height: 1.6;
-      max-width: 600px;
-      margin-top: 10px;
+      max-width: 620px;
+      margin-top: 12px;
     }
 
     .hero-status-pills {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 26px;
+      margin-top: 28px;
       flex-wrap: wrap;
     }
 
     .control-pill-btn {
       padding: 10px 20px;
       border-radius: var(--radius-full);
-      font-size: 0.85rem;
-      font-weight: 700;
-      border: 1px solid var(--border-elevated);
-      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--border-medium);
+      background: rgba(255, 255, 255, 0.04);
       color: #fff;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      font-family: var(--font-stack);
-      transition: var(--trans-quick);
+      font-family: var(--font-interface);
+      transition: all 0.2s var(--ease-smooth);
       backdrop-filter: blur(12px);
     }
     .control-pill-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
       transform: translateY(-2px);
     }
     .control-pill-btn.primary {
@@ -624,7 +642,7 @@
 
     /* Telemetry Diagnostics Grid */
     .hero-stats-card {
-      background: rgba(15, 23, 42, 0.7);
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 26px;
@@ -632,7 +650,7 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
     }
 
     .stats-row-metric {
@@ -648,15 +666,15 @@
     }
 
     .stats-label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
     }
     .stats-digit {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 800;
       font-family: var(--font-mono);
       color: #fff;
@@ -665,7 +683,7 @@
       gap: 8px;
     }
 
-    /* Section Component Layout */
+    /* Section Hierarchy */
     .cockpit-section-block {
       display: flex;
       flex-direction: column;
@@ -676,11 +694,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 8px;
+      padding-bottom: 4px;
     }
 
     .section-title-label {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #fff;
@@ -691,7 +709,7 @@
     .section-title-label::before {
       content: '';
       width: 4px;
-      height: 20px;
+      height: 18px;
       background: var(--accent);
       border-radius: 99px;
       box-shadow: 0 0 12px var(--accent);
@@ -712,30 +730,30 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: var(--trans-spring);
+      transition: all 0.3s var(--ease-spring);
       position: relative;
       overflow: hidden;
     }
     .cockpit-card:hover {
       background: var(--bg-surface-elevated);
-      border-color: var(--border-elevated);
+      border-color: var(--border-medium);
       transform: translateY(-4px);
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
     }
 
     .cockpit-card-icon {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
-      transition: var(--trans-quick);
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
     }
-    .cockpit-card-icon svg { width: 22px; height: 22px; fill: var(--text-secondary); transition: var(--trans-quick); }
+    .cockpit-card-icon svg { width: 22px; height: 22px; fill: var(--text-muted); transition: all 0.2s ease; }
 
     .cockpit-card:hover .cockpit-card-icon {
       background: var(--accent-dim);
@@ -747,10 +765,10 @@
       background: rgba(244, 63, 94, 0.12);
       border-color: rgba(244, 63, 94, 0.25);
     }
-    .cockpit-card.fav-theme .cockpit-card-icon svg { fill: var(--accent-rose); }
+    .cockpit-card.fav-theme .cockpit-card-icon svg { fill: var(--rose); }
 
     .cockpit-card-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #fff;
       overflow: hidden;
@@ -759,7 +777,7 @@
     }
     .cockpit-card-subtitle {
       font-size: 0.78rem;
-      color: var(--text-muted);
+      color: var(--text-dim);
       margin-top: 4px;
     }
 
@@ -774,20 +792,20 @@
       display: grid;
       grid-template-columns: 46px 1fr 130px 140px 110px;
       align-items: center;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border-radius: var(--radius-md);
-      background: rgba(15, 23, 42, 0.45);
+      background: rgba(16, 23, 34, 0.4);
       border: 1px solid var(--border-subtle);
       cursor: pointer;
-      transition: var(--trans-quick);
+      transition: all 0.2s var(--ease-smooth);
     }
     .track-row-node:hover {
-      background: rgba(30, 41, 59, 0.75);
-      border-color: var(--border-elevated);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-medium);
       transform: translateX(4px);
     }
     .track-row-node.current-playing {
-      background: linear-gradient(90deg, var(--accent-dim) 0%, rgba(30, 41, 59, 0.8) 100%);
+      background: linear-gradient(90deg, var(--accent-dim) 0%, rgba(16, 23, 34, 0.8) 100%);
       border-color: var(--accent);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
@@ -796,12 +814,11 @@
       font-size: 0.82rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--text-dim);
       display: flex;
       align-items: center;
-      justify-content: center;
     }
-    .track-idx-col svg { width: 18px; height: 18px; fill: var(--accent); display: none; }
+    .track-idx-col svg { width: 16px; height: 16px; fill: var(--accent); display: none; }
     .track-row-node.current-playing .track-idx-col span { display: none; }
     .track-row-node.current-playing .track-idx-col svg { display: block; }
 
@@ -812,7 +829,7 @@
       padding-right: 18px;
     }
     .track-name-main {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 700;
       color: #fff;
       overflow: hidden;
@@ -821,8 +838,8 @@
     }
     .track-row-node.current-playing .track-name-main { color: var(--accent); }
     .track-subpath {
-      font-size: 0.75rem;
-      color: var(--text-muted);
+      font-size: 0.74rem;
+      color: var(--text-dim);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -830,11 +847,11 @@
     }
 
     .track-codec-col {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: var(--accent-cyan);
-      background: rgba(6, 182, 212, 0.1);
+      color: var(--cyan);
+      background: var(--cyan-dim);
       border: 1px solid rgba(6, 182, 212, 0.25);
       padding: 3px 10px;
       border-radius: var(--radius-full);
@@ -843,22 +860,22 @@
     }
 
     .track-cache-col {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-family: var(--font-mono);
-      color: var(--text-secondary);
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .status-ping {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--text-muted);
+      background: var(--text-dim);
     }
     .status-ping.cached {
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
     }
 
     .track-actions-col {
@@ -870,76 +887,76 @@
     .action-icon-hit {
       background: transparent;
       border: none;
-      color: var(--text-muted);
+      color: var(--text-dim);
       cursor: pointer;
       padding: 6px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
     .action-icon-hit:hover {
       color: #fff;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
     }
     .action-icon-hit.active-fav {
-      color: var(--accent-rose);
+      color: var(--rose);
     }
-    .action-icon-hit svg { width: 18px; height: 18px; fill: currentColor; }
+    .action-icon-hit svg { width: 17px; height: 17px; fill: currentColor; }
 
     /* ==========================================================================
-       BOTTOM STUDIO MASTER DOCK (INTEGRATED MEDIA CONTROLS)
+       SECTION 05: INTEGRATED BOTTOM MASTER AUDIO DOCK
        ========================================================================== */
     footer.bottom-cockpit-dock {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: calc(var(--player-dock-height) + var(--safe-bottom));
+      height: calc(var(--dock-height) + var(--safe-bottom));
       padding-bottom: var(--safe-bottom);
-      padding-left: 32px;
-      padding-right: 32px;
-      background: rgba(8, 13, 26, 0.88);
-      backdrop-filter: blur(32px) saturate(200%);
-      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      padding-left: 28px;
+      padding-right: 28px;
+      background: var(--bg-glass-dock);
+      backdrop-filter: blur(36px) saturate(200%);
+      -webkit-backdrop-filter: blur(36px) saturate(200%);
       border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
       z-index: 100;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.65);
     }
 
     .dock-meta-unit {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       width: 28%;
       overflow: hidden;
       cursor: pointer;
     }
 
     .dock-cover-thumb {
-      width: 56px;
-      height: 56px;
+      width: 54px;
+      height: 54px;
       border-radius: var(--radius-md);
       background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-elevated);
+      border: 1px solid var(--border-medium);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       position: relative;
     }
     .dock-cover-thumb img { width: 100%; height: 100%; object-fit: cover; display: none; }
-    .dock-cover-thumb svg { width: 26px; height: 26px; fill: var(--text-muted); }
+    .dock-cover-thumb svg { width: 24px; height: 24px; fill: var(--text-dim); }
 
     .dock-text-meta { display: flex; flex-direction: column; overflow: hidden; }
     .dock-track-title {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 700;
       color: #fff;
       overflow: hidden;
@@ -947,7 +964,7 @@
       white-space: nowrap;
     }
     .dock-track-sub {
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       color: var(--accent);
       font-family: var(--font-mono);
       overflow: hidden;
@@ -956,7 +973,7 @@
       margin-top: 2px;
     }
 
-    /* Center Controls Module */
+    /* Center Control Module */
     .dock-controls-unit {
       display: flex;
       flex-direction: column;
@@ -969,12 +986,12 @@
     .dock-buttons-row {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 22px;
     }
 
     .circle-play-trigger {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: #fff;
       color: #000;
@@ -984,13 +1001,13 @@
       justify-content: center;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
-      transition: var(--trans-quick);
+      transition: all 0.2s var(--ease-smooth);
     }
     .circle-play-trigger:hover {
       transform: scale(1.08);
       box-shadow: 0 6px 26px rgba(255, 255, 255, 0.5);
     }
-    .circle-play-trigger svg { width: 22px; height: 22px; fill: currentColor; }
+    .circle-play-trigger svg { width: 20px; height: 20px; fill: currentColor; }
 
     body.is-premium-tier .circle-play-trigger {
       background: linear-gradient(135deg, #fbbf24, #d97706);
@@ -1001,29 +1018,28 @@
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
     .dock-time-stamp {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-family: var(--font-mono);
-      color: var(--text-muted);
-      width: 42px;
+      color: var(--text-dim);
+      width: 40px;
       text-align: center;
     }
 
     .dock-progress-rail {
       flex: 1;
-      height: 5px;
+      height: 4px;
       border-radius: 99px;
       background: rgba(255, 255, 255, 0.1);
       position: relative;
       cursor: pointer;
-      overflow: hidden;
     }
-    .dock-progress-rail:hover { height: 7px; }
+    .dock-progress-rail:hover { height: 6px; }
     .dock-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
       border-radius: 99px;
       width: 0%;
       transition: width 0.1s linear;
@@ -1042,7 +1058,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      width: 130px;
+      width: 120px;
     }
 
     input[type="range"].dock-slider {
@@ -1058,25 +1074,24 @@
     input[type="range"].dock-slider::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: #fff;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-      transition: var(--trans-quick);
+      transition: transform 0.2s ease;
     }
     input[type="range"].dock-slider::-webkit-slider-thumb:hover {
       transform: scale(1.25);
     }
 
-    /* Simulated Spectrum Visualizer Widget */
+    /* Live Spectrum Visualizer Widget */
     .studio-live-spectrum {
       display: flex;
       align-items: flex-end;
       gap: 3px;
-      height: 22px;
-      padding-right: 6px;
+      height: 18px;
     }
     .spectrum-bar {
       width: 3px;
@@ -1087,12 +1102,12 @@
     }
 
     /* ==========================================================================
-       SPOTLIGHT LYRICS & FULLSCREEN IMMERSIVE STAGE
+       SECTION 06: FULLSCREEN SPOTLIGHT STAGE & LYRICS OVERLAY
        ========================================================================== */
     #lyrics-fullscreen-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 0.99) 100%);
+      background: radial-gradient(circle at center, #0e1522 0%, #030508 100%);
       backdrop-filter: blur(48px);
       -webkit-backdrop-filter: blur(48px);
       z-index: 2000;
@@ -1107,20 +1122,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
+      height: 52px;
     }
     .lyrics-close-btn {
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-elevated);
+      border: 1px solid var(--border-medium);
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
       cursor: pointer;
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
     .lyrics-close-btn:hover {
       background: rgba(255, 255, 255, 0.18);
@@ -1130,7 +1145,7 @@
     .lyrics-body-grid {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 1.4fr;
+      grid-template-columns: 1fr 1.3fr;
       gap: 60px;
       align-items: center;
       overflow: hidden;
@@ -1144,40 +1159,40 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 28px;
+      gap: 24px;
     }
     .lyrics-album-art {
-      width: 380px;
-      height: 380px;
+      width: 360px;
+      height: 360px;
       max-width: 75vw;
       max-height: 75vw;
       border-radius: var(--radius-lg);
       object-fit: cover;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-      border: 1px solid var(--border-elevated);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--border-medium);
     }
 
     .lyrics-interactive-artist {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 18px;
+      padding: 6px 16px;
       margin-top: 10px;
       border-radius: var(--radius-full);
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
-      color: var(--accent-cyan);
-      font-size: 0.95rem;
+      color: var(--cyan);
+      font-size: 0.92rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
     .lyrics-interactive-artist:hover {
       background: var(--accent-dim);
       border-color: var(--accent);
       transform: translateY(-2px);
     }
-    .lyrics-interactive-artist svg { width: 16px; height: 16px; fill: currentColor; }
+    .lyrics-interactive-artist svg { width: 15px; height: 15px; fill: currentColor; }
 
     .lyrics-single-spotlight-col {
       height: 100%;
@@ -1191,27 +1206,27 @@
     }
 
     .spotlight-lyric-text {
-      font-size: 2.6rem;
+      font-size: 2.5rem;
       font-weight: 800;
       line-height: 1.4;
       color: #ffffff;
-      text-shadow: 0 0 40px var(--accent-glow);
-      transition: var(--trans-spring);
+      text-shadow: 0 0 35px var(--accent-glow);
+      transition: var(--ease-spring);
       max-width: 90%;
     }
     .spotlight-lyric-text.animating {
       opacity: 0.15;
-      transform: scale(0.95) translateY(10px);
+      transform: scale(0.96) translateY(8px);
     }
 
     .spotlight-source-badge {
       position: absolute;
       bottom: 24px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-family: var(--font-mono);
       font-weight: 700;
       letter-spacing: 0.12em;
-      color: var(--text-muted);
+      color: var(--text-dim);
       padding: 6px 16px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-subtle);
@@ -1219,18 +1234,18 @@
     }
 
     /* ==========================================================================
-       MODALS & AUTH STAGES
+       SECTION 07: AUTHENTICATION STAGE & WORKSPACE PORTAL
        ========================================================================== */
     #fullscreen-auth-stage {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: var(--bg-deep);
+      background: var(--bg-void);
       display: flex;
       overflow: hidden;
       opacity: 1;
       visibility: visible;
-      transition: var(--trans-spring);
+      transition: var(--ease-spring);
     }
     #fullscreen-auth-stage.stage-hidden {
       opacity: 0;
@@ -1241,9 +1256,9 @@
     .auth-banner-pane {
       flex: 1.1;
       background: 
-        radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
         radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
-        #070a13;
+        #06080d;
       border-right: 1px solid var(--border-subtle);
       padding: calc(var(--safe-top) + 60px) 70px 60px 70px;
       display: flex;
@@ -1253,9 +1268,15 @@
     }
 
     .banner-brand-row { display: flex; align-items: center; gap: 14px; }
-    .banner-brand-title { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .banner-brand-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+    }
     .banner-brand-sub {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       font-family: var(--font-mono);
       color: var(--accent);
@@ -1267,22 +1288,21 @@
     }
 
     .banner-copy-block {
-      max-width: 560px;
+      max-width: 540px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
       margin: 40px 0;
     }
     .banner-headline {
+      font-family: var(--font-display);
       font-size: 3.2rem;
       font-weight: 800;
       line-height: 1.1;
       letter-spacing: -0.04em;
-      background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #fff;
     }
-    .banner-desc { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6; }
+    .banner-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.6; }
 
     .telemetry-grid {
       display: grid;
@@ -1291,25 +1311,25 @@
       margin-top: 10px;
     }
     .telemetry-card {
-      background: rgba(30, 41, 59, 0.4);
+      background: rgba(16, 23, 34, 0.5);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
       backdrop-filter: blur(10px);
     }
-    .telemetry-label { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; }
-    .telemetry-value { font-size: 1.25rem; font-weight: 800; font-family: var(--font-mono); color: #fff; margin-top: 6px; }
-    .telemetry-value.green { color: var(--accent-emerald); }
-    .telemetry-value.cyan { color: var(--accent-cyan); }
+    .telemetry-label { font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-dim); text-transform: uppercase; }
+    .telemetry-value { font-size: 1.2rem; font-weight: 800; font-family: var(--font-mono); color: #fff; margin-top: 6px; }
+    .telemetry-value.green { color: var(--emerald); }
+    .telemetry-value.cyan { color: var(--cyan); }
     .telemetry-value.amber { color: var(--accent); }
 
-    .banner-footer-security { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-muted); }
-    .security-status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); box-shadow: 0 0 10px var(--accent-emerald); }
+    .banner-footer-security { display: flex; align-items: center; gap: 12px; font-size: 0.78rem; color: var(--text-dim); }
+    .security-status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
 
     /* Auth Interaction Pane */
     .auth-interaction-pane {
       flex: 0.9;
-      background: #090d18;
+      background: #080c14;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -1323,15 +1343,15 @@
       max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 26px;
     }
-    .console-header { display: flex; flex-direction: column; gap: 8px; }
-    .console-title { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; }
-    .console-subtitle { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+    .console-header { display: flex; flex-direction: column; gap: 6px; }
+    .console-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; }
+    .console-subtitle { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
 
     .auth-segmented-switch {
       display: flex;
-      background: #111726;
+      background: #0f1522;
       padding: 4px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
@@ -1339,36 +1359,36 @@
     .auth-segmented-tab {
       flex: 1;
       padding: 10px 0;
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text-dim);
       border: none;
       background: transparent;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      font-family: var(--font-stack);
-      transition: var(--trans-quick);
+      font-family: var(--font-interface);
+      transition: all 0.2s ease;
     }
     .auth-segmented-tab.active {
       background: var(--bg-surface-elevated);
       color: #fff;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border-elevated);
+      border: 1px solid var(--border-medium);
     }
 
-    .auth-fields-block { display: flex; flex-direction: column; gap: 18px; }
-    .field-group { display: flex; flex-direction: column; gap: 8px; }
-    .field-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); }
+    .auth-fields-block { display: flex; flex-direction: column; gap: 16px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); }
     .field-input-box { position: relative; display: flex; align-items: center; }
-    .field-input-box svg { position: absolute; left: 16px; width: 18px; height: 18px; fill: var(--text-muted); }
+    .field-input-box svg { position: absolute; left: 16px; width: 18px; height: 18px; fill: var(--text-dim); }
 
     .btn-cloud-action {
-      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      background: var(--accent-gradient);
       color: #fff;
       border: none;
       padding: 14px;
       border-radius: var(--radius-md);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -1376,22 +1396,22 @@
       justify-content: center;
       gap: 8px;
       box-shadow: 0 4px 20px var(--accent-glow);
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
     .btn-cloud-action:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 26px var(--accent-glow);
     }
 
-    .cloud-auth-feedback { min-height: 20px; font-size: 0.82rem; font-family: var(--font-mono); text-align: center; }
-    .cloud-auth-feedback.error { color: var(--accent-rose); }
-    .cloud-auth-feedback.success { color: var(--accent-emerald); }
+    .cloud-auth-feedback { min-height: 20px; font-size: 0.8rem; font-family: var(--font-mono); text-align: center; }
+    .cloud-auth-feedback.error { color: var(--rose); }
+    .cloud-auth-feedback.success { color: var(--emerald); }
 
     /* Generic Dialog Modals */
     #custom-prompt-modal, #confirm-logout-modal, #artist-picker-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.82);
+      background: rgba(0, 0, 0, 0.84);
       backdrop-filter: blur(20px);
       display: none;
       align-items: center;
@@ -1408,8 +1428,8 @@
     }
 
     .prompt-box-dialog, .artist-picker-card {
-      background: #0f172a;
-      border: 1px solid var(--border-elevated);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
       border-radius: var(--radius-lg);
       width: 100%;
       max-width: 420px;
@@ -1431,7 +1451,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: var(--trans-quick);
+      transition: all 0.2s ease;
     }
     .artist-select-chip:hover {
       background: var(--accent-dim);
@@ -1441,12 +1461,12 @@
     }
 
     /* ==========================================================================
-       RESPONSIVE MATRIX
+       SECTION 08: RESPONSIVE MATRIX
        ========================================================================== */
     @media (max-width: 1024px) {
       .hero-summary-deck { grid-template-columns: 1fr; }
       .lyrics-body-grid { grid-template-columns: 1fr; gap: 30px; }
-      .lyrics-album-art { width: 220px; height: 220px; }
+      .lyrics-album-art { width: 240px; height: 240px; }
       .spotlight-lyric-text { font-size: 1.8rem; }
     }
 
@@ -1455,7 +1475,7 @@
         position: fixed;
         left: -100%;
         width: 280px;
-        transition: var(--trans-spring);
+        transition: var(--ease-spring);
       }
       aside.studio-sidebar.mobile-open {
         left: 0;
@@ -1473,13 +1493,13 @@
 </head>
 <body>
 
-  <!-- Ambient Digital Lattice -->
-  <div class="app-ambient-grid"></div>
+  <!-- Ambient Digital Lattice Background -->
+  <div class="app-lattice-grid"></div>
 
-  <!-- Realtime Notification Hub -->
+  <!-- Realtime Telemetry Notification Hub -->
   <div id="ui-toast-container"></div>
 
-  <!-- STUDIO WORKSPACE -->
+  <!-- STUDIO WORKSPACE LAYOUT -->
   <div id="workspace-container">
     
     <!-- LEFT EXPANDED STUDIO SIDEBAR -->
@@ -1498,31 +1518,31 @@
         <nav class="sidebar-menu-list">
           <div class="menu-group-label">Routing Console</div>
 
-          <!-- 控制台 -->
+          <!-- Console Master Route -->
           <div class="liquid-nav-item active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
             <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
             <span>Console Master</span>
           </div>
 
-          <!-- 资源 / 曲库 -->
+          <!-- Network Library Route -->
           <div class="liquid-nav-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
             <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
             <span>Network Library</span>
           </div>
 
-          <!-- 歌单 -->
+          <!-- Playlists Vault Route -->
           <div class="liquid-nav-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             <span>Playlists Vault</span>
           </div>
 
-          <!-- 下载 -->
+          <!-- Offline Edge Store Route -->
           <div class="liquid-nav-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
             <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
             <span>Offline Edge</span>
           </div>
 
-          <!-- 设置 -->
+          <!-- User Configuration Route -->
           <div class="liquid-nav-item" onclick="AuthModalController.handleAvatarClick()">
             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             <span>Account Prefs</span>
@@ -1530,7 +1550,7 @@
         </nav>
       </div>
 
-      <!-- Account Profile Tile -->
+      <!-- Account Profile Status Tile -->
       <div class="sidebar-user-card" onclick="AuthModalController.handleAvatarClick()" title="Manage Session">
         <div class="user-card-profile">
           <div class="liquid-user-btn" id="user-avatar-initial">?</div>
@@ -1539,7 +1559,7 @@
             <span class="user-card-role" id="user-tier-label">Standard</span>
           </div>
         </div>
-        <svg width="16" height="16" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        <svg width="16" height="16" fill="var(--text-dim)" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
       </div>
     </aside>
 
@@ -1585,20 +1605,19 @@
 
             <div class="hero-status-pills">
               <button class="control-pill-btn" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent-rose)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--rose)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 <span>Favorite Vault (<span id="fav-counter-label">0</span>)</span>
               </button>
               <button class="control-pill-btn" onclick="AppNavigation.switchStage('offlines')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent-emerald)"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--emerald)"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                 <span>Offline Edge Vault</span>
               </button>
               <button class="control-pill-btn" onclick="MusicAPIEngine.promptDirectParse()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
                 <span>Direct ID Parse</span>
               </button>
-              <!-- 快捷歌单解析入口 -->
               <button class="control-pill-btn" onclick="MusicAPIEngine.promptPlaylistParse()" title="输入网易云音乐歌单链接或ID解析全部歌曲">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent-cyan)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--cyan)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
                 <span>歌单解析</span>
               </button>
             </div>
@@ -1607,7 +1626,7 @@
           <div class="hero-stats-card">
             <div class="stats-row-metric">
               <span class="stats-label">Active Connection</span>
-              <span class="stats-digit" id="telemetry-tier-label" style="font-size: 1.15rem; color: var(--accent-cyan);">24-Bit FLAC Lossless</span>
+              <span class="stats-digit" id="telemetry-tier-label" style="font-size: 1.15rem; color: var(--cyan);">24-Bit FLAC Lossless</span>
             </div>
             <div class="stats-row-metric">
               <span class="stats-label">Download Quota Balance</span>
@@ -1615,7 +1634,7 @@
             </div>
             <div class="stats-row-metric">
               <span class="stats-label">Worker Edge Nodes</span>
-              <span class="stats-digit" style="color: var(--accent-emerald);">280+ POPs Active</span>
+              <span class="stats-digit" style="color: var(--emerald);">280+ POPs Active</span>
             </div>
           </div>
         </section>
@@ -1667,7 +1686,7 @@
             <div class="section-title-label" id="listing-heading">Discovered Tracks</div>
           </div>
           <div class="stream-pipeline-table" id="track-items-container">
-            <div style="padding: 40px; color: var(--text-muted); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">
+            <div style="padding: 40px; color: var(--text-dim); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">
               Enter a track query in the studio console above to initialize stream pipeline.
             </div>
           </div>
@@ -1727,7 +1746,7 @@
           <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </button>
         <div class="dock-vol-wrap">
-          <svg width="18" height="18" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <svg width="18" height="18" fill="var(--text-dim)" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
           <input type="range" class="dock-slider" id="vol-range" min="0" max="1" step="0.01" value="0.8" oninput="AudioEngine.setVolume(this.value)" />
         </div>
       </div>
@@ -1743,7 +1762,7 @@
       <button class="lyrics-close-btn" onclick="LyricsView.close()" title="Close Stage">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
-      <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono);" id="lyrics-nav-song-name">Lyrics Stage</div>
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);" id="lyrics-nav-song-name">Lyrics Stage</div>
       <div style="width: 44px;"></div>
     </div>
     
@@ -1770,7 +1789,7 @@
   <div id="artist-picker-modal">
     <div class="artist-picker-card">
       <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">选择歌手检索</div>
-      <div style="font-size: 0.88rem; color: var(--text-secondary);">该曲目包含多位参演艺术家，请选择需要检索的歌手：</div>
+      <div style="font-size: 0.88rem; color: var(--text-muted);">该曲目包含多位参演艺术家，请选择需要检索的歌手：</div>
       <div id="artist-chip-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
       <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
         <button class="control-pill-btn" onclick="ArtistPicker.close()">取消</button>
@@ -1782,7 +1801,7 @@
   <div id="confirm-logout-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">確認登出</div>
-      <div style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+      <div style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6;">
         是否確認登出當前帳戶？登出後將立即停止所有音樂播放並返回登入界面。
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
@@ -1796,7 +1815,7 @@
   <div id="custom-prompt-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.3rem; font-weight: 800; color: #fff;" id="custom-prompt-title">New Playlist</div>
-      <div style="font-size: 0.9rem; color: var(--text-secondary);" id="custom-prompt-desc">Enter a title for your collection:</div>
+      <div style="font-size: 0.9rem; color: var(--text-muted);" id="custom-prompt-desc">Enter a title for your collection:</div>
       <input type="text" class="cloud-input" id="custom-prompt-input" style="padding-left: 18px;" />
       <div style="display: flex; justify-content: flex-end; gap: 12px;">
         <button class="control-pill-btn" onclick="CustomPrompt.cancel()">Cancel</button>
@@ -1907,9 +1926,12 @@
   </div>
 
   <!-- ==========================================================================
-       JAVASCRIPT LOGIC ENGINE
-       ========================================================================== -->
+       SECTION 09: JAVASCRIPT LOGIC ENGINE
+       ========================================================================== */ -->
   <script>
+    /**
+     * Master Config Specifications
+     */
     const CONFIG = {
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
@@ -1919,6 +1941,9 @@
       PREMIUM_QUALITIES: ['lossless', 'hires', 'jymaster', 'sky', 'dolby']
     };
 
+    /**
+     * Notification Engine (UIToast)
+     */
     const UIToast = {
       show(message, type = 'info', duration = 3200) {
         const container = document.getElementById("ui-toast-container");
@@ -1946,6 +1971,9 @@
       }
     };
 
+    /**
+     * Custom Asynchronous Prompt Modal
+     */
     const CustomPrompt = {
       resolver: null,
       show(title, desc, defaultVal = '') {
@@ -1972,6 +2000,9 @@
       }
     };
 
+    /**
+     * Multi-Artist Routing Module
+     */
     const ArtistPicker = {
       show(artistList) {
         const container = document.getElementById("artist-chip-container");
@@ -1997,6 +2028,9 @@
       }
     };
 
+    /**
+     * IndexedDB Edge Persistence Driver
+     */
     const OfflineAudioStore = {
       db: null,
 
@@ -2069,6 +2103,9 @@
       }
     };
 
+    /**
+     * LRC Synced Lyric Parser & Transformer
+     */
     const MetaParser = {
       lrctrim(lyrics) {
         if (!lyrics) return [];
@@ -2138,6 +2175,9 @@
       }
     };
 
+    /**
+     * Master State Management
+     */
     const PlaybackState = {
       currentUser: null,
       sessionToken: null,
@@ -2157,6 +2197,9 @@
       activeCoverUrl: null
     };
 
+    /**
+     * Network API Interface (Netease Reverse Engine)
+     */
     const MusicAPIEngine = {
       onQualityChanged(val) {
         if (CONFIG.PREMIUM_QUALITIES.includes(val) && (!PlaybackState.currentUser || !PlaybackState.currentUser.isPremium)) {
@@ -2331,9 +2374,6 @@
         }
       },
 
-      /**
-       * 新增：用户输入网易云音乐歌单链接或 ID 并解析
-       */
       async promptPlaylistParse() {
         const inputStr = await CustomPrompt.show(
           "歌单链接解析",
@@ -2343,7 +2383,6 @@
         if (!inputStr) return;
 
         let playlistId = inputStr.trim();
-        // 自动正则提取 URL 中的 ID
         const match = playlistId.match(/[?&]id=(\d+)/) || playlistId.match(/\/playlist\/(\d+)/) || playlistId.match(/(\d+)/);
         if (match) {
           playlistId = match[1];
@@ -2360,8 +2399,6 @@
       async resolvePlaylist(playlistId) {
         UIToast.show(`正在请求歌单 #${playlistId} 数据...`, "info");
         try {
-          // 根据后端文档支持 POST /playlist 或兼容大小写 /Playlist
-          // 多数后端支持 JSON 或 Form 传递
           let res = await fetch(`${CONFIG.BACKEND_API_BASE}/playlist`, {
             method: "POST",
             headers: {
@@ -2370,7 +2407,6 @@
             body: JSON.stringify({ id: playlistId })
           }).catch(() => null);
 
-          // 备用兼容：若后端严格要求 FormData / 大写路由
           if (!res || !res.ok) {
             const formData = new FormData();
             formData.append("id", playlistId);
@@ -2414,6 +2450,9 @@
       }
     };
 
+    /**
+     * Spotlight Lyrics Stage Controller
+     */
     const LyricsView = {
       open() {
         if (!AudioEngine.currentTrack) {
@@ -2486,6 +2525,9 @@
       }
     };
 
+    /**
+     * System Hardware MediaSession Controller
+     */
     const MediaSessionController = {
       init() {
         if ('mediaSession' in navigator) {
@@ -2524,6 +2566,9 @@
       }
     };
 
+    /**
+     * Master Audio Pipeline Engine
+     */
     const AudioEngine = {
       sink: document.getElementById("core-audio-sink"),
       currentTrack: null,
@@ -2715,9 +2760,7 @@
     };
 
     /**
-     * =========================================================================
-     * AUTH MODAL CONTROLLER
-     * =========================================================================
+     * Authentication & Session Controller (Cloudflare Worker D1 Gateway)
      */
     const AuthModalController = {
       currentTab: 'login',
@@ -2967,6 +3010,9 @@
       }
     };
 
+    /**
+     * Table Pipeline Presentation Layer
+     */
     const TrackListView = {
       renderList(title, trackArray) {
         document.getElementById("listing-heading").innerText = title;
@@ -2974,7 +3020,7 @@
         container.innerHTML = "";
 
         if (!trackArray || trackArray.length === 0) {
-          container.innerHTML = `<div style="padding: 40px; color: var(--text-muted); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">No tracks found in this view.</div>`;
+          container.innerHTML = `<div style="padding: 40px; color: var(--text-dim); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">No tracks found in this view.</div>`;
           return;
         }
 
@@ -3061,6 +3107,9 @@
       }
     };
 
+    /**
+     * Playlists Custom Collection Module
+     */
     const CustomPlaylistsModule = {
       inspectPlaylist(index) {
         const pl = PlaybackState.customPlaylists[index];
@@ -3083,6 +3132,9 @@
       }
     };
 
+    /**
+     * Route & View Switching Manager
+     */
     const AppNavigation = {
       async switchStage(target) {
         document.querySelectorAll(".liquid-nav-item").forEach(el => el.classList.remove("active"));
@@ -3116,6 +3168,9 @@
       }
     };
 
+    /**
+     * Realtime UI Dynamic Feedback Synchronization
+     */
     const UIFeedback = {
       updateQuotaVisuals() {
         document.getElementById("header-quota-badge").innerText = PlaybackState.quotaRemainder;
@@ -3150,7 +3205,7 @@
       }
     };
 
-    // Spectrum Animation Loop
+    // Live Visualizer Spectrum Animation Loop
     setInterval(() => {
       const bars = document.querySelectorAll("#live-spectrum-box .spectrum-bar");
       const isPlaying = AudioEngine.sink && !AudioEngine.sink.paused;
@@ -3164,6 +3219,7 @@
       });
     }, 150);
 
+    // Boot Orchestrator
     window.addEventListener("DOMContentLoaded", async () => {
       await OfflineAudioStore.init();
       AudioEngine.init();
@@ -3173,4 +3229,3 @@
   </script>
 </body>
 </html>
-
