@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
-  <title>JRmusic Pro Station</title>
+  <title>JRmusic Pro Station - Persistent Edition</title>
   <style>
     /* ==========================================================================
        JRmusic Professional Design System (Tokens & Variables)
@@ -157,7 +157,6 @@
       outline: none;
     }
 
-    /* Scrollbars (Studio-Grade Subtle) */
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
@@ -1122,7 +1121,6 @@
     /* ==========================================================================
        Specific View Modules (Search, Playlist, Offline, Library, Settings)
        ========================================================================== */
-    /* Search Bar Component */
     .studio-search-bar {
       display: flex;
       align-items: center;
@@ -1161,7 +1159,6 @@
       display: flex;
     }
 
-    /* Search History Chips */
     .history-container {
       margin-top: 14px;
       display: flex;
@@ -1194,7 +1191,6 @@
       cursor: pointer;
     }
 
-    /* Section Headers */
     .section-header-row {
       display: flex;
       align-items: center;
@@ -1211,7 +1207,6 @@
       gap: 8px;
     }
 
-    /* Professional Song List Table */
     .song-list-grid {
       display: flex;
       flex-direction: column;
@@ -1311,7 +1306,6 @@
       fill: currentColor;
     }
 
-    /* Playlist / Album Banner Card */
     .collection-banner {
       display: flex;
       gap: 20px;
@@ -1365,7 +1359,6 @@
       flex-wrap: wrap;
     }
 
-    /* Solid Action Buttons */
     .btn-solid {
       background: var(--jr-accent);
       color: #ffffff;
@@ -1482,7 +1475,6 @@
       gap: 12px;
     }
 
-    /* Settings Form Controls */
     .settings-group {
       background: var(--jr-bg-surface);
       border: 1px solid var(--jr-border);
@@ -1528,7 +1520,6 @@
       color: var(--jr-text-primary);
     }
 
-    /* Toast Notification System */
     #toast-host {
       position: fixed;
       top: calc(var(--sat) + 20px);
@@ -1564,7 +1555,6 @@
       to { opacity: 0; transform: translateY(-12px); }
     }
 
-    /* Utility Helpers */
     .hidden { display: none !important; }
     .text-center { text-align: center; }
   </style>
@@ -1573,9 +1563,7 @@
 
   <div id="app-container">
 
-    <!-- ======================================================================
-         Desktop / iPad Foldable Left Sidebar
-         ====================================================================== -->
+    <!-- Sidebar (Desktop / iPad) -->
     <aside id="sidebar">
       <div class="sidebar-header">
         <div class="brand-cluster">
@@ -1597,17 +1585,17 @@
         </button>
         <button class="nav-item" data-view="view-resolver">
           <svg viewBox="0 0 24 24"><path d="M19 9H2v2h17V9zm0-4H2v2h17V5zM2 15h13v-2H2v2zm15 0v-4l6 4-6 4v-4z"/></svg>
-          <span>歌单 / 专辑解析</span>
+          <span>歌單 / 專輯解析</span>
         </button>
 
-        <div class="nav-group-title">本地音源库</div>
+        <div class="nav-group-title">本地音源庫</div>
         <button class="nav-item" data-view="view-library">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
           <span>我的自建歌单</span>
         </button>
         <button class="nav-item" data-view="view-offline">
           <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-          <span>IndexedDB 離線庫</span>
+          <span>IndexedDB 持久庫</span>
         </button>
 
         <div class="nav-group-title">系統與工作站</div>
@@ -1625,12 +1613,8 @@
       </div>
     </aside>
 
-    <!-- ======================================================================
-         Main Stage Viewport
-         ====================================================================== -->
+    <!-- Main Content Stage -->
     <main id="main-stage">
-      
-      <!-- Top Bar (Mobile Visible) -->
       <header class="studio-top-bar">
         <div class="mobile-header-title">
           <span>JRmusic</span>
@@ -1643,10 +1627,8 @@
         </div>
       </header>
 
-      <!-- View Containers -->
       <div id="view-viewport">
-        
-        <!-- View 1: Search & Track Resolution -->
+        <!-- View 1: Search -->
         <section class="view-pane active" id="view-search">
           <div class="studio-search-bar">
             <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -1665,12 +1647,12 @@
 
           <div class="song-list-grid" id="search-results-list">
             <div class="text-center" style="padding: 40px; color: var(--jr-text-muted);">
-              鍵入關鍵詞或歌曲 ID 獲取網易雲音樂實時資源
+              鍵入關鍵詞或歌曲 ID 獲取網易雲音樂資源
             </div>
           </div>
         </section>
 
-        <!-- View 2: Playlist & Album Resolver -->
+        <!-- View 2: Playlist / Album Resolver -->
         <section class="view-pane" id="view-resolver">
           <div class="studio-search-bar">
             <svg viewBox="0 0 24 24"><path d="M19 9H2v2h17V9zm0-4H2v2h17V5zM2 15h13v-2H2v2zm15 0v-4l6 4-6 4v-4z"/></svg>
@@ -1684,11 +1666,10 @@
           </div>
 
           <div id="resolver-banner-container" style="margin-top: 20px;"></div>
-
           <div class="song-list-grid" id="resolver-songs-list"></div>
         </section>
 
-        <!-- View 3: My Playlists (Local Storage) -->
+        <!-- View 3: My Playlists -->
         <section class="view-pane" id="view-library">
           <div class="section-header-row" style="margin-top:0;">
             <h2 class="section-title">我的自建歌單</h2>
@@ -1706,16 +1687,16 @@
           </div>
         </section>
 
-        <!-- View 4: IndexedDB Offline Stash -->
+        <!-- View 4: IndexedDB Persistent Stash -->
         <section class="view-pane" id="view-offline">
           <div class="section-header-row" style="margin-top:0;">
             <div>
-              <h2 class="section-title">IndexedDB 離線存儲庫</h2>
-              <div style="font-size:12px; color:var(--jr-text-muted); margin-top:4px;" id="storage-quota-info">正在計算本地存儲佔用...</div>
+              <h2 class="section-title">IndexedDB 完整持久庫</h2>
+              <div style="font-size:12px; color:var(--jr-text-muted); margin-top:4px;" id="storage-quota-info">正在檢查本地物理佔用...</div>
             </div>
             <div class="section-actions">
               <button class="btn-solid" id="offline-play-all">全部播放</button>
-              <button class="btn-outline" id="offline-clear-all" style="color:var(--jr-danger);">清空緩存</button>
+              <button class="btn-outline" id="offline-clear-all" style="color:var(--jr-danger);">清空硬盤緩存</button>
             </div>
           </div>
 
@@ -1774,12 +1755,9 @@
             </div>
           </div>
         </section>
-
       </div>
 
-      <!-- ====================================================================
-           Floating Mini-Player Bar
-           ==================================================================== -->
+      <!-- Floating Mini-Player Bar -->
       <div id="mini-player">
         <div class="mini-cover-wrapper">
           <img src="" id="mini-cover" class="mini-cover-img" alt="Cover">
@@ -1803,12 +1781,9 @@
           <div class="mini-progress-fill" id="mini-progress-fill"></div>
         </div>
       </div>
-
     </main>
 
-    <!-- ======================================================================
-         Mobile Bottom Navigation Bar
-         ====================================================================== -->
+    <!-- Mobile Bottom Navigation Bar -->
     <nav id="bottom-nav">
       <button class="bottom-nav-item active" data-view="view-search">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -1834,9 +1809,7 @@
 
   </div>
 
-  <!-- ========================================================================
-       Full-Screen Studio Dynamic Player
-       ======================================================================== -->
+  <!-- Full-Screen Dynamic Player -->
   <div id="fullscreen-player">
     <canvas id="player-backdrop-canvas"></canvas>
     <div class="player-overlay-scrim"></div>
@@ -1855,7 +1828,6 @@
     </div>
 
     <div class="fs-body-grid">
-      <!-- Vinyl Disc & Tonearm -->
       <div class="fs-stage-disc">
         <div class="turntable-container">
           <div class="tonearm" id="tonearm-element">
@@ -1873,7 +1845,6 @@
         </div>
       </div>
 
-      <!-- Synced LRC Lyrics View -->
       <div class="fs-stage-lyrics" id="lyrics-stage-container">
         <div class="lyrics-scroller" id="lyrics-scroll-box">
           <div class="lyrics-empty">暫無歌詞信息</div>
@@ -1881,7 +1852,6 @@
       </div>
     </div>
 
-    <!-- Controls Bottom Tray -->
     <div class="fs-controls-tray">
       <div class="progress-panel">
         <div class="progress-slider-container" id="player-progress-bar">
@@ -1909,7 +1879,7 @@
         <button class="fs-ctrl-btn" id="ctrl-next-btn" title="下一曲">
           <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
         </button>
-        <button class="fs-ctrl-btn" id="ctrl-stash-offline" title="通過 CDN 直連保存至本地離線">
+        <button class="fs-ctrl-btn" id="ctrl-stash-offline" title="通過 CDN 直連保存至本地硬盤">
           <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
         </button>
       </div>
@@ -1925,10 +1895,7 @@
     </div>
   </div>
 
-  <!-- ========================================================================
-       Modals: Play Queue, Quality Selector, Add to Custom Playlist
-       ======================================================================== -->
-  <!-- Play Queue Drawer Modal -->
+  <!-- Modals -->
   <div class="studio-modal-backdrop" id="modal-queue">
     <div class="studio-modal-window">
       <div class="modal-head">
@@ -1942,7 +1909,6 @@
     </div>
   </div>
 
-  <!-- Quality Selector Modal -->
   <div class="studio-modal-backdrop" id="modal-quality">
     <div class="studio-modal-window" style="max-width: 400px;">
       <div class="modal-head">
@@ -1961,7 +1927,6 @@
     </div>
   </div>
 
-  <!-- Add to Custom Playlist Modal -->
   <div class="studio-modal-backdrop" id="modal-add-playlist">
     <div class="studio-modal-window" style="max-width: 440px;">
       <div class="modal-head">
@@ -1972,15 +1937,13 @@
     </div>
   </div>
 
-  <!-- Global Toast Host -->
   <div id="toast-host"></div>
-
-  <!-- Hidden HTML5 Audio Element for Core Playback -->
   <audio id="core-audio-engine" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- ==========================================================================
        JRmusic Engine Core Application Logic
-       ========================================================================== -->
+       ========================================================================== */
+  -->
   <script>
     (function () {
       'use strict';
@@ -1997,24 +1960,24 @@
         currentTrack: null,
         playQueue: [],
         queueIndex: -1,
-        playMode: 'loop', // 'loop', 'single', 'shuffle'
+        playMode: 'loop',
         isPlaying: false,
         parsedLyrics: [],
         activeLyricIndex: -1,
         searchHistory: JSON.parse(localStorage.getItem('jrmusic_search_history') || '[]'),
         customPlaylists: JSON.parse(localStorage.getItem('jrmusic_custom_playlists') || '[]'),
         isSeeking: false,
-        pendingTrackToAdd: null
+        pendingTrackToAdd: null,
+        currentAudioBlobUrl: null // Track Blob URL to revoke on exit/switch
       };
 
-      /* Audio DOM Reference */
       const AudioEngine = document.getElementById('core-audio-engine');
 
       /* ========================================================================
-         IndexedDB Local Storage Storage Core (Zero Remote Modifications)
+         IndexedDB Persistent Storage Core (100% Binary Persistence)
          ======================================================================== */
       const DB_NAME = 'JRmusicOfflineDB';
-      const DB_VERSION = 1;
+      const DB_VERSION = 2; // Incremented for true binary persistence
       const STORE_TRACKS = 'tracks';
 
       let dbInstance = null;
@@ -2030,6 +1993,12 @@
           };
           request.onsuccess = (e) => {
             dbInstance = e.target.result;
+            // Ask for persistent storage permission to prevent iOS eviction
+            if (navigator.storage && navigator.storage.persist) {
+              navigator.storage.persist().then(persistent => {
+                console.log('IndexedDB Persistence Status:', persistent);
+              });
+            }
             updateStorageUsageUI();
             resolve(dbInstance);
           };
@@ -2045,6 +2014,8 @@
           if (!dbInstance) return reject('DB not initialized');
           const tx = dbInstance.transaction(STORE_TRACKS, 'readwrite');
           const store = tx.objectStore(STORE_TRACKS);
+          
+          // Full physical persistence: Blob, Metadata, Lyric, Cover Base64/Blob
           const record = {
             id: String(trackData.id),
             name: trackData.name,
@@ -2054,8 +2025,9 @@
             lyric: trackData.lyric || '',
             level: trackData.level || AppState.config.defaultQuality,
             savedAt: Date.now(),
-            audioBlob: audioBlob
+            audioBlob: audioBlob // Raw binary ArrayBuffer/Blob physically saved
           };
+          
           const putReq = store.put(record);
           putReq.onsuccess = () => {
             updateStorageUsageUI();
@@ -2121,14 +2093,14 @@
           const estimate = await navigator.storage.estimate();
           const usedMB = (estimate.usage / (1024 * 1024)).toFixed(1);
           const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
-          infoEl.textContent = `已佔用空間: ${usedMB} MB / 預估配額: ${quotaMB} MB`;
+          infoEl.textContent = `已永久落盤空間: ${usedMB} MB / 設備配額: ${quotaMB} MB`;
         } else {
-          infoEl.textContent = '本地存儲就緒';
+          infoEl.textContent = '本地持久庫就緒';
         }
       }
 
       /* ========================================================================
-         Network Core & API Client (Metadata Only - Pure Read-Only)
+         Network Core (Metadata Only)
          ======================================================================== */
       async function apiFetch(endpoint, payload = null, method = 'POST') {
         const cleanBase = AppState.config.apiUrl.replace(/\/+$/, '');
@@ -2154,33 +2126,27 @@
         }
       }
 
-      /* Search Songs */
       async function fetchSearchSongs(keyword, limit = 30) {
         return await apiFetch('/search', { keyword, limit });
       }
 
-      /* Parse Single Song (Retrieves metadata & official CDN direct link) */
       async function fetchSongDetails(idOrUrl, level = AppState.config.defaultQuality) {
         return await apiFetch('/song', { url: String(idOrUrl), level, type: 'json' });
       }
 
-      /* Parse Playlist */
       async function fetchPlaylistDetails(playlistId) {
         return await apiFetch('/playlist', { id: String(playlistId) });
       }
 
-      /* Parse Album */
       async function fetchAlbumDetails(albumId) {
         return await apiFetch('/album', { id: String(albumId) });
       }
 
       /* ========================================================================
-         High-Speed CDN Direct Binary Downloader (100% Bypasses Server)
+         High-Speed Direct CDN Fetcher (Converts CDN Stream into Local Blob)
          ======================================================================== */
       async function downloadDirectFromCDN(cdnUrl) {
         if (!cdnUrl) throw new Error('CDN 直鏈為空');
-        // Fetch audio stream directly from official CDN edge nodes
-        // Strip referrers to prevent hotlink blocks on WKWebView / iOS
         const response = await fetch(cdnUrl, {
           method: 'GET',
           referrerPolicy: 'no-referrer',
@@ -2216,8 +2182,6 @@
 
       /* ========================================================================
          LRC Parsing & Dynamic Dual-line Translation Matching Engine
-         Spec: Content within brackets (either Chinese （） or English ())
-               is treated as translation and placed in a smaller synchronized sub-line
          ======================================================================== */
       function parseLRC(lrcText) {
         if (!lrcText || typeof lrcText !== 'string') return [];
@@ -2232,11 +2196,9 @@
           let matches = [...line.matchAll(timeRegex)];
           if (matches.length === 0) continue;
 
-          // Strip time tags
           let text = line.replace(timeRegex, '').trim();
           if (!text) continue;
 
-          // Extract translation within parentheses () or （）
           let mainText = text;
           let transText = '';
           const bracketMatch = text.match(/[\(（](.+?)[\)）]/);
@@ -2245,7 +2207,6 @@
             mainText = text.replace(bracketMatch[0], '').trim();
           }
 
-          // Compute timestamps
           for (let m of matches) {
             const min = parseInt(m[1], 10);
             const sec = parseInt(m[2], 10);
@@ -2285,7 +2246,6 @@
             box.appendChild(sub);
           }
 
-          // Lyric click seeking
           box.addEventListener('click', () => {
             AudioEngine.currentTime = item.time;
             updateLyricPosition(item.time, true);
@@ -2336,7 +2296,6 @@
           canvas.width = 100;
           canvas.height = 100;
 
-          // Draw image scaled down
           ctx.drawImage(img, 0, 0, 100, 100);
           const imageData = ctx.getImageData(0, 0, 100, 100).data;
           
@@ -2351,7 +2310,6 @@
           g = Math.floor(g / count);
           b = Math.floor(b / count);
 
-          // Render fluid gradient onto canvas
           ctx.clearRect(0, 0, 100, 100);
           const grad = ctx.createLinearGradient(0, 0, 100, 100);
           grad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
@@ -2370,6 +2328,7 @@
 
       /* ========================================================================
          Core Audio Playback & MediaSession Architecture
+         (Zero-Expiry Local Binary Strategy)
          ======================================================================== */
       function setupMediaSession(track) {
         if ('mediaSession' in navigator) {
@@ -2397,22 +2356,36 @@
       }
 
       async function playSongItem(song, quality = AppState.config.defaultQuality) {
-        showToast(`正在加載: ${song.name}...`);
+        showToast(`準備音源: ${song.name}...`);
         try {
           let audioSrc = null;
           let trackDetail = null;
 
-          // 1. Check local IndexedDB offline storage first
-          const localStored = await getTrackFromIndexedDB(song.id);
-          if (localStored && localStored.audioBlob) {
-            audioSrc = URL.createObjectURL(localStored.audioBlob);
-            trackDetail = localStored;
+          // Revoke previous Blob URL to prevent memory leaks in WKWebView
+          if (AppState.currentAudioBlobUrl) {
+            URL.revokeObjectURL(AppState.currentAudioBlobUrl);
+            AppState.currentAudioBlobUrl = null;
+          }
+
+          // 1. Check local IndexedDB storage
+          const localRecord = await getTrackFromIndexedDB(song.id);
+          if (localRecord && localRecord.audioBlob) {
+            // Generate valid session ObjectURL directly from physical Blob
+            audioSrc = URL.createObjectURL(localRecord.audioBlob);
+            AppState.currentAudioBlobUrl = audioSrc;
+            trackDetail = localRecord;
             showToast(`播放本地離線音源: ${song.name}`, 'success');
           } else {
-            // 2. Query /song endpoint for CDN direct link & metadata
+            // 2. Fetch CDN Link & Lyrics from Backend
             const res = await fetchSongDetails(song.id, quality);
             if (!res.success || !res.data) throw new Error(res.message || '解析失敗');
             if (!res.data.url) throw new Error('未能獲取有效 CDN 音頻直鏈');
+
+            const cdnUrl = res.data.url;
+            showToast(`正在通過 CDN 獲取並持久化: ${song.name}...`);
+
+            // Fetch Blob from CDN immediately
+            const audioBlob = await downloadDirectFromCDN(cdnUrl);
 
             trackDetail = {
               id: song.id,
@@ -2421,10 +2394,15 @@
               al_name: res.data.al_name,
               pic: res.data.pic,
               level: res.data.level,
-              lyric: res.data.lyric,
-              url: res.data.url
+              lyric: res.data.lyric
             };
-            audioSrc = res.data.url;
+
+            // Physically save to IndexedDB so it never expires when quitting app
+            await saveTrackToIndexedDB(trackDetail, audioBlob);
+
+            audioSrc = URL.createObjectURL(audioBlob);
+            AppState.currentAudioBlobUrl = audioSrc;
+            showToast(`已永久落盤至設備: ${song.name}`, 'success');
           }
 
           AppState.currentTrack = trackDetail;
@@ -2438,7 +2416,7 @@
           AppState.parsedLyrics = parseLRC(trackDetail.lyric);
           renderLyricsView(AppState.parsedLyrics);
 
-          // Update UI States
+          // Update UI
           syncAllPlayerUI(trackDetail);
           setupMediaSession(trackDetail);
           extractArtworkColorAndRenderBackdrop(trackDetail.pic);
@@ -2455,19 +2433,16 @@
         const artist = `${track.ar_name || track.artists || '群星'} - ${track.al_name || track.album || ''}`;
         const levelTag = (track.level || AppState.config.defaultQuality).toUpperCase();
 
-        // Mini player
         document.getElementById('mini-cover').src = coverUrl;
         document.getElementById('mini-title').textContent = title;
         document.getElementById('mini-artist').textContent = artist;
         document.getElementById('mini-quality-badge').textContent = levelTag;
 
-        // Fullscreen player
         document.getElementById('fs-song-title').textContent = title;
         document.getElementById('fs-song-artist').textContent = artist;
         document.getElementById('vinyl-cover-img').src = coverUrl;
         document.getElementById('fs-quality-chip').textContent = levelTag;
 
-        // Highlight playing track in current list
         document.querySelectorAll('.song-item-row').forEach(row => {
           if (row.dataset.id === String(track.id)) {
             row.classList.add('playing');
@@ -2497,7 +2472,6 @@
         }
       }
 
-      /* Audio Event Bindings */
       AudioEngine.addEventListener('play', () => updatePlayStateUI(true));
       AudioEngine.addEventListener('pause', () => updatePlayStateUI(false));
       AudioEngine.addEventListener('timeupdate', () => {
@@ -2532,7 +2506,6 @@
         return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
       }
 
-      /* Queue Management & Stepping */
       function playNextTrack() {
         if (AppState.playQueue.length === 0) return;
         if (AppState.playMode === 'shuffle') {
@@ -2683,14 +2656,14 @@
           }
 
           document.getElementById('search-results-heading').textContent = `檢索結果 (${res.data.length})`;
-          renderSongItemsToGrid(res.data, resultsContainer, true);
+          renderSongItemsToGrid(res.data, resultsContainer);
 
         } catch (err) {
           resultsContainer.innerHTML = `<div class="text-center" style="padding: 40px; color: var(--jr-danger);">檢索失敗: ${err.message}</div>`;
         }
       }
 
-      function renderSongItemsToGrid(songs, targetContainer, allowBatchPlay = false) {
+      function renderSongItemsToGrid(songs, targetContainer) {
         targetContainer.innerHTML = '';
         songs.forEach((song, idx) => {
           const row = document.createElement('div');
@@ -2706,7 +2679,7 @@
               <div class="song-artist-album">${song.artists || song.ar_name} - ${song.album || song.al_name}</div>
             </div>
             <div class="song-actions-row">
-              <button class="song-btn btn-offline-item" title="CDN 直連保存至本地離線">
+              <button class="song-btn btn-offline-item" title="CDN 直連保存至本地硬盤">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               </button>
               <button class="song-btn btn-add-custom" title="添加至歌單">
@@ -2715,19 +2688,16 @@
             </div>
           `;
 
-          // Click to play immediately
           row.addEventListener('click', (e) => {
             if (e.target.closest('.song-btn')) return;
             replaceQueueAndPlay(songs, idx);
           });
 
-          // Stash directly to IndexedDB via CDN
           row.querySelector('.btn-offline-item').addEventListener('click', async (e) => {
             e.stopPropagation();
             stashTrackToOffline(song);
           });
 
-          // Add to custom playlist
           row.querySelector('.btn-add-custom').addEventListener('click', (e) => {
             e.stopPropagation();
             openAddToCustomPlaylistModal(song);
@@ -2740,7 +2710,7 @@
       /* ========================================================================
          Playlist / Album Resolver Controller
          ======================================================================== */
-      let currentResolverMode = 'playlist'; // 'playlist' or 'album'
+      let currentResolverMode = 'playlist';
       const resTypePlaylistBtn = document.getElementById('res-type-playlist');
       const resTypeAlbumBtn = document.getElementById('res-type-album');
       const resolverInput = document.getElementById('resolver-input');
@@ -2799,7 +2769,6 @@
             tracks = al.songs || [];
           }
 
-          // Render Banner
           bannerContainer.innerHTML = `
             <div class="collection-banner">
               <div class="banner-art"><img src="${meta.cover}" alt="cover"></div>
@@ -2808,13 +2777,12 @@
                 <div class="banner-meta">${meta.desc}</div>
                 <div class="banner-btn-group">
                   <button class="btn-solid" id="resolve-play-all">播放全部</button>
-                  <button class="btn-outline" id="resolve-batch-download">CDN 批量極速下載</button>
+                  <button class="btn-outline" id="resolve-batch-download">CDN 批量持久化</button>
                 </div>
               </div>
             </div>
           `;
 
-          // Event Listeners for Banner Buttons
           document.getElementById('resolve-play-all').addEventListener('click', () => {
             replaceQueueAndPlay(tracks, 0);
           });
@@ -2822,7 +2790,6 @@
             batchDownloadTracks(tracks);
           });
 
-          // Render Song Grid
           renderSongItemsToGrid(tracks, listContainer);
 
         } catch (err) {
@@ -2831,12 +2798,11 @@
       }
 
       /* ========================================================================
-         IndexedDB Stash, Batch Download (Pure CDN Stream Extraction)
+         IndexedDB Stash & Persistent Offline Controller
          ======================================================================== */
       async function stashTrackToOffline(song, quality = AppState.config.defaultQuality) {
-        showToast(`正在獲取 CDN 節點: ${song.name}...`);
+        showToast(`獲取 CDN 節點: ${song.name}...`);
         try {
-          // 1. Ask backend for CDN Direct Link & Lyrics info only
           const detailRes = await fetchSongDetails(song.id, quality);
           if (!detailRes.success || !detailRes.data || !detailRes.data.url) {
             throw new Error(detailRes.message || '未獲取到 CDN 音頻直鏈');
@@ -2845,12 +2811,9 @@
           const cdnDirectUrl = detailRes.data.url;
           const lyric = detailRes.data.lyric || '';
 
-          showToast(`正在通過 CDN 直連下載: ${song.name}...`);
-
-          // 2. Fetch binary stream directly from official CDN
+          showToast(`CDN 直連下載並持久化: ${song.name}...`);
           const audioBlob = await downloadDirectFromCDN(cdnDirectUrl);
 
-          // 3. Stash locally into browser IndexedDB
           await saveTrackToIndexedDB({
             id: song.id,
             name: song.name,
@@ -2861,16 +2824,16 @@
             level: quality
           }, audioBlob);
 
-          showToast(`已成功保存至離線庫: ${song.name}`, 'success');
+          showToast(`已永久存儲在本地硬盤: ${song.name}`, 'success');
           loadOfflineView();
         } catch (err) {
           console.error(err);
-          showToast(`CDN 下載失敗: ${err.message}`, 'error');
+          showToast(`下載持久化失敗: ${err.message}`, 'error');
         }
       }
 
       async function batchDownloadTracks(tracks, quality = AppState.config.defaultQuality) {
-        showToast(`開始 CDN 批量下載 ${tracks.length} 首歌曲...`);
+        showToast(`開始批量持久化 ${tracks.length} 首歌曲...`);
         let count = 0;
         for (const t of tracks) {
           try {
@@ -2880,7 +2843,7 @@
             console.error(e);
           }
         }
-        showToast(`CDN 批量下載完成: ${count}/${tracks.length} 首保存至離線庫`, 'success');
+        showToast(`批量完成: ${count}/${tracks.length} 首已保存至硬盤`, 'success');
       }
 
       async function loadOfflineView() {
@@ -2889,7 +2852,7 @@
         container.innerHTML = '';
 
         if (tracks.length === 0) {
-          container.innerHTML = '<div class="text-center" style="padding:40px; color:var(--jr-text-muted);">暫無離線歌曲，可在檢索或歌單中點擊下載緩存</div>';
+          container.innerHTML = '<div class="text-center" style="padding:40px; color:var(--jr-text-muted);">暫無本地離線歌曲，在檢索或歌單中點擊下載即可永久保存</div>';
           return;
         }
 
@@ -2901,24 +2864,42 @@
             <div class="song-cover-thumb"><img src="${track.pic}" alt="art"></div>
             <div class="song-details">
               <div class="song-name">${track.name}</div>
-              <div class="song-artist-album">${track.ar_name} - ${track.al_name} · [${(track.level || '').toUpperCase()}]</div>
+              <div class="song-artist-album">${track.ar_name} - ${track.al_name} · [${(track.level || '').toUpperCase()}] (已落盤)</div>
             </div>
             <div class="song-actions-row">
-              <button class="song-btn btn-delete-offline" style="color:var(--jr-danger);" title="刪除離線緩存">
+              <button class="song-btn btn-export-offline" title="導出二進制音頻文件">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              </button>
+              <button class="song-btn btn-delete-offline" style="color:var(--jr-danger);" title="刪除本機硬盤緩存">
                 <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
               </button>
             </div>
           `;
+          
           row.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-delete-offline')) return;
+            if (e.target.closest('.song-btn')) return;
             replaceQueueAndPlay(tracks, idx);
           });
+
+          // Export physical audio file directly from IndexedDB
+          row.querySelector('.btn-export-offline').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (track.audioBlob) {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(track.audioBlob);
+              a.download = `${track.name} - ${track.ar_name}.mp3`;
+              a.click();
+              showToast(`正在導出音頻: ${track.name}`);
+            }
+          });
+
           row.querySelector('.btn-delete-offline').addEventListener('click', async (e) => {
             e.stopPropagation();
             await deleteTrackFromIndexedDB(track.id);
-            showToast(`已刪除緩存: ${track.name}`);
+            showToast(`已從硬盤刪除: ${track.name}`);
             loadOfflineView();
           });
+
           container.appendChild(row);
         });
       }
@@ -2929,9 +2910,9 @@
       });
 
       document.getElementById('offline-clear-all').addEventListener('click', async () => {
-        if (confirm('確定清空所有 IndexedDB 本地音頻緩存？')) {
+        if (confirm('確定清空所有 IndexedDB 本機音頻緩存？此操作將不可逆。')) {
           await clearAllTracksFromIndexedDB();
-          showToast('已清空本地離線庫');
+          showToast('已清空本地離線持久庫');
           loadOfflineView();
         }
       });
@@ -3008,7 +2989,7 @@
             <div class="banner-meta">自建本地歌單 · 共 ${playlist.tracks.length} 首歌曲</div>
             <div class="banner-btn-group">
               <button class="btn-solid" id="custom-pl-play-all">播放全部</button>
-              <button class="btn-outline" id="custom-pl-batch-dl">CDN 批量下載</button>
+              <button class="btn-outline" id="custom-pl-batch-dl">CDN 批量持久化</button>
               <button class="btn-outline" id="custom-pl-delete" style="color:var(--jr-danger);">刪除歌單</button>
               <button class="btn-outline" id="custom-pl-back">返回列表</button>
             </div>
@@ -3113,14 +3094,12 @@
       miniPlayer.addEventListener('click', () => fsPlayer.classList.add('active'));
       fsCloseBtn.addEventListener('click', () => fsPlayer.classList.remove('active'));
 
-      // Mini controls
       document.getElementById('mini-play-toggle').addEventListener('click', () => {
         if (AudioEngine.paused) AudioEngine.play();
         else AudioEngine.pause();
       });
       document.getElementById('mini-next-btn').addEventListener('click', playNextTrack);
 
-      // Fullscreen controls
       document.getElementById('ctrl-play-btn').addEventListener('click', () => {
         if (AudioEngine.paused) AudioEngine.play();
         else AudioEngine.pause();
@@ -3128,21 +3107,18 @@
       document.getElementById('ctrl-prev-btn').addEventListener('click', playPreviousTrack);
       document.getElementById('ctrl-next-btn').addEventListener('click', playNextTrack);
 
-      // Save to IndexedDB via CDN from Fullscreen Player
       document.getElementById('ctrl-stash-offline').addEventListener('click', () => {
         if (AppState.currentTrack) {
           stashTrackToOffline(AppState.currentTrack);
         }
       });
 
-      // Add to playlist from fullscreen
       document.getElementById('ctrl-add-playlist-btn').addEventListener('click', () => {
         if (AppState.currentTrack) {
           openAddToCustomPlaylistModal(AppState.currentTrack);
         }
       });
 
-      // Quality Chip click: Open Quality Switch Modal
       const modalQuality = document.getElementById('modal-quality');
       document.getElementById('fs-quality-chip').addEventListener('click', () => {
         modalQuality.classList.add('active');
@@ -3158,7 +3134,6 @@
         });
       });
 
-      // Mode toggle
       const modeToggleBtn = document.getElementById('ctrl-mode-toggle');
       const modeIcon = document.getElementById('mode-icon');
       modeToggleBtn.addEventListener('click', () => {
@@ -3177,7 +3152,6 @@
         }
       });
 
-      // Seeking interactions
       const progressBar = document.getElementById('player-progress-bar');
       progressBar.addEventListener('click', (e) => {
         const rect = progressBar.getBoundingClientRect();
@@ -3187,7 +3161,6 @@
         }
       });
 
-      // Queue Modals
       const modalQueue = document.getElementById('modal-queue');
       document.getElementById('fs-queue-btn').addEventListener('click', () => {
         renderQueueListModal();
@@ -3204,7 +3177,6 @@
         showToast('已清空播放隊列');
       });
 
-      // Close all modals
       document.querySelectorAll('[data-close-modal]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const target = e.currentTarget.getAttribute('data-close-modal');
@@ -3240,7 +3212,6 @@
         item.addEventListener('click', () => switchView(item.dataset.view));
       });
 
-      // Sidebar Fold Toggle (iPad / Mac)
       const sidebar = document.getElementById('sidebar');
       document.getElementById('sidebar-toggle').addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
@@ -3308,7 +3279,6 @@
         renderCustomPlaylistsGrid();
         await initIndexedDB();
 
-        // Check health silently on boot
         try {
           const res = await apiFetch('/health', null, 'GET');
           if (res.status === 200 || res.success) {
