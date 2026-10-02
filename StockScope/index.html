@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>JRmusic Pro</title>
+  <title>JRmusic Pro Station</title>
   <style>
     :root {
       --accent: #0066ff;
+      --accent-hover: #0052cc;
       --accent-subtle: rgba(0, 102, 255, 0.12);
       --bg: #0c0d10;
       --surface: #15181e;
@@ -35,7 +36,6 @@
     button, input, select { font: inherit; color: inherit; background: none; border: none; outline: none; }
     button { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 
-    /* Layout */
     #app { display: flex; width: 100%; height: 100%; overflow: hidden; }
     #sidebar { display: none; width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding-top: var(--sat); flex-direction: column; flex-shrink: 0; }
     @media (min-width: 768px) { #sidebar { display: flex; } #bottom-bar { display: none !important; } }
@@ -49,13 +49,12 @@
     .view-pane { flex: 1; overflow-y: auto; padding: calc(var(--sat) + 12px) 16px 140px; display: none; }
     .view-pane.active { display: block; }
 
-    /* Compact Search & Action Bars */
     .bar { display: flex; gap: 8px; margin-bottom: 14px; }
     .input-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; height: 38px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .input-box input { width: 100%; }
     .btn { height: 38px; padding: 0 14px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
     .btn-secondary { background: var(--elevated); color: var(--text); border: 1px solid var(--border); }
 
-    /* Dense List UI */
     .section-title { font-size: 14px; font-weight: 700; margin: 12px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
     .song-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; cursor: pointer; }
     .song-row.playing { border-color: var(--accent); background: var(--accent-subtle); }
@@ -63,25 +62,22 @@
     .song-info { flex: 1; min-width: 0; }
     .song-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .song-sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .row-actions { display: flex; gap: 4px; }
-    .icon-btn { width: 30px; height: 30px; border-radius: 6px; color: var(--muted); }
+    .row-actions { display: flex; gap: 6px; }
+    .icon-btn { width: 32px; height: 32px; border-radius: 6px; color: var(--muted); font-size: 14px; }
     .icon-btn:hover { background: var(--elevated); color: var(--text); }
 
-    /* Playlist Grid */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; text-align: center; }
-    .card-icon { width: 46px; height: 46px; border-radius: 8px; background: var(--accent-subtle); color: var(--accent); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; cursor: pointer; text-align: center; }
+    .card-icon { width: 44px; height: 44px; border-radius: 8px; background: var(--accent-subtle); color: var(--accent); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .card-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-    /* Mini Player */
     #mini-player { position: fixed; bottom: calc(var(--sab) + 54px); left: 10px; right: 10px; height: 56px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 50; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
     @media (min-width: 768px) { #mini-player { left: 230px; bottom: calc(var(--sab) + 12px); } }
     #mini-player img { width: 38px; height: 38px; border-radius: 6px; object-fit: cover; }
     .mini-progress { position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .mini-progress-fill { width: 0%; height: 100%; background: var(--accent); }
 
-    /* Fullscreen Player */
     #full-player { position: fixed; inset: 0; background: var(--bg); z-index: 100; transform: translateY(100%); transition: transform 0.28s ease; display: flex; flex-direction: column; padding: var(--sat) 18px var(--sab); overflow: hidden; }
     #full-player.open { transform: translateY(0); }
     .player-bg { position: absolute; inset: -20px; filter: blur(50px) brightness(0.35); background-size: cover; background-position: center; z-index: -1; }
@@ -93,13 +89,11 @@
     .disc.playing { animation: spin 16s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* Lyrics Display */
     .lrc-box { flex: 1; width: 100%; height: 160px; overflow-y: auto; text-align: center; mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%); padding: 60px 0; }
     .lrc-line { padding: 6px 0; font-size: 14px; font-weight: 600; opacity: 0.4; transition: all 0.2s; cursor: pointer; }
     .lrc-line.active { font-size: 17px; opacity: 1; color: var(--accent); }
     .lrc-sub { font-size: 11px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
 
-    /* Player Controls */
     .fp-foot { padding: 12px 0 16px; width: 100%; }
     .slider { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative; cursor: pointer; margin: 8px 0; }
     .slider-fill { width: 0%; height: 100%; background: var(--accent); border-radius: 2px; }
@@ -107,20 +101,18 @@
     .ctrls { display: flex; align-items: center; justify-content: space-around; margin-top: 10px; }
     .play-btn { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: #fff; }
 
-    /* Bottom Nav Bar (Mobile) */
     #bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--sab) + 50px); padding-bottom: var(--sab); background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 40; }
-    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--muted); gap: 2px; }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--muted); gap: 2px; cursor: pointer; }
     .tab.active { color: var(--accent); font-weight: 700; }
 
-    /* Modals */
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(8px); }
     .modal.active { display: flex; }
-    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 360px; padding: 16px; }
+    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 340px; padding: 16px; }
     .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
-    .modal-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .modal-list { max-height: 220px; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
     .modal-item { padding: 10px; background: var(--elevated); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
 
-    /* Toast */
     #toast { position: fixed; top: calc(var(--sat) + 16px); left: 50%; transform: translateX(-50%); background: var(--elevated); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 300; }
   </style>
 </head>
@@ -130,10 +122,10 @@
     <aside id="sidebar">
       <div class="brand">JRmusic <span>PRO</span></div>
       <div style="padding: 10px;">
-        <button class="nav-btn active" data-view="view-search">🔎 搜索與解析</button>
-        <button class="nav-btn" data-view="view-playlists">📂 自建歌單</button>
-        <button class="nav-btn" data-view="view-offline">💾 本地離線庫</button>
-        <button class="nav-btn" data-view="view-settings">⚙️ 設置</button>
+        <button class="nav-btn active" data-view="view-search">🔎 搜索与解析</button>
+        <button class="nav-btn" data-view="view-playlists">📂 自建歌单</button>
+        <button class="nav-btn" data-view="view-offline">💾 本地离线库</button>
+        <button class="nav-btn" data-view="view-settings">⚙️ 设置</button>
       </div>
     </aside>
 
@@ -144,26 +136,31 @@
         <div class="bar">
           <div class="input-box">
             <span>🔍</span>
-            <input type="text" id="input-query" placeholder="歌曲名、歌手、單曲 ID 或 歌單 ID">
+            <input type="text" id="input-query" placeholder="歌曲名、歌手、单曲 ID 或 歌单 ID">
           </div>
           <button class="btn" id="btn-search">搜索</button>
-          <button class="btn btn-secondary" id="btn-resolve-pl">解析歌單</button>
+          <button class="btn btn-secondary" id="btn-resolve-pl">解析歌单</button>
         </div>
-        <div class="section-title"><span>即時解析結果</span><span id="results-count" style="font-weight:400;font-size:12px;"></span></div>
-        <div id="search-list"></div>
+        <div class="section-title"><span>搜索 / 解析结果</span><span id="results-count" style="font-weight:400;font-size:12px;"></span></div>
+        <div id="search-list">
+          <div style="padding: 30px 10px; text-align: center; color: var(--muted); font-size: 13px;">输入关键词或网易云歌单 ID 立即开始解析</div>
+        </div>
       </section>
 
       <!-- View: Custom Playlists -->
       <section class="view-pane" id="view-playlists">
         <div class="section-title">
-          <span>我的自建歌單</span>
-          <button class="btn" id="btn-create-pl" style="height:26px;padding:0 8px;font-size:11px;">+ 新建歌單</button>
+          <span>我的自建歌单</span>
+          <button class="btn" id="btn-open-create-modal" style="height:26px;padding:0 10px;font-size:11px;">+ 新建歌单</button>
         </div>
         <div class="grid" id="playlists-grid"></div>
         <div id="playlist-detail" style="display: none;">
           <div class="section-title">
-            <span id="pl-detail-title">歌單內容</span>
-            <button class="btn btn-secondary" id="btn-back-pl" style="height:26px;padding:0 8px;font-size:11px;">返回</button>
+            <span id="pl-detail-title">歌单内容</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-secondary" id="btn-del-cur-pl" style="height:26px;padding:0 8px;font-size:11px;color:var(--danger);">删除歌单</button>
+              <button class="btn btn-secondary" id="btn-back-pl" style="height:26px;padding:0 8px;font-size:11px;">返回</button>
+            </div>
           </div>
           <div id="pl-songs-list"></div>
         </div>
@@ -173,28 +170,34 @@
       <section class="view-pane" id="view-offline">
         <div class="section-title">
           <span>IndexedDB 本地持久音源</span>
-          <button class="btn btn-secondary" id="btn-clear-db" style="height:26px;padding:0 8px;font-size:11px;color:var(--danger);">清空硬盤</button>
+          <div style="display:flex; gap:6px;">
+            <label class="btn btn-secondary" style="height:26px;padding:0 8px;font-size:11px;cursor:pointer;">
+              导入本地音频
+              <input type="file" id="input-local-file" accept="audio/*" multiple style="display:none;">
+            </label>
+            <button class="btn btn-secondary" id="btn-clear-db" style="height:26px;padding:0 8px;font-size:11px;color:var(--danger);">清空</button>
+          </div>
         </div>
         <div id="offline-list"></div>
       </section>
 
       <!-- View: Settings -->
       <section class="view-pane" id="view-settings">
-        <div class="section-title">伺服器與音質設置</div>
+        <div class="section-title">服务器与音质设置</div>
         <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:12px;">
           <div>
-            <div style="font-size:13px; font-weight:600;">後端 API 基礎地址</div>
+            <div style="font-size:13px; font-weight:600;">后端 API 基础地址</div>
             <div class="input-box" style="margin-top:4px;">
               <input type="text" id="cfg-api" value="http://localhost:5000">
             </div>
           </div>
           <div>
-            <div style="font-size:13px; font-weight:600;">默認解析品質</div>
+            <div style="font-size:13px; font-weight:600;">默认解析品质</div>
             <select id="cfg-quality" style="width:100%; margin-top:4px; padding:8px; background:var(--elevated); border:1px solid var(--border); border-radius:8px;">
               <option value="standard">Standard (128kbps)</option>
               <option value="exhigh">ExHigh (320kbps)</option>
-              <option value="lossless" selected>Lossless (FLAC 無損)</option>
-              <option value="hires">Hi-Res 高清母帶</option>
+              <option value="lossless" selected>Lossless (FLAC 无损)</option>
+              <option value="hires">Hi-Res 高清母带</option>
             </select>
           </div>
         </div>
@@ -203,10 +206,10 @@
 
     <!-- Mini Player Bar -->
     <div id="mini-player">
-      <img id="mini-pic" src="" alt="">
+      <img id="mini-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%23222'/%3E%3C/svg%3E" alt="">
       <div class="song-info">
         <div class="song-name" id="mini-name">JRmusic Ready</div>
-        <div class="song-sub" id="mini-sub">請選擇歌曲播放</div>
+        <div class="song-sub" id="mini-sub">请选择歌曲开始播放</div>
       </div>
       <button class="icon-btn" id="mini-play-btn" style="width:36px;height:36px;font-size:18px;">▶</button>
       <div class="mini-progress"><div class="mini-progress-fill" id="mini-fill"></div></div>
@@ -214,10 +217,10 @@
 
     <!-- Mobile Bottom Tabs -->
     <nav id="bottom-bar">
-      <div class="tab active" data-view="view-search"><span>🔎</span>檢索</div>
-      <div class="tab" data-view="view-playlists"><span>📂</span>歌單</div>
-      <div class="tab" data-view="view-offline"><span>💾</span>離線庫</div>
-      <div class="tab" data-view="view-settings"><span>⚙️</span>設置</div>
+      <div class="tab active" data-view="view-search"><span>🔎</span>检索</div>
+      <div class="tab" data-view="view-playlists"><span>📂</span>歌单</div>
+      <div class="tab" data-view="view-offline"><span>💾</span>离线库</div>
+      <div class="tab" data-view="view-settings"><span>⚙️</span>设置</div>
     </nav>
   </div>
 
@@ -230,14 +233,14 @@
         <div class="song-name" id="fp-title" style="color:#fff;">曲目</div>
         <div class="song-sub" id="fp-artist" style="color:rgba(255,255,255,0.7);">歌手</div>
       </div>
-      <button class="icon-btn" id="fp-dl" title="下載持久化">💾</button>
+      <button class="icon-btn" id="fp-dl" title="下载并物理持久化">💾</button>
     </div>
     <div class="fp-body">
       <div class="disc" id="fp-disc">
-        <img id="fp-pic" src="" alt="">
+        <img id="fp-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23222'/%3E%3C/svg%3E" alt="">
       </div>
       <div class="lrc-box" id="lrc-box">
-        <div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">純音樂或未提供歌詞</div>
+        <div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">暂无歌词</div>
       </div>
     </div>
     <div class="fp-foot">
@@ -253,12 +256,26 @@
     </div>
   </div>
 
-  <!-- Add to Playlist Dialog -->
+  <!-- Modal 1: 真正可用于 iOS 的实体新建歌单弹窗 -->
+  <div class="modal" id="modal-create-pl">
+    <div class="modal-box">
+      <div class="modal-title">新建自建歌单</div>
+      <div class="input-box">
+        <input type="text" id="input-new-pl-name" placeholder="请输入歌单名称...">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="btn-cancel-create">取消</button>
+        <button class="btn" id="btn-confirm-create">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: 收藏到歌单选择弹窗 -->
   <div class="modal" id="modal-add-pl">
     <div class="modal-box">
-      <div class="modal-title">收藏到自建歌單</div>
+      <div class="modal-title">收藏到歌单</div>
       <div class="modal-list" id="modal-pl-items"></div>
-      <button class="btn btn-secondary" style="width:100%;" id="btn-modal-close">取消</button>
+      <button class="btn btn-secondary" style="width:100%; margin-top:8px;" id="btn-modal-close">取消</button>
     </div>
   </div>
 
@@ -269,80 +286,117 @@
     (function() {
       'use strict';
 
-      // --- State ---
+      // --- 全局状态管理 ---
       const Store = {
         api: localStorage.getItem('jr_api') || 'http://localhost:5000',
         quality: localStorage.getItem('jr_quality') || 'lossless',
         playlists: JSON.parse(localStorage.getItem('jr_playlists') || '[]'),
         queue: [],
         index: -1,
-        mode: 'loop', // 'loop', 'single', 'shuffle'
+        mode: 'loop',
         lyrics: [],
         curLrcIdx: -1,
         currentTrack: null,
-        blobUrl: null
+        blobUrl: null,
+        activePlaylistIdx: -1,
+        pendingTrackToCollect: null
       };
 
       const audio = document.getElementById('audio');
 
-      // --- IndexedDB ---
+      // --- IndexedDB 持久化存储 ---
       let db = null;
       function openDB() {
-        return new Promise((res, rej) => {
-          const req = indexedDB.open('JRmusicDB', 1);
-          req.onupgradeneeded = e => e.target.result.createObjectStore('tracks', { keyPath: 'id' });
-          req.onsuccess = e => { db = e.target.result; res(db); };
-          req.onerror = rej;
-        });
-      }
-      function dbSave(track, blob) {
-        return new Promise((res, rej) => {
-          const tx = db.transaction('tracks', 'readwrite');
-          tx.objectStore('tracks').put({ ...track, blob });
-          tx.oncomplete = res; tx.onerror = rej;
-        });
-      }
-      function dbGet(id) {
-        return new Promise(res => {
-          const tx = db.transaction('tracks', 'readonly');
-          const req = tx.objectStore('tracks').get(String(id));
-          req.onsuccess = () => res(req.result);
-          req.onerror = () => res(null);
-        });
-      }
-      function dbGetAll() {
-        return new Promise(res => {
-          const tx = db.transaction('tracks', 'readonly');
-          const req = tx.objectStore('tracks').getAll();
-          req.onsuccess = () => res(req.result || []);
-          req.onerror = () => res([]);
-        });
-      }
-      function dbDel(id) {
-        return new Promise(res => {
-          const tx = db.transaction('tracks', 'readwrite');
-          tx.objectStore('tracks').delete(String(id)).onsuccess = res;
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open('JRmusicDB', 2);
+          req.onupgradeneeded = e => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains('tracks')) {
+              d.createObjectStore('tracks', { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = e => { db = e.target.result; resolve(db); };
+          req.onerror = reject;
         });
       }
 
-      // --- Toast ---
+      function dbSave(track, blob) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject('DB未连接');
+          const tx = db.transaction('tracks', 'readwrite');
+          tx.objectStore('tracks').put({
+            id: String(track.id),
+            name: track.name || '未知曲目',
+            ar: track.ar || track.artists || track.ar_name || '群星',
+            al: track.al || track.album || track.al_name || '',
+            pic: track.pic || track.picUrl || '',
+            lyric: track.lyric || '',
+            blob: blob
+          });
+          tx.oncomplete = resolve;
+          tx.onerror = reject;
+        });
+      }
+
+      function dbGet(id) {
+        return new Promise(resolve => {
+          if (!db) return resolve(null);
+          const tx = db.transaction('tracks', 'readonly');
+          const req = tx.objectStore('tracks').get(String(id));
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        });
+      }
+
+      function dbGetAll() {
+        return new Promise(resolve => {
+          if (!db) return resolve([]);
+          const tx = db.transaction('tracks', 'readonly');
+          const req = tx.objectStore('tracks').getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+      }
+
+      function dbDel(id) {
+        return new Promise(resolve => {
+          if (!db) return resolve();
+          const tx = db.transaction('tracks', 'readwrite');
+          tx.objectStore('tracks').delete(String(id)).onsuccess = resolve;
+        });
+      }
+
       function toast(msg) {
         const t = document.getElementById('toast');
-        t.textContent = msg; t.style.opacity = '1';
+        t.textContent = msg;
+        t.style.opacity = '1';
         setTimeout(() => t.style.opacity = '0', 2000);
       }
 
-      // --- API ---
+      // --- 网络请求封装 ---
       async function request(path, body = null) {
         const res = await fetch(Store.api.replace(/\/+$/, '') + path, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: body ? JSON.stringify(body) : null
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
       }
 
-      // --- LRC Parser (With Bilingual Parenthesis Extraction) ---
+      // --- 规范化统一数据结构 ---
+      function normalizeTrack(item) {
+        return {
+          id: String(item.id),
+          name: item.name || '未知曲目',
+          ar: item.ar || item.artists || item.ar_name || '群星',
+          al: item.al || item.album || item.al_name || '',
+          pic: item.pic || item.picUrl || '',
+          lyric: item.lyric || ''
+        };
+      }
+
+      // --- 歌词解析引擎 ---
       function parseLRC(raw) {
         if (!raw) return [];
         const lines = raw.split('\n');
@@ -367,48 +421,65 @@
         return list.sort((a,b) => a.time - b.time);
       }
 
-      // --- Core Playback ---
-      async function playSong(song) {
-        toast(`載入中: ${song.name}`);
-        if (Store.blobUrl) { URL.revokeObjectURL(Store.blobUrl); Store.blobUrl = null; }
+      // --- 核心播放与持久化读取 ---
+      async function playSong(rawSong) {
+        const song = normalizeTrack(rawSong);
+        toast(`加载中: ${song.name}`);
+
+        if (Store.blobUrl) {
+          URL.revokeObjectURL(Store.blobUrl);
+          Store.blobUrl = null;
+        }
+
         try {
-          let src = null, detail = null;
+          let src = null;
+          let detail = song;
+
+          // 1. 优先从 IndexedDB 中读取永久持久化 Blob
           const cached = await dbGet(song.id);
-          if (cached && cached.blob) {
-            src = URL.createObjectURL(cached.blob);
-            detail = cached;
-            toast('播放本地持久化音源');
+          if (cached && cached.blob && cached.blob.size > 0) {
+            // 确保 Blob 包含标准 audio MIME
+            const audioBlob = cached.blob.type ? cached.blob : new Blob([cached.blob], { type: 'audio/mpeg' });
+            src = URL.createObjectURL(audioBlob);
+            detail = normalizeTrack(cached);
+            toast('读取本地离线音源');
           } else {
-            const res = await request('/song', { url: String(song.id), level: Store.quality, type: 'json' });
-            if (!res.success || !res.data || !res.data.url) throw new Error('解析鏈接失效');
-            
-            // 下載二進制 Blob 避免時效性中斷
+            // 2. 无本地缓存时，请求 CDN 并立即落盘保存
+            const res = await request('/song', { url: song.id, level: Store.quality, type: 'json' });
+            if (!res.success || !res.data || !res.data.url) throw new Error('未获取到 CDN 播放直链');
+
+            detail = normalizeTrack({
+              ...song,
+              name: res.data.name || song.name,
+              ar: res.data.ar_name || song.ar,
+              al: res.data.al_name || song.al,
+              pic: res.data.pic || song.pic,
+              lyric: res.data.lyric || ''
+            });
+
+            // 获取音轨二进制 Blob 并落盘，确保退出 App 后不丢失
             const cdnRes = await fetch(res.data.url, { referrerPolicy: 'no-referrer' });
-            const blob = await cdnRes.blob();
-            detail = {
-              id: String(song.id),
-              name: res.data.name,
-              ar: res.data.ar_name,
-              al: res.data.al_name,
-              pic: res.data.pic,
-              lyric: res.data.lyric
-            };
-            await dbSave(detail, blob);
-            src = URL.createObjectURL(blob);
+            const rawBlob = await cdnRes.blob();
+            const persistentBlob = new Blob([rawBlob], { type: rawBlob.type || 'audio/mpeg' });
+            await dbSave(detail, persistentBlob);
+
+            src = URL.createObjectURL(persistentBlob);
+            toast('已下载并保存到本地');
           }
 
           Store.currentTrack = detail;
           Store.blobUrl = src;
           audio.src = src;
-          audio.play();
+          audio.load();
+          await audio.play();
 
-          // Sync Lyrics & UI
           Store.lyrics = parseLRC(detail.lyric);
           renderLyrics();
           updateUI(detail);
           renderOfflineList();
         } catch (e) {
-          toast(`播放失敗: ${e.message}`);
+          console.error(e);
+          toast(`播放失败: ${e.message}`);
         }
       }
 
@@ -418,14 +489,14 @@
         document.getElementById('mini-sub').textContent = `${song.ar} - ${song.al || ''}`;
         
         document.getElementById('fp-pic').src = song.pic || '';
-        document.getElementById('fp-bg').style.backgroundImage = `url(${song.pic || ''})`;
+        document.getElementById('fp-bg').style.backgroundImage = song.pic ? `url(${song.pic})` : 'none';
         document.getElementById('fp-title').textContent = song.name;
         document.getElementById('fp-artist').textContent = song.ar;
 
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
             title: song.name, artist: song.ar, album: song.al,
-            artwork: [{ src: song.pic, sizes: '512x512', type: 'image/jpeg' }]
+            artwork: [{ src: song.pic || '', sizes: '512x512', type: 'image/jpeg' }]
           });
         }
       }
@@ -434,10 +505,10 @@
         const box = document.getElementById('lrc-box');
         box.innerHTML = '';
         if (!Store.lyrics.length) {
-          box.innerHTML = '<div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">純音樂或未檢測到歌詞</div>';
+          box.innerHTML = '<div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">暂无歌词</div>';
           return;
         }
-        Store.lyrics.forEach((l, idx) => {
+        Store.lyrics.forEach(l => {
           const el = document.createElement('div');
           el.className = 'lrc-line';
           el.innerHTML = `<div>${l.main}</div>${l.sub ? `<div class="lrc-sub">${l.sub}</div>` : ''}`;
@@ -446,7 +517,7 @@
         });
       }
 
-      // --- Audio Engine Events ---
+      // --- 音频事件绑定 ---
       audio.ontimeupdate = () => {
         const cur = audio.currentTime, dur = audio.duration || 0;
         const pct = dur ? (cur / dur) * 100 : 0;
@@ -455,7 +526,6 @@
         document.getElementById('time-cur').textContent = fmt(cur);
         document.getElementById('time-dur').textContent = fmt(dur);
 
-        // Lyric Sync
         if (!Store.lyrics.length) return;
         let idx = -1;
         for (let i = 0; i < Store.lyrics.length; i++) {
@@ -502,78 +572,92 @@
         return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
       }
 
-      // --- Search & Resolve ---
+      // --- 搜索与歌单解析 ---
       document.getElementById('btn-search').onclick = async () => {
         const q = document.getElementById('input-query').value.trim();
-        if (!q) return;
+        if (!q) return toast('请输入关键词');
         const list = document.getElementById('search-list');
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">檢索中...</div>';
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">正在检索中...</div>';
         try {
           const res = await request('/search', { keyword: q, limit: 30 });
           renderSongList(res.data || [], list);
-        } catch (e) { list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">錯誤: ${e.message}</div>`; }
+        } catch (e) {
+          list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">检索失败: ${e.message}</div>`;
+        }
       };
 
       document.getElementById('btn-resolve-pl').onclick = async () => {
         const id = document.getElementById('input-query').value.trim();
-        if (!id) return toast('請在輸入框填寫歌單 ID');
+        if (!id) return toast('请输入歌单 ID');
         const list = document.getElementById('search-list');
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">解析歌單中...</div>';
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">解析歌单中...</div>';
         try {
           const res = await request('/playlist', { id });
           renderSongList(res.data?.playlist?.tracks || [], list);
-        } catch (e) { list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">解析失敗: ${e.message}</div>`; }
+        } catch (e) {
+          list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">解析失败: ${e.message}</div>`;
+        }
       };
 
       function renderSongList(songs, container) {
         container.innerHTML = '';
         document.getElementById('results-count').textContent = `共 ${songs.length} 首`;
         songs.forEach((s, idx) => {
+          const item = normalizeTrack(s);
           const row = document.createElement('div');
           row.className = 'song-row';
           row.innerHTML = `
-            <img src="${s.picUrl || s.pic || ''}" loading="lazy">
+            <img src="${item.pic}" loading="lazy">
             <div class="song-info">
-              <div class="song-name">${s.name}</div>
-              <div class="song-sub">${s.artists || s.ar || ''} - ${s.album || s.al || ''}</div>
+              <div class="song-name">${item.name}</div>
+              <div class="song-sub">${item.ar} - ${item.al}</div>
             </div>
             <div class="row-actions">
-              <button class="icon-btn btn-add" title="添加至自建歌單">➕</button>
+              <button class="icon-btn btn-add" title="添加至歌单">➕</button>
             </div>
           `;
           row.onclick = e => {
             if (e.target.classList.contains('btn-add')) return;
             Store.queue = songs;
             Store.index = idx;
-            playSong(s);
+            playSong(item);
           };
           row.querySelector('.btn-add').onclick = e => {
             e.stopPropagation();
-            openAddToPLModal(s);
+            openAddToPLModal(item);
           };
           container.appendChild(row);
         });
       }
 
-      // --- Custom Playlists Engine ---
+      // --- 自建歌单引擎（彻底支持 iOS 容器） ---
       function savePlaylists() {
         localStorage.setItem('jr_playlists', JSON.stringify(Store.playlists));
         renderPlaylistsGrid();
       }
 
-      document.getElementById('btn-create-pl').onclick = () => {
-        const name = prompt('請輸入新建歌單名稱:');
-        if (!name || !name.trim()) return;
-        Store.playlists.push({ id: 'pl_' + Date.now(), name: name.trim(), songs: [] });
+      // 打开新建歌单实体模态框
+      document.getElementById('btn-open-create-modal').onclick = () => {
+        document.getElementById('input-new-pl-name').value = '';
+        document.getElementById('modal-create-pl').classList.add('active');
+      };
+      document.getElementById('btn-cancel-create').onclick = () => {
+        document.getElementById('modal-create-pl').classList.remove('active');
+      };
+      document.getElementById('btn-confirm-create').onclick = () => {
+        const name = document.getElementById('input-new-pl-name').value.trim();
+        if (!name) return toast('歌单名不能为空');
+        Store.playlists.push({ id: 'pl_' + Date.now(), name: name, songs: [] });
         savePlaylists();
-        toast('歌單創建成功');
+        document.getElementById('modal-create-pl').classList.remove('active');
+        toast(`已创建歌单: ${name}`);
       };
 
       function renderPlaylistsGrid() {
         const grid = document.getElementById('playlists-grid');
         grid.innerHTML = '';
         if (!Store.playlists.length) {
-          grid.innerHTML = '<div style="grid-column:1/-1; padding:20px; text-align:center; color:var(--muted); font-size:13px;">暫無歌單，點擊右上角新建</div>';
+          grid.innerHTML = '<div style="grid-column:1/-1; padding:30px; text-align:center; color:var(--muted); font-size:13px;">暂无歌单，点击右上角新建</div>';
           return;
         }
         Store.playlists.forEach((pl, idx) => {
@@ -590,6 +674,7 @@
       }
 
       function openPlaylist(pl, idx) {
+        Store.activePlaylistIdx = idx;
         document.getElementById('playlists-grid').style.display = 'none';
         const detail = document.getElementById('playlist-detail');
         detail.style.display = 'block';
@@ -597,27 +682,35 @@
         
         const list = document.getElementById('pl-songs-list');
         list.innerHTML = '';
+        if (!pl.songs.length) {
+          list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">歌单为空，可在搜索列表中点击“➕”收藏加入</div>';
+          return;
+        }
+
         pl.songs.forEach((s, sIdx) => {
+          const item = normalizeTrack(s);
           const row = document.createElement('div');
           row.className = 'song-row';
           row.innerHTML = `
-            <img src="${s.picUrl || s.pic || ''}">
+            <img src="${item.pic}">
             <div class="song-info">
-              <div class="song-name">${s.name}</div>
-              <div class="song-sub">${s.artists || s.ar || ''}</div>
+              <div class="song-name">${item.name}</div>
+              <div class="song-sub">${item.ar}</div>
             </div>
-            <button class="icon-btn" style="color:var(--danger);" title="刪除">🗑</button>
+            <button class="icon-btn btn-del-song" style="color:var(--danger);" title="移除">🗑</button>
           `;
           row.onclick = e => {
-            if (e.target.tagName === 'BUTTON') return;
+            if (e.target.classList.contains('btn-del-song')) return;
             Store.queue = pl.songs;
             Store.index = sIdx;
-            playSong(s);
+            playSong(item);
           };
-          row.querySelector('button').onclick = () => {
+          row.querySelector('.btn-del-song').onclick = e => {
+            e.stopPropagation();
             pl.songs.splice(sIdx, 1);
             savePlaylists();
             openPlaylist(pl, idx);
+            toast('已从歌单移除');
           };
           list.appendChild(row);
         });
@@ -628,23 +721,37 @@
         document.getElementById('playlists-grid').style.display = 'grid';
       };
 
+      document.getElementById('btn-del-cur-pl').onclick = () => {
+        if (Store.activePlaylistIdx >= 0) {
+          const name = Store.playlists[Store.activePlaylistIdx].name;
+          Store.playlists.splice(Store.activePlaylistIdx, 1);
+          savePlaylists();
+          document.getElementById('playlist-detail').style.display = 'none';
+          document.getElementById('playlists-grid').style.display = 'grid';
+          toast(`已删除歌单: ${name}`);
+        }
+      };
+
       function openAddToPLModal(song) {
+        Store.pendingTrackToCollect = normalizeTrack(song);
         const modal = document.getElementById('modal-add-pl');
         const list = document.getElementById('modal-pl-items');
         list.innerHTML = '';
         if (!Store.playlists.length) {
-          list.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px;">請先在「自建歌單」標籤新建歌單</div>';
+          list.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px;">尚未创建歌单，请先点击新建歌单</div>';
         } else {
           Store.playlists.forEach(pl => {
             const btn = document.createElement('div');
             btn.className = 'modal-item';
             btn.textContent = `${pl.name} (${pl.songs.length})`;
             btn.onclick = () => {
-              if (!pl.songs.some(x => String(x.id) === String(song.id))) {
-                pl.songs.push(song);
+              if (!pl.songs.some(x => String(x.id) === String(Store.pendingTrackToCollect.id))) {
+                pl.songs.push(Store.pendingTrackToCollect);
                 savePlaylists();
                 toast(`已加入: ${pl.name}`);
-              } else toast('歌曲已在歌單中');
+              } else {
+                toast('歌曲已存在于此歌单中');
+              }
               modal.classList.remove('active');
             };
             list.appendChild(btn);
@@ -654,48 +761,73 @@
       }
       document.getElementById('btn-modal-close').onclick = () => document.getElementById('modal-add-pl').classList.remove('active');
 
-      // --- Offline View ---
+      // --- 本地持久离线库 ---
       async function renderOfflineList() {
         const list = document.getElementById('offline-list');
         const tracks = await dbGetAll();
         list.innerHTML = '';
         if (!tracks.length) {
-          list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">無離線音源，播放或點擊下載自動落盤</div>';
+          list.innerHTML = '<div style="padding:30px; text-align:center; color:var(--muted); font-size:13px;">暂无离线文件，播放在线歌曲或导入 MP3 即永久落盘</div>';
           return;
         }
         tracks.forEach((t, idx) => {
+          const item = normalizeTrack(t);
           const row = document.createElement('div');
           row.className = 'song-row';
           row.innerHTML = `
-            <img src="${t.pic || ''}">
+            <img src="${item.pic || ''}">
             <div class="song-info">
-              <div class="song-name">${t.name}</div>
-              <div class="song-sub">${t.ar || ''} · [持久化就緒]</div>
+              <div class="song-name">${item.name}</div>
+              <div class="song-sub">${item.ar} · [物理落盘就绪]</div>
             </div>
-            <button class="icon-btn" style="color:var(--danger);">🗑</button>
+            <button class="icon-btn btn-del-cached" style="color:var(--danger);">🗑</button>
           `;
           row.onclick = e => {
-            if (e.target.tagName === 'BUTTON') return;
-            Store.queue = tracks; Store.index = idx;
-            playSong(t);
+            if (e.target.classList.contains('btn-del-cached')) return;
+            Store.queue = tracks;
+            Store.index = idx;
+            playSong(item);
           };
-          row.querySelector('button').onclick = async () => {
-            await dbDel(t.id);
+          row.querySelector('.btn-del-cached').onclick = async e => {
+            e.stopPropagation();
+            await dbDel(item.id);
             renderOfflineList();
-            toast('已從本機移除');
+            toast('已从硬盘删除');
           };
           list.appendChild(row);
         });
       }
-      document.getElementById('btn-clear-db').onclick = async () => {
-        if (confirm('確定清空所有本地持久化音頻？')) {
-          const tracks = await dbGetAll();
-          for (let t of tracks) await dbDel(t.id);
-          renderOfflineList();
+
+      // 本地音频文件导入
+      document.getElementById('input-local-file').onchange = async e => {
+        const files = e.target.files;
+        if (!files || !files.length) return;
+        toast(`正在导入 ${files.length} 个文件...`);
+        for (let file of files) {
+          const name = file.name.replace(/\.[^/.]+$/, "");
+          const id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+          await dbSave({
+            id: id,
+            name: name,
+            ar: '本地音频',
+            al: '本地存储',
+            pic: '',
+            lyric: ''
+          }, file);
         }
+        e.target.value = '';
+        toast('导入完成');
+        renderOfflineList();
       };
 
-      // --- Controls & Sliders ---
+      document.getElementById('btn-clear-db').onclick = async () => {
+        const tracks = await dbGetAll();
+        for (let t of tracks) await dbDel(t.id);
+        renderOfflineList();
+        toast('已清空本地持久库');
+      };
+
+      // --- 播放器控件联动 ---
       document.getElementById('mini-player').onclick = () => document.getElementById('full-player').classList.add('open');
       document.getElementById('fp-close').onclick = () => document.getElementById('full-player').classList.remove('open');
       document.getElementById('mini-play-btn').onclick = e => { e.stopPropagation(); audio.paused ? audio.play() : audio.pause(); };
@@ -705,20 +837,20 @@
       document.getElementById('ctrl-mode').onclick = () => {
         Store.mode = Store.mode === 'loop' ? 'single' : (Store.mode === 'single' ? 'shuffle' : 'loop');
         document.getElementById('ctrl-mode').textContent = Store.mode === 'loop' ? '🔁' : (Store.mode === 'single' ? '🔂' : '🔀');
-        toast(`模式: ${Store.mode}`);
+        toast(`播放模式: ${Store.mode}`);
       };
       document.getElementById('progress-bar').onclick = e => {
         const rect = e.currentTarget.getBoundingClientRect();
         audio.currentTime = ((e.clientX - rect.left) / rect.width) * (audio.duration || 0);
       };
       document.getElementById('fp-dl').onclick = () => {
-        if (Store.currentTrack) toast(`已落盤本地: ${Store.currentTrack.name}`);
+        if (Store.currentTrack) toast(`该歌曲已持久化存储: ${Store.currentTrack.name}`);
       };
       document.getElementById('ctrl-add-pl').onclick = () => {
         if (Store.currentTrack) openAddToPLModal(Store.currentTrack);
       };
 
-      // --- Navigation ---
+      // --- 视图切换 ---
       function switchTab(viewId) {
         document.querySelectorAll('.view-pane').forEach(p => p.classList.toggle('active', p.id === viewId));
         document.querySelectorAll('.nav-btn, .tab').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
@@ -727,11 +859,11 @@
       }
       document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => switchTab(b.dataset.view));
 
-      // --- Settings Init ---
+      // --- 设置中心 ---
       document.getElementById('cfg-api').onchange = e => { Store.api = e.target.value.trim(); localStorage.setItem('jr_api', Store.api); toast('API 已更新'); };
-      document.getElementById('cfg-quality').onchange = e => { Store.quality = e.target.value; localStorage.setItem('jr_quality', Store.quality); toast('音質檔位已更新'); };
+      document.getElementById('cfg-quality').onchange = e => { Store.quality = e.target.value; localStorage.setItem('jr_quality', Store.quality); toast('解析品质已更新'); };
 
-      // --- Init Boot ---
+      // --- 启动引导 ---
       openDB().then(() => {
         renderPlaylistsGrid();
         renderOfflineList();
