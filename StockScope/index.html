@@ -1,1970 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>JR OS - Desktop Operating System for iPadOS</title>
-  <style>
-    /* ==========================================================================
-       1. FLUENT DESIGN SYSTEM & IPADOS RETINA SAFE-AREA CSS ENGINE
-       ========================================================================== */
-    :root {
-      --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI Variable Display", "Segoe UI", Roboto, sans-serif;
-      --font-code: "SF Mono", Menlo, Monaco, Consolas, monospace;
-      
-      /* Fluent & Mica Dynamic Color Harmonization */
-      --accent-color: #0078d4;
-      --accent-light: #2b88d8;
-      --accent-glow: rgba(0, 120, 212, 0.45);
-      --accent-soft: rgba(0, 120, 212, 0.18);
-
-      --mica-base: rgba(30, 32, 38, 0.78);
-      --mica-panel: rgba(36, 38, 46, 0.85);
-      --mica-card: rgba(255, 255, 255, 0.06);
-      --mica-card-hover: rgba(255, 255, 255, 0.1);
-      
-      --border-outer: rgba(255, 255, 255, 0.16);
-      --border-inner: rgba(255, 255, 255, 0.08);
-
-      --text-main: #ffffff;
-      --text-muted: rgba(255, 255, 255, 0.65);
-      --text-dim: rgba(255, 255, 255, 0.4);
-
-      /* Smooth Curvature & High-End Drop Shadows */
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --radius-xl: 26px;
-      --radius-squircle: 22px;
-
-      --shadow-window: 0 28px 64px rgba(0, 0, 0, 0.65), 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      --shadow-taskbar: 0 -8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      --shadow-popup: 0 32px 72px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-
-      /* Safe-Area Metrics for iPad Home Bar & Notch */
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 20px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
-      --tb-height: 56px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      font-family: var(--font-system);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body, html {
-      width: 100vw;
-      height: 100dvh;
-      overflow: hidden;
-      background-color: #0b0f17;
-      color: var(--text-main);
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
-
-    /* ==========================================================================
-       2. DESKTOP & FLUID WALLPAPER CANVAS
-       ========================================================================== */
-    #desktop-viewport {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: calc(100dvh - var(--tb-height) - var(--safe-bottom));
-      background: radial-gradient(circle at 50% 15%, #182844 0%, #0d1522 55%, #05080e 100%);
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .desktop-shortcut-grid {
-      position: absolute;
-      top: calc(20px + var(--safe-top));
-      left: calc(20px + var(--safe-left));
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-      gap: 18px;
-      height: calc(100% - 40px - var(--safe-top));
-      z-index: 2;
-    }
-
-    .desktop-icon-node {
-      width: 92px;
-      height: 98px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border-radius: var(--radius-md);
-      padding: 8px 6px;
-      cursor: pointer;
-      color: #ffffff;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-    }
-
-    .desktop-icon-node:hover {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .desktop-icon-node:active {
-      background: rgba(255, 255, 255, 0.18);
-      transform: scale(0.94);
-    }
-
-    .desktop-icon-node svg {
-      width: 44px;
-      height: 44px;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
-    }
-
-    .desktop-icon-node span {
-      font-size: 12px;
-      font-weight: 500;
-      text-align: center;
-      line-height: 1.25;
-      max-width: 86px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      word-break: break-all;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-    }
-
-    /* ==========================================================================
-       3. FLOATING TASKBAR WITH SAFE-AREA PROTECTION
-       ========================================================================== */
-    #taskbar-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100vw;
-      height: calc(var(--tb-height) + var(--safe-bottom));
-      padding-bottom: var(--safe-bottom);
-      background: var(--mica-base);
-      backdrop-filter: blur(36px) saturate(210%);
-      -webkit-backdrop-filter: blur(36px) saturate(210%);
-      border-top: 1px solid var(--border-inner);
-      box-shadow: var(--shadow-taskbar);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-left: calc(16px + var(--safe-left));
-      padding-right: calc(16px + var(--safe-right));
-      z-index: 99999;
-    }
-
-    .taskbar-left, .taskbar-right {
-      display: flex;
-      align-items: center;
-      min-width: 120px;
-    }
-
-    .taskbar-right {
-      justify-content: flex-end;
-    }
-
-    .taskbar-center {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 100%;
-    }
-
-    .taskbar-action-button {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      color: var(--text-main);
-      transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .taskbar-action-button:active {
-      background: rgba(255, 255, 255, 0.15);
-      transform: scale(0.92);
-    }
-
-    .taskbar-action-button.active-process::after {
-      content: "";
-      position: absolute;
-      bottom: 3px;
-      width: 18px;
-      height: 3px;
-      border-radius: 2px;
-      background: var(--accent-light);
-      box-shadow: 0 0 8px var(--accent-glow);
-    }
-
-    .taskbar-action-button.minimized-process::after {
-      width: 6px;
-      background: var(--text-muted);
-    }
-
-    .tray-clock-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-inner);
-      transition: background 0.15s ease;
-    }
-
-    .tray-clock-pill:active {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    /* ==========================================================================
-       4. START MENU CURVED ACRYLIC PANEL
-       ========================================================================== */
-    #start-menu-panel {
-      position: absolute;
-      bottom: calc(var(--tb-height) + var(--safe-bottom) + 12px);
-      left: 50%;
-      transform: translateX(-50%) translateY(24px) scale(0.95);
-      width: 540px;
-      max-width: calc(100vw - 32px);
-      height: 560px;
-      background: var(--mica-panel);
-      backdrop-filter: blur(48px) saturate(220%);
-      -webkit-backdrop-filter: blur(48px) saturate(220%);
-      border: 1px solid var(--border-outer);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-popup);
-      z-index: 100000;
-      opacity: 0;
-      pointer-events: none;
-      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #start-menu-panel.panel-visible {
-      transform: translateX(-50%) translateY(0) scale(1);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .start-search-row {
-      padding: 24px 28px 12px 28px;
-    }
-
-    .start-search-input-field {
-      width: 100%;
-      height: 44px;
-      border-radius: 22px;
-      background: var(--mica-card);
-      border: 1px solid var(--border-inner);
-      padding: 0 20px;
-      font-size: 14px;
-      color: var(--text-main);
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .start-search-input-field:focus {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--accent-light);
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    .start-content-scroll {
-      flex: 1;
-      padding: 12px 28px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .start-section-heading {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.3px;
-    }
-
-    .start-grid-apps {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .start-pinned-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 6px;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .start-pinned-item:hover {
-      background: var(--mica-card-hover);
-    }
-
-    .start-pinned-item:active {
-      transform: scale(0.94);
-    }
-
-    .start-pinned-item svg {
-      width: 40px;
-      height: 40px;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
-    }
-
-    .start-pinned-item span {
-      font-size: 12.5px;
-      font-weight: 500;
-      text-align: center;
-    }
-
-    .start-footer-bar {
-      height: 64px;
-      background: rgba(0, 0, 0, 0.2);
-      border-top: 1px solid var(--border-inner);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-    }
-
-    /* ==========================================================================
-       5. FLUENT WINDOW ARCHITECTURE & SQUIRCLE GEOMETRY
-       ========================================================================== */
-    .fluent-window {
-      position: absolute;
-      background: var(--mica-panel);
-      backdrop-filter: blur(48px) saturate(210%);
-      -webkit-backdrop-filter: blur(48px) saturate(210%);
-      border: 1px solid var(--border-outer);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-window);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-width: 360px;
-      min-height: 260px;
-      z-index: 10;
-      transform: translateZ(0);
-      will-change: transform, width, height, left, top;
-    }
-
-    .fluent-window.window-maximized {
-      border-radius: 0 !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    .fluent-window.window-minimized {
-      display: none !important;
-    }
-
-    .window-titlebar-region {
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 8px 0 16px;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid var(--border-inner);
-      flex-shrink: 0;
-    }
-
-    .window-drag-carrier {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .window-title-caption {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      color: var(--text-main);
-    }
-
-    .window-header-buttons {
-      display: flex;
-      height: 100%;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .header-ctrl-btn {
-      width: 38px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      border: none;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-main);
-      font-size: 13px;
-      transition: background 0.15s ease;
-    }
-
-    .header-ctrl-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .header-ctrl-btn.close-type:hover {
-      background: #c42b1c;
-      color: #fff;
-    }
-
-    .window-body-viewport {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: rgba(0, 0, 0, 0.25);
-    }
-
-    /* Touch-friendly Resizing Handles */
-    .resizer-grip {
-      position: absolute;
-      z-index: 1000;
-    }
-    .resizer-grip.grip-n { top: -6px; left: 0; width: 100%; height: 12px; cursor: n-resize; }
-    .resizer-grip.grip-s { bottom: -6px; left: 0; width: 100%; height: 12px; cursor: s-resize; }
-    .resizer-grip.grip-w { top: 0; left: -6px; width: 12px; height: 100%; cursor: w-resize; }
-    .resizer-grip.grip-e { top: 0; right: -6px; width: 12px; height: 100%; cursor: e-resize; }
-    .resizer-grip.grip-se { bottom: -8px; right: -8px; width: 20px; height: 20px; cursor: se-resize; }
-
-    /* ==========================================================================
-       6. ACRYLIC LOCK SCREEN & HIGH-SECURITY PIN DIALOG
-       ========================================================================== */
-    #lock-screen-curtain {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100dvh;
-      background: radial-gradient(circle at center, #1b263b 0%, #06090e 100%);
-      z-index: 9999999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(48px);
-      -webkit-backdrop-filter: blur(48px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .lock-time-display {
-      font-size: 78px;
-      font-weight: 200;
-      letter-spacing: -1.5px;
-      line-height: 1.1;
-    }
-
-    .lock-date-display {
-      font-size: 17px;
-      font-weight: 400;
-      color: var(--text-muted);
-      margin-bottom: 34px;
-    }
-
-    .pin-status-indicators {
-      display: flex;
-      gap: 18px;
-      margin-bottom: 32px;
-    }
-
-    .pin-bullet {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255, 255, 255, 0.7);
-      transition: all 0.14s ease;
-    }
-
-    .pin-bullet.bullet-active {
-      background: #ffffff;
-      border-color: #ffffff;
-      transform: scale(1.15);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-
-    .numpad-matrix {
-      display: grid;
-      grid-template-columns: repeat(3, 78px);
-      gap: 18px;
-    }
-
-    .numpad-key {
-      width: 78px;
-      height: 78px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-inner);
-      color: #ffffff;
-      font-size: 26px;
-      font-weight: 300;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.12s ease;
-    }
-
-    .numpad-key:active {
-      background: rgba(255, 255, 255, 0.28);
-      transform: scale(0.92);
-    }
-
-    /* ==========================================================================
-       7. PYTHON CMD SHELL, FILE EXPLORER & SETTINGS SPECIFIC STYLES
-       ========================================================================== */
-    .cmd-terminal-root {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: #0d1117;
-      font-family: var(--font-code);
-      padding: 12px;
-    }
-
-    .cmd-log-terminal {
-      flex: 1;
-      overflow-y: auto;
-      color: #e6edf3;
-      font-size: 13px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-
-    .cmd-prompt-line {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 10px;
-    }
-
-    .cmd-chevron {
-      color: var(--accent-light);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .cmd-text-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #ffffff;
-      font-family: var(--font-code);
-      font-size: 13px;
-    }
-
-    .fe-workspace {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .fe-tabs-strip {
-      display: flex;
-      align-items: center;
-      height: 42px;
-      padding: 0 10px;
-      gap: 6px;
-      background: rgba(0, 0, 0, 0.15);
-      border-bottom: 1px solid var(--border-inner);
-    }
-
-    .fe-tab-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: var(--mica-card);
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      font-size: 12.5px;
-      cursor: pointer;
-      border: 1px solid var(--border-inner);
-      border-bottom: none;
-    }
-
-    .fe-tab-item.tab-active {
-      background: rgba(255, 255, 255, 0.1);
-      font-weight: 600;
-    }
-
-    .fe-navigation-bar {
-      height: 44px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-bottom: 1px solid var(--border-inner);
-    }
-
-    .fe-address-box {
-      flex: 1;
-      height: 32px;
-      background: var(--mica-card);
-      border: 1px solid var(--border-inner);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      font-size: 12.5px;
-      gap: 6px;
-    }
-
-    .fe-panes-split {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .fe-quick-sidebar {
-      width: 190px;
-      border-right: 1px solid var(--border-inner);
-      padding: 10px 8px;
-      overflow-y: auto;
-    }
-
-    .fe-sidebar-node {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.14s ease;
-    }
-
-    .fe-sidebar-node:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-
-    .fe-sidebar-node.node-selected {
-      background: var(--accent-soft);
-      color: var(--accent-light);
-      font-weight: 600;
-    }
-
-    .fe-content-canvas {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
-      gap: 16px;
-      align-content: flex-start;
-    }
-
-    .fe-item-tile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 12px 6px;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      gap: 8px;
-      transition: all 0.15s ease;
-    }
-
-    .fe-item-tile:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .fe-item-tile:active {
-      background: var(--accent-soft);
-      transform: scale(0.95);
-    }
-
-    .fe-item-tile svg {
-      width: 44px;
-      height: 44px;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-    }
-
-    .fe-tile-label {
-      font-size: 12px;
-      font-weight: 500;
-      word-break: break-all;
-      max-width: 90px;
-      line-height: 1.25;
-    }
-
-    .settings-layout-root {
-      display: flex;
-      height: 100%;
-    }
-
-    .settings-nav-rail {
-      width: 240px;
-      border-right: 1px solid var(--border-inner);
-      padding: 16px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: rgba(0, 0, 0, 0.15);
-      overflow-y: auto;
-    }
-
-    .settings-nav-button {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .settings-nav-button:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
-    }
-
-    .settings-nav-button.button-active {
-      background: var(--accent-soft);
-      color: var(--accent-light);
-      font-weight: 600;
-    }
-
-    .settings-content-pane {
-      flex: 1;
-      padding: 28px;
-      overflow-y: auto;
-    }
-
-    .device-telemetry-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 13px;
-    }
-
-    .device-telemetry-table td {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-inner);
-    }
-
-    .device-telemetry-table td:first-child {
-      color: var(--text-muted);
-      width: 38%;
-      font-weight: 500;
-    }
-
-    .btn-fluent-action {
-      padding: 8px 18px;
-      background: var(--mica-card);
-      border: 1px solid var(--border-inner);
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.15s ease;
-    }
-
-    .btn-fluent-action:hover {
-      background: var(--mica-card-hover);
-      border-color: var(--border-outer);
-    }
-
-    .btn-fluent-action:active {
-      background: var(--accent-color);
-      color: #fff;
-      transform: scale(0.96);
-    }
-
-    #jrex-installer-overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(16px);
-      z-index: 1000000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .jrex-dialog-box {
-      width: 440px;
-      background: var(--mica-panel);
-      border: 1px solid var(--border-outer);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-popup);
-      padding: 26px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JR-DOS v3.0 Enterprise</title>
+    <!-- Pyodide Python 3 WebAssembly Runtime -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+        :root {
+            --bg-color: #080808;
+            --term-green: #00ff66;
+            --term-dim: #008f3a;
+            --term-err: #ff3344;
+            --term-warn: #ffaa00;
+            --font-stack: "SF Mono", "Menlo", "Courier New", Courier, monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--term-green);
+            font-family: var(--font-stack);
+            font-size: 13.5px;
+            line-height: 1.45;
+            padding: 10px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-user-select: text;
+        }
+
+        #terminal {
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding-bottom: 8px;
+        }
+
+        .output-line { margin-bottom: 2px; }
+        .prompt-container { display: flex; align-items: center; margin-top: 4px; }
+        .prompt { color: var(--term-green); font-weight: bold; margin-right: 6px; user-select: none; }
+
+        #cli-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--term-green);
+            font-family: var(--font-stack);
+            font-size: 13.5px;
+            caret-color: var(--term-green);
+        }
+
+        #hidden-file-picker { display: none; }
+    </style>
 </head>
 <body>
+    <div id="terminal"></div>
+    <div class="prompt-container">
+        <span class="prompt" id="prompt-label">C:\&gt;</span>
+        <input type="text" id="cli-input" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
 
-  <!-- Screen Lock UI Subsystem -->
-  <div id="lock-screen-curtain">
-    <div class="lock-time-display" id="screen-lock-time">12:00</div>
-    <div class="lock-date-display" id="screen-lock-date">Saturday, October 3, 2026</div>
-    <div class="pin-status-indicators">
-      <div class="pin-bullet" id="pin-dot-0"></div>
-      <div class="pin-bullet" id="pin-dot-1"></div>
-      <div class="pin-bullet" id="pin-dot-2"></div>
-      <div class="pin-bullet" id="pin-dot-3"></div>
-    </div>
-    <div class="numpad-matrix">
-      <button class="numpad-key" onclick="handlePinInput('1')">1</button>
-      <button class="numpad-key" onclick="handlePinInput('2')">2</button>
-      <button class="numpad-key" onclick="handlePinInput('3')">3</button>
-      <button class="numpad-key" onclick="handlePinInput('4')">4</button>
-      <button class="numpad-key" onclick="handlePinInput('5')">5</button>
-      <button class="numpad-key" onclick="handlePinInput('6')">6</button>
-      <button class="numpad-key" onclick="handlePinInput('7')">7</button>
-      <button class="numpad-key" onclick="handlePinInput('8')">8</button>
-      <button class="numpad-key" onclick="handlePinInput('9')">9</button>
-      <button class="numpad-key" style="font-size:14px;" onclick="resetPinInput()">Clear</button>
-      <button class="numpad-key" onclick="handlePinInput('0')">0</button>
-      <button class="numpad-key" style="font-size:14px;" onclick="bypassLockScreen()">Bypass</button>
-    </div>
-  </div>
+    <!-- Hidden native file picker for openfile / selectfile -->
+    <input type="file" id="hidden-file-picker" multiple>
 
-  <!-- Primary Desktop Surface -->
-  <div id="desktop-viewport">
-    <div class="desktop-shortcut-grid" id="desktop-icon-plane"></div>
-  </div>
+    <script>
+        const terminal = document.getElementById('terminal');
+        const cliInput = document.getElementById('cli-input');
+        const promptLabel = document.getElementById('prompt-label');
+        const filePicker = document.getElementById('hidden-file-picker');
 
-  <!-- Centered Fluent Taskbar (Safe-Area Aware) -->
-  <div id="taskbar-container">
-    <div class="taskbar-left"></div>
-    <div class="taskbar-center" id="taskbar-processes-row">
-      <button class="taskbar-action-button" id="start-menu-trigger" title="Start">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--accent-color)">
-          <path d="M2 3.5L10.5 2.2V11H2V3.5ZM11.5 2V11H22V0.5L11.5 2ZM2 13H10.5V21.8L2 20.5V13ZM11.5 13H22V23.5L11.5 22V13Z"/>
-        </svg>
-      </button>
-    </div>
-    <div class="taskbar-right">
-      <div class="tray-clock-pill" onclick="invokeSystemLock()">
-        <span id="taskbar-clock-label">12:00</span>
-      </div>
-    </div>
-  </div>
+        let pyodideInstance = null;
+        let commandHistory = [];
+        let historyIndex = -1;
+        let nativeCallbackResolver = null;
 
-  <!-- Start Menu Dropdown -->
-  <div id="start-menu-panel">
-    <div class="start-search-row">
-      <input type="text" class="start-search-input-field" placeholder="Search apps, diagnostics, and virtual files...">
-    </div>
-    <div class="start-content-scroll">
-      <div class="start-section-heading">
-        <span>Pinned Apps</span>
-      </div>
-      <div class="start-grid-apps" id="start-apps-grid"></div>
-    </div>
-    <div class="start-footer-bar">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="width:34px; height:34px; border-radius:50%; background:var(--accent-color); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; box-shadow:0 2px 8px var(--accent-glow);">J</div>
-        <span style="font-size:13.5px; font-weight:500;">Jack Zhang</span>
-      </div>
-      <button class="btn-fluent-action" onclick="invokeSystemLock()">Lock Session</button>
-    </div>
-  </div>
-
-  <!-- .jrex Package Installer Dialog -->
-  <div id="jrex-installer-overlay">
-    <div class="jrex-dialog-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:11px; font-weight:700; color:var(--accent-light); background:var(--accent-soft); padding:3px 10px; border-radius:6px; letter-spacing:0.5px;">JREX PACKAGE RUNTIME</span>
-        <span style="cursor:pointer; font-size:16px; opacity:0.7;" onclick="dismissJrexDialog()">✕</span>
-      </div>
-      <h3 id="jrex-modal-name" style="font-size:17px; font-weight:600;">Software Installation</h3>
-      <p id="jrex-modal-description" style="font-size:13px; color:var(--text-muted); line-height:1.45;"></p>
-      <div style="font-size:12px; padding:12px; background:var(--mica-card); border:1px solid var(--border-inner); border-radius:var(--radius-sm); line-height:1.4;">
-        Verified Publisher: JR Entertainment Systems<br>
-        Sandbox Environment: iOS WebKit JIT Container
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button class="btn-fluent-action" onclick="dismissJrexDialog()">Cancel</button>
-        <button class="btn-fluent-action" style="background:var(--accent-color); color:#fff;" id="jrex-install-action-btn">Install Application</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    /* ==========================================================================
-       SECTION 8: ZERO-ASSET AUDIO SYNTHESIZER
-       ========================================================================== */
-    class JRAudioSynthesizer {
-      constructor() {
-        this.ctx = null;
-      }
-
-      ensureContext() {
-        if (!this.ctx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) this.ctx = new AudioContextClass();
+        // --- Output Utility ---
+        function print(text, type = "normal") {
+            const div = document.createElement('div');
+            div.className = 'output-line';
+            if (type === "error") div.style.color = "var(--term-err)";
+            else if (type === "warn") div.style.color = "var(--term-warn)";
+            else if (type === "dim") div.style.color = "var(--term-dim)";
+            div.textContent = text;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
         }
-        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
-      }
 
-      playTone(frequency, type = 'sine', duration = 0.15, gainValue = 0.08) {
-        try {
-          this.ensureContext();
-          if (!this.ctx) return;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = type;
-          osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
-          gain.gain.setValueAtTime(gainValue, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + duration);
-        } catch (e) {}
-      }
-
-      playFeedbackClick() { this.playTone(880, 'sine', 0.08, 0.03); }
-      playAuthSuccess() {
-        this.playTone(523.25, 'triangle', 0.1, 0.05);
-        setTimeout(() => this.playTone(659.25, 'triangle', 0.15, 0.05), 100);
-        setTimeout(() => this.playTone(783.99, 'triangle', 0.25, 0.05), 200);
-      }
-      playAuthError() {
-        this.playTone(220, 'sawtooth', 0.2, 0.06);
-        setTimeout(() => this.playTone(180, 'sawtooth', 0.25, 0.06), 150);
-      }
-    }
-
-    const soundSystem = new JRAudioSynthesizer();
-
-    /* ==========================================================================
-       SECTION 9: INDEXEDDB MULTI-STORE PERSISTENCE ENGINE
-       ========================================================================== */
-    class JRIndexedDBEngine {
-      constructor(dbName = "JR_OS_KERNEL_DB", dbVersion = 1) {
-        this.dbName = dbName;
-        this.dbVersion = dbVersion;
-        this.db = null;
-      }
-
-      async open() {
-        return new Promise((resolve, reject) => {
-          const req = indexedDB.open(this.dbName, this.dbVersion);
-          req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains("vfs_nodes")) db.createObjectStore("vfs_nodes", { keyPath: "path" });
-            if (!db.objectStoreNames.contains("os_registry")) db.createObjectStore("os_registry", { keyPath: "key" });
-            if (!db.objectStoreNames.contains("packages_installed")) db.createObjectStore("packages_installed", { keyPath: "appId" });
-          };
-          req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
-          req.onerror = (e) => reject(e.target.error);
-        });
-      }
-
-      async readRecord(storeName, key) {
-        return new Promise((resolve, reject) => {
-          const tx = this.db.transaction([storeName], "readonly");
-          const req = tx.objectStore(storeName).get(key);
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      async writeRecord(storeName, record) {
-        return new Promise((resolve, reject) => {
-          const tx = this.db.transaction([storeName], "readwrite");
-          const req = tx.objectStore(storeName).put(record);
-          req.onsuccess = () => resolve(true);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      async readAllRecords(storeName) {
-        return new Promise((resolve, reject) => {
-          const tx = this.db.transaction([storeName], "readonly");
-          const req = tx.objectStore(storeName).getAll();
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-        });
-      }
-    }
-
-    const kernelDB = new JRIndexedDBEngine();
-
-    /* ==========================================================================
-       SECTION 10: VIRTUAL FILE SYSTEM
-       ========================================================================== */
-    class JRVFS {
-      constructor(dbEngine) {
-        this.db = dbEngine;
-        this.rootMemoryCache = {};
-      }
-
-      async bootstrap() {
-        const rootEntry = await this.db.readRecord("vfs_nodes", "/");
-        if (!rootEntry) {
-          await this.formatDefaultFilesystem();
-        } else {
-          await this.loadCache();
-        }
-      }
-
-      async formatDefaultFilesystem() {
-        this.rootMemoryCache = {
-          "/": { type: "dir", updated: Date.now() },
-          "/Desktop": { type: "dir", updated: Date.now() },
-          "/Documents": { type: "dir", updated: Date.now() },
-          "/Downloads": { type: "dir", updated: Date.now() },
-          "/Desktop/File_Explorer.app": { type: "app_shortcut", target: "explorer", name: "File Explorer", icon: "folder" },
-          "/Desktop/Settings.app": { type: "app_shortcut", target: "settings", name: "Settings", icon: "settings" },
-          "/Desktop/Python_CMD.app": { type: "app_shortcut", target: "cmd", name: "Python Terminal", icon: "terminal" },
-          "/Desktop/SynthStudio.jrex": {
-            type: "jrex",
-            name: "SynthStudio.jrex",
-            size: "1.2 MB",
-            manifest: {
-              appId: "synth_studio",
-              name: "JR Synth Studio",
-              publisher: "JR Entertainment",
-              version: "1.0.0",
-              description: "Web Audio harmonic audio synthesizer running inside iOS WebKit container.",
-              executableCode: `
-                <div style="padding:24px; display:flex; flex-direction:column; gap:16px;">
-                  <h2>JR Synth Studio</h2>
-                  <p style="font-size:13px; color:var(--text-muted);">Direct hardware-accelerated sound generation via Web Audio API.</p>
-                  <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button class="btn-fluent-action" onclick="soundSystem.playTone(261.63, 'sine', 0.4, 0.1)">Tone C4</button>
-                    <button class="btn-fluent-action" onclick="soundSystem.playTone(329.63, 'sine', 0.4, 0.1)">Tone E4</button>
-                    <button class="btn-fluent-action" onclick="soundSystem.playTone(392.00, 'sine', 0.4, 0.1)">Tone G4</button>
-                    <button class="btn-fluent-action" onclick="soundSystem.playTone(523.25, 'sine', 0.5, 0.1)">Tone C5</button>
-                  </div>
-                </div>
-              `
+        // ==========================================
+        // 1. Hierarchical Virtual File System (VFS)
+        // ==========================================
+        class VirtualFileSystem {
+            constructor() {
+                this.root = { type: 'dir', name: '', children: {}, parent: null };
+                this.currentDir = this.root;
+                this.currentPath = ['C:'];
             }
-          },
-          "/Documents/Architecture_Specification.txt": {
-            type: "file",
-            content: "JR OS 2026 Enterprise Architecture.\nSubsystems:\n- IndexedDB Kernel\n- Hardware Telemetry Engine\n- Python 3.12 AST Interpreter\n- Fluent Mica Shell with Squircle Curvature\nAll modules are fully sandboxed and compliant with iOS WebKit constraints."
-          }
-        };
 
-        for (const [path, data] of Object.entries(this.rootMemoryCache)) {
-          await this.db.writeRecord("vfs_nodes", { path, ...data });
-        }
-      }
+            resolvePath(pathStr) {
+                if (!pathStr || pathStr === '.') return this.currentDir;
+                let parts = pathStr.replace(/\\/g, '/').split('/').filter(p => p.length > 0);
+                let startNode = (pathStr.startsWith('/') || pathStr.toUpperCase().startsWith('C:')) ? this.root : this.currentDir;
+                if (parts[0] && parts[0].toUpperCase() === 'C:') parts.shift();
 
-      async loadCache() {
-        const records = await this.db.readAllRecords("vfs_nodes");
-        this.rootMemoryCache = {};
-        for (const r of records) this.rootMemoryCache[r.path] = r;
-      }
-
-      async writeFile(path, content) {
-        const node = { type: "file", content: content, updated: Date.now() };
-        this.rootMemoryCache[path] = node;
-        await this.db.writeRecord("vfs_nodes", { path, ...node });
-      }
-
-      listDirectory(dirPath) {
-        const normalized = dirPath === "/" ? "/" : dirPath.replace(/\/$/, "");
-        const results = [];
-        for (const [k, v] of Object.entries(this.rootMemoryCache)) {
-          if (k === normalized || k === "/") continue;
-          const parent = k.substring(0, k.lastIndexOf("/")) || "/";
-          if (parent === normalized) {
-            results.push({ path: k, name: k.substring(k.lastIndexOf("/") + 1), ...v });
-          }
-        }
-        return results;
-      }
-    }
-
-    /* ==========================================================================
-       SECTION 11: DEVICE HARDWARE TELEMETRY PROBE
-       ========================================================================== */
-    class JRDeviceDiagnostics {
-      static async queryAllTelemetry() {
-        const metrics = {};
-        metrics["System Runtime Platform"] = navigator.platform || "iPadOS / Apple WebKit";
-        metrics["User Agent Descriptor"] = navigator.userAgent;
-        metrics["Hardware Concurrency Threads"] = navigator.hardwareConcurrency || "Sandboxed / Dynamic";
-        metrics["Touch Points Supported (Max)"] = navigator.maxTouchPoints || "Multi-Touch Array";
-
-        const dpr = window.devicePixelRatio || 1;
-        metrics["Native Screen Resolution"] = `${Math.round(window.screen.width * dpr)} x ${Math.round(window.screen.height * dpr)} Pixels`;
-        metrics["Logical Display Viewport"] = `${window.screen.width} x ${window.screen.height} Points`;
-        metrics["Display Device Pixel Ratio (DPR)"] = dpr;
-        metrics["Screen Color Depth"] = `${window.screen.colorDepth}-Bit Wide Gamut (Display P3)`;
-
-        try {
-          const canvas = document.createElement("canvas");
-          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-          if (gl) {
-            const ext = gl.getExtension("WEBGL_debug_renderer_info");
-            metrics["Graphics Unmasked Vendor"] = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
-            metrics["Graphics Unmasked Renderer"] = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
-            metrics["WebGL Engine Version"] = gl.getParameter(gl.VERSION);
-          }
-        } catch (e) {}
-
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            const actx = new AudioContextClass();
-            metrics["Audio Subsystem Sampling Rate"] = `${actx.sampleRate} Hz`;
-            metrics["Audio Destination Channels"] = actx.destination.maxChannelCount;
-            actx.close();
-          }
-        } catch (e) {}
-
-        if (navigator.getBattery) {
-          try {
-            const battery = await navigator.getBattery();
-            metrics["Battery Power Charge"] = `${Math.round(battery.level * 100)}%`;
-            metrics["Battery Power Source"] = battery.charging ? "External AC Power" : "Internal Battery";
-          } catch (e) {}
-        }
-
-        if (navigator.storage && navigator.storage.estimate) {
-          try {
-            const est = await navigator.storage.estimate();
-            metrics["IndexedDB Quota Assigned"] = `${(est.quota / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-            metrics["VFS Storage Used"] = `${(est.usage / (1024 * 1024)).toFixed(2)} MB`;
-          } catch (e) {}
-        }
-
-        return metrics;
-      }
-    }
-
-    /* ==========================================================================
-       SECTION 12: PYTHON 3.12 EMBEDDED AST INTERPRETER ENGINE
-       ========================================================================== */
-    class JRPythonInterpreter {
-      constructor(vfsInstance) {
-        this.vfs = vfsInstance;
-        this.globalScope = {};
-        this.initGlobals();
-      }
-
-      initGlobals() {
-        this.globalScope = {
-          __name__: "__main__",
-          __version__: "3.12.2 (JR-WebKit-Embedded)",
-          PI: Math.PI,
-          E: Math.E,
-          True: true,
-          False: false,
-          None: null
-        };
-
-        this.globalScope["len"] = (val) => val.length !== undefined ? val.length : Object.keys(val).length;
-        this.globalScope["range"] = (...args) => {
-          let start = 0, stop = 0, step = 1;
-          if (args.length === 1) stop = args[0];
-          else if (args.length >= 2) { start = args[0]; stop = args[1]; step = args[2] || 1; }
-          const res = [];
-          for (let i = start; step > 0 ? i < stop : i > stop; i += step) res.push(i);
-          return res;
-        };
-        this.globalScope["sum"] = (seq) => seq.reduce((acc, x) => acc + x, 0);
-        this.globalScope["max"] = (...args) => Array.isArray(args[0]) ? Math.max(...args[0]) : Math.max(...args);
-        this.globalScope["min"] = (...args) => Array.isArray(args[0]) ? Math.min(...args[0]) : Math.min(...args);
-        this.globalScope["abs"] = (x) => Math.abs(x);
-        this.globalScope["str"] = (x) => String(x);
-        this.globalScope["list"] = (x) => Array.from(x || []);
-        this.globalScope["vfs_list"] = (path = "/") => this.vfs.listDirectory(path).map(item => item.name);
-      }
-
-      run(scriptText) {
-        const lines = scriptText.split("\n");
-        const stdout = [];
-        let lineIndex = 0;
-
-        const printBuffer = (...items) => {
-          stdout.push(items.map(it => this.pythonRepr(it)).join(" "));
-        };
-
-        const localScope = Object.assign({}, this.globalScope);
-        localScope["print"] = printBuffer;
-
-        while (lineIndex < lines.length) {
-          const raw = lines[lineIndex];
-          const trimmed = raw.trim();
-
-          if (!trimmed || trimmed.startsWith("#")) { lineIndex++; continue; }
-          if (trimmed === "clear") return { special: "__CLEAR__" };
-          if (trimmed === "help") {
-            return {
-              stdout: `JR OS Embedded Python 3.12 Engine\nSupports:\n- Assignments (var = 100)\n- Arithmetic, logical & bitwise operators\n- Dynamic functions: def square(x): return x * x\n- Loops: for i in range(5): print(i)\n- Comprehensions: [x*2 for x in range(10)]\n- VFS bridge: vfs_list('/')\n`
-            };
-          }
-
-          // Single-line Loop Syntax
-          if (trimmed.startsWith("for ") && trimmed.includes(" in ")) {
-            const loopMatch = trimmed.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+(.*?)\s*:\s*(.*)$/);
-            if (loopMatch) {
-              const iterName = loopMatch[1];
-              const rangeExpr = loopMatch[2];
-              const subStatement = loopMatch[3];
-              const items = this.evaluateExpression(rangeExpr, localScope);
-              if (Array.isArray(items)) {
-                for (const item of items) {
-                  localScope[iterName] = item;
-                  this.evaluateStatement(subStatement, localScope);
+                let curr = startNode;
+                for (let part of parts) {
+                    if (part === '.') continue;
+                    if (part === '..') {
+                        if (curr.parent) curr = curr.parent;
+                    } else {
+                        if (!curr.children[part]) return null;
+                        curr = curr.children[part];
+                    }
                 }
-              }
-              lineIndex++;
-              continue;
+                return curr;
             }
-          }
 
-          if (trimmed.includes("=") && !trimmed.includes("==") && !trimmed.includes("<=") && !trimmed.includes(">=")) {
-            this.evaluateStatement(trimmed, localScope);
-          } else {
-            const evaluationResult = this.evaluateExpression(trimmed, localScope);
-            if (evaluationResult !== undefined) stdout.push(this.pythonRepr(evaluationResult));
-          }
+            getAbsolutePath() {
+                if (this.currentPath.length === 1) return 'C:\\';
+                return this.currentPath.join('\\');
+            }
 
-          lineIndex++;
+            mkdir(name) {
+                if (this.currentDir.children[name]) return false;
+                this.currentDir.children[name] = { type: 'dir', name: name, children: {}, parent: this.currentDir };
+                return true;
+            }
+
+            writeFile(name, content) {
+                this.currentDir.children[name] = { type: 'file', name: name, content: content, parent: this.currentDir, mtime: new Date() };
+            }
+
+            readFile(name) {
+                const node = this.resolvePath(name);
+                if (node && node.type === 'file') return node.content;
+                return null;
+            }
+
+            remove(name) {
+                const node = this.resolvePath(name);
+                if (!node || !node.parent) return false;
+                delete node.parent.children[node.name];
+                return true;
+            }
         }
 
-        Object.assign(this.globalScope, localScope);
-        return { stdout: stdout.join("\n") };
-      }
+        const vfs = new VirtualFileSystem();
+        vfs.mkdir("System");
+        vfs.mkdir("Scripts");
+        vfs.writeFile("welcome.txt", "Welcome to JR-DOS Operating System v3.0 Enterprise.");
 
-      evaluateStatement(stmt, scope) {
-        const assignMatch = stmt.match(/^([a-zA-Z_]\w*)\s*=\s*(.*)$/);
-        if (assignMatch) {
-          scope[assignMatch[1]] = this.evaluateExpression(assignMatch[2], scope);
-          return;
+        // ==========================================
+        // 2. JR Proprietary Syntax Lexer & Parser
+        // ==========================================
+        /*
+           JR-Script Grammar Specification:
+           - Root Token: Command identifier (case-insensitive)
+           - Parameters: Positional tokens, string literals ("..." or '...')
+           - Long flags: --flag=value or --flag value or --flag
+           - Short flags: -f, -rf, -h
+           - Native calls: @module.action:param
+           - Environment variables: $VAR expands to runtime environment
+           - Pipeline separator: |
+           - Redirect operators: >, >>
+        */
+        const JR_ENV = {
+            "OS_NAME": "JR-DOS",
+            "VERSION": "3.0.0-PROD",
+            "ARCH": "ARM64-WKWebView",
+            "USER": "Jack Zhang",
+            "PROMPT": "C:\\>"
+        };
+
+        function jrTokenize(input) {
+            // Expand environment variables first
+            input = input.replace(/\$([A-Z_]+)/g, (_, v) => JR_ENV[v] !== undefined ? JR_ENV[v] : "");
+            
+            const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
+            const tokens = [];
+            let match;
+            while ((match = regex.exec(input)) !== null) {
+                tokens.push(match[1] || match[2] || match[0]);
+            }
+            return tokens;
         }
-        this.evaluateExpression(stmt, scope);
-      }
 
-      evaluateExpression(expr, scope) {
-        let transformed = expr.trim()
-          .replace(/\band\b/g, "&&")
-          .replace(/\bor\b/g, "||")
-          .replace(/\bnot\b/g, "!")
-          .replace(/\bTrue\b/g, "true")
-          .replace(/\bFalse\b/g, "false")
-          .replace(/\bNone\b/g, "null")
-          .replace(/\bprint\((.*?)\)/g, "print($1)");
+        function jrParseArgs(tokens) {
+            const positional = [];
+            const flags = {};
+            const nativeDirectives = [];
 
-        const compPattern = transformed.match(/^\[(.*)\s+for\s+([a-zA-Z_]\w*)\s+in\s+(.*)\]$/);
-        if (compPattern) {
-          const mapper = compPattern[1];
-          const variable = compPattern[2];
-          const collection = this.evaluateExpression(compPattern[3], scope);
-          if (Array.isArray(collection)) {
-            return collection.map(el => {
-              const innerScope = Object.assign({}, scope);
-              innerScope[variable] = el;
-              return this.evaluateExpression(mapper, innerScope);
-            });
-          }
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                if (token.startsWith('@')) {
+                    // JR Proprietary Native Bridge Directive (e.g. @sys.query:battery)
+                    nativeDirectives.push(token.slice(1));
+                } else if (token.startsWith('--')) {
+                    const parts = token.slice(2).split('=');
+                    const key = parts[0];
+                    const val = parts.length > 1 ? parts[1] : (tokens[i + 1] && !tokens[i + 1].startsWith('-') ? tokens[++i] : true);
+                    flags[key] = val;
+                } else if (token.startsWith('-') && token.length > 1) {
+                    const chars = token.slice(1).split('');
+                    chars.forEach((c, idx) => {
+                        if (idx === chars.length - 1 && tokens[i + 1] && !tokens[i + 1].startsWith('-')) {
+                            flags[c] = tokens[++i];
+                        } else {
+                            flags[c] = true;
+                        }
+                    });
+                } else {
+                    positional.push(token);
+                }
+            }
+            return { positional, flags, nativeDirectives };
         }
 
-        try {
-          const runner = new Function(...Object.keys(scope), `return (${transformed});`);
-          return runner(...Object.values(scope));
-        } catch (err) {
-          throw new Error(`SyntaxError: ${err.message}`);
-        }
-      }
-
-      pythonRepr(val) {
-        if (val === null) return "None";
-        if (val === true) return "True";
-        if (val === false) return "False";
-        if (Array.isArray(val)) return `[${val.map(v => this.pythonRepr(v)).join(", ")}]`;
-        if (typeof val === "object") return JSON.stringify(val);
-        return String(val);
-      }
-    }
-
-    /* ==========================================================================
-       SECTION 13: WINDOW MANAGER WITH TOUCH RESIZING & SQUIRCLE SURFACES
-       ========================================================================== */
-    class JRWindowManager {
-      constructor() {
-        this.activeWindows = new Map();
-        this.topZIndex = 1000;
-        this.currentFocusedId = null;
-      }
-
-      createWindow(appId, title, iconSvg, w = 680, h = 460) {
-        soundSystem.playFeedbackClick();
-        const winId = "win_" + Math.random().toString(36).substr(2, 9);
-        const winEl = document.createElement("div");
-        winEl.className = "fluent-window";
-        winEl.id = winId;
-
-        const maxW = window.innerWidth;
-        const maxH = window.innerHeight - 56 - 20; // Taskbar + Safe Area padding
-        const finalW = Math.min(w, maxW - 24);
-        const finalH = Math.min(h, maxH - 24);
-        const startX = Math.max(12, (maxW - finalW) / 2);
-        const startY = Math.max(12, (maxH - finalH) / 2);
-
-        winEl.style.width = finalW + "px";
-        winEl.style.height = finalH + "px";
-        winEl.style.left = startX + "px";
-        winEl.style.top = startY + "px";
-        winEl.style.zIndex = ++this.topZIndex;
-
-        winEl.innerHTML = `
-          <div class="window-titlebar-region">
-            <div class="window-drag-carrier">
-              <div style="width:18px; height:18px;">${iconSvg}</div>
-              <span class="window-title-caption">${title}</span>
-            </div>
-            <div class="window-header-buttons">
-              <button class="header-ctrl-btn min-type">─</button>
-              <button class="header-ctrl-btn max-type">□</button>
-              <button class="header-ctrl-btn close-type">✕</button>
-            </div>
-          </div>
-          <div class="window-body-viewport" id="${winId}_container"></div>
-          <div class="resizer-grip grip-n"></div>
-          <div class="resizer-grip grip-s"></div>
-          <div class="resizer-grip grip-w"></div>
-          <div class="resizer-grip grip-e"></div>
-          <div class="resizer-grip grip-se"></div>
-        `;
-
-        document.getElementById("desktop-viewport").appendChild(winEl);
-
-        const record = {
-          id: winId,
-          appId: appId,
-          title: title,
-          icon: iconSvg,
-          element: winEl,
-          isMaximized: false,
-          isMinimized: false,
-          bounds: { w: finalW, h: finalH, x: startX, y: startY }
-        };
-
-        this.activeWindows.set(winId, record);
-        this.bindEvents(winEl, record);
-
-        winEl.addEventListener("touchstart", () => this.bringToFront(winId), { passive: true });
-        winEl.addEventListener("mousedown", () => this.bringToFront(winId));
-
-        this.bringToFront(winId);
-        this.updateTaskbar();
-        return { winId, contentPane: document.getElementById(`${winId}_container`) };
-      }
-
-      bringToFront(winId) {
-        if (!this.activeWindows.has(winId)) return;
-        this.topZIndex++;
-        const rec = this.activeWindows.get(winId);
-        rec.element.style.zIndex = this.topZIndex;
-        rec.element.classList.remove("window-minimized");
-        rec.isMinimized = false;
-        this.currentFocusedId = winId;
-        this.updateTaskbar();
-      }
-
-      bindEvents(element, record) {
-        const dragHandle = element.querySelector(".window-drag-carrier");
-        const minBtn = element.querySelector(".min-type");
-        const maxBtn = element.querySelector(".max-type");
-        const closeBtn = element.querySelector(".close-type");
-
-        minBtn.onclick = () => {
-          record.isMinimized = true;
-          element.classList.add("window-minimized");
-          this.updateTaskbar();
-        };
-
-        maxBtn.onclick = () => {
-          if (!record.isMaximized) {
-            record.bounds = {
-              w: parseFloat(element.style.width),
-              h: parseFloat(element.style.height),
-              x: parseFloat(element.style.left),
-              y: parseFloat(element.style.top)
-            };
-            element.style.left = "0px";
-            element.style.top = "0px";
-            element.style.width = "100vw";
-            element.style.height = "calc(100dvh - var(--tb-height) - var(--safe-bottom))";
-            element.classList.add("window-maximized");
-            record.isMaximized = true;
-          } else {
-            element.style.width = record.bounds.w + "px";
-            element.style.height = record.bounds.h + "px";
-            element.style.left = record.bounds.x + "px";
-            element.style.top = record.bounds.y + "px";
-            element.classList.remove("window-maximized");
-            record.isMaximized = false;
-          }
-        };
-
-        closeBtn.onclick = () => {
-          element.remove();
-          this.activeWindows.delete(record.id);
-          this.updateTaskbar();
-        };
-
-        // Window Dragging Logic with Bounds Clamping
-        let startX, startY, origX, origY;
-        const startDrag = (e) => {
-          if (e.target.closest(".header-ctrl-btn")) return;
-          this.bringToFront(record.id);
-          if (record.isMaximized) return;
-
-          const p = e.touches ? e.touches[0] : e;
-          startX = p.clientX;
-          startY = p.clientY;
-          origX = element.offsetLeft;
-          origY = element.offsetTop;
-
-          const moveHandler = (ev) => {
-            const pt = ev.touches ? ev.touches[0] : ev;
-            element.style.left = (origX + (pt.clientX - startX)) + "px";
-            element.style.top = Math.max(0, origY + (pt.clientY - startY)) + "px";
-          };
-
-          const stopHandler = () => {
-            window.removeEventListener("touchmove", moveHandler);
-            window.removeEventListener("touchend", stopHandler);
-            window.removeEventListener("mousemove", moveHandler);
-            window.removeEventListener("mouseup", stopHandler);
-          };
-
-          window.addEventListener("touchmove", moveHandler, { passive: true });
-          window.addEventListener("touchend", stopHandler);
-          window.addEventListener("mousemove", moveHandler);
-          window.addEventListener("mouseup", stopHandler);
-        };
-
-        dragHandle.addEventListener("touchstart", startDrag, { passive: true });
-        dragHandle.addEventListener("mousedown", startDrag);
-
-        // iPad Resizing Grip Implementation
-        const resizeHandle = element.querySelector(".resizer-grip.grip-se");
-        let rStartX, rStartY, rStartW, rStartH;
-
-        const startResize = (e) => {
-          e.stopPropagation();
-          this.bringToFront(record.id);
-          const p = e.touches ? e.touches[0] : e;
-          rStartX = p.clientX;
-          rStartY = p.clientY;
-          rStartW = element.offsetWidth;
-          rStartH = element.offsetHeight;
-
-          const moveResize = (ev) => {
-            const pt = ev.touches ? ev.touches[0] : ev;
-            const newW = Math.max(360, rStartW + (pt.clientX - rStartX));
-            const newH = Math.max(260, rStartH + (pt.clientY - rStartY));
-            element.style.width = newW + "px";
-            element.style.height = newH + "px";
-          };
-
-          const stopResize = () => {
-            window.removeEventListener("touchmove", moveResize);
-            window.removeEventListener("touchend", stopResize);
-            window.removeEventListener("mousemove", moveResize);
-            window.removeEventListener("mouseup", stopResize);
-          };
-
-          window.addEventListener("touchmove", moveResize, { passive: true });
-          window.addEventListener("touchend", stopResize);
-          window.addEventListener("mousemove", moveResize);
-          window.addEventListener("mouseup", stopResize);
-        };
-
-        resizeHandle.addEventListener("touchstart", startResize, { passive: true });
-        resizeHandle.addEventListener("mousedown", startResize);
-      }
-
-      updateTaskbar() {
-        const row = document.getElementById("taskbar-processes-row");
-        row.querySelectorAll(".proc-pill").forEach(el => el.remove());
-
-        this.activeWindows.forEach(win => {
-          const btn = document.createElement("button");
-          btn.className = `taskbar-action-button proc-pill ${win.id === this.currentFocusedId && !win.isMinimized ? "active-process" : ""} ${win.isMinimized ? "minimized-process" : ""}`;
-          btn.innerHTML = win.icon;
-          btn.onclick = () => {
-            if (win.isMinimized) {
-              this.bringToFront(win.id);
-            } else if (win.id === this.currentFocusedId) {
-              win.isMinimized = true;
-              win.element.classList.add("window-minimized");
-              this.updateTaskbar();
+        // ==========================================
+        // 3. Native iOS Host Bridge (WKWebView)
+        // ==========================================
+        window.onNativeBridgeResponse = function(payload) {
+            const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
+            if (nativeCallbackResolver) {
+                nativeCallbackResolver(data);
+                nativeCallbackResolver = null;
             } else {
-              this.bringToFront(win.id);
+                print("[Native Response Received]:\n" + JSON.stringify(data, null, 2));
             }
-          };
-          row.appendChild(btn);
-        });
-      }
-    }
+        };
 
-    /* ==========================================================================
-       SECTION 14: SYSTEM GRAPHICS & SVG ICONS
-       ========================================================================== */
-    const SVG_ICONS = {
-      folder: `<svg viewBox="0 0 24 24" fill="#ffb900"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
-      settings: `<svg viewBox="0 0 24 24" fill="#0078d4"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
-      terminal: `<svg viewBox="0 0 24 24" fill="#107c41"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-14-8l4 4-4 4 1.41 1.41L12.83 14l-5.42-5.41L6 10zm6 7h6v2h-6v-2z"/></svg>`,
-      jrex: `<svg viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`,
-      file: `<svg viewBox="0 0 24 24" fill="#0099bc"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`
-    };
-
-    /* Global OS Environment Initializers */
-    const vfs = new JRVFS(kernelDB);
-    const pythonEngine = new JRPythonInterpreter(vfs);
-    const windowManager = new JRWindowManager();
-
-    /* ==========================================================================
-       SECTION 15: SECURITY & PASSCODE LOGIC
-       ========================================================================== */
-    let enteredPasscode = "";
-    let systemPasscode = "1234";
-
-    function updatePasscodeDots() {
-      for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById(`pin-dot-${i}`);
-        if (i < enteredPasscode.length) {
-          dot.classList.add("bullet-active");
-        } else {
-          dot.classList.remove("bullet-active");
+        function callNativeHost(action, payload = {}) {
+            return new Promise((resolve) => {
+                nativeCallbackResolver = resolve;
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jrNativeBridge) {
+                    window.webkit.messageHandlers.jrNativeBridge.postMessage({ action: action, data: payload });
+                } else {
+                    // Browser Fallback Emulation for desktop testing
+                    setTimeout(() => {
+                        if (action === "getDeviceInfo") {
+                            resolve({
+                                "Device Model": navigator.platform || "iPad Simulator",
+                                "System Name": "iPadOS (Emulated)",
+                                "OS Version": "18.2",
+                                "Device Name": "Jack's iPad Pro",
+                                "Battery Level": "92%",
+                                "Battery State": "Unplugged",
+                                "Available Storage": "142.8 GB",
+                                "Thermal State": "Nominal",
+                                "Identifier": "SIMULATED-DEV-UUID-001"
+                            });
+                        } else if (action === "shutdown") {
+                            resolve({ status: "OK", message: "Emulated termination call executed." });
+                        } else {
+                            resolve({ status: "OK", data: "Executed action: " + action });
+                        }
+                    }, 50);
+                }
+            });
         }
-      }
-    }
 
-    function handlePinInput(numChar) {
-      soundSystem.playFeedbackClick();
-      if (enteredPasscode.length < 4) {
-        enteredPasscode += numChar;
-        updatePasscodeDots();
-        if (enteredPasscode.length === 4) {
-          setTimeout(verifyPasscodeSession, 120);
+        // ==========================================
+        // 4. Pyodide Initialization
+        // ==========================================
+        async function initPyodideEngine() {
+            print("Booting JR-DOS Python 3 WebAssembly Kernel...");
+            try {
+                pyodideInstance = await loadPyodide({
+                    stdout: (txt) => print(txt),
+                    stderr: (txt) => print(txt, "error")
+                });
+                print("Python 3.11 Kernel Online.\n");
+            } catch (err) {
+                print("Python runtime loading failed: " + err.message, "error");
+            }
         }
-      }
-    }
 
-    function resetPinInput() {
-      soundSystem.playFeedbackClick();
-      enteredPasscode = "";
-      updatePasscodeDots();
-    }
+        // ==========================================
+        // 5. Fifty (50+) Distinct Command Roots
+        // ==========================================
+        const commands = {};
 
-    function verifyPasscodeSession() {
-      if (enteredPasscode === systemPasscode) {
-        soundSystem.playAuthSuccess();
-        bypassLockScreen();
-      } else {
-        soundSystem.playAuthError();
-        alert("Authorization Denied: Invalid 4-Digit Passcode.");
-        resetPinInput();
-      }
-    }
-
-    function bypassLockScreen() {
-      const curtain = document.getElementById("lock-screen-curtain");
-      curtain.style.opacity = "0";
-      setTimeout(() => {
-        curtain.style.display = "none";
-        resetPinInput();
-      }, 300);
-    }
-
-    function invokeSystemLock() {
-      soundSystem.playTone(440, 'sine', 0.15, 0.05);
-      const curtain = document.getElementById("lock-screen-curtain");
-      curtain.style.display = "flex";
-      setTimeout(() => {
-        curtain.style.opacity = "1";
-      }, 10);
-      document.getElementById("start-menu-panel").classList.remove("panel-visible");
-    }
-
-    /* ==========================================================================
-       SECTION 16: CORE APPLICATIONS
-       ========================================================================== */
-    
-    // Application 1: Python Terminal
-    function launchPythonTerminal() {
-      const { contentPane } = windowManager.createWindow("cmd", "Python 3.12 Engine Terminal", SVG_ICONS.terminal, 680, 440);
-      contentPane.innerHTML = `
-        <div class="cmd-terminal-root">
-          <div class="cmd-log-terminal" id="cmd-screen">JR-OS Embedded Python 3.12.2 Platform\nInteractive Shell Ready. Type "help" or "clear".\n\n</div>
-          <div class="cmd-prompt-line">
-            <span class="cmd-chevron">&gt;&gt;&gt;</span>
-            <input type="text" class="cmd-text-input" id="cmd-user-input" autocomplete="off" spellcheck="false">
-          </div>
-        </div>
-      `;
-
-      const input = contentPane.querySelector("#cmd-user-input");
-      const screen = contentPane.querySelector("#cmd-screen");
-      const historyStack = [];
-      let historyPtr = -1;
-
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const val = input.value;
-          input.value = "";
-          if (val.trim()) {
-            historyStack.push(val);
-            historyPtr = historyStack.length;
-            screen.innerText += `>>> ${val}\n`;
+        // 1. python3
+        commands.python3 = async (ctx) => {
+            if (!pyodideInstance) return "Error: Pyodide kernel initializing...";
+            const scriptName = ctx.positional[0];
+            if (!scriptName) return "Usage: python3 <script.py> [*args] [--opts]";
+            const code = vfs.readFile(scriptName);
+            if (code === null) return `python3: error: file '${scriptName}' not found in virtual filesystem`;
 
             try {
-              const res = pythonEngine.run(val);
-              if (res.special === "__CLEAR__") {
-                screen.innerText = "";
-              } else if (res.stdout) {
-                screen.innerText += `${res.stdout}\n`;
-              }
-            } catch (err) {
-              screen.innerText += `Traceback:\n${err.message}\n`;
+                pyodideInstance.FS.writeFile(scriptName, code);
+                const argv = [scriptName, ...ctx.rawTokens.slice(1)];
+                await pyodideInstance.runPythonAsync(`
+import sys
+sys.argv = ${JSON.stringify(argv)}
+                `);
+                await pyodideInstance.runPythonAsync(`
+with open("${scriptName}", "r") as __f:
+    exec(__f.read())
+                `);
+                return "";
+            } catch (e) {
+                return `Python Error: ${e.message}`;
             }
-            screen.scrollTop = screen.scrollHeight;
-          }
-        } else if (e.key === "ArrowUp") {
-          if (historyPtr > 0) { historyPtr--; input.value = historyStack[historyPtr]; }
-        } else if (e.key === "ArrowDown") {
-          if (historyPtr < historyStack.length - 1) { historyPtr++; input.value = historyStack[historyPtr]; }
-          else { historyPtr = historyStack.length; input.value = ""; }
+        };
+
+        // 2. mkdir
+        commands.mkdir = (ctx) => {
+            const dirName = ctx.positional[0];
+            if (!dirName) return "mkdir: missing directory operand";
+            return vfs.mkdir(dirName) ? `Directory '${dirName}' created.` : `mkdir: cannot create directory '${dirName}': File exists`;
+        };
+
+        // 3. cd
+        commands.cd = (ctx) => {
+            const target = ctx.positional[0] || 'C:';
+            if (target === '..') {
+                if (vfs.currentDir.parent) {
+                    vfs.currentDir = vfs.currentDir.parent;
+                    vfs.currentPath.pop();
+                }
+            } else if (target === 'C:' || target === '/' || target === '\\') {
+                vfs.currentDir = vfs.root;
+                vfs.currentPath = ['C:'];
+            } else {
+                const node = vfs.resolvePath(target);
+                if (!node || node.type !== 'dir') return `cd: no such file or directory: ${target}`;
+                vfs.currentDir = node;
+                vfs.currentPath.push(node.name);
+            }
+            promptLabel.textContent = vfs.getAbsolutePath() + ">";
+            return "";
+        };
+
+        // 4. ls / dir
+        commands.ls = (ctx) => {
+            const isLong = ctx.flags.l || false;
+            const entries = Object.keys(vfs.currentDir.children);
+            if (entries.length === 0) return "  <Directory is empty>";
+            const lines = [` Directory of ${vfs.getAbsolutePath()}`];
+            entries.forEach(name => {
+                const item = vfs.currentDir.children[name];
+                if (isLong) {
+                    const typeTag = item.type === 'dir' ? '<DIR> ' : '      ';
+                    const size = item.type === 'file' ? item.content.length.toString().padStart(8) : "        ";
+                    lines.push(`  ${typeTag}  ${size}  ${name}`);
+                } else {
+                    lines.push(`  ${item.type === 'dir' ? '[' + name + ']' : name}`);
+                }
+            });
+            return lines.join('\n');
+        };
+        commands.dir = (ctx) => commands.ls(ctx);
+
+        // 5. sysinfo
+        commands.sysinfo = async (ctx) => {
+            print("Querying native iPad / iPhone hardware telemetry...");
+            const data = await callNativeHost("getDeviceInfo");
+            if (ctx.flags.json) return JSON.stringify(data, null, 2);
+            const lines = ["=== iPad / iPhone Device Information ==="];
+            for (const [k, v] of Object.entries(data)) {
+                lines.push(`  ${k.padEnd(20)}: ${v}`);
+            }
+            lines.push("========================================");
+            return lines.join('\n');
+        };
+
+        // 6. dosinfo
+        commands.dosinfo = () => {
+            return [
+                "=== JR-DOS System Specifications ===",
+                "  Kernel Name        : JR-DOS Enterprise Microkernel",
+                "  Syntax Standard    : JR-Script Specification v3.0",
+                "  Python Engine      : Pyodide v0.25 (Python 3.11 Runtime)",
+                "  Host Interop       : Apple WebKit IPC via WKScriptMessageHandler",
+                "  Active Filesystem  : Hierarchical In-Memory VFS (C:\\)",
+                "  Developer / Vendor : JR Entertainment",
+                "===================================="
+            ].join('\n');
+        };
+
+        // 7. shutdown
+        commands.shutdown = async (ctx) => {
+            print("Triggering system shutdown signal to native iOS container...", "warn");
+            await callNativeHost("shutdown");
+            return "Application shutdown terminated.";
+        };
+
+        // 8. clear / cls
+        commands.clear = () => { terminal.innerHTML = ''; return ""; };
+        commands.cls = () => commands.clear();
+
+        // 9. curl
+        commands.curl = async (ctx) => {
+            const url = ctx.positional[0];
+            if (!url) return "curl: no URL specified";
+            try {
+                const res = await fetch(url);
+                return await res.text();
+            } catch (e) {
+                return `curl: network request failed: ${e.message}`;
+            }
+        };
+
+        // 10. post
+        commands.post = async (ctx) => {
+            const url = ctx.positional[0];
+            if (!url) return "Usage: post <url> [--data=<json|str>] [--headers=<json>]";
+            const bodyData = ctx.flags.data || ctx.positional[1] || "";
+            let customHeaders = { "Content-Type": "application/json" };
+            if (ctx.flags.headers) {
+                try { customHeaders = JSON.parse(ctx.flags.headers); } catch(e) { return "post: malformed headers JSON"; }
+            }
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: customHeaders,
+                    body: typeof bodyData === 'string' ? bodyData : JSON.stringify(bodyData)
+                });
+                return await res.text();
+            } catch (e) {
+                return `post: request failed: ${e.message}`;
+            }
+        };
+
+        // 11. cat
+        commands.cat = (ctx) => {
+            const file = ctx.positional[0];
+            if (!file) return "cat: missing file operand";
+            const content = vfs.readFile(file);
+            return content !== null ? content : `cat: ${file}: No such file`;
+        };
+
+        // 12. echo
+        commands.echo = (ctx) => ctx.positional.join(' ');
+
+        // 13. openfile / selectfile
+        commands.openfile = (ctx) => {
+            filePicker.onchange = (e) => {
+                const files = Array.from(e.target.files);
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        vfs.writeFile(file.name, evt.target.result);
+                        print(`[VFS] Imported '${file.name}' (${file.size} bytes)`);
+                    };
+                    reader.readAsText(file);
+                });
+                filePicker.value = '';
+            };
+            filePicker.click();
+            return "Opening iOS Native Document Picker...";
+        };
+        commands.selectfile = (ctx) => commands.openfile(ctx);
+
+        // 14. rm
+        commands.rm = (ctx) => {
+            const target = ctx.positional[0];
+            if (!target) return "rm: missing operand";
+            return vfs.remove(target) ? `Removed '${target}'` : `rm: cannot remove '${target}': No such file or directory`;
+        };
+
+        // 15. touch
+        commands.touch = (ctx) => {
+            const f = ctx.positional[0];
+            if (!f) return "touch: missing file operand";
+            vfs.writeFile(f, "");
+            return `File '${f}' created.`;
+        };
+
+        // 16. pwd
+        commands.pwd = () => vfs.getAbsolutePath();
+
+        // 17. write
+        commands.write = (ctx) => {
+            const f = ctx.positional[0];
+            if (!f) return "write: missing filename";
+            const data = ctx.positional.slice(1).join(' ');
+            vfs.writeFile(f, data);
+            return `Wrote ${data.length} bytes to '${f}'`;
+        };
+
+        // 18. append
+        commands.append = (ctx) => {
+            const f = ctx.positional[0];
+            if (!f) return "append: missing filename";
+            const existing = vfs.readFile(f) || "";
+            const data = ctx.positional.slice(1).join(' ');
+            vfs.writeFile(f, existing + (existing ? "\n" : "") + data);
+            return `Appended ${data.length} bytes to '${f}'`;
+        };
+
+        // 19. py (inline Python)
+        commands.py = async (ctx) => {
+            if (!pyodideInstance) return "Python kernel not ready.";
+            try {
+                const res = await pyodideInstance.runPythonAsync(ctx.rawTokens.join(' '));
+                return res !== undefined ? String(res) : "";
+            } catch (e) {
+                return `Python Error: ${e.message}`;
+            }
+        };
+
+        // 20. battery
+        commands.battery = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Battery Level: ${data["Battery Level"] || "N/A"} | State: ${data["Battery State"] || "N/A"}`;
+        };
+
+        // 21. storage
+        commands.storage = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Available Internal Storage: ${data["Available Storage"] || "N/A"}`;
+        };
+
+        // 22. thermal
+        commands.thermal = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Hardware Thermal State: ${data["Thermal State"] || "N/A"}`;
+        };
+
+        // 23. uuid
+        commands.uuid = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Device Identifier: ${data["Identifier"] || "N/A"}`;
+        };
+
+        // 24. osver
+        commands.osver = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Operating System: ${data["System Name"] || "iOS"} ${data["OS Version"] || ""}`;
+        };
+
+        // 25. devname
+        commands.devname = async () => {
+            const data = await callNativeHost("getDeviceInfo");
+            return `Device Friendly Name: ${data["Device Name"] || "Apple Device"}`;
+        };
+
+        // 26. haptic
+        commands.haptic = async (ctx) => {
+            const style = ctx.positional[0] || "medium";
+            await callNativeHost("hapticFeedback", { style: style });
+            return `Haptic pulse [${style}] fired.`;
+        };
+
+        // 27. clipget
+        commands.clipget = async () => {
+            const res = await callNativeHost("getClipboard");
+            return res.text ? res.text : "<Clipboard empty>";
+        };
+
+        // 28. clipset
+        commands.clipset = async (ctx) => {
+            const txt = ctx.positional.join(' ');
+            await callNativeHost("setClipboard", { text: txt });
+            return "Text copied to iOS system clipboard.";
+        };
+
+        // 29. date
+        commands.date = () => new Date().toString();
+
+        // 30. time
+        commands.time = () => new Date().toLocaleTimeString();
+
+        // 31. timestamp
+        commands.timestamp = () => String(Date.now());
+
+        // 32. whoami
+        commands.whoami = () => JR_ENV.USER;
+
+        // 33. env
+        commands.env = () => Object.entries(JR_ENV).map(([k, v]) => `${k}=${v}`).join('\n');
+
+        // 34. set
+        commands.set = (ctx) => {
+            const pair = ctx.positional[0];
+            if (!pair || !pair.includes('=')) return "Usage: set KEY=VALUE";
+            const [k, v] = pair.split('=');
+            JR_ENV[k] = v;
+            return `Set env ${k}=${v}`;
+        };
+
+        // 35. unset
+        commands.unset = (ctx) => {
+            const k = ctx.positional[0];
+            delete JR_ENV[k];
+            return `Unset env ${k}`;
+        };
+
+        // 36. wc
+        commands.wc = (ctx) => {
+            const f = ctx.positional[0];
+            if (!f) return "wc: missing file operand";
+            const content = vfs.readFile(f);
+            if (content === null) return `wc: ${f}: No such file`;
+            const lines = content.split('\n').length;
+            const words = content.trim().split(/\s+/).length;
+            return `Lines: ${lines}, Words: ${words}, Bytes: ${content.length}`;
+        };
+
+        // 37. head
+        commands.head = (ctx) => {
+            const f = ctx.positional[0];
+            const n = parseInt(ctx.flags.n || 10);
+            const content = vfs.readFile(f);
+            if (content === null) return `head: ${f}: No such file`;
+            return content.split('\n').slice(0, n).join('\n');
+        };
+
+        // 38. tail
+        commands.tail = (ctx) => {
+            const f = ctx.positional[0];
+            const n = parseInt(ctx.flags.n || 10);
+            const content = vfs.readFile(f);
+            if (content === null) return `tail: ${f}: No such file`;
+            const arr = content.split('\n');
+            return arr.slice(Math.max(arr.length - n, 0)).join('\n');
+        };
+
+        // 39. grep
+        commands.grep = (ctx) => {
+            const pattern = ctx.positional[0];
+            const f = ctx.positional[1];
+            if (!pattern) return "Usage: grep <pattern> [file]";
+            const src = f ? vfs.readFile(f) : ctx.stdin;
+            if (!src) return "grep: No content to search";
+            return src.split('\n').filter(line => line.includes(pattern)).join('\n');
+        };
+
+        // 40. sort
+        commands.sort = (ctx) => {
+            const f = ctx.positional[0];
+            const src = f ? vfs.readFile(f) : ctx.stdin;
+            if (!src) return "";
+            return src.split('\n').sort().join('\n');
+        };
+
+        // 41. uniq
+        commands.uniq = (ctx) => {
+            const f = ctx.positional[0];
+            const src = f ? vfs.readFile(f) : ctx.stdin;
+            if (!src) return "";
+            return Array.from(new Set(src.split('\n'))).join('\n');
+        };
+
+        // 42. base64enc
+        commands.base64enc = (ctx) => {
+            const raw = ctx.positional.join(' ') || ctx.stdin;
+            return btoa(raw);
+        };
+
+        // 43. base64dec
+        commands.base64dec = (ctx) => {
+            const raw = ctx.positional[0] || ctx.stdin;
+            try { return atob(raw.trim()); } catch(e) { return "base64dec: Invalid base64 stream"; }
+        };
+
+        // 44. ping
+        commands.ping = async (ctx) => {
+            const host = ctx.positional[0] || "1.1.1.1";
+            const start = performance.now();
+            try {
+                await fetch("https://" + host, { mode: 'no-cors' });
+                const elapsed = (performance.now() - start).toFixed(1);
+                return `Reply from ${host}: time=${elapsed}ms`;
+            } catch (e) {
+                return `Request timeout for ping: ${host}`;
+            }
+        };
+
+        // 45. history
+        commands.history = () => commandHistory.map((cmd, i) => `  ${(i + 1).toString().padStart(3)}  ${cmd}`).join('\n');
+
+        // 46. stat
+        commands.stat = (ctx) => {
+            const f = ctx.positional[0];
+            const node = vfs.resolvePath(f);
+            if (!node) return `stat: cannot stat '${f}': No such file or directory`;
+            return `File: ${node.name}\nType: ${node.type}\nSize: ${node.type === 'file' ? node.content.length : 0} bytes\nModified: ${node.mtime || 'System'}`;
+        };
+
+        // 47. cp
+        commands.cp = (ctx) => {
+            const [src, dest] = ctx.positional;
+            if (!src || !dest) return "Usage: cp <source> <dest>";
+            const content = vfs.readFile(src);
+            if (content === null) return `cp: cannot read '${src}'`;
+            vfs.writeFile(dest, content);
+            return `Copied '${src}' -> '${dest}'`;
+        };
+
+        // 48. mv
+        commands.mv = (ctx) => {
+            const [src, dest] = ctx.positional;
+            if (!src || !dest) return "Usage: mv <source> <dest>";
+            const content = vfs.readFile(src);
+            if (content === null) return `mv: cannot read '${src}'`;
+            vfs.writeFile(dest, content);
+            vfs.remove(src);
+            return `Moved '${src}' -> '${dest}'`;
+        };
+
+        // 49. sleep
+        commands.sleep = async (ctx) => {
+            const sec = parseFloat(ctx.positional[0] || 1);
+            await new Promise(r => setTimeout(r, sec * 1000));
+            return `Slept ${sec}s`;
+        };
+
+        // 50. reboot
+        commands.reboot = () => {
+            terminal.innerHTML = '';
+            print("Restarting JR-DOS Subsystem...\n");
+            return commands.dosinfo();
+        };
+
+        // 51. calc
+        commands.calc = (ctx) => {
+            const expr = ctx.positional.join('');
+            try { return String(Function(`'use strict'; return (${expr})`)()); } catch(e) { return "calc: syntax error"; }
+        };
+
+        // 52. help
+        commands.help = () => {
+            const keys = Object.keys(commands).sort();
+            return `JR-DOS Built-in Commands (${keys.length} roots available):\n  ` + keys.join(', ');
+        };
+
+        // ==========================================
+        // 6. Pipeline & Execution Coordinator
+        // ==========================================
+        async function runSingleCommand(rawCmdStr, stdin = "") {
+            const rawTokens = jrTokenize(rawCmdStr.trim());
+            if (rawTokens.length === 0) return "";
+
+            const root = rawTokens[0].toLowerCase();
+            const tokenStream = rawTokens.slice(1);
+            const parsed = jrParseArgs(tokenStream);
+
+            const context = {
+                root: root,
+                positional: parsed.positional,
+                flags: parsed.flags,
+                directives: parsed.nativeDirectives,
+                rawTokens: tokenStream,
+                stdin: stdin
+            };
+
+            if (commands[root]) {
+                const res = await commands[root](context);
+                return res !== undefined ? String(res) : "";
+            } else {
+                return `'${root}' is not recognized as a command in JR-DOS. Type 'help'.`;
+            }
         }
-      });
-    }
 
-    // Application 2: Settings & Diagnostics
-    async function launchSettingsApplication() {
-      const { contentPane } = windowManager.createWindow("settings", "Settings", SVG_ICONS.settings, 760, 500);
-      contentPane.innerHTML = `
-        <div class="settings-layout-root">
-          <div class="settings-nav-rail">
-            <div class="settings-nav-button button-active" data-view="hardware">Device Diagnostics</div>
-            <div class="settings-nav-button" data-view="security">Passcode Security</div>
-            <div class="settings-nav-button" data-view="storage">Storage & Database</div>
-          </div>
-          <div class="settings-content-pane" id="settings-view-mount">
-            <h3>Gathering WebKit Hardware Telemetry...</h3>
-          </div>
-        </div>
-      `;
+        async function processCommandLine(line) {
+            let redirectFile = null;
+            let appendMode = false;
 
-      const navButtons = contentPane.querySelectorAll(".settings-nav-button");
-      const mount = contentPane.querySelector("#settings-view-mount");
+            if (line.includes('>>')) {
+                const parts = line.split('>>');
+                line = parts[0];
+                redirectFile = parts[1].trim();
+                appendMode = true;
+            } else if (line.includes('>')) {
+                const parts = line.split('>');
+                line = parts[0];
+                redirectFile = parts[1].trim();
+                appendMode = false;
+            }
 
-      async function renderHardwareTelemetry() {
-        mount.innerHTML = `<h3>Scanning System Metrics...</h3>`;
-        const telemetry = await JRDeviceDiagnostics.queryAllTelemetry();
-        let rows = "";
-        for (const [k, v] of Object.entries(telemetry)) {
-          rows += `<tr><td>${k}</td><td>${v}</td></tr>`;
+            const pipeStages = line.split('|');
+            let pipeBuffer = "";
+
+            for (const stage of pipeStages) {
+                pipeBuffer = await runSingleCommand(stage, pipeBuffer);
+            }
+
+            if (redirectFile) {
+                if (appendMode) {
+                    const exist = vfs.readFile(redirectFile) || "";
+                    vfs.writeFile(redirectFile, exist + (exist ? "\n" : "") + pipeBuffer);
+                } else {
+                    vfs.writeFile(redirectFile, pipeBuffer);
+                }
+                print(`[Output saved to ${redirectFile}]`, "dim");
+            } else if (pipeBuffer) {
+                print(pipeBuffer);
+            }
         }
-        mount.innerHTML = `
-          <h2 style="font-size:18px; margin-bottom:4px; font-weight:600;">Device Diagnostics</h2>
-          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Real-time hardware sensors acquired via iPadOS WebKit container.</p>
-          <table class="device-telemetry-table"><tbody>${rows}</tbody></table>
-        `;
-      }
 
-      function renderSecuritySettings() {
-        mount.innerHTML = `
-          <h2 style="font-size:18px; margin-bottom:4px; font-weight:600;">Passcode Security</h2>
-          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Configure your 4-digit system lock authorization code.</p>
-          <div style="background:var(--mica-card); border:1px solid var(--border-inner); padding:18px; border-radius:var(--radius-md); max-width:320px;">
-            <label style="font-size:12.5px; display:block; margin-bottom:8px;">New 4-Digit Passcode:</label>
-            <input type="password" maxlength="4" id="new-passcode-field" value="${systemPasscode}" style="width:100%; height:38px; padding:0 12px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.3); border:1px solid var(--border-inner); color:#fff; font-size:14px; margin-bottom:14px; outline:none;">
-            <button class="btn-fluent-action" style="background:var(--accent-color); color:#fff; width:100%;" id="save-passcode-action">Update Passcode</button>
-          </div>
-        `;
+        // ==========================================
+        // 7. Input & Event Listeners
+        // ==========================================
+        cliInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const input = cliInput.value.trim();
+                cliInput.value = '';
+                if (!input) return;
 
-        mount.querySelector("#save-passcode-action").onclick = async () => {
-          const val = mount.querySelector("#new-passcode-field").value;
-          if (val.length === 4 && !isNaN(val)) {
-            systemPasscode = val;
-            await kernelDB.writeRecord("os_registry", { key: "lock_passcode", value: val });
-            alert("Passcode updated successfully.");
-          } else {
-            alert("Passcode must contain exactly four numerical digits.");
-          }
-        };
-      }
+                print(`${vfs.getAbsolutePath()}> ${input}`);
+                commandHistory.push(input);
+                historyIndex = commandHistory.length;
 
-      async function renderStorageSettings() {
-        const est = navigator.storage && navigator.storage.estimate ? await navigator.storage.estimate() : { usage: 0, quota: 0 };
-        mount.innerHTML = `
-          <h2 style="font-size:18px; margin-bottom:4px; font-weight:600;">Virtual Storage Engine</h2>
-          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Direct IndexedDB object store management.</p>
-          <div style="background:var(--mica-card); border:1px solid var(--border-inner); padding:18px; border-radius:var(--radius-md); max-width:440px;">
-            <div style="margin-bottom:8px; font-size:13px;"><strong>Database:</strong> JR_OS_KERNEL_DB</div>
-            <div style="margin-bottom:8px; font-size:13px;"><strong>Stores:</strong> vfs_nodes, os_registry, packages_installed</div>
-            <div style="margin-bottom:14px; font-size:13px;"><strong>Quota:</strong> ${(est.usage / (1024 * 1024)).toFixed(2)} MB of ${(est.quota / (1024 * 1024 * 1024)).toFixed(2)} GB</div>
-            <button class="btn-fluent-action" style="color:#ff6b6b;" id="factory-reset-btn">Format Virtual Filesystem</button>
-          </div>
-        `;
-
-        mount.querySelector("#factory-reset-btn").onclick = async () => {
-          if (confirm("Reset virtual filesystem to defaults? All local files will be formatted.")) {
-            indexedDB.deleteDatabase("JR_OS_KERNEL_DB");
-            window.location.reload();
-          }
-        };
-      }
-
-      navButtons.forEach(btn => {
-        btn.onclick = () => {
-          navButtons.forEach(b => b.classList.remove("button-active"));
-          btn.classList.add("button-active");
-          const view = btn.getAttribute("data-view");
-          if (view === "hardware") renderHardwareTelemetry();
-          if (view === "security") renderSecuritySettings();
-          if (view === "storage") renderStorageSettings();
-        };
-      });
-
-      renderHardwareTelemetry();
-    }
-
-    // Application 3: File Explorer
-    function launchFileExplorer() {
-      const { contentPane } = windowManager.createWindow("explorer", "File Explorer", SVG_ICONS.folder, 720, 460);
-      let currentPath = "/Desktop";
-
-      function renderExplorerView() {
-        contentPane.innerHTML = `
-          <div class="fe-workspace">
-            <div class="fe-tabs-strip">
-              <div class="fe-tab-item tab-active">${currentPath}</div>
-            </div>
-            <div class="fe-navigation-bar">
-              <div class="fe-address-box">
-                <span>Location: ${currentPath}</span>
-              </div>
-              <button class="btn-fluent-action" id="create-new-doc-action">+ New Document</button>
-            </div>
-            <div class="fe-panes-split">
-              <div class="fe-quick-sidebar">
-                <div class="fe-sidebar-node ${currentPath === "/Desktop" ? "node-selected" : ""}" data-target="/Desktop">Desktop</div>
-                <div class="fe-sidebar-node ${currentPath === "/Documents" ? "node-selected" : ""}" data-target="/Documents">Documents</div>
-                <div class="fe-sidebar-node ${currentPath === "/Downloads" ? "node-selected" : ""}" data-target="/Downloads">Downloads</div>
-              </div>
-              <div class="fe-content-canvas" id="fe-canvas-grid"></div>
-            </div>
-          </div>
-        `;
-
-        const canvas = contentPane.querySelector("#fe-canvas-grid");
-        const items = vfs.listDirectory(currentPath);
-
-        items.forEach(node => {
-          const tile = document.createElement("div");
-          tile.className = "fe-item-tile";
-          let icon = SVG_ICONS.file;
-          if (node.type === "app_shortcut") {
-            icon = node.icon === "settings" ? SVG_ICONS.settings : (node.icon === "terminal" ? SVG_ICONS.terminal : SVG_ICONS.folder);
-          }
-          if (node.type === "jrex") icon = SVG_ICONS.jrex;
-
-          tile.innerHTML = `${icon}<span class="fe-tile-label">${node.name}</span>`;
-          tile.onclick = () => routeFileExecution(node);
-          canvas.appendChild(tile);
+                await processCommandLine(input);
+            } else if (e.key === 'ArrowUp') {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    cliInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    cliInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    cliInput.value = '';
+                }
+            }
         });
 
-        contentPane.querySelectorAll(".fe-sidebar-node").forEach(sNode => {
-          sNode.onclick = () => {
-            currentPath = sNode.getAttribute("data-target");
-            renderExplorerView();
-          };
-        });
+        document.body.addEventListener('click', () => cliInput.focus());
 
-        contentPane.querySelector("#create-new-doc-action").onclick = async () => {
-          const docName = prompt("Enter document filename:", "Memo.txt");
-          if (docName) {
-            await vfs.writeFile(`${currentPath}/${docName}`, "Created in JR OS on iPadOS.");
-            renderExplorerView();
-            renderDesktopShortcuts();
-          }
-        };
-      }
-
-      renderExplorerView();
-    }
-
-    // Dynamic .jrex Installation & Launcher
-    let pendingJrex = null;
-    function openJrexInstallerModal(manifest) {
-      pendingJrex = manifest;
-      document.getElementById("jrex-modal-name").innerText = `Install ${manifest.name}`;
-      document.getElementById("jrex-modal-description").innerText = `${manifest.description} (Version: ${manifest.version}) - Publisher: ${manifest.publisher}`;
-      document.getElementById("jrex-installer-overlay").style.display = "flex";
-
-      document.getElementById("jrex-install-action-btn").onclick = async () => {
-        await kernelDB.writeRecord("packages_installed", manifest);
-        dismissJrexDialog();
-        alert(`${manifest.name} installed successfully!`);
-        launchJrexInstance(manifest);
-      };
-    }
-
-    function dismissJrexDialog() {
-      document.getElementById("jrex-installer-overlay").style.display = "none";
-      pendingJrex = null;
-    }
-
-    function launchJrexInstance(manifest) {
-      const { contentPane } = windowManager.createWindow(manifest.appId, manifest.name, SVG_ICONS.jrex, 580, 380);
-      contentPane.innerHTML = manifest.executableCode;
-    }
-
-    // Generic File Dispatcher
-    function routeFileExecution(fileNode) {
-      if (fileNode.type === "app_shortcut") {
-        if (fileNode.target === "explorer") launchFileExplorer();
-        if (fileNode.target === "settings") launchSettingsApplication();
-        if (fileNode.target === "cmd") launchPythonTerminal();
-      } else if (fileNode.type === "jrex") {
-        openJrexInstallerModal(fileNode.manifest);
-      } else {
-        alert(`Document Content [${fileNode.name}]:\n\n${fileNode.content || "(No textual content available)"}`);
-      }
-    }
-
-    /* ==========================================================================
-       SECTION 17: DESKTOP SHORTCUTS & SYSTEM SHELL BOOTSTRAP
-       ========================================================================== */
-    function renderDesktopShortcuts() {
-      const plane = document.getElementById("desktop-icon-plane");
-      plane.innerHTML = "";
-      const desktopItems = vfs.listDirectory("/Desktop");
-
-      desktopItems.forEach(item => {
-        const node = document.createElement("div");
-        node.className = "desktop-icon-node";
-        let icon = SVG_ICONS.file;
-        if (item.type === "app_shortcut") {
-          icon = item.icon === "settings" ? SVG_ICONS.settings : (item.icon === "terminal" ? SVG_ICONS.terminal : SVG_ICONS.folder);
-        }
-        if (item.type === "jrex") icon = SVG_ICONS.jrex;
-
-        node.innerHTML = `${icon}<span>${item.name}</span>`;
-        node.onclick = () => routeFileExecution(item);
-        plane.appendChild(node);
-      });
-    }
-
-    function renderStartMenuApps() {
-      const grid = document.getElementById("start-apps-grid");
-      grid.innerHTML = `
-        <div class="start-pinned-item" onclick="launchFileExplorer()">
-          ${SVG_ICONS.folder}
-          <span>File Explorer</span>
-        </div>
-        <div class="start-pinned-item" onclick="launchSettingsApplication()">
-          ${SVG_ICONS.settings}
-          <span>Settings</span>
-        </div>
-        <div class="start-pinned-item" onclick="launchPythonTerminal()">
-          ${SVG_ICONS.terminal}
-          <span>Python</span>
-        </div>
-      `;
-    }
-
-    // Start Menu Trigger
-    const startTrigger = document.getElementById("start-menu-trigger");
-    const startPanel = document.getElementById("start-menu-panel");
-
-    startTrigger.onclick = (e) => {
-      e.stopPropagation();
-      soundSystem.playFeedbackClick();
-      startPanel.classList.toggle("panel-visible");
-    };
-
-    document.addEventListener("click", (e) => {
-      if (!startPanel.contains(e.target) && e.target !== startTrigger) {
-        startPanel.classList.remove("panel-visible");
-      }
-    });
-
-    // Real-Time Clock Synchronizer
-    function synchronizeClockDisplay() {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const dateStr = now.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-      
-      document.getElementById("taskbar-clock-label").innerText = timeStr;
-      document.getElementById("screen-lock-time").innerText = timeStr;
-      document.getElementById("screen-lock-date").innerText = dateStr;
-    }
-    setInterval(synchronizeClockDisplay, 1000);
-    synchronizeClockDisplay();
-
-    /* System Bootloader */
-    (async function bootstrapOperatingSystemKernel() {
-      try {
-        await kernelDB.open();
-        
-        const regPass = await kernelDB.readRecord("os_registry", "lock_passcode");
-        if (regPass && regPass.value) systemPasscode = regPass.value;
-
-        await vfs.bootstrap();
-        renderDesktopShortcuts();
-        renderStartMenuApps();
-        console.log("JR OS Kernel Initialized for iPadOS.");
-      } catch (err) {
-        console.error("Kernel Error:", err);
-      }
-    })();
-  </script>
+        // System Startup
+        print("==============================================================");
+        print(" JR-DOS Operating System [Version 3.0.0-ENTERPRISE]           ");
+        print(" Proprietary JR-Script Architecture & Python 3.11 Runtime     ");
+        print(" Copyright (c) JR Entertainment. All rights reserved.          ");
+        print("==============================================================");
+        print("Type 'help' to review 50+ integrated command roots.\n");
+        initPyodideEngine();
+    </script>
 </body>
 </html>
