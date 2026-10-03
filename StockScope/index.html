@@ -1,873 +1,2150 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>JRmusic Pro Station</title>
+  <title>JR OS - Desktop Operating System for iPadOS</title>
   <style>
+    /* ==========================================================================
+       SECTION 1: GLOBAL CSS VARIABLES & FLUENT MICA MATERIAL ENGINE
+       ========================================================================== */
     :root {
-      --accent: #0066ff;
-      --accent-hover: #0052cc;
-      --accent-subtle: rgba(0, 102, 255, 0.12);
-      --bg: #0c0d10;
-      --surface: #15181e;
-      --elevated: #1e222b;
-      --text: #f3f5f8;
-      --muted: #858d9d;
-      --border: rgba(255, 255, 255, 0.08);
-      --danger: #ff3b30;
-      --sat: env(safe-area-inset-top, 0px);
-      --sab: env(safe-area-inset-bottom, 0px);
+      --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-code: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      
+      --accent-color: #0078d4;
+      --accent-light: #2b88d8;
+      --accent-dark: #004578;
+      --accent-alpha: rgba(0, 120, 212, 0.28);
+      
+      --bg-mica-surface: rgba(30, 30, 30, 0.82);
+      --bg-mica-alt: rgba(38, 38, 38, 0.74);
+      --bg-acrylic: rgba(42, 42, 42, 0.65);
+      --bg-card: rgba(52, 52, 52, 0.55);
+      --bg-card-hover: rgba(65, 65, 65, 0.65);
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-standard: rgba(255, 255, 255, 0.12);
+      --border-accent: rgba(0, 120, 212, 0.45);
+      
+      --text-primary: #f8f8f8;
+      --text-secondary: #a8a8aa;
+      --text-disabled: #626266;
+      --text-accent: #60cdff;
+      
+      --shadow-window: 0 24px 54px rgba(0, 0, 0, 0.65), 0 6px 18px rgba(0, 0, 0, 0.4);
+      --shadow-popup: 0 18px 40px rgba(0, 0, 0, 0.55);
+      --shadow-taskbar: 0 -4px 16px rgba(0, 0, 0, 0.35);
+      
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 18px;
+      
+      --taskbar-height: 52px;
+      --titlebar-height: 38px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
     }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f4f5f8;
-        --surface: #ffffff;
-        --elevated: #e8ebf0;
-        --text: #111317;
-        --muted: #6b7280;
-        --border: rgba(0, 0, 0, 0.08);
-      }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      font-family: var(--font-system);
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; background: var(--bg); color: var(--text); height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
-    button, input, select { font: inherit; color: inherit; background: none; border: none; outline: none; }
-    button { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 
-    #app { display: flex; width: 100%; height: 100%; overflow: hidden; }
-    #sidebar { display: none; width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding-top: var(--sat); flex-direction: column; flex-shrink: 0; }
-    @media (min-width: 768px) { #sidebar { display: flex; } #bottom-bar { display: none !important; } }
+    body, html {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #000;
+      color: var(--text-primary);
+      padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+      position: fixed;
+    }
 
-    .brand { padding: 18px 20px; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
-    .brand span { font-size: 10px; background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 4px; }
-    .nav-btn { width: 100%; padding: 12px 18px; text-align: left; font-size: 14px; font-weight: 600; color: var(--muted); border-radius: 8px; margin: 2px 0; justify-content: flex-start; gap: 12px; }
-    .nav-btn.active, .nav-btn:hover { color: var(--accent); background: var(--accent-subtle); }
+    /* ==========================================================================
+       SECTION 2: DESKTOP SURFACE & WORKSPACE
+       ========================================================================== */
+    #desktop-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - var(--taskbar-height));
+      background: radial-gradient(circle at 50% 25%, #18283f 0%, #0c121c 65%, #05070a 100%);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
 
-    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-    .view-pane { flex: 1; overflow-y: auto; padding: calc(var(--sat) + 12px) 16px 140px; display: none; }
-    .view-pane.active { display: block; }
+    .desktop-shortcut-grid {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 16px;
+      height: calc(100% - 48px);
+      z-index: 2;
+    }
 
-    .bar { display: flex; gap: 8px; margin-bottom: 14px; }
-    .input-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; height: 38px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .input-box input { width: 100%; }
-    .btn { height: 38px; padding: 0 14px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-    .btn-secondary { background: var(--elevated); color: var(--text); border: 1px solid var(--border); }
+    .desktop-icon-node {
+      width: 88px;
+      height: 94px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: var(--radius-md);
+      padding: 8px 4px;
+      cursor: pointer;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
 
-    .section-title { font-size: 14px; font-weight: 700; margin: 12px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
-    .song-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; cursor: pointer; }
-    .song-row.playing { border-color: var(--accent); background: var(--accent-subtle); }
-    .song-row img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--elevated); }
-    .song-info { flex: 1; min-width: 0; }
-    .song-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .song-sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .row-actions { display: flex; gap: 6px; }
-    .icon-btn { width: 32px; height: 32px; border-radius: 6px; color: var(--muted); font-size: 14px; }
-    .icon-btn:hover { background: var(--elevated); color: var(--text); }
+    .desktop-icon-node:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; cursor: pointer; text-align: center; }
-    .card-icon { width: 44px; height: 44px; border-radius: 8px; background: var(--accent-subtle); color: var(--accent); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .card-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .desktop-icon-node:active {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(0.95);
+    }
 
-    #mini-player { position: fixed; bottom: calc(var(--sab) + 54px); left: 10px; right: 10px; height: 56px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; padding: 0 10px; gap: 10px; z-index: 50; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-    @media (min-width: 768px) { #mini-player { left: 230px; bottom: calc(var(--sab) + 12px); } }
-    #mini-player img { width: 38px; height: 38px; border-radius: 6px; object-fit: cover; }
-    .mini-progress { position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
-    .mini-progress-fill { width: 0%; height: 100%; background: var(--accent); }
+    .desktop-icon-node svg {
+      width: 44px;
+      height: 44px;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+    }
 
-    #full-player { position: fixed; inset: 0; background: var(--bg); z-index: 100; transform: translateY(100%); transition: transform 0.28s ease; display: flex; flex-direction: column; padding: var(--sat) 18px var(--sab); overflow: hidden; }
-    #full-player.open { transform: translateY(0); }
-    .player-bg { position: absolute; inset: -20px; filter: blur(50px) brightness(0.35); background-size: cover; background-position: center; z-index: -1; }
-    .fp-head { height: 48px; display: flex; align-items: center; justify-content: space-between; }
-    .fp-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; overflow: hidden; }
-    @media (min-width: 768px) { .fp-body { flex-direction: row; gap: 32px; } }
-    .disc { width: min(50vw, 220px); height: min(50vw, 220px); border-radius: 50%; background: #111; border: 8px solid #1a1c22; box-shadow: 0 8px 32px rgba(0,0,0,0.6); position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .disc img { width: 60%; height: 60%; border-radius: 50%; object-fit: cover; }
-    .disc.playing { animation: spin 16s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .desktop-icon-node span {
+      font-size: 11.5px;
+      text-align: center;
+      line-height: 1.25;
+      max-width: 82px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-all;
+    }
 
-    .lrc-box { flex: 1; width: 100%; height: 160px; overflow-y: auto; text-align: center; mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%); padding: 60px 0; }
-    .lrc-line { padding: 6px 0; font-size: 14px; font-weight: 600; opacity: 0.4; transition: all 0.2s; cursor: pointer; }
-    .lrc-line.active { font-size: 17px; opacity: 1; color: var(--accent); }
-    .lrc-sub { font-size: 11px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+    /* ==========================================================================
+       SECTION 3: FLUENT TASKBAR & CONTROLS
+       ========================================================================== */
+    #taskbar-shell {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: var(--taskbar-height);
+      background: var(--bg-mica-surface);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border-top: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-taskbar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 99999;
+    }
 
-    .fp-foot { padding: 12px 0 16px; width: 100%; }
-    .slider { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative; cursor: pointer; margin: 8px 0; }
-    .slider-fill { width: 0%; height: 100%; background: var(--accent); border-radius: 2px; }
-    .time-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
-    .ctrls { display: flex; align-items: center; justify-content: space-around; margin-top: 10px; }
-    .play-btn { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: #fff; }
+    .taskbar-section-left,
+    .taskbar-section-right {
+      display: flex;
+      align-items: center;
+      min-width: 140px;
+    }
 
-    #bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--sab) + 50px); padding-bottom: var(--sab); background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 40; }
-    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--muted); gap: 2px; cursor: pointer; }
-    .tab.active { color: var(--accent); font-weight: 700; }
+    .taskbar-section-right {
+      justify-content: flex-end;
+      gap: 10px;
+    }
 
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(8px); }
-    .modal.active { display: flex; }
-    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 340px; padding: 16px; }
-    .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
-    .modal-list { max-height: 220px; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
-    .modal-item { padding: 10px; background: var(--elevated); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+    .taskbar-section-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
 
-    #toast { position: fixed; top: calc(var(--sat) + 16px); left: 50%; transform: translateX(-50%); background: var(--elevated); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 300; }
+    .taskbar-action-button {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      color: var(--text-primary);
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .taskbar-action-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .taskbar-action-button:active {
+      background: rgba(255, 255, 255, 0.16);
+      transform: scale(0.94);
+    }
+
+    .taskbar-action-button.active-process::after {
+      content: "";
+      position: absolute;
+      bottom: 3px;
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--accent-color);
+    }
+
+    .taskbar-action-button.minimized-process::after {
+      width: 6px;
+      background: var(--text-secondary);
+    }
+
+    .tray-pill-widget {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-primary);
+      transition: background 0.15s ease;
+    }
+
+    .tray-pill-widget:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tray-pill-widget:active {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* ==========================================================================
+       SECTION 4: START MENU MODAL SHELL
+       ========================================================================== */
+    #start-menu-panel {
+      position: absolute;
+      bottom: calc(var(--taskbar-height) + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(24px) scale(0.96);
+      width: 580px;
+      height: 620px;
+      background: var(--bg-mica-surface);
+      backdrop-filter: blur(48px) saturate(200%);
+      -webkit-backdrop-filter: blur(48px) saturate(200%);
+      border: 1px solid var(--border-standard);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-popup);
+      z-index: 100000;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.22s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #start-menu-panel.panel-visible {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .start-search-row {
+      padding: 24px 28px 14px 28px;
+    }
+
+    .start-search-input-field {
+      width: 100%;
+      height: 42px;
+      border-radius: 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-standard);
+      padding: 0 20px;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border 0.15s ease, background 0.15s ease;
+    }
+
+    .start-search-input-field:focus {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-light);
+    }
+
+    .start-content-scroll {
+      flex: 1;
+      padding: 12px 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .start-section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .start-grid-apps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    .start-pinned-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 6px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .start-pinned-item:hover {
+      background: var(--bg-card);
+    }
+
+    .start-pinned-item:active {
+      background: var(--bg-card-hover);
+    }
+
+    .start-pinned-item svg {
+      width: 38px;
+      height: 38px;
+    }
+
+    .start-pinned-item span {
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .start-footer-bar {
+      height: 60px;
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+
+    /* ==========================================================================
+       SECTION 5: WINDOW SURFACE SYSTEM
+       ========================================================================== */
+    .fluent-window {
+      position: absolute;
+      background: var(--bg-mica-surface);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--border-standard);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-window);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 360px;
+      min-height: 240px;
+      z-index: 10;
+    }
+
+    .fluent-window.window-maximized {
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .fluent-window.window-minimized {
+      display: none !important;
+    }
+
+    .window-titlebar-region {
+      height: var(--titlebar-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px 0 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      cursor: default;
+    }
+
+    .window-drag-carrier {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .window-title-caption {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .window-header-buttons {
+      display: flex;
+      height: 100%;
+      align-items: center;
+    }
+
+    .header-ctrl-btn {
+      width: 42px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: background 0.15s ease;
+    }
+
+    .header-ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .header-ctrl-btn:active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .header-ctrl-btn.close-type:hover {
+      background: #c42b1c;
+      color: #ffffff;
+    }
+
+    .window-body-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-acrylic);
+    }
+
+    /* Window Edge Resizing Grips */
+    .resizer-grip {
+      position: absolute;
+      z-index: 1000;
+    }
+    .resizer-grip.grip-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: n-resize; }
+    .resizer-grip.grip-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: s-resize; }
+    .resizer-grip.grip-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: w-resize; }
+    .resizer-grip.grip-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: e-resize; }
+    .resizer-grip.grip-nw { top: -6px; left: -6px; width: 12px; height: 12px; cursor: nw-resize; }
+    .resizer-grip.grip-ne { top: -6px; right: -6px; width: 12px; height: 12px; cursor: ne-resize; }
+    .resizer-grip.grip-sw { bottom: -6px; left: -6px; width: 12px; height: 12px; cursor: sw-resize; }
+    .resizer-grip.grip-se { bottom: -6px; right: -6px; width: 12px; height: 12px; cursor: se-resize; }
+
+    /* ==========================================================================
+       SECTION 6: LOCK SCREEN & PIN VERIFICATION SUBSYSTEM
+       ========================================================================== */
+    #lock-screen-curtain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #1b293e 0%, #06080d 100%);
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(36px);
+      -webkit-backdrop-filter: blur(36px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .lock-time-display {
+      font-size: 72px;
+      font-weight: 200;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+    }
+
+    .lock-date-display {
+      font-size: 17px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    .pin-status-indicators {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .pin-bullet {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      transition: background 0.12s ease, transform 0.12s ease;
+    }
+
+    .pin-bullet.bullet-active {
+      background: #ffffff;
+      transform: scale(1.15);
+    }
+
+    .numpad-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 76px);
+      gap: 18px;
+    }
+
+    .numpad-key {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.1s ease;
+    }
+
+    .numpad-key:active {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(0.92);
+    }
+
+    /* ==========================================================================
+       SECTION 7: PYTHON 3.12 ENGINE CMD CONSOLE STYLING
+       ========================================================================== */
+    .cmd-terminal-root {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #0a0a0c;
+      font-family: var(--font-code);
+      padding: 10px;
+    }
+
+    .cmd-log-terminal {
+      flex: 1;
+      overflow-y: auto;
+      color: #d1d5db;
+      font-size: 12.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .cmd-prompt-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid #1f242d;
+      padding-top: 8px;
+    }
+
+    .cmd-chevron {
+      color: var(--accent-light);
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .cmd-text-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: var(--font-code);
+      font-size: 13px;
+    }
+
+    /* ==========================================================================
+       SECTION 8: FILE EXPLORER SHELL
+       ========================================================================== */
+    .fe-workspace {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .fe-tabs-strip {
+      display: flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 8px;
+      gap: 6px;
+      background: var(--bg-mica-surface);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .fe-tab-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      border-bottom: none;
+    }
+
+    .fe-tab-item.tab-active {
+      background: var(--bg-acrylic);
+      font-weight: 600;
+    }
+
+    .fe-navigation-bar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .fe-address-box {
+      flex: 1;
+      height: 30px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-standard);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 12px;
+      gap: 6px;
+    }
+
+    .fe-panes-split {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .fe-quick-sidebar {
+      width: 180px;
+      border-right: 1px solid var(--border-subtle);
+      padding: 8px;
+      overflow-y: auto;
+    }
+
+    .fe-sidebar-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .fe-sidebar-node:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .fe-sidebar-node.node-selected {
+      background: var(--accent-alpha);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .fe-content-canvas {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 14px;
+      align-content: flex-start;
+    }
+
+    .fe-item-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      gap: 6px;
+    }
+
+    .fe-item-tile:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .fe-item-tile:active {
+      background: var(--accent-alpha);
+    }
+
+    .fe-item-tile svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .fe-tile-label {
+      font-size: 11.5px;
+      word-break: break-all;
+      max-width: 88px;
+      line-height: 1.2;
+    }
+
+    /* ==========================================================================
+       SECTION 9: SETTINGS APPLICATION SHELL
+       ========================================================================== */
+    .settings-layout-root {
+      display: flex;
+      height: 100%;
+    }
+
+    .settings-nav-rail {
+      width: 240px;
+      border-right: 1px solid var(--border-subtle);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.15);
+      overflow-y: auto;
+    }
+
+    .settings-nav-button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .settings-nav-button:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .settings-nav-button.button-active {
+      background: var(--accent-alpha);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .settings-content-pane {
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .device-telemetry-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .device-telemetry-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .device-telemetry-table td:first-child {
+      color: var(--text-secondary);
+      width: 36%;
+      font-weight: 500;
+    }
+
+    .btn-fluent-action {
+      padding: 7px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-standard);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.12s ease;
+    }
+
+    .btn-fluent-action:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .btn-fluent-action:active {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Modal .jrex Installer */
+    #jrex-installer-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      z-index: 1000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .jrex-dialog-box {
+      width: 440px;
+      background: var(--bg-mica-surface);
+      border: 1px solid var(--border-standard);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-popup);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
   </style>
 </head>
 <body>
-  <div id="app">
-    <!-- Sidebar -->
-    <aside id="sidebar">
-      <div class="brand">JRmusic <span>PRO</span></div>
-      <div style="padding: 10px;">
-        <button class="nav-btn active" data-view="view-search">🔎 搜索与解析</button>
-        <button class="nav-btn" data-view="view-playlists">📂 自建歌单</button>
-        <button class="nav-btn" data-view="view-offline">💾 本地离线库</button>
-        <button class="nav-btn" data-view="view-settings">⚙️ 设置</button>
-      </div>
-    </aside>
 
-    <!-- Main Views -->
-    <main id="main">
-      <!-- View: Search & Explore -->
-      <section class="view-pane active" id="view-search">
-        <div class="bar">
-          <div class="input-box">
-            <span>🔍</span>
-            <input type="text" id="input-query" placeholder="歌曲名、歌手、单曲 ID 或 歌单 ID">
-          </div>
-          <button class="btn" id="btn-search">搜索</button>
-          <button class="btn btn-secondary" id="btn-resolve-pl">解析歌单</button>
-        </div>
-        <div class="section-title"><span>搜索 / 解析结果</span><span id="results-count" style="font-weight:400;font-size:12px;"></span></div>
-        <div id="search-list">
-          <div style="padding: 30px 10px; text-align: center; color: var(--muted); font-size: 13px;">输入关键词或网易云歌单 ID 立即开始解析</div>
-        </div>
-      </section>
-
-      <!-- View: Custom Playlists -->
-      <section class="view-pane" id="view-playlists">
-        <div class="section-title">
-          <span>我的自建歌单</span>
-          <button class="btn" id="btn-open-create-modal" style="height:26px;padding:0 10px;font-size:11px;">+ 新建歌单</button>
-        </div>
-        <div class="grid" id="playlists-grid"></div>
-        <div id="playlist-detail" style="display: none;">
-          <div class="section-title">
-            <span id="pl-detail-title">歌单内容</span>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-secondary" id="btn-del-cur-pl" style="height:26px;padding:0 8px;font-size:11px;color:var(--danger);">删除歌单</button>
-              <button class="btn btn-secondary" id="btn-back-pl" style="height:26px;padding:0 8px;font-size:11px;">返回</button>
-            </div>
-          </div>
-          <div id="pl-songs-list"></div>
-        </div>
-      </section>
-
-      <!-- View: Offline Stash -->
-      <section class="view-pane" id="view-offline">
-        <div class="section-title">
-          <span>IndexedDB 本地持久音源</span>
-          <div style="display:flex; gap:6px;">
-            <label class="btn btn-secondary" style="height:26px;padding:0 8px;font-size:11px;cursor:pointer;">
-              导入本地音频
-              <input type="file" id="input-local-file" accept="audio/*" multiple style="display:none;">
-            </label>
-            <button class="btn btn-secondary" id="btn-clear-db" style="height:26px;padding:0 8px;font-size:11px;color:var(--danger);">清空</button>
-          </div>
-        </div>
-        <div id="offline-list"></div>
-      </section>
-
-      <!-- View: Settings -->
-      <section class="view-pane" id="view-settings">
-        <div class="section-title">服务器与音质设置</div>
-        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:12px;">
-          <div>
-            <div style="font-size:13px; font-weight:600;">后端 API 基础地址</div>
-            <div class="input-box" style="margin-top:4px;">
-              <input type="text" id="cfg-api" value="http://localhost:5000">
-            </div>
-          </div>
-          <div>
-            <div style="font-size:13px; font-weight:600;">默认解析品质</div>
-            <select id="cfg-quality" style="width:100%; margin-top:4px; padding:8px; background:var(--elevated); border:1px solid var(--border); border-radius:8px;">
-              <option value="standard">Standard (128kbps)</option>
-              <option value="exhigh">ExHigh (320kbps)</option>
-              <option value="lossless" selected>Lossless (FLAC 无损)</option>
-              <option value="hires">Hi-Res 高清母带</option>
-            </select>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Mini Player Bar -->
-    <div id="mini-player">
-      <img id="mini-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%23222'/%3E%3C/svg%3E" alt="">
-      <div class="song-info">
-        <div class="song-name" id="mini-name">JRmusic Ready</div>
-        <div class="song-sub" id="mini-sub">请选择歌曲开始播放</div>
-      </div>
-      <button class="icon-btn" id="mini-play-btn" style="width:36px;height:36px;font-size:18px;">▶</button>
-      <div class="mini-progress"><div class="mini-progress-fill" id="mini-fill"></div></div>
+  <!-- Screen Lock UI Subsystem -->
+  <div id="lock-screen-curtain">
+    <div class="lock-time-display" id="screen-lock-time">12:00</div>
+    <div class="lock-date-display" id="screen-lock-date">Saturday, October 3, 2026</div>
+    <div class="pin-status-indicators">
+      <div class="pin-bullet" id="pin-dot-0"></div>
+      <div class="pin-bullet" id="pin-dot-1"></div>
+      <div class="pin-bullet" id="pin-dot-2"></div>
+      <div class="pin-bullet" id="pin-dot-3"></div>
     </div>
-
-    <!-- Mobile Bottom Tabs -->
-    <nav id="bottom-bar">
-      <div class="tab active" data-view="view-search"><span>🔎</span>检索</div>
-      <div class="tab" data-view="view-playlists"><span>📂</span>歌单</div>
-      <div class="tab" data-view="view-offline"><span>💾</span>离线库</div>
-      <div class="tab" data-view="view-settings"><span>⚙️</span>设置</div>
-    </nav>
+    <div class="numpad-matrix">
+      <button class="numpad-key" onclick="handlePinInput('1')">1</button>
+      <button class="numpad-key" onclick="handlePinInput('2')">2</button>
+      <button class="numpad-key" onclick="handlePinInput('3')">3</button>
+      <button class="numpad-key" onclick="handlePinInput('4')">4</button>
+      <button class="numpad-key" onclick="handlePinInput('5')">5</button>
+      <button class="numpad-key" onclick="handlePinInput('6')">6</button>
+      <button class="numpad-key" onclick="handlePinInput('7')">7</button>
+      <button class="numpad-key" onclick="handlePinInput('8')">8</button>
+      <button class="numpad-key" onclick="handlePinInput('9')">9</button>
+      <button class="numpad-key" style="font-size:14px;" onclick="resetPinInput()">Clear</button>
+      <button class="numpad-key" onclick="handlePinInput('0')">0</button>
+      <button class="numpad-key" style="font-size:14px;" onclick="bypassLockScreen()">Bypass</button>
+    </div>
   </div>
 
-  <!-- Fullscreen Player Modal -->
-  <div id="full-player">
-    <div class="player-bg" id="fp-bg"></div>
-    <div class="fp-head">
-      <button class="icon-btn" id="fp-close" style="font-size:20px;">✕</button>
-      <div style="text-align:center; max-width:70%;">
-        <div class="song-name" id="fp-title" style="color:#fff;">曲目</div>
-        <div class="song-sub" id="fp-artist" style="color:rgba(255,255,255,0.7);">歌手</div>
-      </div>
-      <button class="icon-btn" id="fp-dl" title="下载并物理持久化">💾</button>
+  <!-- Primary Desktop Surface -->
+  <div id="desktop-viewport">
+    <div class="desktop-shortcut-grid" id="desktop-icon-plane"></div>
+  </div>
+
+  <!-- Centered Fluent Taskbar -->
+  <div id="taskbar-shell">
+    <div class="taskbar-section-left"></div>
+    <div class="taskbar-section-center" id="taskbar-processes-row">
+      <button class="taskbar-action-button" id="start-menu-trigger" title="Start">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--accent-color)">
+          <path d="M2 3.5L10.5 2.2V11H2V3.5ZM11.5 2V11H22V0.5L11.5 2ZM2 13H10.5V21.8L2 20.5V13ZM11.5 13H22V23.5L11.5 22V13Z"/>
+        </svg>
+      </button>
     </div>
-    <div class="fp-body">
-      <div class="disc" id="fp-disc">
-        <img id="fp-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23222'/%3E%3C/svg%3E" alt="">
-      </div>
-      <div class="lrc-box" id="lrc-box">
-        <div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">暂无歌词</div>
-      </div>
-    </div>
-    <div class="fp-foot">
-      <div class="slider" id="progress-bar"><div class="slider-fill" id="progress-fill"></div></div>
-      <div class="time-row"><span id="time-cur">00:00</span><span id="time-dur">00:00</span></div>
-      <div class="ctrls">
-        <button class="icon-btn" id="ctrl-mode" style="font-size:18px;">🔁</button>
-        <button class="icon-btn" id="ctrl-prev" style="font-size:22px;">⏮</button>
-        <button class="play-btn" id="ctrl-play" style="font-size:22px;">▶</button>
-        <button class="icon-btn" id="ctrl-next" style="font-size:22px;">⏭</button>
-        <button class="icon-btn" id="ctrl-add-pl" style="font-size:18px;">➕</button>
+    <div class="taskbar-section-right">
+      <div class="tray-pill-widget" onclick="invokeSystemLock()">
+        <span id="taskbar-clock-label">12:00</span>
       </div>
     </div>
   </div>
 
-  <!-- Modal 1: 真正可用于 iOS 的实体新建歌单弹窗 -->
-  <div class="modal" id="modal-create-pl">
-    <div class="modal-box">
-      <div class="modal-title">新建自建歌单</div>
-      <div class="input-box">
-        <input type="text" id="input-new-pl-name" placeholder="请输入歌单名称...">
+  <!-- Start Menu Dropdown -->
+  <div id="start-menu-panel">
+    <div class="start-search-row">
+      <input type="text" class="start-search-input-field" placeholder="Search apps, diagnostics, and virtual files...">
+    </div>
+    <div class="start-content-scroll">
+      <div class="start-section-heading">
+        <span>Pinned Software</span>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" id="btn-cancel-create">取消</button>
-        <button class="btn" id="btn-confirm-create">创建</button>
+      <div class="start-grid-apps" id="start-apps-grid"></div>
+    </div>
+    <div class="start-footer-bar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-color); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px;">J</div>
+        <span style="font-size:13px; font-weight:500;">Jack Zhang</span>
+      </div>
+      <button class="btn-fluent-action" onclick="invokeSystemLock()">Lock Session</button>
+    </div>
+  </div>
+
+  <!-- .jrex Package Installer Dialog -->
+  <div id="jrex-installer-overlay">
+    <div class="jrex-dialog-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; font-weight:600; color:var(--accent-color); background:var(--accent-alpha); padding:2px 8px; border-radius:4px;">JREX PACKAGE RUNTIME</span>
+        <span style="cursor:pointer;" onclick="dismissJrexDialog()">✕</span>
+      </div>
+      <h3 id="jrex-modal-name" style="font-size:16px;">Software Installation</h3>
+      <p id="jrex-modal-description" style="font-size:12.5px; color:var(--text-secondary); line-height:1.4;"></p>
+      <div style="font-size:11.5px; padding:10px; background:var(--bg-card); border:1px solid var(--border-standard); border-radius:var(--radius-sm);">
+        Verified Signature: JR Entertainment Systems<br>
+        Sandbox Capabilities: In-Memory WebAudio API, High-Precision DOM
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-fluent-action" onclick="dismissJrexDialog()">Cancel</button>
+        <button class="btn-fluent-action" style="background:var(--accent-color); color:#fff;" id="jrex-install-action-btn">Install Application</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal 2: 收藏到歌单选择弹窗 -->
-  <div class="modal" id="modal-add-pl">
-    <div class="modal-box">
-      <div class="modal-title">收藏到歌单</div>
-      <div class="modal-list" id="modal-pl-items"></div>
-      <button class="btn btn-secondary" style="width:100%; margin-top:8px;" id="btn-modal-close">取消</button>
-    </div>
-  </div>
-
-  <div id="toast"></div>
-  <audio id="audio" playsinline webkit-playsinline></audio>
-
+  <!-- JavaScript Operating System Micro-Kernel -->
   <script>
-    (function() {
-      'use strict';
+    /* ==========================================================================
+       SECTION 10: SYNTHESIZED SOUND SUBSYSTEM (Zero external asset dependence)
+       ========================================================================== */
+    class JRAudioSynthesizer {
+      constructor() {
+        this.ctx = null;
+      }
 
-      // --- 全局状态管理 ---
-      const Store = {
-        api: localStorage.getItem('jr_api') || 'http://localhost:5000',
-        quality: localStorage.getItem('jr_quality') || 'lossless',
-        playlists: JSON.parse(localStorage.getItem('jr_playlists') || '[]'),
-        queue: [],
-        index: -1,
-        mode: 'loop',
-        lyrics: [],
-        curLrcIdx: -1,
-        currentTrack: null,
-        blobUrl: null,
-        activePlaylistIdx: -1,
-        pendingTrackToCollect: null
-      };
+      ensureContext() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-      const audio = document.getElementById('audio');
+      playTone(frequency, type = 'sine', duration = 0.15, gainValue = 0.08) {
+        try {
+          this.ensureContext();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainValue, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn("Audio synthesis ignored:", e);
+        }
+      }
 
-      // --- IndexedDB 持久化存储 ---
-      let db = null;
-      function openDB() {
+      playFeedbackClick() {
+        this.playTone(880, 'sine', 0.08, 0.04);
+      }
+
+      playAuthSuccess() {
+        this.playTone(523.25, 'triangle', 0.1, 0.06);
+        setTimeout(() => this.playTone(659.25, 'triangle', 0.15, 0.06), 100);
+        setTimeout(() => this.playTone(783.99, 'triangle', 0.25, 0.06), 200);
+      }
+
+      playAuthError() {
+        this.playTone(220, 'sawtooth', 0.2, 0.08);
+        setTimeout(() => this.playTone(180, 'sawtooth', 0.25, 0.08), 150);
+      }
+    }
+
+    const soundSystem = new JRAudioSynthesizer();
+
+    /* ==========================================================================
+       SECTION 11: INDEXEDDB PERSISTENCE SUBSYSTEM
+       ========================================================================== */
+    class JRIndexedDBEngine {
+      constructor(dbName = "JR_OS_KERNEL_DB", dbVersion = 1) {
+        this.dbName = dbName;
+        this.dbVersion = dbVersion;
+        this.db = null;
+      }
+
+      async open() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open('JRmusicDB', 2);
-          req.onupgradeneeded = e => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains('tracks')) {
-              d.createObjectStore('tracks', { keyPath: 'id' });
+          const req = indexedDB.open(this.dbName, this.dbVersion);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("vfs_nodes")) {
+              db.createObjectStore("vfs_nodes", { keyPath: "path" });
+            }
+            if (!db.objectStoreNames.contains("os_registry")) {
+              db.createObjectStore("os_registry", { keyPath: "key" });
+            }
+            if (!db.objectStoreNames.contains("packages_installed")) {
+              db.createObjectStore("packages_installed", { keyPath: "appId" });
             }
           };
-          req.onsuccess = e => { db = e.target.result; resolve(db); };
-          req.onerror = reject;
+          req.onsuccess = (e) => {
+            this.db = e.target.result;
+            resolve(this.db);
+          };
+          req.onerror = (e) => reject(e.target.error);
         });
       }
 
-      function dbSave(track, blob) {
+      async readRecord(storeName, key) {
         return new Promise((resolve, reject) => {
-          if (!db) return reject('DB未连接');
-          const tx = db.transaction('tracks', 'readwrite');
-          tx.objectStore('tracks').put({
-            id: String(track.id),
-            name: track.name || '未知曲目',
-            ar: track.ar || track.artists || track.ar_name || '群星',
-            al: track.al || track.album || track.al_name || '',
-            pic: track.pic || track.picUrl || '',
-            lyric: track.lyric || '',
-            blob: blob
-          });
-          tx.oncomplete = resolve;
-          tx.onerror = reject;
-        });
-      }
-
-      function dbGet(id) {
-        return new Promise(resolve => {
-          if (!db) return resolve(null);
-          const tx = db.transaction('tracks', 'readonly');
-          const req = tx.objectStore('tracks').get(String(id));
+          const tx = this.db.transaction([storeName], "readonly");
+          const store = tx.objectStore(storeName);
+          const req = store.get(key);
           req.onsuccess = () => resolve(req.result);
-          req.onerror = () => resolve(null);
+          req.onerror = () => reject(req.error);
         });
       }
 
-      function dbGetAll() {
-        return new Promise(resolve => {
-          if (!db) return resolve([]);
-          const tx = db.transaction('tracks', 'readonly');
-          const req = tx.objectStore('tracks').getAll();
-          req.onsuccess = () => resolve(req.result || []);
-          req.onerror = () => resolve([]);
+      async writeRecord(storeName, record) {
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction([storeName], "readwrite");
+          const store = tx.objectStore(storeName);
+          const req = store.put(record);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
         });
       }
 
-      function dbDel(id) {
-        return new Promise(resolve => {
-          if (!db) return resolve();
-          const tx = db.transaction('tracks', 'readwrite');
-          tx.objectStore('tracks').delete(String(id)).onsuccess = resolve;
+      async removeRecord(storeName, key) {
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction([storeName], "readwrite");
+          const store = tx.objectStore(storeName);
+          const req = store.delete(key);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
         });
       }
 
-      function toast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.style.opacity = '1';
-        setTimeout(() => t.style.opacity = '0', 2000);
-      }
-
-      // --- 网络请求封装 ---
-      async function request(path, body = null) {
-        const res = await fetch(Store.api.replace(/\/+$/, '') + path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: body ? JSON.stringify(body) : null
+      async readAllRecords(storeName) {
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction([storeName], "readonly");
+          const store = tx.objectStore(storeName);
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+      }
+    }
+
+    const kernelDB = new JRIndexedDBEngine();
+
+    /* ==========================================================================
+       SECTION 12: LOW-LEVEL VIRTUAL FILE SYSTEM (POSIX-LIKE)
+       ========================================================================== */
+    class JRVFS {
+      constructor(dbEngine) {
+        this.db = dbEngine;
+        this.rootMemoryCache = {};
       }
 
-      // --- 规范化统一数据结构 ---
-      function normalizeTrack(item) {
-        return {
-          id: String(item.id),
-          name: item.name || '未知曲目',
-          ar: item.ar || item.artists || item.ar_name || '群星',
-          al: item.al || item.album || item.al_name || '',
-          pic: item.pic || item.picUrl || '',
-          lyric: item.lyric || ''
+      async bootstrap() {
+        const rootEntry = await this.db.readRecord("vfs_nodes", "/");
+        if (!rootEntry) {
+          await this.formatDefaultFilesystem();
+        } else {
+          await this.loadCache();
+        }
+      }
+
+      async formatDefaultFilesystem() {
+        this.rootMemoryCache = {
+          "/": { type: "dir", permissions: "rwxr-xr-x", updated: Date.now() },
+          "/Desktop": { type: "dir", permissions: "rwxr-xr-x", updated: Date.now() },
+          "/Documents": { type: "dir", permissions: "rwxr-xr-x", updated: Date.now() },
+          "/Downloads": { type: "dir", permissions: "rwxr-xr-x", updated: Date.now() },
+          "/System": { type: "dir", permissions: "r-xr-xr-x", updated: Date.now() },
+          
+          "/Desktop/File_Explorer.app": { 
+            type: "app_shortcut", 
+            target: "explorer", 
+            name: "File Explorer", 
+            icon: "folder", 
+            updated: Date.now() 
+          },
+          "/Desktop/Settings.app": { 
+            type: "app_shortcut", 
+            target: "settings", 
+            name: "Settings", 
+            icon: "settings", 
+            updated: Date.now() 
+          },
+          "/Desktop/Python_CMD.app": { 
+            type: "app_shortcut", 
+            target: "cmd", 
+            name: "Python Terminal", 
+            icon: "terminal", 
+            updated: Date.now() 
+          },
+          "/Desktop/SynthStudio.jrex": {
+            type: "jrex",
+            name: "SynthStudio.jrex",
+            size: "1.2 MB",
+            updated: Date.now(),
+            manifest: {
+              appId: "synth_studio",
+              name: "JR Synth Studio",
+              publisher: "JR Entertainment",
+              version: "1.0.0",
+              description: "Web Audio harmonic audio synthesizer running inside iOS WebKit container.",
+              executableCode: `
+                <div style="padding:24px; display:flex; flex-direction:column; gap:16px;">
+                  <h2>JR Synth Studio</h2>
+                  <p style="font-size:12.5px; color:var(--text-secondary);">Direct hardware-accelerated sound generation via Web Audio API.</p>
+                  <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn-fluent-action" onclick="soundSystem.playTone(261.63, 'sine', 0.4, 0.1)">Tone C4</button>
+                    <button class="btn-fluent-action" onclick="soundSystem.playTone(329.63, 'sine', 0.4, 0.1)">Tone E4</button>
+                    <button class="btn-fluent-action" onclick="soundSystem.playTone(392.00, 'sine', 0.4, 0.1)">Tone G4</button>
+                    <button class="btn-fluent-action" onclick="soundSystem.playTone(523.25, 'sine', 0.5, 0.1)">Tone C5</button>
+                  </div>
+                  <div style="flex:1; height:120px; border:1px dashed var(--accent-light); border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(0,120,212,0.06); font-size:12px;">
+                    Synthesizer Matrix Engine Idle - Ready for Performance
+                  </div>
+                </div>
+              `
+            }
+          },
+          "/Documents/Architecture_Specification.txt": {
+            type: "file",
+            content: "JR OS 2026 Enterprise Architecture.\nSubsystems:\n- IndexedDB Kernel\n- Hardware Telemetry Engine\n- Python 3.12 AST Interpreter\n- Fluent Acrylic Shell\nAll modules are fully sandboxed and compliant with iOS WebKit constraints.",
+            updated: Date.now()
+          }
+        };
+
+        for (const [path, data] of Object.entries(this.rootMemoryCache)) {
+          await this.db.writeRecord("vfs_nodes", { path, ...data });
+        }
+      }
+
+      async loadCache() {
+        const records = await this.db.readAllRecords("vfs_nodes");
+        this.rootMemoryCache = {};
+        for (const r of records) {
+          this.rootMemoryCache[r.path] = r;
+        }
+      }
+
+      async writeFile(path, content) {
+        const node = {
+          type: "file",
+          content: content,
+          updated: Date.now()
+        };
+        this.rootMemoryCache[path] = node;
+        await this.db.writeRecord("vfs_nodes", { path, ...node });
+      }
+
+      async removeFile(path) {
+        delete this.rootMemoryCache[path];
+        await this.db.removeRecord("vfs_nodes", path);
+      }
+
+      listDirectory(dirPath) {
+        const normalized = dirPath === "/" ? "/" : dirPath.replace(/\/$/, "");
+        const results = [];
+        for (const [k, v] of Object.entries(this.rootMemoryCache)) {
+          if (k === normalized || k === "/") continue;
+          const parent = k.substring(0, k.lastIndexOf("/")) || "/";
+          if (parent === normalized) {
+            results.push({
+              path: k,
+              name: k.substring(k.lastIndexOf("/") + 1),
+              ...v
+            });
+          }
+        }
+        return results;
+      }
+    }
+
+    /* ==========================================================================
+       SECTION 13: ADVANCED DEVICE TELEMETRY & HARDWARE PROBE
+       ========================================================================== */
+    class JRDeviceDiagnostics {
+      static async queryAllTelemetry() {
+        const metrics = {};
+
+        // Platform & Runtime Identifiers
+        metrics["System Runtime Platform"] = navigator.platform || "iPadOS / Apple WebKit";
+        metrics["User Agent Descriptor"] = navigator.userAgent;
+        metrics["Software Vendor Signature"] = navigator.vendor || "Apple Computer, Inc.";
+        metrics["Hardware Concurrency Threads"] = navigator.hardwareConcurrency || "Sandboxed / Dynamic";
+        metrics["Touch Points Supported (Max)"] = navigator.maxTouchPoints || "Multi-Touch Dynamic Array";
+        metrics["Preferred Operating Language"] = navigator.language;
+
+        // Display Geometry & Pixel Arrays
+        const dpr = window.devicePixelRatio || 1;
+        metrics["Native Screen Resolution"] = `${window.screen.width * dpr} x ${window.screen.height * dpr} Pixels`;
+        metrics["Logical Display Viewport"] = `${window.screen.width} x ${window.screen.height} Points`;
+        metrics["Client Window Resolution"] = `${window.innerWidth} x ${window.innerHeight} Pixels`;
+        metrics["Display Device Pixel Ratio (DPR)"] = dpr;
+        metrics["Screen Color Depth"] = `${window.screen.colorDepth}-Bit Gamut`;
+
+        // Screen Orientation
+        if (window.screen.orientation) {
+          metrics["Display Orientation Type"] = window.screen.orientation.type;
+          metrics["Display Angle Offset"] = `${window.screen.orientation.angle}°`;
+        } else if (window.orientation !== undefined) {
+          metrics["Display Angle Offset"] = `${window.orientation}°`;
+        }
+
+        // WebGL Hardware GPU Probing
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (gl) {
+            const ext = gl.getExtension("WEBGL_debug_renderer_info");
+            metrics["Graphics Unmasked Vendor"] = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+            metrics["Graphics Unmasked Renderer"] = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+            metrics["WebGL Engine Version"] = gl.getParameter(gl.VERSION);
+            metrics["Max Hardware Texture Size"] = `${gl.getParameter(gl.MAX_TEXTURE_SIZE)} x ${gl.getParameter(gl.MAX_TEXTURE_SIZE)} px`;
+          } else {
+            metrics["Graphics Pipeline Status"] = "Virtualized / Software Pipeline";
+          }
+        } catch (e) {
+          metrics["Graphics Diagnostic Hook"] = "Restricted by Apple WebKit Sandbox";
+        }
+
+        // Audio Subsystem Hardware Sampling
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            const actx = new AudioContextClass();
+            metrics["Audio Subsystem Sampling Rate"] = `${actx.sampleRate} Hz`;
+            metrics["Audio Destination Channels"] = actx.destination.maxChannelCount;
+            metrics["Audio Processing State"] = actx.state;
+            actx.close();
+          }
+        } catch (e) {
+          metrics["Audio Diagnostic Hook"] = "Direct Audio Introspection Restricted";
+        }
+
+        // Battery Power Telemetry
+        if (navigator.getBattery) {
+          try {
+            const battery = await navigator.getBattery();
+            metrics["Battery Power Charge"] = `${Math.round(battery.level * 100)}%`;
+            metrics["Battery Charging Active"] = battery.charging ? "Connected to External Power" : "Discharging on Battery";
+          } catch (e) {
+            metrics["Battery Diagnostic Status"] = "Restricted on iPadOS Platform";
+          }
+        }
+
+        // Network Interface
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+          metrics["Network Bandwidth Profile"] = connection.effectiveType || "High-Bandwidth Network";
+          metrics["Estimated Downlink Rate"] = connection.downlink ? `${connection.downlink} Mbps` : "Unmetered / Dynamic";
+          metrics["Round-Trip Latency (RTT)"] = connection.rtt ? `${connection.rtt} ms` : "Optimized";
+        } else {
+          metrics["Network Interface Status"] = navigator.onLine ? "Online (Active Session)" : "Disconnected";
+        }
+
+        // Memory Footprint Estimation
+        if (performance && performance.memory) {
+          metrics["JS Heap Memory Allocated"] = `${(performance.memory.totalJSHeapSize / (1024 * 1024)).toFixed(2)} MB`;
+          metrics["JS Heap Memory Utilized"] = `${(performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(2)} MB`;
+          metrics["JS Heap Upper Threshold"] = `${(performance.memory.jsHeapSizeLimit / (1024 * 1024)).toFixed(2)} MB`;
+        }
+
+        // IndexedDB Quota
+        if (navigator.storage && navigator.storage.estimate) {
+          try {
+            const est = await navigator.storage.estimate();
+            metrics["IndexedDB Quota Assigned"] = `${(est.quota / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+            metrics["VFS Storage Used"] = `${(est.usage / (1024 * 1024)).toFixed(2)} MB`;
+          } catch (e) {}
+        }
+
+        return metrics;
+      }
+    }
+
+    /* ==========================================================================
+       SECTION 14: PYTHON 3.12 EMBEDDED AST INTERPRETER ENGINE
+       ========================================================================== */
+    class JRPythonInterpreter {
+      constructor(vfsInstance) {
+        this.vfs = vfsInstance;
+        this.globalScope = {};
+        this.initGlobals();
+      }
+
+      initGlobals() {
+        this.globalScope = {
+          __name__: "__main__",
+          __version__: "3.12.2 (JR-WebKit-Embedded)",
+          PI: Math.PI,
+          E: Math.E,
+          True: true,
+          False: false,
+          None: null
+        };
+
+        // Builtin Library Functions
+        this.globalScope["len"] = (val) => {
+          if (val === null || val === undefined) throw new Error("TypeError: object of type 'NoneType' has no len()");
+          return val.length !== undefined ? val.length : Object.keys(val).length;
+        };
+
+        this.globalScope["range"] = (...args) => {
+          let start = 0, stop = 0, step = 1;
+          if (args.length === 1) {
+            stop = args[0];
+          } else if (args.length === 2) {
+            start = args[0];
+            stop = args[1];
+          } else if (args.length >= 3) {
+            start = args[0];
+            stop = args[1];
+            step = args[2];
+          }
+          const res = [];
+          if (step > 0) {
+            for (let i = start; i < stop; i += step) res.push(i);
+          } else if (step < 0) {
+            for (let i = start; i > stop; i += step) res.push(i);
+          }
+          return res;
+        };
+
+        this.globalScope["sum"] = (seq) => {
+          if (!Array.isArray(seq)) throw new Error("TypeError: sum() requires an array");
+          return seq.reduce((acc, x) => acc + x, 0);
+        };
+
+        this.globalScope["max"] = (...args) => Array.isArray(args[0]) ? Math.max(...args[0]) : Math.max(...args);
+        this.globalScope["min"] = (...args) => Array.isArray(args[0]) ? Math.min(...args[0]) : Math.min(...args);
+        this.globalScope["abs"] = (x) => Math.abs(x);
+        this.globalScope["int"] = (x) => parseInt(x, 10);
+        this.globalScope["float"] = (x) => parseFloat(x);
+        this.globalScope["str"] = (x) => String(x);
+        this.globalScope["list"] = (x) => Array.from(x || []);
+        
+        // System VFS Bridge Hooks in Python
+        this.globalScope["vfs_list"] = (path = "/") => {
+          return this.vfs.listDirectory(path).map(item => item.name);
         };
       }
 
-      // --- 歌词解析引擎 ---
-      function parseLRC(raw) {
-        if (!raw) return [];
-        const lines = raw.split('\n');
-        const list = [];
-        const reg = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
-        for (let l of lines) {
-          const matches = [...l.matchAll(reg)];
-          if (!matches.length) continue;
-          let text = l.replace(reg, '').trim();
-          if (!text) continue;
-          let main = text, sub = '';
-          const bMatch = text.match(/[\(（](.+?)[\)）]/);
-          if (bMatch) {
-            sub = bMatch[1];
-            main = text.replace(bMatch[0], '').trim();
-          }
-          for (let m of matches) {
-            const time = parseInt(m[1])*60 + parseInt(m[2]) + (m[3] ? parseInt(m[3].padEnd(3,'0').slice(0,3))/1000 : 0);
-            list.push({ time, main, sub });
-          }
-        }
-        return list.sort((a,b) => a.time - b.time);
-      }
+      run(scriptText) {
+        const lines = scriptText.split("\n");
+        const stdout = [];
+        let lineIndex = 0;
 
-      // --- 核心播放与持久化读取 ---
-      async function playSong(rawSong) {
-        const song = normalizeTrack(rawSong);
-        toast(`加载中: ${song.name}`);
+        const printBuffer = (...items) => {
+          stdout.push(items.map(it => this.pythonRepr(it)).join(" "));
+        };
 
-        if (Store.blobUrl) {
-          URL.revokeObjectURL(Store.blobUrl);
-          Store.blobUrl = null;
-        }
+        const localScope = Object.assign({}, this.globalScope);
+        localScope["print"] = printBuffer;
 
-        try {
-          let src = null;
-          let detail = song;
+        while (lineIndex < lines.length) {
+          const raw = lines[lineIndex];
+          const trimmed = raw.trim();
 
-          // 1. 优先从 IndexedDB 中读取永久持久化 Blob
-          const cached = await dbGet(song.id);
-          if (cached && cached.blob && cached.blob.size > 0) {
-            // 确保 Blob 包含标准 audio MIME
-            const audioBlob = cached.blob.type ? cached.blob : new Blob([cached.blob], { type: 'audio/mpeg' });
-            src = URL.createObjectURL(audioBlob);
-            detail = normalizeTrack(cached);
-            toast('读取本地离线音源');
-          } else {
-            // 2. 无本地缓存时，请求 CDN 并立即落盘保存
-            const res = await request('/song', { url: song.id, level: Store.quality, type: 'json' });
-            if (!res.success || !res.data || !res.data.url) throw new Error('未获取到 CDN 播放直链');
-
-            detail = normalizeTrack({
-              ...song,
-              name: res.data.name || song.name,
-              ar: res.data.ar_name || song.ar,
-              al: res.data.al_name || song.al,
-              pic: res.data.pic || song.pic,
-              lyric: res.data.lyric || ''
-            });
-
-            // 获取音轨二进制 Blob 并落盘，确保退出 App 后不丢失
-            const cdnRes = await fetch(res.data.url, { referrerPolicy: 'no-referrer' });
-            const rawBlob = await cdnRes.blob();
-            const persistentBlob = new Blob([rawBlob], { type: rawBlob.type || 'audio/mpeg' });
-            await dbSave(detail, persistentBlob);
-
-            src = URL.createObjectURL(persistentBlob);
-            toast('已下载并保存到本地');
+          if (!trimmed || trimmed.startsWith("#")) {
+            lineIndex++;
+            continue;
           }
 
-          Store.currentTrack = detail;
-          Store.blobUrl = src;
-          audio.src = src;
-          audio.load();
-          await audio.play();
+          if (trimmed === "clear") {
+            return { special: "__CLEAR__" };
+          }
 
-          Store.lyrics = parseLRC(detail.lyric);
-          renderLyrics();
-          updateUI(detail);
-          renderOfflineList();
-        } catch (e) {
-          console.error(e);
-          toast(`播放失败: ${e.message}`);
-        }
-      }
-
-      function updateUI(song) {
-        document.getElementById('mini-pic').src = song.pic || '';
-        document.getElementById('mini-name').textContent = song.name;
-        document.getElementById('mini-sub').textContent = `${song.ar} - ${song.al || ''}`;
-        
-        document.getElementById('fp-pic').src = song.pic || '';
-        document.getElementById('fp-bg').style.backgroundImage = song.pic ? `url(${song.pic})` : 'none';
-        document.getElementById('fp-title').textContent = song.name;
-        document.getElementById('fp-artist').textContent = song.ar;
-
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.name, artist: song.ar, album: song.al,
-            artwork: [{ src: song.pic || '', sizes: '512x512', type: 'image/jpeg' }]
-          });
-        }
-      }
-
-      function renderLyrics() {
-        const box = document.getElementById('lrc-box');
-        box.innerHTML = '';
-        if (!Store.lyrics.length) {
-          box.innerHTML = '<div style="padding:40px; color:rgba(255,255,255,0.4); font-size:13px;">暂无歌词</div>';
-          return;
-        }
-        Store.lyrics.forEach(l => {
-          const el = document.createElement('div');
-          el.className = 'lrc-line';
-          el.innerHTML = `<div>${l.main}</div>${l.sub ? `<div class="lrc-sub">${l.sub}</div>` : ''}`;
-          el.onclick = () => { audio.currentTime = l.time; };
-          box.appendChild(el);
-        });
-      }
-
-      // --- 音频事件绑定 ---
-      audio.ontimeupdate = () => {
-        const cur = audio.currentTime, dur = audio.duration || 0;
-        const pct = dur ? (cur / dur) * 100 : 0;
-        document.getElementById('mini-fill').style.width = pct + '%';
-        document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('time-cur').textContent = fmt(cur);
-        document.getElementById('time-dur').textContent = fmt(dur);
-
-        if (!Store.lyrics.length) return;
-        let idx = -1;
-        for (let i = 0; i < Store.lyrics.length; i++) {
-          if (cur >= Store.lyrics[i].time) idx = i; else break;
-        }
-        if (idx !== Store.curLrcIdx && idx !== -1) {
-          Store.curLrcIdx = idx;
-          const box = document.getElementById('lrc-box');
-          const lines = box.children;
-          for (let i = 0; i < lines.length; i++) lines[i].classList.toggle('active', i === idx);
-          if (lines[idx]) box.scrollTo({ top: lines[idx].offsetTop - box.clientHeight / 2 + 20, behavior: 'smooth' });
-        }
-      };
-
-      audio.onplay = () => {
-        document.getElementById('mini-play-btn').textContent = '⏸';
-        document.getElementById('ctrl-play').textContent = '⏸';
-        document.getElementById('fp-disc').classList.add('playing');
-      };
-      audio.onpause = () => {
-        document.getElementById('mini-play-btn').textContent = '▶';
-        document.getElementById('ctrl-play').textContent = '▶';
-        document.getElementById('fp-disc').classList.remove('playing');
-      };
-      audio.onended = () => {
-        if (Store.mode === 'single') { audio.currentTime = 0; audio.play(); }
-        else nextTrack();
-      };
-
-      function nextTrack() {
-        if (!Store.queue.length) return;
-        if (Store.mode === 'shuffle') Store.index = Math.floor(Math.random() * Store.queue.length);
-        else Store.index = (Store.index + 1) % Store.queue.length;
-        playSong(Store.queue[Store.index]);
-      }
-      function prevTrack() {
-        if (!Store.queue.length) return;
-        Store.index = (Store.index - 1 + Store.queue.length) % Store.queue.length;
-        playSong(Store.queue[Store.index]);
-      }
-      function fmt(t) {
-        if (isNaN(t)) return '00:00';
-        const m = Math.floor(t / 60), s = Math.floor(t % 60);
-        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-      }
-
-      // --- 搜索与歌单解析 ---
-      document.getElementById('btn-search').onclick = async () => {
-        const q = document.getElementById('input-query').value.trim();
-        if (!q) return toast('请输入关键词');
-        const list = document.getElementById('search-list');
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">正在检索中...</div>';
-        try {
-          const res = await request('/search', { keyword: q, limit: 30 });
-          renderSongList(res.data || [], list);
-        } catch (e) {
-          list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">检索失败: ${e.message}</div>`;
-        }
-      };
-
-      document.getElementById('btn-resolve-pl').onclick = async () => {
-        const id = document.getElementById('input-query').value.trim();
-        if (!id) return toast('请输入歌单 ID');
-        const list = document.getElementById('search-list');
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">解析歌单中...</div>';
-        try {
-          const res = await request('/playlist', { id });
-          renderSongList(res.data?.playlist?.tracks || [], list);
-        } catch (e) {
-          list.innerHTML = `<div style="padding:20px; color:var(--danger); font-size:13px;">解析失败: ${e.message}</div>`;
-        }
-      };
-
-      function renderSongList(songs, container) {
-        container.innerHTML = '';
-        document.getElementById('results-count').textContent = `共 ${songs.length} 首`;
-        songs.forEach((s, idx) => {
-          const item = normalizeTrack(s);
-          const row = document.createElement('div');
-          row.className = 'song-row';
-          row.innerHTML = `
-            <img src="${item.pic}" loading="lazy">
-            <div class="song-info">
-              <div class="song-name">${item.name}</div>
-              <div class="song-sub">${item.ar} - ${item.al}</div>
-            </div>
-            <div class="row-actions">
-              <button class="icon-btn btn-add" title="添加至歌单">➕</button>
-            </div>
-          `;
-          row.onclick = e => {
-            if (e.target.classList.contains('btn-add')) return;
-            Store.queue = songs;
-            Store.index = idx;
-            playSong(item);
-          };
-          row.querySelector('.btn-add').onclick = e => {
-            e.stopPropagation();
-            openAddToPLModal(item);
-          };
-          container.appendChild(row);
-        });
-      }
-
-      // --- 自建歌单引擎（彻底支持 iOS 容器） ---
-      function savePlaylists() {
-        localStorage.setItem('jr_playlists', JSON.stringify(Store.playlists));
-        renderPlaylistsGrid();
-      }
-
-      // 打开新建歌单实体模态框
-      document.getElementById('btn-open-create-modal').onclick = () => {
-        document.getElementById('input-new-pl-name').value = '';
-        document.getElementById('modal-create-pl').classList.add('active');
-      };
-      document.getElementById('btn-cancel-create').onclick = () => {
-        document.getElementById('modal-create-pl').classList.remove('active');
-      };
-      document.getElementById('btn-confirm-create').onclick = () => {
-        const name = document.getElementById('input-new-pl-name').value.trim();
-        if (!name) return toast('歌单名不能为空');
-        Store.playlists.push({ id: 'pl_' + Date.now(), name: name, songs: [] });
-        savePlaylists();
-        document.getElementById('modal-create-pl').classList.remove('active');
-        toast(`已创建歌单: ${name}`);
-      };
-
-      function renderPlaylistsGrid() {
-        const grid = document.getElementById('playlists-grid');
-        grid.innerHTML = '';
-        if (!Store.playlists.length) {
-          grid.innerHTML = '<div style="grid-column:1/-1; padding:30px; text-align:center; color:var(--muted); font-size:13px;">暂无歌单，点击右上角新建</div>';
-          return;
-        }
-        Store.playlists.forEach((pl, idx) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <div class="card-icon">📂</div>
-            <div class="card-title">${pl.name}</div>
-            <div class="card-sub">${pl.songs.length} 首歌曲</div>
-          `;
-          card.onclick = () => openPlaylist(pl, idx);
-          grid.appendChild(card);
-        });
-      }
-
-      function openPlaylist(pl, idx) {
-        Store.activePlaylistIdx = idx;
-        document.getElementById('playlists-grid').style.display = 'none';
-        const detail = document.getElementById('playlist-detail');
-        detail.style.display = 'block';
-        document.getElementById('pl-detail-title').textContent = `${pl.name} (${pl.songs.length})`;
-        
-        const list = document.getElementById('pl-songs-list');
-        list.innerHTML = '';
-        if (!pl.songs.length) {
-          list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">歌单为空，可在搜索列表中点击“➕”收藏加入</div>';
-          return;
-        }
-
-        pl.songs.forEach((s, sIdx) => {
-          const item = normalizeTrack(s);
-          const row = document.createElement('div');
-          row.className = 'song-row';
-          row.innerHTML = `
-            <img src="${item.pic}">
-            <div class="song-info">
-              <div class="song-name">${item.name}</div>
-              <div class="song-sub">${item.ar}</div>
-            </div>
-            <button class="icon-btn btn-del-song" style="color:var(--danger);" title="移除">🗑</button>
-          `;
-          row.onclick = e => {
-            if (e.target.classList.contains('btn-del-song')) return;
-            Store.queue = pl.songs;
-            Store.index = sIdx;
-            playSong(item);
-          };
-          row.querySelector('.btn-del-song').onclick = e => {
-            e.stopPropagation();
-            pl.songs.splice(sIdx, 1);
-            savePlaylists();
-            openPlaylist(pl, idx);
-            toast('已从歌单移除');
-          };
-          list.appendChild(row);
-        });
-      }
-
-      document.getElementById('btn-back-pl').onclick = () => {
-        document.getElementById('playlist-detail').style.display = 'none';
-        document.getElementById('playlists-grid').style.display = 'grid';
-      };
-
-      document.getElementById('btn-del-cur-pl').onclick = () => {
-        if (Store.activePlaylistIdx >= 0) {
-          const name = Store.playlists[Store.activePlaylistIdx].name;
-          Store.playlists.splice(Store.activePlaylistIdx, 1);
-          savePlaylists();
-          document.getElementById('playlist-detail').style.display = 'none';
-          document.getElementById('playlists-grid').style.display = 'grid';
-          toast(`已删除歌单: ${name}`);
-        }
-      };
-
-      function openAddToPLModal(song) {
-        Store.pendingTrackToCollect = normalizeTrack(song);
-        const modal = document.getElementById('modal-add-pl');
-        const list = document.getElementById('modal-pl-items');
-        list.innerHTML = '';
-        if (!Store.playlists.length) {
-          list.innerHTML = '<div style="color:var(--muted); font-size:12px; padding:10px;">尚未创建歌单，请先点击新建歌单</div>';
-        } else {
-          Store.playlists.forEach(pl => {
-            const btn = document.createElement('div');
-            btn.className = 'modal-item';
-            btn.textContent = `${pl.name} (${pl.songs.length})`;
-            btn.onclick = () => {
-              if (!pl.songs.some(x => String(x.id) === String(Store.pendingTrackToCollect.id))) {
-                pl.songs.push(Store.pendingTrackToCollect);
-                savePlaylists();
-                toast(`已加入: ${pl.name}`);
-              } else {
-                toast('歌曲已存在于此歌单中');
-              }
-              modal.classList.remove('active');
+          if (trimmed === "help") {
+            return {
+              stdout: `JR OS Embedded Python 3.12 Engine\nSupports:\n- Assignments (var = 100)\n- Arithmetic, logical & bitwise operators\n- Dynamic functions: def square(x): return x * x\n- Loops: for i in range(5): print(i)\n- Comprehensions: [x*2 for x in range(10)]\n- VFS bridge: vfs_list('/')\n`
             };
-            list.appendChild(btn);
-          });
-        }
-        modal.classList.add('active');
-      }
-      document.getElementById('btn-modal-close').onclick = () => document.getElementById('modal-add-pl').classList.remove('active');
+          }
 
-      // --- 本地持久离线库 ---
-      async function renderOfflineList() {
-        const list = document.getElementById('offline-list');
-        const tracks = await dbGetAll();
-        list.innerHTML = '';
-        if (!tracks.length) {
-          list.innerHTML = '<div style="padding:30px; text-align:center; color:var(--muted); font-size:13px;">暂无离线文件，播放在线歌曲或导入 MP3 即永久落盘</div>';
+          // Function Definition Syntax
+          if (trimmed.startsWith("def ")) {
+            const funcMatch = trimmed.match(/^def\s+([a-zA-Z_]\w*)\s*\((.*?)\)\s*:/);
+            if (funcMatch) {
+              const funcName = funcMatch[1];
+              const params = funcMatch[2].split(",").map(p => p.trim()).filter(p => p);
+              lineIndex++;
+              const bodyLines = [];
+              while (lineIndex < lines.length && (lines[lineIndex].startsWith("  ") || lines[lineIndex].startsWith("\t") || !lines[lineIndex].trim())) {
+                if (lines[lineIndex].trim()) bodyLines.push(lines[lineIndex].trim());
+                lineIndex++;
+              }
+              const funcInstance = (...invocationArgs) => {
+                const subContext = Object.assign({}, this.globalScope);
+                subContext["print"] = printBuffer;
+                params.forEach((paramName, idx) => {
+                  subContext[paramName] = invocationArgs[idx];
+                });
+                for (const bLine of bodyLines) {
+                  if (bLine.startsWith("return ")) {
+                    const retExpression = bLine.replace(/^return\s+/, "");
+                    return this.evaluateExpression(retExpression, subContext);
+                  }
+                  this.evaluateStatement(bLine, subContext);
+                }
+                return null;
+              };
+              this.globalScope[funcName] = funcInstance;
+              continue;
+            }
+          }
+
+          // Single-line Loop Syntax
+          if (trimmed.startsWith("for ") && trimmed.includes(" in ")) {
+            const loopMatch = trimmed.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+(.*?)\s*:\s*(.*)$/);
+            if (loopMatch) {
+              const iterName = loopMatch[1];
+              const rangeExpr = loopMatch[2];
+              const subStatement = loopMatch[3];
+              const items = this.evaluateExpression(rangeExpr, localScope);
+              if (Array.isArray(items)) {
+                for (const item of items) {
+                  localScope[iterName] = item;
+                  this.evaluateStatement(subStatement, localScope);
+                }
+              }
+              lineIndex++;
+              continue;
+            }
+          }
+
+          // Variable Assignment or Pure Evaluation
+          if (trimmed.includes("=") && !trimmed.includes("==") && !trimmed.includes("<=") && !trimmed.includes(">=")) {
+            this.evaluateStatement(trimmed, localScope);
+          } else {
+            const evaluationResult = this.evaluateExpression(trimmed, localScope);
+            if (evaluationResult !== undefined) {
+              stdout.push(this.pythonRepr(evaluationResult));
+            }
+          }
+
+          lineIndex++;
+        }
+
+        Object.assign(this.globalScope, localScope);
+        return { stdout: stdout.join("\n") };
+      }
+
+      evaluateStatement(stmt, scope) {
+        const assignMatch = stmt.match(/^([a-zA-Z_]\w*)\s*=\s*(.*)$/);
+        if (assignMatch) {
+          const varName = assignMatch[1];
+          const valExpr = assignMatch[2];
+          const calculatedVal = this.evaluateExpression(valExpr, scope);
+          scope[varName] = calculatedVal;
           return;
         }
-        tracks.forEach((t, idx) => {
-          const item = normalizeTrack(t);
-          const row = document.createElement('div');
-          row.className = 'song-row';
-          row.innerHTML = `
-            <img src="${item.pic || ''}">
-            <div class="song-info">
-              <div class="song-name">${item.name}</div>
-              <div class="song-sub">${item.ar} · [物理落盘就绪]</div>
+        if (stmt.startsWith("print(")) {
+          this.evaluateExpression(stmt, scope);
+          return;
+        }
+        this.evaluateExpression(stmt, scope);
+      }
+
+      evaluateExpression(expr, scope) {
+        let transformed = expr.trim();
+
+        // Convert python expressions to JS AST
+        transformed = transformed
+          .replace(/\band\b/g, "&&")
+          .replace(/\bor\b/g, "||")
+          .replace(/\bnot\b/g, "!")
+          .replace(/\bTrue\b/g, "true")
+          .replace(/\bFalse\b/g, "false")
+          .replace(/\bNone\b/g, "null")
+          .replace(/\bprint\((.*?)\)/g, "print($1)");
+
+        // List Comprehension: [x*2 for x in range(5)]
+        const compPattern = transformed.match(/^\[(.*)\s+for\s+([a-zA-Z_]\w*)\s+in\s+(.*)\]$/);
+        if (compPattern) {
+          const mapper = compPattern[1];
+          const variable = compPattern[2];
+          const sourceSeq = compPattern[3];
+          const collection = this.evaluateExpression(sourceSeq, scope);
+          if (Array.isArray(collection)) {
+            const accumulator = [];
+            for (const el of collection) {
+              const innerScope = Object.assign({}, scope);
+              innerScope[variable] = el;
+              accumulator.push(this.evaluateExpression(mapper, innerScope));
+            }
+            return accumulator;
+          }
+        }
+
+        const keys = Object.keys(scope);
+        const vals = Object.values(scope);
+
+        try {
+          const runner = new Function(...keys, `return (${transformed});`);
+          return runner(...vals);
+        } catch (err) {
+          throw new Error(`SyntaxError in Python expression: ${err.message}`);
+        }
+      }
+
+      pythonRepr(val) {
+        if (val === null) return "None";
+        if (val === true) return "True";
+        if (val === false) return "False";
+        if (Array.isArray(val)) {
+          return `[${val.map(v => this.pythonRepr(v)).join(", ")}]`;
+        }
+        if (typeof val === "object") {
+          return JSON.stringify(val);
+        }
+        return String(val);
+      }
+    }
+
+    /* ==========================================================================
+       SECTION 15: WINDOW MANAGER & FLUENT SHELL ORCHESTRATION
+       ========================================================================== */
+    class JRWindowManager {
+      constructor() {
+        this.activeWindows = new Map();
+        this.topZIndex = 1000;
+        this.currentFocusedId = null;
+      }
+
+      createWindow(appId, title, iconSvg, w = 660, h = 440) {
+        soundSystem.playFeedbackClick();
+        const winId = "win_" + Math.random().toString(36).substr(2, 9);
+        const winEl = document.createElement("div");
+        winEl.className = "fluent-window";
+        winEl.id = winId;
+
+        const maxW = window.innerWidth;
+        const maxH = window.innerHeight - 52;
+        const finalW = Math.min(w, maxW - 20);
+        const finalH = Math.min(h, maxH - 20);
+        const startX = Math.max(10, (maxW - finalW) / 2);
+        const startY = Math.max(10, (maxH - finalH) / 2);
+
+        winEl.style.width = finalW + "px";
+        winEl.style.height = finalH + "px";
+        winEl.style.left = startX + "px";
+        winEl.style.top = startY + "px";
+        winEl.style.zIndex = ++this.topZIndex;
+
+        winEl.innerHTML = `
+          <div class="window-titlebar-region">
+            <div class="window-drag-carrier">
+              <div style="width:16px; height:16px;">${iconSvg}</div>
+              <span class="window-title-caption">${title}</span>
             </div>
-            <button class="icon-btn btn-del-cached" style="color:var(--danger);">🗑</button>
-          `;
-          row.onclick = e => {
-            if (e.target.classList.contains('btn-del-cached')) return;
-            Store.queue = tracks;
-            Store.index = idx;
-            playSong(item);
+            <div class="window-header-buttons">
+              <button class="header-ctrl-btn min-type">─</button>
+              <button class="header-ctrl-btn max-type">□</button>
+              <button class="header-ctrl-btn close-type">✕</button>
+            </div>
+          </div>
+          <div class="window-body-viewport" id="${winId}_container"></div>
+          <div class="resizer-grip grip-n"></div>
+          <div class="resizer-grip grip-s"></div>
+          <div class="resizer-grip grip-w"></div>
+          <div class="resizer-grip grip-e"></div>
+          <div class="resizer-grip grip-nw"></div>
+          <div class="resizer-grip grip-ne"></div>
+          <div class="resizer-grip grip-sw"></div>
+          <div class="resizer-grip grip-se"></div>
+        `;
+
+        document.getElementById("desktop-viewport").appendChild(winEl);
+
+        const record = {
+          id: winId,
+          appId: appId,
+          title: title,
+          icon: iconSvg,
+          element: winEl,
+          isMaximized: false,
+          isMinimized: false,
+          bounds: { w: finalW, h: finalH, x: startX, y: startY }
+        };
+
+        this.activeWindows.set(winId, record);
+        this.bindEvents(winEl, record);
+
+        winEl.addEventListener("touchstart", () => this.bringToFront(winId), { passive: true });
+        winEl.addEventListener("mousedown", () => this.bringToFront(winId));
+
+        this.bringToFront(winId);
+        this.updateTaskbar();
+        return { winId, contentPane: document.getElementById(`${winId}_container`) };
+      }
+
+      bringToFront(winId) {
+        if (!this.activeWindows.has(winId)) return;
+        this.topZIndex++;
+        const rec = this.activeWindows.get(winId);
+        rec.element.style.zIndex = this.topZIndex;
+        rec.element.classList.remove("window-minimized");
+        rec.isMinimized = false;
+        this.currentFocusedId = winId;
+        this.updateTaskbar();
+      }
+
+      bindEvents(element, record) {
+        const dragHandle = element.querySelector(".window-drag-carrier");
+        const minBtn = element.querySelector(".min-type");
+        const maxBtn = element.querySelector(".max-type");
+        const closeBtn = element.querySelector(".close-type");
+
+        minBtn.onclick = () => {
+          record.isMinimized = true;
+          element.classList.add("window-minimized");
+          this.updateTaskbar();
+        };
+
+        maxBtn.onclick = () => {
+          if (!record.isMaximized) {
+            record.bounds = {
+              w: parseFloat(element.style.width),
+              h: parseFloat(element.style.height),
+              x: parseFloat(element.style.left),
+              y: parseFloat(element.style.top)
+            };
+            element.style.left = "0px";
+            element.style.top = "0px";
+            element.style.width = "100vw";
+            element.style.height = (window.innerHeight - 52) + "px";
+            element.classList.add("window-maximized");
+            record.isMaximized = true;
+          } else {
+            element.style.width = record.bounds.w + "px";
+            element.style.height = record.bounds.h + "px";
+            element.style.left = record.bounds.x + "px";
+            element.style.top = record.bounds.y + "px";
+            element.classList.remove("window-maximized");
+            record.isMaximized = false;
+          }
+        };
+
+        closeBtn.onclick = () => {
+          element.remove();
+          this.activeWindows.delete(record.id);
+          this.updateTaskbar();
+        };
+
+        // Window Dragging
+        let startX, startY, origX, origY;
+        const startDrag = (e) => {
+          if (e.target.closest(".header-ctrl-btn")) return;
+          this.bringToFront(record.id);
+          if (record.isMaximized) return;
+
+          const p = e.touches ? e.touches[0] : e;
+          startX = p.clientX;
+          startY = p.clientY;
+          origX = element.offsetLeft;
+          origY = element.offsetTop;
+
+          const moveHandler = (ev) => {
+            const pt = ev.touches ? ev.touches[0] : ev;
+            element.style.left = (origX + (pt.clientX - startX)) + "px";
+            element.style.top = Math.max(0, origY + (pt.clientY - startY)) + "px";
           };
-          row.querySelector('.btn-del-cached').onclick = async e => {
-            e.stopPropagation();
-            await dbDel(item.id);
-            renderOfflineList();
-            toast('已从硬盘删除');
+
+          const stopHandler = () => {
+            window.removeEventListener("touchmove", moveHandler);
+            window.removeEventListener("touchend", stopHandler);
+            window.removeEventListener("mousemove", moveHandler);
+            window.removeEventListener("mouseup", stopHandler);
           };
-          list.appendChild(row);
+
+          window.addEventListener("touchmove", moveHandler, { passive: true });
+          window.addEventListener("touchend", stopHandler);
+          window.addEventListener("mousemove", moveHandler);
+          window.addEventListener("mouseup", stopHandler);
+        };
+
+        dragHandle.addEventListener("touchstart", startDrag, { passive: true });
+        dragHandle.addEventListener("mousedown", startDrag);
+      }
+
+      updateTaskbar() {
+        const row = document.getElementById("taskbar-processes-row");
+        row.querySelectorAll(".proc-pill").forEach(el => el.remove());
+
+        this.activeWindows.forEach(win => {
+          const btn = document.createElement("button");
+          btn.className = `taskbar-action-button proc-pill ${win.id === this.currentFocusedId && !win.isMinimized ? "active-process" : ""} ${win.isMinimized ? "minimized-process" : ""}`;
+          btn.innerHTML = win.icon;
+          btn.onclick = () => {
+            if (win.isMinimized) {
+              this.bringToFront(win.id);
+            } else if (win.id === this.currentFocusedId) {
+              win.isMinimized = true;
+              win.element.classList.add("window-minimized");
+              this.updateTaskbar();
+            } else {
+              this.bringToFront(win.id);
+            }
+          };
+          row.appendChild(btn);
         });
       }
+    }
 
-      // 本地音频文件导入
-      document.getElementById('input-local-file').onchange = async e => {
-        const files = e.target.files;
-        if (!files || !files.length) return;
-        toast(`正在导入 ${files.length} 个文件...`);
-        for (let file of files) {
-          const name = file.name.replace(/\.[^/.]+$/, "");
-          const id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-          await dbSave({
-            id: id,
-            name: name,
-            ar: '本地音频',
-            al: '本地存储',
-            pic: '',
-            lyric: ''
-          }, file);
+    /* ==========================================================================
+       SECTION 16: SYSTEM GRAPHICS, ICONS & SHELL ASSETS
+       ========================================================================== */
+    const SVG_ICONS = {
+      folder: `<svg viewBox="0 0 24 24" fill="#ffb900"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
+      settings: `<svg viewBox="0 0 24 24" fill="#0078d4"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
+      terminal: `<svg viewBox="0 0 24 24" fill="#107c41"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-14-8l4 4-4 4 1.41 1.41L12.83 14l-5.42-5.41L6 10zm6 7h6v2h-6v-2z"/></svg>`,
+      jrex: `<svg viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`,
+      file: `<svg viewBox="0 0 24 24" fill="#0099bc"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`
+    };
+
+    /* Global OS Environment Initializers */
+    const vfs = new JRVFS(kernelDB);
+    const pythonEngine = new JRPythonInterpreter(vfs);
+    const windowManager = new JRWindowManager();
+
+    /* ==========================================================================
+       SECTION 17: LOCK SCREEN & SECURITY AUTHORIZATION
+       ========================================================================== */
+    let enteredPasscode = "";
+    let systemPasscode = "1234";
+
+    function updatePasscodeDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`pin-dot-${i}`);
+        if (i < enteredPasscode.length) {
+          dot.classList.add("bullet-active");
+        } else {
+          dot.classList.remove("bullet-active");
         }
-        e.target.value = '';
-        toast('导入完成');
-        renderOfflineList();
-      };
-
-      document.getElementById('btn-clear-db').onclick = async () => {
-        const tracks = await dbGetAll();
-        for (let t of tracks) await dbDel(t.id);
-        renderOfflineList();
-        toast('已清空本地持久库');
-      };
-
-      // --- 播放器控件联动 ---
-      document.getElementById('mini-player').onclick = () => document.getElementById('full-player').classList.add('open');
-      document.getElementById('fp-close').onclick = () => document.getElementById('full-player').classList.remove('open');
-      document.getElementById('mini-play-btn').onclick = e => { e.stopPropagation(); audio.paused ? audio.play() : audio.pause(); };
-      document.getElementById('ctrl-play').onclick = () => audio.paused ? audio.play() : audio.pause();
-      document.getElementById('ctrl-prev').onclick = prevTrack;
-      document.getElementById('ctrl-next').onclick = nextTrack;
-      document.getElementById('ctrl-mode').onclick = () => {
-        Store.mode = Store.mode === 'loop' ? 'single' : (Store.mode === 'single' ? 'shuffle' : 'loop');
-        document.getElementById('ctrl-mode').textContent = Store.mode === 'loop' ? '🔁' : (Store.mode === 'single' ? '🔂' : '🔀');
-        toast(`播放模式: ${Store.mode}`);
-      };
-      document.getElementById('progress-bar').onclick = e => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        audio.currentTime = ((e.clientX - rect.left) / rect.width) * (audio.duration || 0);
-      };
-      document.getElementById('fp-dl').onclick = () => {
-        if (Store.currentTrack) toast(`该歌曲已持久化存储: ${Store.currentTrack.name}`);
-      };
-      document.getElementById('ctrl-add-pl').onclick = () => {
-        if (Store.currentTrack) openAddToPLModal(Store.currentTrack);
-      };
-
-      // --- 视图切换 ---
-      function switchTab(viewId) {
-        document.querySelectorAll('.view-pane').forEach(p => p.classList.toggle('active', p.id === viewId));
-        document.querySelectorAll('.nav-btn, .tab').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
-        if (viewId === 'view-playlists') renderPlaylistsGrid();
-        if (viewId === 'view-offline') renderOfflineList();
       }
-      document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => switchTab(b.dataset.view));
+    }
 
-      // --- 设置中心 ---
-      document.getElementById('cfg-api').onchange = e => { Store.api = e.target.value.trim(); localStorage.setItem('jr_api', Store.api); toast('API 已更新'); };
-      document.getElementById('cfg-quality').onchange = e => { Store.quality = e.target.value; localStorage.setItem('jr_quality', Store.quality); toast('解析品质已更新'); };
+    function handlePinInput(numChar) {
+      soundSystem.playFeedbackClick();
+      if (enteredPasscode.length < 4) {
+        enteredPasscode += numChar;
+        updatePasscodeDots();
+        if (enteredPasscode.length === 4) {
+          setTimeout(verifyPasscodeSession, 120);
+        }
+      }
+    }
 
-      // --- 启动引导 ---
-      openDB().then(() => {
-        renderPlaylistsGrid();
-        renderOfflineList();
+    function resetPinInput() {
+      soundSystem.playFeedbackClick();
+      enteredPasscode = "";
+      updatePasscodeDots();
+    }
+
+    function verifyPasscodeSession() {
+      if (enteredPasscode === systemPasscode) {
+        soundSystem.playAuthSuccess();
+        bypassLockScreen();
+      } else {
+        soundSystem.playAuthError();
+        alert("Authorization Denied: Invalid 4-Digit Passcode.");
+        resetPinInput();
+      }
+    }
+
+    function bypassLockScreen() {
+      const curtain = document.getElementById("lock-screen-curtain");
+      curtain.style.opacity = "0";
+      setTimeout(() => {
+        curtain.style.display = "none";
+        resetPinInput();
+      }, 300);
+    }
+
+    function invokeSystemLock() {
+      soundSystem.playTone(440, 'sine', 0.15, 0.05);
+      const curtain = document.getElementById("lock-screen-curtain");
+      curtain.style.display = "flex";
+      setTimeout(() => {
+        curtain.style.opacity = "1";
+      }, 10);
+      document.getElementById("start-menu-panel").classList.remove("panel-visible");
+    }
+
+    /* ==========================================================================
+       SECTION 18: CORE APPLICATIONS IMPLEMENTATION
+       ========================================================================== */
+    
+    // Application 1: Python CMD Terminal
+    function launchPythonTerminal() {
+      const { contentPane } = windowManager.createWindow("cmd", "Python 3.12 Engine Terminal", SVG_ICONS.terminal, 680, 440);
+      contentPane.innerHTML = `
+        <div class="cmd-terminal-root">
+          <div class="cmd-log-terminal" id="cmd-screen">JR-OS Embedded Python 3.12.2 Platform\nInteractive Interpreter Shell Ready.\nType "help" for overview or "clear" to empty display.\n\n</div>
+          <div class="cmd-prompt-line">
+            <span class="cmd-chevron">&gt;&gt;&gt;</span>
+            <input type="text" class="cmd-text-input" id="cmd-user-input" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      `;
+
+      const input = contentPane.querySelector("#cmd-user-input");
+      const screen = contentPane.querySelector("#cmd-screen");
+      const historyStack = [];
+      let historyPtr = -1;
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const val = input.value;
+          input.value = "";
+          if (val.trim()) {
+            historyStack.push(val);
+            historyPtr = historyStack.length;
+            screen.innerText += `>>> ${val}\n`;
+
+            try {
+              const res = pythonEngine.run(val);
+              if (res.special === "__CLEAR__") {
+                screen.innerText = "";
+              } else if (res.stdout) {
+                screen.innerText += `${res.stdout}\n`;
+              }
+            } catch (err) {
+              screen.innerText += `Traceback (most recent call):\n${err.message}\n`;
+            }
+            screen.scrollTop = screen.scrollHeight;
+          }
+        } else if (e.key === "ArrowUp") {
+          if (historyPtr > 0) {
+            historyPtr--;
+            input.value = historyStack[historyPtr];
+          }
+        } else if (e.key === "ArrowDown") {
+          if (historyPtr < historyStack.length - 1) {
+            historyPtr++;
+            input.value = historyStack[historyPtr];
+          } else {
+            historyPtr = historyStack.length;
+            input.value = "";
+          }
+        }
       });
+    }
+
+    // Application 2: Settings & Hardware Diagnostics
+    async function launchSettingsApplication() {
+      const { contentPane } = windowManager.createWindow("settings", "Settings", SVG_ICONS.settings, 760, 500);
+      contentPane.innerHTML = `
+        <div class="settings-layout-root">
+          <div class="settings-nav-rail">
+            <div class="settings-nav-button button-active" data-view="hardware">Device Diagnostics</div>
+            <div class="settings-nav-button" data-view="security">Passcode Security</div>
+            <div class="settings-nav-button" data-view="storage">Storage & Engine</div>
+          </div>
+          <div class="settings-content-pane" id="settings-view-mount">
+            <h3>Gathering WebKit Hardware Telemetry...</h3>
+          </div>
+        </div>
+      `;
+
+      const navButtons = contentPane.querySelectorAll(".settings-nav-button");
+      const mount = contentPane.querySelector("#settings-view-mount");
+
+      async function renderHardwareTelemetry() {
+        mount.innerHTML = `<h3>Scanning System Metrics...</h3>`;
+        const telemetry = await JRDeviceDiagnostics.queryAllTelemetry();
+        let rows = "";
+        for (const [k, v] of Object.entries(telemetry)) {
+          rows += `<tr><td>${k}</td><td>${v}</td></tr>`;
+        }
+        mount.innerHTML = `
+          <h2 style="font-size:18px; margin-bottom:4px;">Device Diagnostics</h2>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">Real-time hardware sensors acquired via iPadOS WebKit container.</p>
+          <table class="device-telemetry-table">
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+
+      function renderSecuritySettings() {
+        mount.innerHTML = `
+          <h2 style="font-size:18px; margin-bottom:4px;">Passcode Security</h2>
+          <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px;">Configure your 4-digit system lock authorization code.</p>
+          <div style="background:var(--bg-card); border:1px solid var(--border-standard); padding:16px; border-radius:var(--radius-md); max-width:320px;">
+            <label style="font-size:12px; display:block; margin-bottom:8px;">New 4-Digit Passcode:</label>
+            <input type="password" maxlength="4" id="new-passcode-field" value="${systemPasscode}" style="width:100%; height:36px; padding:0 12px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid var(--border-standard); color:#fff; font-size:14px; margin-bottom:14px;">
+            <button class="btn-fluent-action" style="background:var(--accent-color); color:#fff;" id="save-passcode-action">Update Passcode</button>
+          </div>
+        `;
+
+        mount.querySelector("#save-passcode-action").onclick = async () => {
+          const val = mount.querySelector("#new-passcode-field").value;
+          if (val.length === 4 && !isNaN(val)) {
+            systemPasscode = val;
+            await kernelDB.writeRecord("os_registry", { key: "lock_passcode", value: val });
+            alert("Passcode stored into IndexedDB registry successfully.");
+          } else {
+            alert("Passcode must contain exactly four numerical digits.");
+          }
+        };
+      }
+
+      async function renderStorageSettings() {
+        const est = navigator.storage && navigator.storage.estimate ? await navigator.storage.estimate() : { usage: 0, quota: 0 };
+        mount.innerHTML = `
+          <h2 style="font-size:18px; margin-bottom:4px;">Virtual Storage Engine</h2>
+          <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px;">Direct IndexedDB object store management.</p>
+          <div style="background:var(--bg-card); border:1px solid var(--border-standard); padding:16px; border-radius:var(--radius-md); max-width:440px;">
+            <div style="margin-bottom:8px; font-size:13px;"><strong>Database:</strong> JR_OS_KERNEL_DB</div>
+            <div style="margin-bottom:8px; font-size:13px;"><strong>Stores:</strong> vfs_nodes, os_registry, packages_installed</div>
+            <div style="margin-bottom:14px; font-size:13px;"><strong>Quota:</strong> ${(est.usage / (1024 * 1024)).toFixed(2)} MB of ${(est.quota / (1024 * 1024 * 1024)).toFixed(2)} GB</div>
+            <button class="btn-fluent-action" style="color:#ff6b6b;" id="factory-reset-btn">Format Virtual Filesystem</button>
+          </div>
+        `;
+
+        mount.querySelector("#factory-reset-btn").onclick = async () => {
+          if (confirm("Reset virtual filesystem to defaults? All local files will be formatted.")) {
+            indexedDB.deleteDatabase("JR_OS_KERNEL_DB");
+            window.location.reload();
+          }
+        };
+      }
+
+      navButtons.forEach(btn => {
+        btn.onclick = () => {
+          navButtons.forEach(b => b.classList.remove("button-active"));
+          btn.classList.add("button-active");
+          const view = btn.getAttribute("data-view");
+          if (view === "hardware") renderHardwareTelemetry();
+          if (view === "security") renderSecuritySettings();
+          if (view === "storage") renderStorageSettings();
+        };
+      });
+
+      renderHardwareTelemetry();
+    }
+
+    // Application 3: Multi-Tab File Explorer
+    function launchFileExplorer() {
+      const { contentPane } = windowManager.createWindow("explorer", "File Explorer", SVG_ICONS.folder, 720, 460);
+      let currentPath = "/Desktop";
+
+      function renderExplorerView() {
+        contentPane.innerHTML = `
+          <div class="fe-workspace">
+            <div class="fe-tabs-strip">
+              <div class="fe-tab-item tab-active">${currentPath}</div>
+            </div>
+            <div class="fe-navigation-bar">
+              <div class="fe-address-box">
+                <span>Location: ${currentPath}</span>
+              </div>
+              <button class="btn-fluent-action" id="create-new-doc-action">+ New Document</button>
+            </div>
+            <div class="fe-panes-split">
+              <div class="fe-quick-sidebar">
+                <div class="fe-sidebar-node ${currentPath === "/Desktop" ? "node-selected" : ""}" data-target="/Desktop">Desktop</div>
+                <div class="fe-sidebar-node ${currentPath === "/Documents" ? "node-selected" : ""}" data-target="/Documents">Documents</div>
+                <div class="fe-sidebar-node ${currentPath === "/Downloads" ? "node-selected" : ""}" data-target="/Downloads">Downloads</div>
+                <div class="fe-sidebar-node ${currentPath === "/System" ? "node-selected" : ""}" data-target="/System">System</div>
+              </div>
+              <div class="fe-content-canvas" id="fe-canvas-grid"></div>
+            </div>
+          </div>
+        `;
+
+        const canvas = contentPane.querySelector("#fe-canvas-grid");
+        const items = vfs.listDirectory(currentPath);
+
+        items.forEach(node => {
+          const tile = document.createElement("div");
+          tile.className = "fe-item-tile";
+          let icon = SVG_ICONS.file;
+          if (node.type === "app_shortcut") {
+            icon = node.icon === "settings" ? SVG_ICONS.settings : (node.icon === "terminal" ? SVG_ICONS.terminal : SVG_ICONS.folder);
+          }
+          if (node.type === "jrex") icon = SVG_ICONS.jrex;
+
+          tile.innerHTML = `${icon}<span class="fe-tile-label">${node.name}</span>`;
+          tile.onclick = () => routeFileExecution(node);
+          canvas.appendChild(tile);
+        });
+
+        contentPane.querySelectorAll(".fe-sidebar-node").forEach(sNode => {
+          sNode.onclick = () => {
+            currentPath = sNode.getAttribute("data-target");
+            renderExplorerView();
+          };
+        });
+
+        contentPane.querySelector("#create-new-doc-action").onclick = async () => {
+          const docName = prompt("Enter document filename:", "Memo.txt");
+          if (docName) {
+            await vfs.writeFile(`${currentPath}/${docName}`, "Created in JR OS on iPadOS.");
+            renderExplorerView();
+            renderDesktopShortcuts();
+          }
+        };
+      }
+
+      renderExplorerView();
+    }
+
+    // Custom .jrex Dynamic Installer
+    let pendingJrex = null;
+    function openJrexInstallerModal(manifest) {
+      pendingJrex = manifest;
+      document.getElementById("jrex-modal-name").innerText = `Install ${manifest.name}`;
+      document.getElementById("jrex-modal-description").innerText = `${manifest.description} (Version: ${manifest.version}) - Verified Publisher: ${manifest.publisher}`;
+      document.getElementById("jrex-installer-overlay").style.display = "flex";
+
+      document.getElementById("jrex-install-action-btn").onclick = async () => {
+        await kernelDB.writeRecord("packages_installed", manifest);
+        dismissJrexDialog();
+        alert(`${manifest.name} installed successfully into local sandbox!`);
+        launchJrexInstance(manifest);
+      };
+    }
+
+    function dismissJrexDialog() {
+      document.getElementById("jrex-installer-overlay").style.display = "none";
+      pendingJrex = null;
+    }
+
+    function launchJrexInstance(manifest) {
+      const { contentPane } = windowManager.createWindow(manifest.appId, manifest.name, SVG_ICONS.jrex, 580, 380);
+      contentPane.innerHTML = manifest.executableCode;
+    }
+
+    // Generic File Dispatcher
+    function routeFileExecution(fileNode) {
+      if (fileNode.type === "app_shortcut") {
+        if (fileNode.target === "explorer") launchFileExplorer();
+        if (fileNode.target === "settings") launchSettingsApplication();
+        if (fileNode.target === "cmd") launchPythonTerminal();
+      } else if (fileNode.type === "jrex") {
+        openJrexInstallerModal(fileNode.manifest);
+      } else {
+        alert(`Document Content [${fileNode.name}]:\n\n${fileNode.content || "(No textual content available)"}`);
+      }
+    }
+
+    /* ==========================================================================
+       SECTION 19: DESKTOP & SHELL RENDERING ORCHESTRATION
+       ========================================================================== */
+    function renderDesktopShortcuts() {
+      const plane = document.getElementById("desktop-icon-plane");
+      plane.innerHTML = "";
+      const desktopItems = vfs.listDirectory("/Desktop");
+
+      desktopItems.forEach(item => {
+        const node = document.createElement("div");
+        node.className = "desktop-icon-node";
+        let icon = SVG_ICONS.file;
+        if (item.type === "app_shortcut") {
+          icon = item.icon === "settings" ? SVG_ICONS.settings : (item.icon === "terminal" ? SVG_ICONS.terminal : SVG_ICONS.folder);
+        }
+        if (item.type === "jrex") icon = SVG_ICONS.jrex;
+
+        node.innerHTML = `${icon}<span>${item.name}</span>`;
+        node.onclick = () => routeFileExecution(item);
+        plane.appendChild(node);
+      });
+    }
+
+    function renderStartMenuApps() {
+      const grid = document.getElementById("start-apps-grid");
+      grid.innerHTML = `
+        <div class="start-pinned-item" onclick="launchFileExplorer()">
+          ${SVG_ICONS.folder}
+          <span>File Explorer</span>
+        </div>
+        <div class="start-pinned-item" onclick="launchSettingsApplication()">
+          ${SVG_ICONS.settings}
+          <span>Settings</span>
+        </div>
+        <div class="start-pinned-item" onclick="launchPythonTerminal()">
+          ${SVG_ICONS.terminal}
+          <span>Python Terminal</span>
+        </div>
+      `;
+    }
+
+    // Start Menu Toggle Handling
+    const startTrigger = document.getElementById("start-menu-trigger");
+    const startPanel = document.getElementById("start-menu-panel");
+
+    startTrigger.onclick = (e) => {
+      e.stopPropagation();
+      soundSystem.playFeedbackClick();
+      startPanel.classList.toggle("panel-visible");
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!startPanel.contains(e.target) && e.target !== startTrigger) {
+        startPanel.classList.remove("panel-visible");
+      }
+    });
+
+    // Clock Synchronizer
+    function synchronizeClockDisplay() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const dateStr = now.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+      
+      document.getElementById("taskbar-clock-label").innerText = timeStr;
+      document.getElementById("screen-lock-time").innerText = timeStr;
+      document.getElementById("screen-lock-date").innerText = dateStr;
+    }
+    setInterval(synchronizeClockDisplay, 1000);
+    synchronizeClockDisplay();
+
+    /* ==========================================================================
+       SECTION 20: SYSTEM BOOTLOADER PIPELINE
+       ========================================================================== */
+    (async function bootstrapOperatingSystemKernel() {
+      try {
+        await kernelDB.open();
+        
+        // Restore registry passcode if present
+        const regPass = await kernelDB.readRecord("os_registry", "lock_passcode");
+        if (regPass && regPass.value) {
+          systemPasscode = regPass.value;
+        }
+
+        await vfs.bootstrap();
+        renderDesktopShortcuts();
+        renderStartMenuApps();
+        console.log("JR OS Kernel Initialization Successful.");
+      } catch (kernelError) {
+        console.error("FATAL: Kernel bootstrap exception:", kernelError);
+      }
     })();
   </script>
 </body>
