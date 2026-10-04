@@ -3,21 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>StockScope - 空间态势感知与公共环境监测系统</title>
+    <title>StockScope - 态势感知与多维物理环境审计系统</title>
     <style>
         :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #131c2e;
-            --bg-card: rgba(23, 34, 56, 0.7);
-            --border-card: rgba(64, 93, 140, 0.3);
+            --bg-primary: #090d16;
+            --bg-secondary: #121a2a;
+            --bg-card: rgba(20, 30, 48, 0.72);
+            --border-card: rgba(64, 93, 140, 0.28);
             --border-highlight: rgba(0, 240, 255, 0.4);
             --text-main: #f0f4fc;
-            --text-muted: #7e8fa6;
+            --text-muted: #788a9e;
             --accent-cyan: #00f0ff;
             --accent-green: #00ff88;
             --accent-amber: #ffb800;
             --accent-red: #ff3366;
             --accent-purple: #9d00ff;
+            --accent-blue: #00a8ff;
             --font-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --safe-top: env(safe-area-inset-top, 0px);
@@ -30,6 +31,7 @@
             padding: 0;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -39,17 +41,16 @@
             font-size: 14px;
             line-height: 1.5;
             padding-top: calc(var(--safe-top) + 12px);
-            padding-bottom: calc(var(--safe-bottom) + 20px);
+            padding-bottom: calc(var(--safe-bottom) + 24px);
             padding-left: 16px;
             padding-right: 16px;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 10%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(157, 0, 255, 0.05) 0%, transparent 40%);
+                radial-gradient(circle at 10% 8%, rgba(0, 240, 255, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 90% 92%, rgba(157, 0, 255, 0.05) 0%, transparent 45%);
             min-height: 100vh;
         }
 
-        /* 顶部导航与状态条 */
         header {
             display: flex;
             justify-content: space-between;
@@ -66,19 +67,19 @@
         }
 
         .brand-logo {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
         }
 
         .brand-logo svg {
-            width: 14px;
-            height: 14px;
+            width: 15px;
+            height: 15px;
             fill: #fff;
         }
 
@@ -105,7 +106,6 @@
             color: var(--text-muted);
         }
 
-        /* 核心警告看板: 态势感知状态条 */
         .threat-level-card {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
@@ -127,12 +127,12 @@
             width: 6px;
             height: 100%;
             background-color: var(--accent-green);
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .threat-level-card.danger {
             border-color: rgba(255, 51, 102, 0.6);
-            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12) 0%, rgba(23, 34, 56, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12) 0%, rgba(20, 30, 48, 0.85) 100%);
             box-shadow: 0 0 24px rgba(255, 51, 102, 0.25);
         }
 
@@ -143,7 +143,7 @@
 
         .threat-level-card.warning {
             border-color: rgba(255, 184, 0, 0.6);
-            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12) 0%, rgba(23, 34, 56, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12) 0%, rgba(20, 30, 48, 0.85) 100%);
             box-shadow: 0 0 20px rgba(255, 184, 0, 0.2);
         }
 
@@ -193,7 +193,7 @@
 
         @keyframes pulse-danger {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.85; }
+            50% { transform: scale(1.04); opacity: 0.85; }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -205,7 +205,7 @@
         }
 
         .status-value {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
             letter-spacing: -0.5px;
             color: #fff;
@@ -222,7 +222,6 @@
             font-weight: 600;
         }
 
-        /* 风险评分进度条 */
         .meter-container {
             width: 100%;
             height: 8px;
@@ -266,7 +265,6 @@
             color: var(--text-muted);
         }
 
-        /* 告警大横幅（公共环境警示） */
         .public-warning-banner {
             display: none;
             background: rgba(255, 51, 102, 0.15);
@@ -285,8 +283,8 @@
 
         .warning-icon {
             flex-shrink: 0;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             fill: var(--accent-red);
         }
 
@@ -302,11 +300,10 @@
             font-size: 13px;
         }
 
-        /* 核心指标网格 */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 16px;
         }
 
@@ -326,6 +323,7 @@
 
         .metric-card.breached {
             border-color: var(--accent-red);
+            background: linear-gradient(145deg, rgba(255, 51, 102, 0.08) 0%, rgba(20, 30, 48, 0.72) 100%);
         }
 
         .metric-card.near-breach {
@@ -338,12 +336,22 @@
             margin-bottom: 4px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .metric-thresh {
             font-family: var(--font-mono);
             font-size: 10px;
             color: var(--accent-cyan);
+        }
+
+        .metric-weight-tag {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: var(--text-muted);
         }
 
         .metric-val {
@@ -374,7 +382,7 @@
             height: 100%;
             width: 0%;
             background: var(--accent-cyan);
-            transition: width 0.2s linear;
+            transition: width 0.25s linear;
         }
 
         .metric-status-fill.warn {
@@ -385,7 +393,6 @@
             background: var(--accent-red);
         }
 
-        /* 实时波形/可视化区 */
         .visual-panel {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -427,14 +434,13 @@
 
         canvas {
             width: 100%;
-            height: 110px;
-            background: rgba(0, 0, 0, 0.25);
+            height: 100px;
+            background: rgba(0, 0, 0, 0.28);
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             display: block;
         }
 
-        /* 阈值调试面板折叠组件 */
         .config-card {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -465,7 +471,7 @@
         .config-toggle-icon {
             font-size: 12px;
             color: var(--text-muted);
-            transition: transform 0.2s;
+            transition: transform 0.2s ease;
         }
 
         .config-toggle-icon.open {
@@ -476,7 +482,7 @@
             display: none;
             padding: 14px;
             border-top: 1px solid var(--border-card);
-            background: rgba(10, 14, 23, 0.5);
+            background: rgba(9, 13, 22, 0.5);
         }
 
         .config-body.show {
@@ -507,7 +513,7 @@
 
         .config-control input[type="range"] {
             -webkit-appearance: none;
-            width: 120px;
+            width: 110px;
             height: 4px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 2px;
@@ -527,11 +533,10 @@
             font-family: var(--font-mono);
             font-size: 11px;
             color: var(--accent-cyan);
-            width: 50px;
+            width: 55px;
             text-align: right;
         }
 
-        /* 实时事件日志流 */
         .logs-panel {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -541,7 +546,7 @@
         }
 
         .logs-content {
-            height: 120px;
+            height: 110px;
             overflow-y: auto;
             font-family: var(--font-mono);
             font-size: 11px;
@@ -565,6 +570,11 @@
             font-weight: 600;
         }
 
+        .log-item.ble {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
         .log-item.info {
             color: var(--text-muted);
         }
@@ -574,7 +584,6 @@
             margin-right: 6px;
         }
 
-        /* 控制按钮组 */
         .actions-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -609,7 +618,6 @@
             color: #fff;
         }
 
-        /* 全局警告浮动全屏闪烁（极端阈值突破时） */
         .ambient-flasher {
             position: fixed;
             top: 0;
@@ -623,7 +631,7 @@
         }
 
         .ambient-flasher.flashing {
-            box-shadow: inset 0 0 60px rgba(255, 51, 102, 0.6);
+            box-shadow: inset 0 0 70px rgba(255, 51, 102, 0.6);
         }
 
         @keyframes fadeIn {
@@ -642,23 +650,22 @@
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
             </div>
             <div class="brand-name">StockScope</div>
-            <span class="brand-tag">GEO-AUDIT</span>
+            <span class="brand-tag">BLE/LAN-AUDIT</span>
         </div>
-        <div class="sys-clock" id="sysClock">00:00:00 UTC</div>
+        <div class="sys-clock" id="sysClock">00:00:00 LST</div>
     </header>
 
-    <!-- 核心环境识别与危险评估 -->
+    <!-- 综合风险与环境态势卡 -->
     <section class="threat-level-card" id="threatCard">
         <div class="status-header">
-            <span class="status-title">物理环境情境认知 (Context Awareness)</span>
-            <span class="threat-badge" id="threatBadge">私密 / 静态空间</span>
+            <span class="status-title">多维物理情境识别 (Context State)</span>
+            <span class="threat-badge" id="threatBadge">私密 / 封闭环境</span>
         </div>
         <div class="status-hero">
-            <div class="status-value" id="environmentName">计算中...</div>
+            <div class="status-value" id="environmentName">初始化中...</div>
             <div class="status-confidence">置信度: <span id="confidenceVal">--</span></div>
         </div>
         
-        <!-- 综合公共度评分条 (Public Space Threat Score) -->
         <div class="meter-container">
             <div class="meter-fill" id="meterFill"></div>
             <div class="meter-ticks">
@@ -669,225 +676,302 @@
             </div>
         </div>
         <div class="meter-labels">
-            <span>完全私密 (0%)</span>
+            <span>私密闭环 (0%)</span>
             <span>中度流动 (50%)</span>
             <span>强公共属性 (100%)</span>
         </div>
 
-        <!-- 公共场所预警条 -->
         <div class="public-warning-banner" id="publicWarningBanner">
             <svg class="warning-icon" viewBox="0 0 24 24">
                 <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
             </svg>
             <div class="warning-text">
                 <strong>注意：设备当前可能处于【公共环境】</strong>
-                已越过复合阈值边界，检测到强混响人声、垂直移动及深层建筑遮蔽特征。
+                高密蓝牙人流、局域网多主机拓扑或高分贝环境已突破阈值边界。
             </div>
         </div>
     </section>
 
-    <!-- 四项硬性物理指标网格 -->
+    <!-- 6 维度指标卡片矩阵 -->
     <div class="metrics-grid">
-        <!-- 气压升降速度 -->
-        <div class="metric-card" id="cardSpeed">
+        <!-- 1. 周边活跃 BLE 蓝牙设备数 (核心权重 35%) -->
+        <div class="metric-card" id="cardBLE">
             <div class="metric-title">
-                <span>垂直升降速度</span>
-                <span class="metric-thresh" id="lblSpeedThresh">≥1.2 m/s</span>
+                <span>活跃 BLE 蓝牙 (人流)</span>
+                <span class="metric-weight-tag">35% 权</span>
             </div>
             <div class="metric-val">
-                <span id="valSpeed">0.00</span>
-                <span class="metric-unit">m/s</span>
+                <span id="valBLE">0</span>
+                <span class="metric-unit">台外设</span>
+            </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh" id="lblBLEThresh">≥12 台</span>
             </div>
             <div class="metric-status-line">
-                <div class="metric-status-fill" id="fillSpeed"></div>
+                <div class="metric-status-fill" id="fillBLE"></div>
             </div>
         </div>
 
-        <!-- 垂直用户加速度 -->
-        <div class="metric-card" id="cardAccel">
-            <div class="metric-title">
-                <span>动态垂直加速度</span>
-                <span class="metric-thresh">≥0.15 G</span>
-            </div>
-            <div class="metric-val">
-                <span id="valAccel">0.000</span>
-                <span class="metric-unit">G</span>
-            </div>
-            <div class="metric-status-line">
-                <div class="metric-status-fill" id="fillAccel"></div>
-            </div>
-        </div>
-
-        <!-- 声压级 -->
+        <!-- 2. 环境声压级 (核心权重 30%) -->
         <div class="metric-card" id="cardSPL">
             <div class="metric-title">
-                <span>声压分贝级 (SPL)</span>
-                <span class="metric-thresh" id="lblSPLThresh">≥62 dBA</span>
+                <span>环境声压级 (SPL)</span>
+                <span class="metric-weight-tag">30% 权</span>
             </div>
             <div class="metric-val">
                 <span id="valSPL">0.0</span>
                 <span class="metric-unit">dBA</span>
+            </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh" id="lblSPLThresh">≥60 dBA</span>
             </div>
             <div class="metric-status-line">
                 <div class="metric-status-fill" id="fillSPL"></div>
             </div>
         </div>
 
-        <!-- GNSS 定位不确定度 -->
+        <!-- 3. 局域网活跃主机 (网络拓扑权重 20%) -->
+        <div class="metric-card" id="cardLAN">
+            <div class="metric-title">
+                <span>局域网活跃主机</span>
+                <span class="metric-weight-tag">20% 权</span>
+            </div>
+            <div class="metric-val">
+                <span id="valLAN">1</span>
+                <span class="metric-unit">台主机</span>
+            </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh" id="lblLANThresh">≥8 台</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillLAN"></div>
+            </div>
+        </div>
+
+        <!-- 4. GNSS 水平不确定度 (弱化权重 10%) -->
         <div class="metric-card" id="cardGPS">
             <div class="metric-title">
                 <span>GNSS 不确定度</span>
-                <span class="metric-thresh" id="lblGPSThresh">≥35 m</span>
+                <span class="metric-weight-tag">10% 权</span>
             </div>
             <div class="metric-val">
                 <span id="valGPS">0.0</span>
                 <span class="metric-unit">m</span>
             </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh" id="lblGPSThresh">≥35 m</span>
+            </div>
             <div class="metric-status-line">
                 <div class="metric-status-fill" id="fillGPS"></div>
             </div>
         </div>
+
+        <!-- 5. 垂直升降速率 (电梯快速判定 5%) -->
+        <div class="metric-card" id="cardSpeed">
+            <div class="metric-title">
+                <span>气压垂直速率</span>
+                <span class="metric-weight-tag">电梯覆写</span>
+            </div>
+            <div class="metric-val">
+                <span id="valSpeed">0.00</span>
+                <span class="metric-unit">m/s</span>
+            </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh" id="lblSpeedThresh">≥1.2 m/s</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillSpeed"></div>
+            </div>
+        </div>
+
+        <!-- 6. 垂直线性动态加速度 -->
+        <div class="metric-card" id="cardAccel">
+            <div class="metric-title">
+                <span>动态垂直加速度</span>
+                <span class="metric-weight-tag">IMU辅助</span>
+            </div>
+            <div class="metric-val">
+                <span id="valAccel">0.000</span>
+                <span class="metric-unit">G</span>
+            </div>
+            <div class="metric-title" style="margin-top:4px; margin-bottom:0;">
+                <span style="font-size:10px; color:var(--text-muted)">基准阈值</span>
+                <span class="metric-thresh">≥0.12 G</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillAccel"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- 实时运动图表：垂直速度动态历史 -->
+    <!-- 实时双可视化图表 -->
     <section class="visual-panel">
         <div class="panel-header">
-            <div class="panel-title">垂直动态曲线 (Vertical Velocity Waveform)</div>
+            <div class="panel-title">垂直速率轨迹 (Vertical Waveform)</div>
             <div class="panel-legend">
-                <span><i class="legend-dot" style="background:var(--accent-cyan)"></i> 实时速率</span>
-                <span><i class="legend-dot" style="background:var(--accent-red)"></i> 阈值线 (1.2m/s)</span>
+                <span><i class="legend-dot" style="background:var(--accent-cyan)"></i> 速率 (m/s)</span>
+                <span><i class="legend-dot" style="background:var(--accent-red)"></i> 阈值线 (1.2)</span>
             </div>
         </div>
         <canvas id="motionCanvas"></canvas>
     </section>
 
-    <!-- 实时声谱图分析 -->
     <section class="visual-panel">
         <div class="panel-header">
-            <div class="panel-title">声频空间指纹 (Acoustic Spectrum & Entropy)</div>
+            <div class="panel-title">BLE 人群与声学复合密度频谱</div>
             <div class="panel-legend">
-                <span>混响能量分布 (FFT)</span>
+                <span>射频/声频空间占用</span>
             </div>
         </div>
         <canvas id="audioCanvas"></canvas>
     </section>
 
-    <!-- 阈值调试与定制抽屉 -->
+    <!-- 阈值调试面板 -->
     <section class="config-card">
         <div class="config-header" id="configToggle">
-            <div class="config-title">微观判定阈值微调 (Threshold Tweaks)</div>
+            <div class="config-title">微观判定阈值与因子配比调试</div>
             <div class="config-toggle-icon" id="configIcon">▼</div>
         </div>
         <div class="config-body" id="configBody">
             <div class="config-row">
-                <span class="config-label">电梯升降阈值 (Vertical Speed)</span>
+                <span class="config-label">BLE 蓝牙人群高密阈值</span>
+                <div class="config-control">
+                    <input type="range" id="rngBLEThresh" min="4" max="30" step="1" value="12">
+                    <span class="config-display" id="dispBLEThresh">12 台</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">局域网公共网络主机数阈值</span>
+                <div class="config-control">
+                    <input type="range" id="rngLANThresh" min="3" max="25" step="1" value="8">
+                    <span class="config-display" id="dispLANThresh">8 台</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">公共噪声音频阈值 (SPL)</span>
+                <div class="config-control">
+                    <input type="range" id="rngSPLThresh" min="45" max="85" step="1" value="60">
+                    <span class="config-display" id="dispSPLThresh">60 dBA</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">电梯升降速率阈值</span>
                 <div class="config-control">
                     <input type="range" id="rngSpeedThresh" min="0.5" max="3.0" step="0.1" value="1.2">
                     <span class="config-display" id="dispSpeedThresh">1.2 m/s</span>
                 </div>
             </div>
             <div class="config-row">
-                <span class="config-label">公共噪声音频阈值 (SPL)</span>
+                <span class="config-label">GNSS 室内深层衰减阈值 (弱)</span>
                 <div class="config-control">
-                    <input type="range" id="rngSPLThresh" min="45" max="85" step="1" value="62">
-                    <span class="config-display" id="dispSPLThresh">62 dBA</span>
-                </div>
-            </div>
-            <div class="config-row">
-                <span class="config-label">室内深层遮蔽阈值 (GNSS Acc.)</span>
-                <div class="config-control">
-                    <input type="range" id="rngGPSThresh" min="15" max="100" step="5" value="35">
+                    <input type="range" id="rngGPSThresh" min="15" max="80" step="5" value="35">
                     <span class="config-display" id="dispGPSThresh">35 m</span>
                 </div>
             </div>
             <div class="config-row">
-                <span class="config-label">公共环境判定敏感度权重</span>
+                <span class="config-label">公共环境总评分触发基线</span>
                 <div class="config-control">
-                    <input type="range" id="rngSensitivity" min="1" max="5" step="1" value="3">
-                    <span class="config-display" id="dispSensitivity">Lv. 3</span>
+                    <input type="range" id="rngBaseScore" min="50" max="80" step="2" value="62">
+                    <span class="config-display" id="dispBaseScore">62 分</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 实时事件审计日志 -->
+    <!-- 实时事件流水日志 -->
     <section class="logs-panel">
         <div class="panel-header">
-            <div class="panel-title">感知审计日志 (Spatial Telemetry Log)</div>
-            <div class="panel-legend">端侧离线闭环</div>
+            <div class="panel-title">物理特征审计日志 (Telemetry Log)</div>
+            <div class="panel-legend">纯本地闭环计算</div>
         </div>
         <div class="logs-content" id="logContainer">
-            <div class="log-item info"><span class="log-time">[BOOT]</span>系统已就绪，传感器正在加载...</div>
+            <div class="log-item info"><span class="log-time">[BOOT]</span>StockScope 引擎就绪，等待 Native 注入数据...</div>
         </div>
     </section>
 
-    <!-- 控制指令按钮 -->
+    <!-- 操作按钮组 -->
     <div class="actions-group">
         <button class="btn btn-primary" id="btnRequestScan">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
             </svg>
-            立即轮询特征
+            即时特征采样
         </button>
         <button class="btn" id="btnSimulatePublic">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2fe"/>
             </svg>
-            注入测试载荷
+            注入公共仿真流
         </button>
     </div>
 
-    <!-- 核心逻辑脚本 (包括指标阈值判定引擎、Canvas图表绘制系统与iOS通信网关) -->
+    <!-- 核心逻辑与算法引擎 -->
     <script>
         (function() {
             'use strict';
 
             /* =========================================================================
-             * 1. 阈值与判定引擎常量定义 (Threshold Specifications)
+             * 1. 阈值与加权模型规范 (权重重构，GNSS 降权至 10%)
              * ========================================================================= */
             const THRESHOLDS = {
-                // 1. 电梯阈值: 垂直升降速率 >= 1.2 m/s, 垂直线性加速度 >= 0.15G
-                elevator: {
-                    verticalSpeed: 1.2,       // 米/秒 (m/s)
-                    verticalAccel: 0.12,      // G 规范化
-                    peakSpeedConfidence: 2.0  // 高速电梯阈值
+                // 1. 周边 BLE 人群密集度 (主权重 35%)
+                ble: {
+                    publicMinCount: 12, // >= 12 台视作人流密集公共场所
+                    privateMaxCount: 3   // <= 3 台为家庭/极小独立空间
                 },
-                // 2. 公共场所声学阈值: 稳定在 62 ~ 80 dBA 之间且包含宽频熵
+                // 2. 声学声压级 (主权重 30%)
                 acoustic: {
-                    publicMinSPL: 62.0,       // 公共大厅、商业区本底噪声
-                    quietMaxSPL: 45.0,        // 卧室、私人独立办公室安静阈值
-                    crowdNoiseDelta: 8.0      // 动态波动差值
+                    publicMinSPL: 60.0, // >= 60 dBA 视为商场/机场等开放人声区
+                    quietMaxSPL: 45.0   // <= 45 dBA 视为安静私人环境
                 },
-                // 3. GNSS / 空间衰减阈值 (室内遮蔽判断)
+                // 3. 局域网活动主机数 (次权重 20%)
+                lan: {
+                    publicMinHosts: 8,  // >= 8 台判定为大型企业/商业开放网络拓扑
+                    privateMaxHosts: 3  // <= 3 台为常见家用路由器
+                },
+                // 4. GNSS 室内深层衰减 (弱化权重 10%)
                 spatial: {
-                    indoorAccuracyDegrade: 35.0, // 室内、中庭或商场造成的水平不确定度 (米)
-                    deepIndoorAccuracy: 65.0     // 完全无直射星或深层建筑
+                    indoorAccuracyDegrade: 35.0 // >= 35 米或负数表明深层遮蔽
                 },
-                // 4. 模糊公共环境判定权重系数 (用于加权打分)
+                // 5. 电梯垂直运动物理学 (最高覆写优先级，5% 辅助)
+                elevator: {
+                    verticalSpeed: 1.2,
+                    verticalAccel: 0.12,
+                    peakSpeedConfidence: 2.0
+                },
+                // 权重配比表 (总和 = 1.0)
                 weights: {
-                    acousticWeight: 0.40,
-                    spatialWeight: 0.35,
-                    motionDynamicWeight: 0.25
+                    bleWeight: 0.35,
+                    acousticWeight: 0.30,
+                    lanWeight: 0.20,
+                    spatialWeight: 0.10, // 大幅弱化 GNSS 占比
+                    motionWeight: 0.05
                 },
-                // 触发“可能在公共环境”的总风险分阈值 (0 - 100)
-                publicEnvironmentScoreThreshold: 68.0
+                // 复合风险评分阈值 (超过即告警“可能在公共环境”)
+                publicEnvironmentScoreThreshold: 62.0
             };
 
             /* =========================================================================
-             * 2. 状态机与核心运行上下文 (Telemetry State Context)
+             * 2. 状态机与运行时上下文
              * ========================================================================= */
             const TelemetryState = {
                 verticalSpeed: 0.0,
                 zAcceleration: 0.0,
-                soundLevelDBA: 38.0,
+                soundLevelDBA: 36.0,
                 gpsAccuracy: 12.0,
+                bleCount: 0,
+                lanCount: 1,
                 isElevator: false,
                 isPublicEnvironment: false,
-                threatScore: 0.0, // 0 到 100
+                threatScore: 0.0,
                 environmentLabel: "计算中...",
                 confidence: 0.0,
                 lastUpdateTimestamp: Date.now(),
-                isNativeConnected: false,
                 waveformHistory: new Array(60).fill(0),
                 spectrumData: new Uint8Array(32).fill(0)
             };
@@ -906,65 +990,75 @@
                 ambientFlasher: document.getElementById('ambientFlasher'),
 
                 // 指标卡片
+                cardBLE: document.getElementById('cardBLE'),
+                cardSPL: document.getElementById('cardSPL'),
+                cardLAN: document.getElementById('cardLAN'),
+                cardGPS: document.getElementById('cardGPS'),
                 cardSpeed: document.getElementById('cardSpeed'),
                 cardAccel: document.getElementById('cardAccel'),
-                cardSPL: document.getElementById('cardSPL'),
-                cardGPS: document.getElementById('cardGPS'),
 
-                // 数值与填充
+                // 数值与进度指示器
+                valBLE: document.getElementById('valBLE'),
+                fillBLE: document.getElementById('fillBLE'),
+                valSPL: document.getElementById('valSPL'),
+                fillSPL: document.getElementById('fillSPL'),
+                valLAN: document.getElementById('valLAN'),
+                fillLAN: document.getElementById('fillLAN'),
+                valGPS: document.getElementById('valGPS'),
+                fillGPS: document.getElementById('fillGPS'),
                 valSpeed: document.getElementById('valSpeed'),
                 fillSpeed: document.getElementById('fillSpeed'),
                 valAccel: document.getElementById('valAccel'),
                 fillAccel: document.getElementById('fillAccel'),
-                valSPL: document.getElementById('valSPL'),
-                fillSPL: document.getElementById('fillSPL'),
-                valGPS: document.getElementById('valGPS'),
-                fillGPS: document.getElementById('fillGPS'),
 
-                // 图表
+                // 画布
                 motionCanvas: document.getElementById('motionCanvas'),
                 audioCanvas: document.getElementById('audioCanvas'),
 
-                // 日志
+                // 日志容器
                 logContainer: document.getElementById('logContainer'),
 
-                // 交互控件
+                // 交互配置
                 configToggle: document.getElementById('configToggle'),
                 configIcon: document.getElementById('configIcon'),
                 configBody: document.getElementById('configBody'),
-                rngSpeedThresh: document.getElementById('rngSpeedThresh'),
-                dispSpeedThresh: document.getElementById('dispSpeedThresh'),
+                rngBLEThresh: document.getElementById('rngBLEThresh'),
+                dispBLEThresh: document.getElementById('dispBLEThresh'),
+                rngLANThresh: document.getElementById('rngLANThresh'),
+                dispLANThresh: document.getElementById('dispLANThresh'),
                 rngSPLThresh: document.getElementById('rngSPLThresh'),
                 dispSPLThresh: document.getElementById('dispSPLThresh'),
+                rngSpeedThresh: document.getElementById('rngSpeedThresh'),
+                dispSpeedThresh: document.getElementById('dispSpeedThresh'),
                 rngGPSThresh: document.getElementById('rngGPSThresh'),
                 dispGPSThresh: document.getElementById('dispGPSThresh'),
-                rngSensitivity: document.getElementById('rngSensitivity'),
-                dispSensitivity: document.getElementById('dispSensitivity'),
-                btnRequestScan: document.getElementById('btnRequestScan'),
-                btnSimulatePublic: document.getElementById('btnSimulatePublic'),
+                rngBaseScore: document.getElementById('rngBaseScore'),
+                dispBaseScore: document.getElementById('dispBaseScore'),
 
-                // 阈值标签
-                lblSpeedThresh: document.getElementById('lblSpeedThresh'),
+                // 阈值文本
+                lblBLEThresh: document.getElementById('lblBLEThresh'),
                 lblSPLThresh: document.getElementById('lblSPLThresh'),
-                lblGPSThresh: document.getElementById('lblGPSThresh')
+                lblLANThresh: document.getElementById('lblLANThresh'),
+                lblGPSThresh: document.getElementById('lblGPSThresh'),
+                lblSpeedThresh: document.getElementById('lblSpeedThresh'),
+
+                btnRequestScan: document.getElementById('btnRequestScan'),
+                btnSimulatePublic: document.getElementById('btnSimulatePublic')
             };
 
             /* =========================================================================
-             * 4. 实时时钟更新
+             * 4. 辅助时钟与日志模块
              * ========================================================================= */
             function updateClock() {
                 const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                DOM.sysClock.textContent = `${hours}:${minutes}:${seconds} LST`;
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                DOM.sysClock.textContent = `${h}:${m}:${s} LST`;
             }
             setInterval(updateClock, 1000);
             updateClock();
 
-            /* =========================================================================
-             * 5. 日志追加工具函数
-             * ========================================================================= */
             function appendLog(message, type = 'info') {
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
@@ -974,92 +1068,106 @@
                 DOM.logContainer.appendChild(div);
                 DOM.logContainer.scrollTop = DOM.logContainer.scrollHeight;
 
-                // 限制日志条数不超过 80 行
-                while (DOM.logContainer.children.length > 80) {
+                while (DOM.logContainer.children.length > 70) {
                     DOM.logContainer.removeChild(DOM.logContainer.firstChild);
                 }
             }
 
             /* =========================================================================
-             * 6. 核心分析引擎：多因子综合判定与阈值超越检测
+             * 5. 核心算法：重构后的多因子模糊环境评估引擎
              * ========================================================================= */
             function evaluateTelemetry(data) {
                 const absSpeed = Math.abs(data.verticalSpeed);
                 const absAccel = Math.abs(data.zAcceleration);
                 const spl = data.soundLevelDBA;
                 const gpsAcc = data.gpsAccuracy;
+                const ble = data.bleCount;
+                const lan = data.lanCount;
 
-                // 1. 电梯检测 (高确定性物理事件)
-                const isElevatorMovement = absSpeed >= THRESHOLDS.elevator.verticalSpeed;
-                
-                // 2. 公共场所各维度因子量化分 (0 - 100)
-                // 声学因子：从 quietMaxSPL(45) 到 publicMinSPL(62) 线性映射
-                let acousticScore = 0;
-                if (spl > THRESHOLDS.acoustic.quietMaxSPL) {
-                    acousticScore = Math.min(100, ((spl - THRESHOLDS.acoustic.quietMaxSPL) / 
-                        (THRESHOLDS.acoustic.publicMinSPL - THRESHOLDS.acoustic.quietMaxSPL)) * 80);
-                    if (spl >= THRESHOLDS.acoustic.publicMinSPL) {
-                        acousticScore = 85 + Math.min(15, (spl - THRESHOLDS.acoustic.publicMinSPL) * 1.5);
-                    }
+                // 1. 电梯高精度物理瞬时判定 (最高裁决优先级)
+                const isElevator = absSpeed >= THRESHOLDS.elevator.verticalSpeed;
+
+                // 2. BLE 人群密集度评分 (0 - 100 分，占比 35%)
+                let bleScore = 0;
+                if (ble >= THRESHOLDS.ble.publicMinCount) {
+                    bleScore = 88 + Math.min(12, (ble - THRESHOLDS.ble.publicMinCount) * 1.5);
+                } else if (ble > THRESHOLDS.ble.privateMaxCount) {
+                    bleScore = ((ble - THRESHOLDS.ble.privateMaxCount) / 
+                               (THRESHOLDS.ble.publicMinCount - THRESHOLDS.ble.privateMaxCount)) * 75;
                 }
 
-                // 空间衰减因子：精度恶化表明位于复杂多径或大型遮挡建筑内部
+                // 3. 声压级 (SPL) 混响评分 (0 - 100 分，占比 30%)
+                let acousticScore = 0;
+                if (spl >= THRESHOLDS.acoustic.publicMinSPL) {
+                    acousticScore = 85 + Math.min(15, (spl - THRESHOLDS.acoustic.publicMinSPL) * 1.5);
+                } else if (spl > THRESHOLDS.acoustic.quietMaxSPL) {
+                    acousticScore = ((spl - THRESHOLDS.acoustic.quietMaxSPL) / 
+                                    (THRESHOLDS.acoustic.publicMinSPL - THRESHOLDS.acoustic.quietMaxSPL)) * 70;
+                }
+
+                // 4. 局域网主机拓扑评分 (0 - 100 分，占比 20%)
+                let lanScore = 0;
+                if (lan >= THRESHOLDS.lan.publicMinHosts) {
+                    lanScore = 85 + Math.min(15, (lan - THRESHOLDS.lan.publicMinHosts) * 2.0);
+                } else if (lan > THRESHOLDS.lan.privateMaxHosts) {
+                    lanScore = ((lan - THRESHOLDS.lan.privateMaxHosts) / 
+                               (THRESHOLDS.lan.publicMinHosts - THRESHOLDS.lan.privateMaxHosts)) * 65;
+                }
+
+                // 5. 弱化的 GNSS 空间评分 (0 - 100 分，占比仅 10%)
                 let spatialScore = 0;
                 if (gpsAcc > 15.0 || gpsAcc < 0) {
-                    if (gpsAcc < 0 || gpsAcc >= THRESHOLDS.spatial.indoorAccuracyDegrade) {
-                        spatialScore = 80;
-                    } else {
-                        spatialScore = ((gpsAcc - 15.0) / (THRESHOLDS.spatial.indoorAccuracyDegrade - 15.0)) * 70;
-                    }
+                    spatialScore = (gpsAcc < 0 || gpsAcc >= THRESHOLDS.spatial.indoorAccuracyDegrade) ? 75 : 40;
                 }
 
-                // 运动扰动因子
-                let motionScore = 20;
-                if (absAccel > 0.08) motionScore = 60;
-                if (absAccel > 0.2) motionScore = 85;
+                // 6. 运动动态辅助 (占比 5%)
+                let motionScore = absAccel > 0.08 ? 60 : 10;
 
-                // 3. 计算加权复合风险分 (Threat Score)
-                let compositeScore = (acousticScore * THRESHOLDS.weights.acousticWeight) +
+                // 7. 线性加权合成总风险分
+                let compositeScore = (bleScore * THRESHOLDS.weights.bleWeight) +
+                                     (acousticScore * THRESHOLDS.weights.acousticWeight) +
+                                     (lanScore * THRESHOLDS.weights.lanWeight) +
                                      (spatialScore * THRESHOLDS.weights.spatialWeight) +
-                                     (motionScore * THRESHOLDS.weights.motionDynamicWeight);
+                                     (motionScore * THRESHOLDS.weights.motionWeight);
 
-                // 4. 情境裁定
-                let envLabel = "私密 / 安静室内";
-                let confidence = 0.85;
+                let envLabel = "私密 / 封闭空间";
                 let isPublic = false;
+                let confidence = 0.85;
 
-                if (isElevatorMovement) {
-                    envLabel = "垂直运载工具 (电梯内)";
-                    confidence = absSpeed > THRESHOLDS.elevator.peakSpeedConfidence ? 0.98 : 0.88;
+                // 场景决策树
+                if (isElevator) {
+                    envLabel = "垂直运载工具 (电梯轿厢)";
+                    compositeScore = Math.max(compositeScore, 95.0);
                     isPublic = true;
-                    compositeScore = Math.max(compositeScore, 85.0);
+                    confidence = absSpeed > THRESHOLDS.elevator.peakSpeedConfidence ? 0.98 : 0.90;
                 } else if (compositeScore >= THRESHOLDS.publicEnvironmentScoreThreshold) {
-                    envLabel = "高密度公共场所 (商场/航站楼)";
-                    confidence = Math.min(0.92, (compositeScore / 100));
+                    envLabel = "高密度公共场所 (商场/机场/展厅)";
                     isPublic = true;
-                } else if (compositeScore >= 45.0) {
-                    envLabel = "半开放办公区 / 走廊";
-                    confidence = 0.65;
+                    confidence = Math.min(0.96, Math.max(0.70, compositeScore / 100));
+                } else if (compositeScore >= 42.0) {
+                    envLabel = "半公开过渡区 / 开放工位";
                     isPublic = false;
+                    confidence = 0.68;
                 } else {
-                    envLabel = "完全私密空间 (家庭/独立工位)";
-                    confidence = 0.80;
+                    envLabel = "完全私密空间 (家庭/独立书房)";
                     isPublic = false;
+                    confidence = 0.88;
                 }
 
                 return {
-                    isElevator: isElevatorMovement,
+                    isElevator: isElevator,
                     isPublicEnvironment: isPublic,
                     threatScore: Math.min(100, Math.max(0, compositeScore)),
                     environmentLabel: envLabel,
                     confidence: confidence,
-                    acousticScore: acousticScore,
-                    spatialScore: spatialScore
+                    bleScore: bleScore,
+                    lanScore: lanScore,
+                    acousticScore: acousticScore
                 };
             }
 
             /* =========================================================================
-             * 7. UI 渲染与指标挂载更新
+             * 6. UI 渲染与指标挂载更新
              * ========================================================================= */
             function renderDashboard() {
                 const res = evaluateTelemetry(TelemetryState);
@@ -1069,42 +1177,50 @@
                 TelemetryState.isPublicEnvironment = res.isPublicEnvironment;
                 TelemetryState.isElevator = res.isElevator;
 
-                // 更新仪表盘数值
+                // 1. 刷新卡片数值
+                DOM.valBLE.textContent = TelemetryState.bleCount;
+                DOM.valSPL.textContent = TelemetryState.soundLevelDBA.toFixed(1);
+                DOM.valLAN.textContent = TelemetryState.lanCount;
+                DOM.valGPS.textContent = TelemetryState.gpsAccuracy > 0 ? TelemetryState.gpsAccuracy.toFixed(1) : "无锁";
                 DOM.valSpeed.textContent = TelemetryState.verticalSpeed.toFixed(2);
                 DOM.valAccel.textContent = Math.abs(TelemetryState.zAcceleration).toFixed(3);
-                DOM.valSPL.textContent = TelemetryState.soundLevelDBA.toFixed(1);
-                DOM.valGPS.textContent = TelemetryState.gpsAccuracy > 0 ? TelemetryState.gpsAccuracy.toFixed(1) : "无锁";
 
-                // 更新进度填充比率
-                const speedPct = Math.min(100, (Math.abs(TelemetryState.verticalSpeed) / 2.5) * 100);
-                DOM.fillSpeed.style.width = `${speedPct}%`;
-                DOM.fillSpeed.className = `metric-status-fill ${speedPct > 70 ? 'danger' : (speedPct > 40 ? 'warn' : '')}`;
-
-                const accelPct = Math.min(100, (Math.abs(TelemetryState.zAcceleration) / 0.3) * 100);
-                DOM.fillAccel.style.width = `${accelPct}%`;
-                DOM.fillAccel.className = `metric-status-fill ${accelPct > 60 ? 'warn' : ''}`;
+                // 2. 刷新进度填充条
+                const blePct = Math.min(100, (TelemetryState.bleCount / 20) * 100);
+                DOM.fillBLE.style.width = `${blePct}%`;
+                DOM.fillBLE.className = `metric-status-fill ${TelemetryState.bleCount >= THRESHOLDS.ble.publicMinCount ? 'danger' : (TelemetryState.bleCount > THRESHOLDS.ble.privateMaxCount ? 'warn' : '')}`;
 
                 const splPct = Math.min(100, Math.max(0, ((TelemetryState.soundLevelDBA - 30) / 60) * 100));
                 DOM.fillSPL.style.width = `${splPct}%`;
-                DOM.fillSPL.className = `metric-status-fill ${TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL ? 'danger' : (TelemetryState.soundLevelDBA >= 55 ? 'warn' : '')}`;
+                DOM.fillSPL.className = `metric-status-fill ${TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL ? 'danger' : (TelemetryState.soundLevelDBA >= 52 ? 'warn' : '')}`;
+
+                const lanPct = Math.min(100, (TelemetryState.lanCount / 16) * 100);
+                DOM.fillLAN.style.width = `${lanPct}%`;
+                DOM.fillLAN.className = `metric-status-fill ${TelemetryState.lanCount >= THRESHOLDS.lan.publicMinHosts ? 'danger' : ''}`;
 
                 const gpsPct = TelemetryState.gpsAccuracy > 0 ? Math.min(100, (TelemetryState.gpsAccuracy / 70) * 100) : 100;
                 DOM.fillGPS.style.width = `${gpsPct}%`;
-                DOM.fillGPS.className = `metric-status-fill ${gpsPct > 60 ? 'warn' : ''}`;
 
-                // 核心状态呈现
+                const speedPct = Math.min(100, (Math.abs(TelemetryState.verticalSpeed) / 2.5) * 100);
+                DOM.fillSpeed.style.width = `${speedPct}%`;
+                DOM.fillSpeed.className = `metric-status-fill ${speedPct > 70 ? 'danger' : (speedPct > 35 ? 'warn' : '')}`;
+
+                const accelPct = Math.min(100, (Math.abs(TelemetryState.zAcceleration) / 0.25) * 100);
+                DOM.fillAccel.style.width = `${accelPct}%`;
+
+                // 3. 核心情境看板更新
                 DOM.environmentName.textContent = TelemetryState.environmentLabel;
                 DOM.confidenceVal.textContent = `${(TelemetryState.confidence * 100).toFixed(0)}%`;
                 DOM.meterFill.style.width = `${TelemetryState.threatScore}%`;
 
-                // 状态卡与告警横幅切换
+                // 4. 告警横幅与边界突破视觉联动
                 if (TelemetryState.isPublicEnvironment) {
                     DOM.threatCard.className = "threat-level-card danger";
                     DOM.threatBadge.className = "threat-badge danger";
                     DOM.threatBadge.textContent = "公共暴露状态";
                     DOM.publicWarningBanner.classList.add('show');
                     DOM.ambientFlasher.classList.add('flashing');
-                } else if (TelemetryState.threatScore >= 45.0) {
+                } else if (TelemetryState.threatScore >= 42.0) {
                     DOM.threatCard.className = "threat-level-card warning";
                     DOM.threatBadge.className = "threat-badge warning";
                     DOM.threatBadge.textContent = "流动过渡区";
@@ -1118,14 +1234,15 @@
                     DOM.ambientFlasher.classList.remove('flashing');
                 }
 
-                // 边界突破卡片高亮
-                DOM.cardSpeed.classList.toggle('breached', Math.abs(TelemetryState.verticalSpeed) >= THRESHOLDS.elevator.verticalSpeed);
+                // 卡片越界高亮
+                DOM.cardBLE.classList.toggle('breached', TelemetryState.bleCount >= THRESHOLDS.ble.publicMinCount);
                 DOM.cardSPL.classList.toggle('breached', TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL);
-                DOM.cardGPS.classList.toggle('near-breach', TelemetryState.gpsAccuracy >= THRESHOLDS.spatial.indoorAccuracyDegrade || TelemetryState.gpsAccuracy < 0);
+                DOM.cardLAN.classList.toggle('breached', TelemetryState.lanCount >= THRESHOLDS.lan.publicMinHosts);
+                DOM.cardSpeed.classList.toggle('breached', Math.abs(TelemetryState.verticalSpeed) >= THRESHOLDS.elevator.verticalSpeed);
             }
 
             /* =========================================================================
-             * 8. 实时波形可视化 (Canvas 渲染流水线)
+             * 7. 实时图表引擎 (Canvas 60FPS)
              * ========================================================================= */
             const motionCtx = DOM.motionCanvas.getContext('2d');
             const audioCtxCanvas = DOM.audioCanvas.getContext('2d');
@@ -1144,13 +1261,11 @@
             }
             window.addEventListener('resize', initCanvas);
 
-            // 绘制垂直速度时间序列曲线
             function renderMotionGraph() {
                 const w = DOM.motionCanvas.clientWidth;
                 const h = DOM.motionCanvas.clientHeight;
                 motionCtx.clearRect(0, 0, w, h);
 
-                // 绘制中轴基准线 (0 m/s)
                 const zeroY = h / 2;
                 motionCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
                 motionCtx.lineWidth = 1;
@@ -1159,8 +1274,7 @@
                 motionCtx.lineTo(w, zeroY);
                 motionCtx.stroke();
 
-                // 绘制电梯正负阈值虚线 (+/- 1.2 m/s)
-                const maxRange = 3.0; // 满幅 +/- 3 m/s
+                const maxRange = 3.0;
                 const threshOffset = (THRESHOLDS.elevator.verticalSpeed / maxRange) * (h / 2);
                 
                 motionCtx.strokeStyle = 'rgba(255, 51, 102, 0.4)';
@@ -1173,7 +1287,6 @@
                 motionCtx.stroke();
                 motionCtx.setLineDash([]);
 
-                // 绘制运动波形
                 const data = TelemetryState.waveformHistory;
                 const step = w / (data.length - 1);
 
@@ -1184,22 +1297,17 @@
                 for (let i = 0; i < data.length; i++) {
                     const val = Math.max(-maxRange, Math.min(maxRange, data[i]));
                     const y = zeroY - (val / maxRange) * (h / 2);
-                    if (i === 0) {
-                        motionCtx.moveTo(0, y);
-                    } else {
-                        motionCtx.lineTo(i * step, y);
-                    }
+                    if (i === 0) motionCtx.moveTo(0, y);
+                    else motionCtx.lineTo(i * step, y);
                 }
                 motionCtx.stroke();
 
-                // 填充渐变下发区
                 motionCtx.lineTo((data.length - 1) * step, zeroY);
                 motionCtx.lineTo(0, zeroY);
                 motionCtx.fillStyle = 'rgba(0, 240, 255, 0.05)';
                 motionCtx.fill();
             }
 
-            // 绘制声学频谱条形柱 (基于假定或真实的 FFT 数据)
             function renderAudioSpectrum() {
                 const w = DOM.audioCanvas.clientWidth;
                 const h = DOM.audioCanvas.clientHeight;
@@ -1215,8 +1323,7 @@
                     const x = i * (barWidth + 2);
                     const y = h - barHeight;
 
-                    // 高频根据阈值超标着色
-                    if (TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL) {
+                    if (TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL || TelemetryState.bleCount >= THRESHOLDS.ble.publicMinCount) {
                         audioCtxCanvas.fillStyle = i > barCount / 2 ? '#ff3366' : '#ffb800';
                     } else {
                         audioCtxCanvas.fillStyle = '#00f0ff';
@@ -1226,7 +1333,6 @@
                 }
             }
 
-            // 60FPS 图表驱动循环
             function animationLoop() {
                 renderMotionGraph();
                 renderAudioSpectrum();
@@ -1234,73 +1340,78 @@
             }
 
             /* =========================================================================
-             * 9. 移动端通信接口 (iOS Native WKScriptMessageHandler 桥接)
+             * 8. 原生通信网关 (iOS WKScriptMessageHandler 响应)
              * ========================================================================= */
             window.onEnvironmentUpdate = function(nativeData) {
-                TelemetryState.isNativeConnected = true;
                 TelemetryState.lastUpdateTimestamp = Date.now();
 
-                // 拆包来自 Native 的物理量
-                if (nativeData.metrics) {
-                    const vSpeed = parseFloat(nativeData.metrics.vertical_speed_m_s) || 0.0;
-                    const zAcc = parseFloat(nativeData.metrics.z_acceleration) || 0.0;
-                    const spl = parseFloat(nativeData.metrics.sound_level_dba) || 40.0;
-                    const gpsAcc = parseFloat(nativeData.metrics.gps_accuracy_m) || -1.0;
+                if (nativeData && nativeData.metrics) {
+                    const m = nativeData.metrics;
+                    const vSpeed = parseFloat(m.vertical_speed_m_s) || 0.0;
+                    const zAcc = parseFloat(m.z_acceleration) || 0.0;
+                    const spl = parseFloat(m.sound_level_dba) || 35.0;
+                    const gpsAcc = parseFloat(m.gps_accuracy_m) || -1.0;
+                    const ble = parseInt(m.ble_devices_count, 10) || 0;
+                    const lan = parseInt(m.lan_devices_count, 10) || 1;
 
                     TelemetryState.verticalSpeed = vSpeed;
                     TelemetryState.zAcceleration = zAcc;
                     TelemetryState.soundLevelDBA = spl;
                     TelemetryState.gpsAccuracy = gpsAcc;
+                    TelemetryState.bleCount = ble;
+                    TelemetryState.lanCount = lan;
 
-                    // 推进波形历史缓存
                     TelemetryState.waveformHistory.push(vSpeed);
                     TelemetryState.waveformHistory.shift();
 
-                    // 声谱随分贝调制
                     for (let i = 0; i < TelemetryState.spectrumData.length; i++) {
                         const noiseMod = (Math.random() * 0.4 + 0.6) * (spl / 90) * 255;
                         TelemetryState.spectrumData[i] = Math.min(255, Math.floor(noiseMod * (1 - (i / 40))));
                     }
 
-                    // 状态突变日志上报
                     if (Math.abs(vSpeed) >= THRESHOLDS.elevator.verticalSpeed) {
-                        appendLog(`检测到电梯运动特征: 速率=${vSpeed.toFixed(2)}m/s`, 'elev');
+                        appendLog(`检测到垂直运载动力特征: 速率=${vSpeed.toFixed(2)}m/s`, 'elev');
+                    }
+                    if (ble >= THRESHOLDS.ble.publicMinCount) {
+                        appendLog(`周边 BLE 蓝牙聚集超标: 探测到 ${ble} 台外设 (高密人流)`, 'ble');
                     }
                     if (spl >= THRESHOLDS.acoustic.publicMinSPL) {
-                        appendLog(`声压超越公共场所阈值: ${spl.toFixed(1)}dBA`, 'alert');
+                        appendLog(`环境声压超越公共场所底线: ${spl.toFixed(1)} dBA`, 'alert');
                     }
                 }
 
-                // 渲染界面
                 renderDashboard();
             };
 
-            // 主动向 iOS 容器拉取一次状态
             function triggerNativeSnapshot() {
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
                     window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({ timestamp: Date.now() });
-                } else {
-                    // 若不在原生客户端内，则在控制台打印模拟提示
-                    console.log("[NativeBridge] 未检测到 WKWebView 注入接口，运行在标准浏览器沙箱模式。");
                 }
             }
 
             /* =========================================================================
-             * 10. 交互控制器与配置响应
+             * 9. 阈值调试面板事件监听
              * ========================================================================= */
-            // 折叠面板切换
             DOM.configToggle.addEventListener('click', () => {
                 DOM.configBody.classList.toggle('show');
                 DOM.configIcon.classList.toggle('open');
             });
 
-            // 阈值滑块响应
-            DOM.rngSpeedThresh.addEventListener('input', (e) => {
-                const val = parseFloat(e.target.value);
-                THRESHOLDS.elevator.verticalSpeed = val;
-                DOM.dispSpeedThresh.textContent = `${val.toFixed(1)} m/s`;
-                DOM.lblSpeedThresh.textContent = `≥${val.toFixed(1)} m/s`;
-                appendLog(`修改电梯垂直阈值为: ${val.toFixed(1)} m/s`, 'info');
+            DOM.rngBLEThresh.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                THRESHOLDS.ble.publicMinCount = val;
+                DOM.dispBLEThresh.textContent = `${val} 台`;
+                DOM.lblBLEThresh.textContent = `≥${val} 台`;
+                appendLog(`调校 BLE 高密阈值为: ${val} 台`, 'info');
+                renderDashboard();
+            });
+
+            DOM.rngLANThresh.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                THRESHOLDS.lan.publicMinHosts = val;
+                DOM.dispLANThresh.textContent = `${val} 台`;
+                DOM.lblLANThresh.textContent = `≥${val} 台`;
+                appendLog(`调校 LAN 主机阈值为: ${val} 台`, 'info');
                 renderDashboard();
             });
 
@@ -1309,7 +1420,16 @@
                 THRESHOLDS.acoustic.publicMinSPL = val;
                 DOM.dispSPLThresh.textContent = `${val.toFixed(0)} dBA`;
                 DOM.lblSPLThresh.textContent = `≥${val.toFixed(0)} dBA`;
-                appendLog(`修改公共声压阈值为: ${val.toFixed(0)} dBA`, 'info');
+                appendLog(`调校公共噪压阈值为: ${val.toFixed(0)} dBA`, 'info');
+                renderDashboard();
+            });
+
+            DOM.rngSpeedThresh.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                THRESHOLDS.elevator.verticalSpeed = val;
+                DOM.dispSpeedThresh.textContent = `${val.toFixed(1)} m/s`;
+                DOM.lblSpeedThresh.textContent = `≥${val.toFixed(1)} m/s`;
+                appendLog(`调校电梯升降速率阈值为: ${val.toFixed(1)} m/s`, 'info');
                 renderDashboard();
             });
 
@@ -1318,48 +1438,47 @@
                 THRESHOLDS.spatial.indoorAccuracyDegrade = val;
                 DOM.dispGPSThresh.textContent = `${val.toFixed(0)} m`;
                 DOM.lblGPSThresh.textContent = `≥${val.toFixed(0)} m`;
-                appendLog(`修改遮蔽不确定度阈值为: ${val.toFixed(0)} m`, 'info');
+                appendLog(`调校 GNSS 不确定度阈值为: ${val.toFixed(0)} m`, 'info');
                 renderDashboard();
             });
 
-            DOM.rngSensitivity.addEventListener('input', (e) => {
-                const val = parseInt(e.target.value, 10);
-                DOM.dispSensitivity.textContent = `Lv. ${val}`;
-                // 动态调整触发分界线
-                THRESHOLDS.publicEnvironmentScoreThreshold = 80 - (val * 4);
-                appendLog(`灵敏度已调至 Lv.${val}，公共触发基线=${THRESHOLDS.publicEnvironmentScoreThreshold}`, 'info');
+            DOM.rngBaseScore.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                THRESHOLDS.publicEnvironmentScoreThreshold = val;
+                DOM.dispBaseScore.textContent = `${val.toFixed(0)} 分`;
+                appendLog(`调校公共环境总触发基线为: ${val.toFixed(0)} 分`, 'info');
                 renderDashboard();
             });
 
-            // 立即扫描按钮
             DOM.btnRequestScan.addEventListener('click', () => {
                 appendLog("发起物理特征即时采样轮询...", "info");
                 triggerNativeSnapshot();
             });
 
-            // 仿真测试载荷注入 (用于无真机时的 UI 验证与阈值攻防)
+            // 仿真测试流控制器
             let isSimulating = false;
             let simInterval = null;
             DOM.btnSimulatePublic.addEventListener('click', () => {
                 if (!isSimulating) {
                     isSimulating = true;
-                    DOM.btnSimulatePublic.innerHTML = `<span>■ 停止注入载荷</span>`;
+                    DOM.btnSimulatePublic.innerHTML = `<span>■ 停止仿真流</span>`;
                     DOM.btnSimulatePublic.style.borderColor = 'var(--accent-red)';
                     appendLog(">>> 开始注入【公共商场/大型航站楼】测试信号流...", "alert");
 
                     let step = 0;
                     simInterval = setInterval(() => {
                         step++;
-                        // 构造公共环境仿真指标：吵闹声(68-76dBA)、严重GNSS衰减(45-60m)、微量电梯位移
-                        const simVSpeed = (step % 20 > 14) ? 1.65 : (Math.random() * 0.4 - 0.2);
+                        const simVSpeed = (step % 18 > 14) ? 1.6 : (Math.random() * 0.3 - 0.15);
                         const simPayload = {
-                            environment: "仿真载荷环境",
-                            confidence: 0.94,
+                            environment: "仿真公共空间",
+                            confidence: 0.95,
                             metrics: {
                                 vertical_speed_m_s: simVSpeed.toFixed(2),
-                                z_acceleration: (Math.sin(step) * 0.15).toFixed(3),
-                                sound_level_dba: (68 + Math.random() * 8).toFixed(1),
-                                gps_accuracy_m: (48 + Math.random() * 10).toFixed(1)
+                                z_acceleration: (Math.sin(step) * 0.12).toFixed(3),
+                                sound_level_dba: (64 + Math.random() * 8).toFixed(1),
+                                gps_accuracy_m: (38 + Math.random() * 15).toFixed(1),
+                                ble_devices_count: Math.floor(14 + Math.random() * 8), // 模拟周边 14~22 台蓝牙外设
+                                lan_devices_count: 11 // 模拟公共子网活跃多主机
                             }
                         };
                         window.onEnvironmentUpdate(simPayload);
@@ -1367,41 +1486,40 @@
                 } else {
                     isSimulating = false;
                     clearInterval(simInterval);
-                    DOM.btnSimulatePublic.innerHTML = `<span>注入测试载荷</span>`;
+                    DOM.btnSimulatePublic.innerHTML = `<span>注入公共仿真流</span>`;
                     DOM.btnSimulatePublic.style.borderColor = 'var(--border-card)';
-                    appendLog("<<< 已停止仿真载荷注入，复位待命", "info");
+                    appendLog("<<< 已停止仿真流，复位为平静室内待命", "info");
 
-                    // 恢复平静状态
                     window.onEnvironmentUpdate({
                         environment: "私密空间",
-                        confidence: 0.85,
+                        confidence: 0.88,
                         metrics: {
                             vertical_speed_m_s: "0.00",
                             z_acceleration: "0.010",
-                            sound_level_dba: "36.5",
-                            gps_accuracy_m: "12.0"
+                            sound_level_dba: "35.2",
+                            gps_accuracy_m: "12.0",
+                            ble_devices_count: 1, // 私人环境通常仅有 1~2 台
+                            lan_devices_count: 2
                         }
                     });
                 }
             });
 
             /* =========================================================================
-             * 11. 初始化与定时轮询守护
+             * 10. 系统初始化与守护循环
              * ========================================================================= */
             window.addEventListener('DOMContentLoaded', () => {
                 initCanvas();
-                appendLog("StockScope 感知界面初始化完成", "info");
-                appendLog("监听 iOS Native `getEnvironmentSnapshot` 通信链路...", "info");
+                appendLog("StockScope 前端渲染层启动完成", "info");
+                appendLog("注册 WKScriptMessageHandler[getEnvironmentSnapshot] 通信守护...", "info");
 
-                // 首次拉取
                 triggerNativeSnapshot();
 
-                // 启动 1000ms 心跳轮询 (向 Native 定时要数据)
+                // 启动 1000ms 定时轮询驱动
                 setInterval(() => {
                     triggerNativeSnapshot();
                 }, 1000);
 
-                // 启动渲染绘制循环
                 requestAnimationFrame(animationLoop);
             });
 
