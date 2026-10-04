@@ -15,6 +15,7 @@ targets:
       - framework: CoreLocation.framework
       - framework: CoreBluetooth.framework
       - framework: WebKit.framework
+      - framework: Network.framework
     info:
       path: StockScope/Info.plist
       properties:
