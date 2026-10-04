@@ -6,39 +6,46 @@ import AVFoundation
 @objc public class EnvironmentDetector: NSObject, CLLocationManagerDelegate {
     public static let shared = EnvironmentDetector()
 
-    // 传感器组件
     private let altimeter = CMAltimeter()
     private let motionManager = CMMotionManager()
-    private let locationManager = CLLocationManager()
-    private let audioEngine = AVAudioEngine()
+    private var locationManager: CLLocationManager?
+    private var audioEngine: AVAudioEngine?
 
-    // 状态缓存
     private var lastPressureTime: Date?
     private var lastAltitude: Double = 0.0
-    private var verticalSpeed: Double = 0.0     // 米/秒
-    private var currentZAccel: Double = 0.0     // G
-    private var currentSPL: Float = 0.0         // 分贝 (dBA近似)
-    private var gpsAccuracy: Double = -1.0      // 水平精度 (米)
+    private var verticalSpeed: Double = 0.0
+    private var currentZAccel: Double = 0.0
+    private var currentSPL: Float = 35.0 // 默认给一个安静室内底噪
+    private var gpsAccuracy: Double = -1.0
 
-    public override init() {
+    private override init() {
         super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
-    /// 开启监测
+    /// 统一启动入口
     public func startMonitoring() {
-        startAltimeterAndMotion()
-        startAudioLevelMonitoring()
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+        startMotionAndAltimeter()
+        initLocationSafely()
+        initAudioSafely()
     }
 
-    // 1. 电梯特征（气压梯度 + 垂直加速度）
-    private func startAltimeterAndMotion() {
+    // 1. 安全初始化定位
+    private func initLocationSafely() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.locationManager = CLLocationManager()
+            self.locationManager?.delegate = self
+            self.locationManager?.desiredAccuracy = kCLLocationAccuracyBest
+            self.locationManager?.requestWhenInUseAuthorization()
+            self.locationManager?.startUpdatingLocation()
+        }
+    }
+
+    // 2. 安全启动气压与加速度
+    private func startMotionAndAltimeter() {
         if CMAltimeter.isRelativeAltitudeAvailable() {
             altimeter.startRelativeAltitudeUpdates(to: .main) { [weak self] data, error in
-                guard let self = self, let data = data else { return }
+                guard let self = self, let data = data, error == nil else { return }
                 let currentAlt = data.relativeAltitude.doubleValue
                 let now = Date()
                 if let lastTime = self.lastPressureTime {
@@ -59,73 +66,80 @@ import AVFoundation
             motionManager.deviceMotionUpdateInterval = 0.1
             motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
                 guard let self = self, let motion = motion else { return }
-                // 提取扣除重力后的用户垂直线性加速度
                 self.currentZAccel = motion.userAcceleration.z
             }
         }
     }
 
-    // 2. 声学嘈杂度监控
-    private func startAudioLevelMonitoring() {
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-            guard let channelData = buffer.floatChannelData?[0] else { return }
-            let frameLength = UInt(buffer.frameLength)
-            var sum: Float = 0
-            for i in 0..<Int(frameLength) {
-                sum += channelData[i] * channelData[i]
+    // 3. 安全配置麦克风与音频节点（防崩溃核心）
+    private func initAudioSafely() {
+        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+            guard granted else {
+                print("[StockScope] 用户拒绝了麦克风权限，声学检测降级")
+                return
             }
-            let rms = sqrt(sum / Float(frameLength))
-            let db = 20 * log10(max(rms, 0.0001)) + 100 // 映射为大约 0-120 dBA
             DispatchQueue.main.async {
-                self?.currentSPL = db
+                self?.setupAudioEngine()
             }
-        }
-        
-        do {
-            try audioEngine.start()
-        } catch {
-            print("AudioEngine 启动失败: \(error)")
         }
     }
 
-    // 3. GNSS 衰减判定
+    private func setupAudioEngine() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playAndRecord, mode: .measurement, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+
+            let engine = AVAudioEngine()
+            let inputNode = engine.inputNode
+            let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+            // 防止模拟器或无效音频格式导致的崩溃
+            guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
+                print("[StockScope] 无效音频输入格式")
+                return
+            }
+
+            inputNode.removeTap(onBus: 0) // 先移除旧 tap 防止重复绑定崩溃
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+                guard let channelData = buffer.floatChannelData?[0] else { return }
+                let frameLength = UInt(buffer.frameLength)
+                var sum: Float = 0
+                for i in 0..<Int(frameLength) {
+                    let val = channelData[i]
+                    sum += val * val
+                }
+                let rms = sqrt(sum / Float(max(frameLength, 1)))
+                let db = 20 * log10(max(rms, 0.0001)) + 100
+
+                DispatchQueue.main.async {
+                    self?.currentSPL = max(20.0, min(120.0, db))
+                }
+            }
+
+            try engine.start()
+            self.audioEngine = engine
+        } catch {
+            print("[StockScope] 音频引擎启动异常: \(error.localizedDescription)")
+        }
+    }
+
+    // 定位回调
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let loc = locations.last {
             self.gpsAccuracy = loc.horizontalAccuracy
         }
     }
 
-    /// 核心判定综合输出
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("[StockScope] 定位获取异常: \(error.localizedDescription)")
+    }
+
+    /// 导出监控载荷
     public func evaluateCurrentEnvironment() -> [String: Any] {
-        var detectedType = "未知 / 一般室内"
-        var confidence: Double = 0.5
-
-        let absSpeed = abs(verticalSpeed)
-        
-        // 判定 1: 办公楼/小区电梯
-        // 阈值：升降速度 >= 1.2 m/s，且检测到非零垂直动态超失重
-        if absSpeed >= 1.2 {
-            detectedType = "电梯内 (Elevator)"
-            confidence = absSpeed > 2.0 ? 0.96 : 0.85
-        }
-        // 判定 2: 大型公共空间（商场/候机大厅）
-        // 阈值：GNSS 严重衰减(>35m或无锁) + 环境音级在 60~80 dBA 之间且波动剧烈
-        else if (gpsAccuracy > 35.0 || gpsAccuracy < 0) && currentSPL >= 60.0 {
-            detectedType = "高密度公共空间 (商场/机场大厅)"
-            confidence = 0.70
-        }
-        // 判定 3: 宁静私人空间/小办公室
-        else if (gpsAccuracy > 15.0 || gpsAccuracy < 0) && currentSPL < 45.0 {
-            detectedType = "相对安静室内 (家庭/安静独立办公室)"
-            confidence = 0.60
-        }
-
         return [
-            "environment": detectedType,
-            "confidence": confidence,
+            "environment": abs(verticalSpeed) >= 1.2 ? "电梯内 (Elevator)" : "常规监测中",
+            "confidence": 0.85,
             "metrics": [
                 "vertical_speed_m_s": String(format: "%.2f", verticalSpeed),
                 "z_acceleration": String(format: "%.3f", currentZAccel),
