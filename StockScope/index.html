@@ -1,841 +1,1411 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JR-DOS v3.0 Enterprise</title>
-    <!-- Pyodide Python 3 WebAssembly Runtime -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>StockScope - 空间态势感知与公共环境监测系统</title>
     <style>
         :root {
-            --bg-color: #080808;
-            --term-green: #00ff66;
-            --term-dim: #008f3a;
-            --term-err: #ff3344;
-            --term-warn: #ffaa00;
-            --font-stack: "SF Mono", "Menlo", "Courier New", Courier, monospace;
+            --bg-primary: #0a0e17;
+            --bg-secondary: #131c2e;
+            --bg-card: rgba(23, 34, 56, 0.7);
+            --border-card: rgba(64, 93, 140, 0.3);
+            --border-highlight: rgba(0, 240, 255, 0.4);
+            --text-main: #f0f4fc;
+            --text-muted: #7e8fa6;
+            --accent-cyan: #00f0ff;
+            --accent-green: #00ff88;
+            --accent-amber: #ffb800;
+            --accent-red: #ff3366;
+            --accent-purple: #9d00ff;
+            --font-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--term-green);
-            font-family: var(--font-stack);
-            font-size: 13.5px;
-            line-height: 1.45;
-            padding: 10px;
-            height: 100vh;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+            padding-top: calc(var(--safe-top) + 12px);
+            padding-bottom: calc(var(--safe-bottom) + 20px);
+            padding-left: 16px;
+            padding-right: 16px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(157, 0, 255, 0.05) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        /* 顶部导航与状态条 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
+        }
+
+        .brand-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+
+        .brand-logo svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        .brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        .brand-tag {
+            font-size: 10px;
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        .sys-clock {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 核心警告看板: 态势感知状态条 */
+        .threat-level-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .threat-level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background-color: var(--accent-green);
+            transition: background-color 0.3s ease;
+        }
+
+        .threat-level-card.danger {
+            border-color: rgba(255, 51, 102, 0.6);
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12) 0%, rgba(23, 34, 56, 0.85) 100%);
+            box-shadow: 0 0 24px rgba(255, 51, 102, 0.25);
+        }
+
+        .threat-level-card.danger::before {
+            background-color: var(--accent-red);
+            box-shadow: 0 0 12px var(--accent-red);
+        }
+
+        .threat-level-card.warning {
+            border-color: rgba(255, 184, 0, 0.6);
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12) 0%, rgba(23, 34, 56, 0.85) 100%);
+            box-shadow: 0 0 20px rgba(255, 184, 0, 0.2);
+        }
+
+        .threat-level-card.warning::before {
+            background-color: var(--accent-amber);
+            box-shadow: 0 0 12px var(--accent-amber);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .status-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .threat-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            text-transform: uppercase;
+        }
+
+        .threat-badge.danger {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+            animation: pulse-danger 1.5s infinite;
+        }
+
+        .threat-badge.warning {
+            background: rgba(255, 184, 0, 0.2);
+            color: var(--accent-amber);
+            border-color: var(--accent-amber);
+        }
+
+        @keyframes pulse-danger {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-hero {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .status-value {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .status-confidence {
+            font-size: 13px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .status-confidence span {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* 风险评分进度条 */
+        .meter-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-amber), var(--accent-red));
+            transition: width 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
+
+        .meter-ticks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4px;
+            pointer-events: none;
+        }
+
+        .meter-tick {
+            width: 1px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        /* 告警大横幅（公共环境警示） */
+        .public-warning-banner {
+            display: none;
+            background: rgba(255, 51, 102, 0.15);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 12px;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .public-warning-banner.show {
+            display: flex;
+        }
+
+        .warning-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-red);
+        }
+
+        .warning-text {
+            font-size: 12px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .warning-text strong {
+            color: var(--accent-red);
+            display: block;
+            font-size: 13px;
+        }
+
+        /* 核心指标网格 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .metric-card.breached {
+            border-color: var(--accent-red);
+        }
+
+        .metric-card.near-breach {
+            border-color: var(--accent-amber);
+        }
+
+        .metric-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-thresh {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--accent-cyan);
+        }
+
+        .metric-val {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .metric-unit {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .metric-status-line {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            margin-top: 8px;
             overflow: hidden;
-            -webkit-user-select: text;
         }
 
-        #terminal {
-            flex: 1;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-            padding-bottom: 8px;
+        .metric-status-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-cyan);
+            transition: width 0.2s linear;
         }
 
-        .output-line { margin-bottom: 2px; }
-        .prompt-container { display: flex; align-items: center; margin-top: 4px; }
-        .prompt { color: var(--term-green); font-weight: bold; margin-right: 6px; user-select: none; }
+        .metric-status-fill.warn {
+            background: var(--accent-amber);
+        }
 
-        #cli-input {
-            flex: 1;
-            background: transparent;
-            border: none;
+        .metric-status-fill.danger {
+            background: var(--accent-red);
+        }
+
+        /* 实时波形/可视化区 */
+        .visual-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .panel-legend {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        canvas {
+            width: 100%;
+            height: 110px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: block;
+        }
+
+        /* 阈值调试面板折叠组件 */
+        .config-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .config-header {
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .config-header:active {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .config-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .config-toggle-icon {
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .config-toggle-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .config-body {
+            display: none;
+            padding: 14px;
+            border-top: 1px solid var(--border-card);
+            background: rgba(10, 14, 23, 0.5);
+        }
+
+        .config-body.show {
+            display: block;
+        }
+
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .config-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .config-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-control input[type="range"] {
+            -webkit-appearance: none;
+            width: 120px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
             outline: none;
-            color: var(--term-green);
-            font-family: var(--font-stack);
-            font-size: 13.5px;
-            caret-color: var(--term-green);
         }
 
-        #hidden-file-picker { display: none; }
+        .config-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .config-display {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--accent-cyan);
+            width: 50px;
+            text-align: right;
+        }
+
+        /* 实时事件日志流 */
+        .logs-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .logs-content {
+            height: 120px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .log-item {
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .log-item.alert {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+
+        .log-item.elev {
+            color: var(--accent-amber);
+            font-weight: 600;
+        }
+
+        .log-item.info {
+            color: var(--text-muted);
+        }
+
+        .log-time {
+            color: rgba(255, 255, 255, 0.3);
+            margin-right: 6px;
+        }
+
+        /* 控制按钮组 */
+        .actions-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .btn:active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(157, 0, 255, 0.2));
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        /* 全局警告浮动全屏闪烁（极端阈值突破时） */
+        .ambient-flasher {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: inset 0 0 60px rgba(255, 51, 102, 0);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .ambient-flasher.flashing {
+            box-shadow: inset 0 0 60px rgba(255, 51, 102, 0.6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <div id="terminal"></div>
-    <div class="prompt-container">
-        <span class="prompt" id="prompt-label">C:\&gt;</span>
-        <input type="text" id="cli-input" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+    <div id="ambientFlasher" class="ambient-flasher"></div>
+
+    <header>
+        <div class="brand-title">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+            </div>
+            <div class="brand-name">StockScope</div>
+            <span class="brand-tag">GEO-AUDIT</span>
+        </div>
+        <div class="sys-clock" id="sysClock">00:00:00 UTC</div>
+    </header>
+
+    <!-- 核心环境识别与危险评估 -->
+    <section class="threat-level-card" id="threatCard">
+        <div class="status-header">
+            <span class="status-title">物理环境情境认知 (Context Awareness)</span>
+            <span class="threat-badge" id="threatBadge">私密 / 静态空间</span>
+        </div>
+        <div class="status-hero">
+            <div class="status-value" id="environmentName">计算中...</div>
+            <div class="status-confidence">置信度: <span id="confidenceVal">--</span></div>
+        </div>
+        
+        <!-- 综合公共度评分条 (Public Space Threat Score) -->
+        <div class="meter-container">
+            <div class="meter-fill" id="meterFill"></div>
+            <div class="meter-ticks">
+                <div class="meter-tick"></div>
+                <div class="meter-tick"></div>
+                <div class="meter-tick"></div>
+                <div class="meter-tick"></div>
+            </div>
+        </div>
+        <div class="meter-labels">
+            <span>完全私密 (0%)</span>
+            <span>中度流动 (50%)</span>
+            <span>强公共属性 (100%)</span>
+        </div>
+
+        <!-- 公共场所预警条 -->
+        <div class="public-warning-banner" id="publicWarningBanner">
+            <svg class="warning-icon" viewBox="0 0 24 24">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+            </svg>
+            <div class="warning-text">
+                <strong>注意：设备当前可能处于【公共环境】</strong>
+                已越过复合阈值边界，检测到强混响人声、垂直移动及深层建筑遮蔽特征。
+            </div>
+        </div>
+    </section>
+
+    <!-- 四项硬性物理指标网格 -->
+    <div class="metrics-grid">
+        <!-- 气压升降速度 -->
+        <div class="metric-card" id="cardSpeed">
+            <div class="metric-title">
+                <span>垂直升降速度</span>
+                <span class="metric-thresh" id="lblSpeedThresh">≥1.2 m/s</span>
+            </div>
+            <div class="metric-val">
+                <span id="valSpeed">0.00</span>
+                <span class="metric-unit">m/s</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillSpeed"></div>
+            </div>
+        </div>
+
+        <!-- 垂直用户加速度 -->
+        <div class="metric-card" id="cardAccel">
+            <div class="metric-title">
+                <span>动态垂直加速度</span>
+                <span class="metric-thresh">≥0.15 G</span>
+            </div>
+            <div class="metric-val">
+                <span id="valAccel">0.000</span>
+                <span class="metric-unit">G</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillAccel"></div>
+            </div>
+        </div>
+
+        <!-- 声压级 -->
+        <div class="metric-card" id="cardSPL">
+            <div class="metric-title">
+                <span>声压分贝级 (SPL)</span>
+                <span class="metric-thresh" id="lblSPLThresh">≥62 dBA</span>
+            </div>
+            <div class="metric-val">
+                <span id="valSPL">0.0</span>
+                <span class="metric-unit">dBA</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillSPL"></div>
+            </div>
+        </div>
+
+        <!-- GNSS 定位不确定度 -->
+        <div class="metric-card" id="cardGPS">
+            <div class="metric-title">
+                <span>GNSS 不确定度</span>
+                <span class="metric-thresh" id="lblGPSThresh">≥35 m</span>
+            </div>
+            <div class="metric-val">
+                <span id="valGPS">0.0</span>
+                <span class="metric-unit">m</span>
+            </div>
+            <div class="metric-status-line">
+                <div class="metric-status-fill" id="fillGPS"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Hidden native file picker for openfile / selectfile -->
-    <input type="file" id="hidden-file-picker" multiple>
+    <!-- 实时运动图表：垂直速度动态历史 -->
+    <section class="visual-panel">
+        <div class="panel-header">
+            <div class="panel-title">垂直动态曲线 (Vertical Velocity Waveform)</div>
+            <div class="panel-legend">
+                <span><i class="legend-dot" style="background:var(--accent-cyan)"></i> 实时速率</span>
+                <span><i class="legend-dot" style="background:var(--accent-red)"></i> 阈值线 (1.2m/s)</span>
+            </div>
+        </div>
+        <canvas id="motionCanvas"></canvas>
+    </section>
 
+    <!-- 实时声谱图分析 -->
+    <section class="visual-panel">
+        <div class="panel-header">
+            <div class="panel-title">声频空间指纹 (Acoustic Spectrum & Entropy)</div>
+            <div class="panel-legend">
+                <span>混响能量分布 (FFT)</span>
+            </div>
+        </div>
+        <canvas id="audioCanvas"></canvas>
+    </section>
+
+    <!-- 阈值调试与定制抽屉 -->
+    <section class="config-card">
+        <div class="config-header" id="configToggle">
+            <div class="config-title">微观判定阈值微调 (Threshold Tweaks)</div>
+            <div class="config-toggle-icon" id="configIcon">▼</div>
+        </div>
+        <div class="config-body" id="configBody">
+            <div class="config-row">
+                <span class="config-label">电梯升降阈值 (Vertical Speed)</span>
+                <div class="config-control">
+                    <input type="range" id="rngSpeedThresh" min="0.5" max="3.0" step="0.1" value="1.2">
+                    <span class="config-display" id="dispSpeedThresh">1.2 m/s</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">公共噪声音频阈值 (SPL)</span>
+                <div class="config-control">
+                    <input type="range" id="rngSPLThresh" min="45" max="85" step="1" value="62">
+                    <span class="config-display" id="dispSPLThresh">62 dBA</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">室内深层遮蔽阈值 (GNSS Acc.)</span>
+                <div class="config-control">
+                    <input type="range" id="rngGPSThresh" min="15" max="100" step="5" value="35">
+                    <span class="config-display" id="dispGPSThresh">35 m</span>
+                </div>
+            </div>
+            <div class="config-row">
+                <span class="config-label">公共环境判定敏感度权重</span>
+                <div class="config-control">
+                    <input type="range" id="rngSensitivity" min="1" max="5" step="1" value="3">
+                    <span class="config-display" id="dispSensitivity">Lv. 3</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 实时事件审计日志 -->
+    <section class="logs-panel">
+        <div class="panel-header">
+            <div class="panel-title">感知审计日志 (Spatial Telemetry Log)</div>
+            <div class="panel-legend">端侧离线闭环</div>
+        </div>
+        <div class="logs-content" id="logContainer">
+            <div class="log-item info"><span class="log-time">[BOOT]</span>系统已就绪，传感器正在加载...</div>
+        </div>
+    </section>
+
+    <!-- 控制指令按钮 -->
+    <div class="actions-group">
+        <button class="btn btn-primary" id="btnRequestScan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+            立即轮询特征
+        </button>
+        <button class="btn" id="btnSimulatePublic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2fe"/>
+            </svg>
+            注入测试载荷
+        </button>
+    </div>
+
+    <!-- 核心逻辑脚本 (包括指标阈值判定引擎、Canvas图表绘制系统与iOS通信网关) -->
     <script>
-        const terminal = document.getElementById('terminal');
-        const cliInput = document.getElementById('cli-input');
-        const promptLabel = document.getElementById('prompt-label');
-        const filePicker = document.getElementById('hidden-file-picker');
+        (function() {
+            'use strict';
 
-        let pyodideInstance = null;
-        let commandHistory = [];
-        let historyIndex = -1;
-        let nativeCallbackResolver = null;
+            /* =========================================================================
+             * 1. 阈值与判定引擎常量定义 (Threshold Specifications)
+             * ========================================================================= */
+            const THRESHOLDS = {
+                // 1. 电梯阈值: 垂直升降速率 >= 1.2 m/s, 垂直线性加速度 >= 0.15G
+                elevator: {
+                    verticalSpeed: 1.2,       // 米/秒 (m/s)
+                    verticalAccel: 0.12,      // G 规范化
+                    peakSpeedConfidence: 2.0  // 高速电梯阈值
+                },
+                // 2. 公共场所声学阈值: 稳定在 62 ~ 80 dBA 之间且包含宽频熵
+                acoustic: {
+                    publicMinSPL: 62.0,       // 公共大厅、商业区本底噪声
+                    quietMaxSPL: 45.0,        // 卧室、私人独立办公室安静阈值
+                    crowdNoiseDelta: 8.0      // 动态波动差值
+                },
+                // 3. GNSS / 空间衰减阈值 (室内遮蔽判断)
+                spatial: {
+                    indoorAccuracyDegrade: 35.0, // 室内、中庭或商场造成的水平不确定度 (米)
+                    deepIndoorAccuracy: 65.0     // 完全无直射星或深层建筑
+                },
+                // 4. 模糊公共环境判定权重系数 (用于加权打分)
+                weights: {
+                    acousticWeight: 0.40,
+                    spatialWeight: 0.35,
+                    motionDynamicWeight: 0.25
+                },
+                // 触发“可能在公共环境”的总风险分阈值 (0 - 100)
+                publicEnvironmentScoreThreshold: 68.0
+            };
 
-        // --- Output Utility ---
-        function print(text, type = "normal") {
-            const div = document.createElement('div');
-            div.className = 'output-line';
-            if (type === "error") div.style.color = "var(--term-err)";
-            else if (type === "warn") div.style.color = "var(--term-warn)";
-            else if (type === "dim") div.style.color = "var(--term-dim)";
-            div.textContent = text;
-            terminal.appendChild(div);
-            terminal.scrollTop = terminal.scrollHeight;
-        }
+            /* =========================================================================
+             * 2. 状态机与核心运行上下文 (Telemetry State Context)
+             * ========================================================================= */
+            const TelemetryState = {
+                verticalSpeed: 0.0,
+                zAcceleration: 0.0,
+                soundLevelDBA: 38.0,
+                gpsAccuracy: 12.0,
+                isElevator: false,
+                isPublicEnvironment: false,
+                threatScore: 0.0, // 0 到 100
+                environmentLabel: "计算中...",
+                confidence: 0.0,
+                lastUpdateTimestamp: Date.now(),
+                isNativeConnected: false,
+                waveformHistory: new Array(60).fill(0),
+                spectrumData: new Uint8Array(32).fill(0)
+            };
 
-        // ==========================================
-        // 1. Hierarchical Virtual File System (VFS)
-        // ==========================================
-        class VirtualFileSystem {
-            constructor() {
-                this.root = { type: 'dir', name: '', children: {}, parent: null };
-                this.currentDir = this.root;
-                this.currentPath = ['C:'];
+            /* =========================================================================
+             * 3. DOM 元素缓存
+             * ========================================================================= */
+            const DOM = {
+                sysClock: document.getElementById('sysClock'),
+                threatCard: document.getElementById('threatCard'),
+                threatBadge: document.getElementById('threatBadge'),
+                environmentName: document.getElementById('environmentName'),
+                confidenceVal: document.getElementById('confidenceVal'),
+                meterFill: document.getElementById('meterFill'),
+                publicWarningBanner: document.getElementById('publicWarningBanner'),
+                ambientFlasher: document.getElementById('ambientFlasher'),
+
+                // 指标卡片
+                cardSpeed: document.getElementById('cardSpeed'),
+                cardAccel: document.getElementById('cardAccel'),
+                cardSPL: document.getElementById('cardSPL'),
+                cardGPS: document.getElementById('cardGPS'),
+
+                // 数值与填充
+                valSpeed: document.getElementById('valSpeed'),
+                fillSpeed: document.getElementById('fillSpeed'),
+                valAccel: document.getElementById('valAccel'),
+                fillAccel: document.getElementById('fillAccel'),
+                valSPL: document.getElementById('valSPL'),
+                fillSPL: document.getElementById('fillSPL'),
+                valGPS: document.getElementById('valGPS'),
+                fillGPS: document.getElementById('fillGPS'),
+
+                // 图表
+                motionCanvas: document.getElementById('motionCanvas'),
+                audioCanvas: document.getElementById('audioCanvas'),
+
+                // 日志
+                logContainer: document.getElementById('logContainer'),
+
+                // 交互控件
+                configToggle: document.getElementById('configToggle'),
+                configIcon: document.getElementById('configIcon'),
+                configBody: document.getElementById('configBody'),
+                rngSpeedThresh: document.getElementById('rngSpeedThresh'),
+                dispSpeedThresh: document.getElementById('dispSpeedThresh'),
+                rngSPLThresh: document.getElementById('rngSPLThresh'),
+                dispSPLThresh: document.getElementById('dispSPLThresh'),
+                rngGPSThresh: document.getElementById('rngGPSThresh'),
+                dispGPSThresh: document.getElementById('dispGPSThresh'),
+                rngSensitivity: document.getElementById('rngSensitivity'),
+                dispSensitivity: document.getElementById('dispSensitivity'),
+                btnRequestScan: document.getElementById('btnRequestScan'),
+                btnSimulatePublic: document.getElementById('btnSimulatePublic'),
+
+                // 阈值标签
+                lblSpeedThresh: document.getElementById('lblSpeedThresh'),
+                lblSPLThresh: document.getElementById('lblSPLThresh'),
+                lblGPSThresh: document.getElementById('lblGPSThresh')
+            };
+
+            /* =========================================================================
+             * 4. 实时时钟更新
+             * ========================================================================= */
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                DOM.sysClock.textContent = `${hours}:${minutes}:${seconds} LST`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            /* =========================================================================
+             * 5. 日志追加工具函数
+             * ========================================================================= */
+            function appendLog(message, type = 'info') {
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+                const div = document.createElement('div');
+                div.className = `log-item ${type}`;
+                div.innerHTML = `<span class="log-time">[${timeStr}]</span>${message}`;
+                DOM.logContainer.appendChild(div);
+                DOM.logContainer.scrollTop = DOM.logContainer.scrollHeight;
+
+                // 限制日志条数不超过 80 行
+                while (DOM.logContainer.children.length > 80) {
+                    DOM.logContainer.removeChild(DOM.logContainer.firstChild);
+                }
             }
 
-            resolvePath(pathStr) {
-                if (!pathStr || pathStr === '.') return this.currentDir;
-                let parts = pathStr.replace(/\\/g, '/').split('/').filter(p => p.length > 0);
-                let startNode = (pathStr.startsWith('/') || pathStr.toUpperCase().startsWith('C:')) ? this.root : this.currentDir;
-                if (parts[0] && parts[0].toUpperCase() === 'C:') parts.shift();
+            /* =========================================================================
+             * 6. 核心分析引擎：多因子综合判定与阈值超越检测
+             * ========================================================================= */
+            function evaluateTelemetry(data) {
+                const absSpeed = Math.abs(data.verticalSpeed);
+                const absAccel = Math.abs(data.zAcceleration);
+                const spl = data.soundLevelDBA;
+                const gpsAcc = data.gpsAccuracy;
 
-                let curr = startNode;
-                for (let part of parts) {
-                    if (part === '.') continue;
-                    if (part === '..') {
-                        if (curr.parent) curr = curr.parent;
-                    } else {
-                        if (!curr.children[part]) return null;
-                        curr = curr.children[part];
+                // 1. 电梯检测 (高确定性物理事件)
+                const isElevatorMovement = absSpeed >= THRESHOLDS.elevator.verticalSpeed;
+                
+                // 2. 公共场所各维度因子量化分 (0 - 100)
+                // 声学因子：从 quietMaxSPL(45) 到 publicMinSPL(62) 线性映射
+                let acousticScore = 0;
+                if (spl > THRESHOLDS.acoustic.quietMaxSPL) {
+                    acousticScore = Math.min(100, ((spl - THRESHOLDS.acoustic.quietMaxSPL) / 
+                        (THRESHOLDS.acoustic.publicMinSPL - THRESHOLDS.acoustic.quietMaxSPL)) * 80);
+                    if (spl >= THRESHOLDS.acoustic.publicMinSPL) {
+                        acousticScore = 85 + Math.min(15, (spl - THRESHOLDS.acoustic.publicMinSPL) * 1.5);
                     }
                 }
-                return curr;
+
+                // 空间衰减因子：精度恶化表明位于复杂多径或大型遮挡建筑内部
+                let spatialScore = 0;
+                if (gpsAcc > 15.0 || gpsAcc < 0) {
+                    if (gpsAcc < 0 || gpsAcc >= THRESHOLDS.spatial.indoorAccuracyDegrade) {
+                        spatialScore = 80;
+                    } else {
+                        spatialScore = ((gpsAcc - 15.0) / (THRESHOLDS.spatial.indoorAccuracyDegrade - 15.0)) * 70;
+                    }
+                }
+
+                // 运动扰动因子
+                let motionScore = 20;
+                if (absAccel > 0.08) motionScore = 60;
+                if (absAccel > 0.2) motionScore = 85;
+
+                // 3. 计算加权复合风险分 (Threat Score)
+                let compositeScore = (acousticScore * THRESHOLDS.weights.acousticWeight) +
+                                     (spatialScore * THRESHOLDS.weights.spatialWeight) +
+                                     (motionScore * THRESHOLDS.weights.motionDynamicWeight);
+
+                // 4. 情境裁定
+                let envLabel = "私密 / 安静室内";
+                let confidence = 0.85;
+                let isPublic = false;
+
+                if (isElevatorMovement) {
+                    envLabel = "垂直运载工具 (电梯内)";
+                    confidence = absSpeed > THRESHOLDS.elevator.peakSpeedConfidence ? 0.98 : 0.88;
+                    isPublic = true;
+                    compositeScore = Math.max(compositeScore, 85.0);
+                } else if (compositeScore >= THRESHOLDS.publicEnvironmentScoreThreshold) {
+                    envLabel = "高密度公共场所 (商场/航站楼)";
+                    confidence = Math.min(0.92, (compositeScore / 100));
+                    isPublic = true;
+                } else if (compositeScore >= 45.0) {
+                    envLabel = "半开放办公区 / 走廊";
+                    confidence = 0.65;
+                    isPublic = false;
+                } else {
+                    envLabel = "完全私密空间 (家庭/独立工位)";
+                    confidence = 0.80;
+                    isPublic = false;
+                }
+
+                return {
+                    isElevator: isElevatorMovement,
+                    isPublicEnvironment: isPublic,
+                    threatScore: Math.min(100, Math.max(0, compositeScore)),
+                    environmentLabel: envLabel,
+                    confidence: confidence,
+                    acousticScore: acousticScore,
+                    spatialScore: spatialScore
+                };
             }
 
-            getAbsolutePath() {
-                if (this.currentPath.length === 1) return 'C:\\';
-                return this.currentPath.join('\\');
+            /* =========================================================================
+             * 7. UI 渲染与指标挂载更新
+             * ========================================================================= */
+            function renderDashboard() {
+                const res = evaluateTelemetry(TelemetryState);
+                TelemetryState.threatScore = res.threatScore;
+                TelemetryState.environmentLabel = res.environmentLabel;
+                TelemetryState.confidence = res.confidence;
+                TelemetryState.isPublicEnvironment = res.isPublicEnvironment;
+                TelemetryState.isElevator = res.isElevator;
+
+                // 更新仪表盘数值
+                DOM.valSpeed.textContent = TelemetryState.verticalSpeed.toFixed(2);
+                DOM.valAccel.textContent = Math.abs(TelemetryState.zAcceleration).toFixed(3);
+                DOM.valSPL.textContent = TelemetryState.soundLevelDBA.toFixed(1);
+                DOM.valGPS.textContent = TelemetryState.gpsAccuracy > 0 ? TelemetryState.gpsAccuracy.toFixed(1) : "无锁";
+
+                // 更新进度填充比率
+                const speedPct = Math.min(100, (Math.abs(TelemetryState.verticalSpeed) / 2.5) * 100);
+                DOM.fillSpeed.style.width = `${speedPct}%`;
+                DOM.fillSpeed.className = `metric-status-fill ${speedPct > 70 ? 'danger' : (speedPct > 40 ? 'warn' : '')}`;
+
+                const accelPct = Math.min(100, (Math.abs(TelemetryState.zAcceleration) / 0.3) * 100);
+                DOM.fillAccel.style.width = `${accelPct}%`;
+                DOM.fillAccel.className = `metric-status-fill ${accelPct > 60 ? 'warn' : ''}`;
+
+                const splPct = Math.min(100, Math.max(0, ((TelemetryState.soundLevelDBA - 30) / 60) * 100));
+                DOM.fillSPL.style.width = `${splPct}%`;
+                DOM.fillSPL.className = `metric-status-fill ${TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL ? 'danger' : (TelemetryState.soundLevelDBA >= 55 ? 'warn' : '')}`;
+
+                const gpsPct = TelemetryState.gpsAccuracy > 0 ? Math.min(100, (TelemetryState.gpsAccuracy / 70) * 100) : 100;
+                DOM.fillGPS.style.width = `${gpsPct}%`;
+                DOM.fillGPS.className = `metric-status-fill ${gpsPct > 60 ? 'warn' : ''}`;
+
+                // 核心状态呈现
+                DOM.environmentName.textContent = TelemetryState.environmentLabel;
+                DOM.confidenceVal.textContent = `${(TelemetryState.confidence * 100).toFixed(0)}%`;
+                DOM.meterFill.style.width = `${TelemetryState.threatScore}%`;
+
+                // 状态卡与告警横幅切换
+                if (TelemetryState.isPublicEnvironment) {
+                    DOM.threatCard.className = "threat-level-card danger";
+                    DOM.threatBadge.className = "threat-badge danger";
+                    DOM.threatBadge.textContent = "公共暴露状态";
+                    DOM.publicWarningBanner.classList.add('show');
+                    DOM.ambientFlasher.classList.add('flashing');
+                } else if (TelemetryState.threatScore >= 45.0) {
+                    DOM.threatCard.className = "threat-level-card warning";
+                    DOM.threatBadge.className = "threat-badge warning";
+                    DOM.threatBadge.textContent = "流动过渡区";
+                    DOM.publicWarningBanner.classList.remove('show');
+                    DOM.ambientFlasher.classList.remove('flashing');
+                } else {
+                    DOM.threatCard.className = "threat-level-card";
+                    DOM.threatBadge.className = "threat-badge";
+                    DOM.threatBadge.textContent = "私密受限空间";
+                    DOM.publicWarningBanner.classList.remove('show');
+                    DOM.ambientFlasher.classList.remove('flashing');
+                }
+
+                // 边界突破卡片高亮
+                DOM.cardSpeed.classList.toggle('breached', Math.abs(TelemetryState.verticalSpeed) >= THRESHOLDS.elevator.verticalSpeed);
+                DOM.cardSPL.classList.toggle('breached', TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL);
+                DOM.cardGPS.classList.toggle('near-breach', TelemetryState.gpsAccuracy >= THRESHOLDS.spatial.indoorAccuracyDegrade || TelemetryState.gpsAccuracy < 0);
             }
 
-            mkdir(name) {
-                if (this.currentDir.children[name]) return false;
-                this.currentDir.children[name] = { type: 'dir', name: name, children: {}, parent: this.currentDir };
-                return true;
+            /* =========================================================================
+             * 8. 实时波形可视化 (Canvas 渲染流水线)
+             * ========================================================================= */
+            const motionCtx = DOM.motionCanvas.getContext('2d');
+            const audioCtxCanvas = DOM.audioCanvas.getContext('2d');
+
+            function setupCanvasDPI(canvas, ctx) {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
             }
 
-            writeFile(name, content) {
-                this.currentDir.children[name] = { type: 'file', name: name, content: content, parent: this.currentDir, mtime: new Date() };
+            function initCanvas() {
+                setupCanvasDPI(DOM.motionCanvas, motionCtx);
+                setupCanvasDPI(DOM.audioCanvas, audioCtxCanvas);
+            }
+            window.addEventListener('resize', initCanvas);
+
+            // 绘制垂直速度时间序列曲线
+            function renderMotionGraph() {
+                const w = DOM.motionCanvas.clientWidth;
+                const h = DOM.motionCanvas.clientHeight;
+                motionCtx.clearRect(0, 0, w, h);
+
+                // 绘制中轴基准线 (0 m/s)
+                const zeroY = h / 2;
+                motionCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                motionCtx.lineWidth = 1;
+                motionCtx.beginPath();
+                motionCtx.moveTo(0, zeroY);
+                motionCtx.lineTo(w, zeroY);
+                motionCtx.stroke();
+
+                // 绘制电梯正负阈值虚线 (+/- 1.2 m/s)
+                const maxRange = 3.0; // 满幅 +/- 3 m/s
+                const threshOffset = (THRESHOLDS.elevator.verticalSpeed / maxRange) * (h / 2);
+                
+                motionCtx.strokeStyle = 'rgba(255, 51, 102, 0.4)';
+                motionCtx.setLineDash([4, 4]);
+                motionCtx.beginPath();
+                motionCtx.moveTo(0, zeroY - threshOffset);
+                motionCtx.lineTo(w, zeroY - threshOffset);
+                motionCtx.moveTo(0, zeroY + threshOffset);
+                motionCtx.lineTo(w, zeroY + threshOffset);
+                motionCtx.stroke();
+                motionCtx.setLineDash([]);
+
+                // 绘制运动波形
+                const data = TelemetryState.waveformHistory;
+                const step = w / (data.length - 1);
+
+                motionCtx.strokeStyle = '#00f0ff';
+                motionCtx.lineWidth = 2;
+                motionCtx.beginPath();
+
+                for (let i = 0; i < data.length; i++) {
+                    const val = Math.max(-maxRange, Math.min(maxRange, data[i]));
+                    const y = zeroY - (val / maxRange) * (h / 2);
+                    if (i === 0) {
+                        motionCtx.moveTo(0, y);
+                    } else {
+                        motionCtx.lineTo(i * step, y);
+                    }
+                }
+                motionCtx.stroke();
+
+                // 填充渐变下发区
+                motionCtx.lineTo((data.length - 1) * step, zeroY);
+                motionCtx.lineTo(0, zeroY);
+                motionCtx.fillStyle = 'rgba(0, 240, 255, 0.05)';
+                motionCtx.fill();
             }
 
-            readFile(name) {
-                const node = this.resolvePath(name);
-                if (node && node.type === 'file') return node.content;
-                return null;
+            // 绘制声学频谱条形柱 (基于假定或真实的 FFT 数据)
+            function renderAudioSpectrum() {
+                const w = DOM.audioCanvas.clientWidth;
+                const h = DOM.audioCanvas.clientHeight;
+                audioCtxCanvas.clearRect(0, 0, w, h);
+
+                const data = TelemetryState.spectrumData;
+                const barCount = data.length;
+                const barWidth = (w / barCount) - 2;
+
+                for (let i = 0; i < barCount; i++) {
+                    const norm = data[i] / 255;
+                    const barHeight = norm * (h - 10);
+                    const x = i * (barWidth + 2);
+                    const y = h - barHeight;
+
+                    // 高频根据阈值超标着色
+                    if (TelemetryState.soundLevelDBA >= THRESHOLDS.acoustic.publicMinSPL) {
+                        audioCtxCanvas.fillStyle = i > barCount / 2 ? '#ff3366' : '#ffb800';
+                    } else {
+                        audioCtxCanvas.fillStyle = '#00f0ff';
+                    }
+
+                    audioCtxCanvas.fillRect(x, y, barWidth, barHeight);
+                }
             }
 
-            remove(name) {
-                const node = this.resolvePath(name);
-                if (!node || !node.parent) return false;
-                delete node.parent.children[node.name];
-                return true;
+            // 60FPS 图表驱动循环
+            function animationLoop() {
+                renderMotionGraph();
+                renderAudioSpectrum();
+                requestAnimationFrame(animationLoop);
             }
-        }
 
-        const vfs = new VirtualFileSystem();
-        vfs.mkdir("System");
-        vfs.mkdir("Scripts");
-        vfs.writeFile("welcome.txt", "Welcome to JR-DOS Operating System v3.0 Enterprise.");
+            /* =========================================================================
+             * 9. 移动端通信接口 (iOS Native WKScriptMessageHandler 桥接)
+             * ========================================================================= */
+            window.onEnvironmentUpdate = function(nativeData) {
+                TelemetryState.isNativeConnected = true;
+                TelemetryState.lastUpdateTimestamp = Date.now();
 
-        // ==========================================
-        // 2. JR Proprietary Syntax Lexer & Parser
-        // ==========================================
-        /*
-           JR-Script Grammar Specification:
-           - Root Token: Command identifier (case-insensitive)
-           - Parameters: Positional tokens, string literals ("..." or '...')
-           - Long flags: --flag=value or --flag value or --flag
-           - Short flags: -f, -rf, -h
-           - Native calls: @module.action:param
-           - Environment variables: $VAR expands to runtime environment
-           - Pipeline separator: |
-           - Redirect operators: >, >>
-        */
-        const JR_ENV = {
-            "OS_NAME": "JR-DOS",
-            "VERSION": "3.0.0-PROD",
-            "ARCH": "ARM64-WKWebView",
-            "USER": "Jack Zhang",
-            "PROMPT": "C:\\>"
-        };
+                // 拆包来自 Native 的物理量
+                if (nativeData.metrics) {
+                    const vSpeed = parseFloat(nativeData.metrics.vertical_speed_m_s) || 0.0;
+                    const zAcc = parseFloat(nativeData.metrics.z_acceleration) || 0.0;
+                    const spl = parseFloat(nativeData.metrics.sound_level_dba) || 40.0;
+                    const gpsAcc = parseFloat(nativeData.metrics.gps_accuracy_m) || -1.0;
 
-        function jrTokenize(input) {
-            // Expand environment variables first
-            input = input.replace(/\$([A-Z_]+)/g, (_, v) => JR_ENV[v] !== undefined ? JR_ENV[v] : "");
-            
-            const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
-            const tokens = [];
-            let match;
-            while ((match = regex.exec(input)) !== null) {
-                tokens.push(match[1] || match[2] || match[0]);
+                    TelemetryState.verticalSpeed = vSpeed;
+                    TelemetryState.zAcceleration = zAcc;
+                    TelemetryState.soundLevelDBA = spl;
+                    TelemetryState.gpsAccuracy = gpsAcc;
+
+                    // 推进波形历史缓存
+                    TelemetryState.waveformHistory.push(vSpeed);
+                    TelemetryState.waveformHistory.shift();
+
+                    // 声谱随分贝调制
+                    for (let i = 0; i < TelemetryState.spectrumData.length; i++) {
+                        const noiseMod = (Math.random() * 0.4 + 0.6) * (spl / 90) * 255;
+                        TelemetryState.spectrumData[i] = Math.min(255, Math.floor(noiseMod * (1 - (i / 40))));
+                    }
+
+                    // 状态突变日志上报
+                    if (Math.abs(vSpeed) >= THRESHOLDS.elevator.verticalSpeed) {
+                        appendLog(`检测到电梯运动特征: 速率=${vSpeed.toFixed(2)}m/s`, 'elev');
+                    }
+                    if (spl >= THRESHOLDS.acoustic.publicMinSPL) {
+                        appendLog(`声压超越公共场所阈值: ${spl.toFixed(1)}dBA`, 'alert');
+                    }
+                }
+
+                // 渲染界面
+                renderDashboard();
+            };
+
+            // 主动向 iOS 容器拉取一次状态
+            function triggerNativeSnapshot() {
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
+                    window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({ timestamp: Date.now() });
+                } else {
+                    // 若不在原生客户端内，则在控制台打印模拟提示
+                    console.log("[NativeBridge] 未检测到 WKWebView 注入接口，运行在标准浏览器沙箱模式。");
+                }
             }
-            return tokens;
-        }
 
-        function jrParseArgs(tokens) {
-            const positional = [];
-            const flags = {};
-            const nativeDirectives = [];
+            /* =========================================================================
+             * 10. 交互控制器与配置响应
+             * ========================================================================= */
+            // 折叠面板切换
+            DOM.configToggle.addEventListener('click', () => {
+                DOM.configBody.classList.toggle('show');
+                DOM.configIcon.classList.toggle('open');
+            });
 
-            for (let i = 0; i < tokens.length; i++) {
-                const token = tokens[i];
-                if (token.startsWith('@')) {
-                    // JR Proprietary Native Bridge Directive (e.g. @sys.query:battery)
-                    nativeDirectives.push(token.slice(1));
-                } else if (token.startsWith('--')) {
-                    const parts = token.slice(2).split('=');
-                    const key = parts[0];
-                    const val = parts.length > 1 ? parts[1] : (tokens[i + 1] && !tokens[i + 1].startsWith('-') ? tokens[++i] : true);
-                    flags[key] = val;
-                } else if (token.startsWith('-') && token.length > 1) {
-                    const chars = token.slice(1).split('');
-                    chars.forEach((c, idx) => {
-                        if (idx === chars.length - 1 && tokens[i + 1] && !tokens[i + 1].startsWith('-')) {
-                            flags[c] = tokens[++i];
-                        } else {
-                            flags[c] = true;
+            // 阈值滑块响应
+            DOM.rngSpeedThresh.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                THRESHOLDS.elevator.verticalSpeed = val;
+                DOM.dispSpeedThresh.textContent = `${val.toFixed(1)} m/s`;
+                DOM.lblSpeedThresh.textContent = `≥${val.toFixed(1)} m/s`;
+                appendLog(`修改电梯垂直阈值为: ${val.toFixed(1)} m/s`, 'info');
+                renderDashboard();
+            });
+
+            DOM.rngSPLThresh.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                THRESHOLDS.acoustic.publicMinSPL = val;
+                DOM.dispSPLThresh.textContent = `${val.toFixed(0)} dBA`;
+                DOM.lblSPLThresh.textContent = `≥${val.toFixed(0)} dBA`;
+                appendLog(`修改公共声压阈值为: ${val.toFixed(0)} dBA`, 'info');
+                renderDashboard();
+            });
+
+            DOM.rngGPSThresh.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                THRESHOLDS.spatial.indoorAccuracyDegrade = val;
+                DOM.dispGPSThresh.textContent = `${val.toFixed(0)} m`;
+                DOM.lblGPSThresh.textContent = `≥${val.toFixed(0)} m`;
+                appendLog(`修改遮蔽不确定度阈值为: ${val.toFixed(0)} m`, 'info');
+                renderDashboard();
+            });
+
+            DOM.rngSensitivity.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                DOM.dispSensitivity.textContent = `Lv. ${val}`;
+                // 动态调整触发分界线
+                THRESHOLDS.publicEnvironmentScoreThreshold = 80 - (val * 4);
+                appendLog(`灵敏度已调至 Lv.${val}，公共触发基线=${THRESHOLDS.publicEnvironmentScoreThreshold}`, 'info');
+                renderDashboard();
+            });
+
+            // 立即扫描按钮
+            DOM.btnRequestScan.addEventListener('click', () => {
+                appendLog("发起物理特征即时采样轮询...", "info");
+                triggerNativeSnapshot();
+            });
+
+            // 仿真测试载荷注入 (用于无真机时的 UI 验证与阈值攻防)
+            let isSimulating = false;
+            let simInterval = null;
+            DOM.btnSimulatePublic.addEventListener('click', () => {
+                if (!isSimulating) {
+                    isSimulating = true;
+                    DOM.btnSimulatePublic.innerHTML = `<span>■ 停止注入载荷</span>`;
+                    DOM.btnSimulatePublic.style.borderColor = 'var(--accent-red)';
+                    appendLog(">>> 开始注入【公共商场/大型航站楼】测试信号流...", "alert");
+
+                    let step = 0;
+                    simInterval = setInterval(() => {
+                        step++;
+                        // 构造公共环境仿真指标：吵闹声(68-76dBA)、严重GNSS衰减(45-60m)、微量电梯位移
+                        const simVSpeed = (step % 20 > 14) ? 1.65 : (Math.random() * 0.4 - 0.2);
+                        const simPayload = {
+                            environment: "仿真载荷环境",
+                            confidence: 0.94,
+                            metrics: {
+                                vertical_speed_m_s: simVSpeed.toFixed(2),
+                                z_acceleration: (Math.sin(step) * 0.15).toFixed(3),
+                                sound_level_dba: (68 + Math.random() * 8).toFixed(1),
+                                gps_accuracy_m: (48 + Math.random() * 10).toFixed(1)
+                            }
+                        };
+                        window.onEnvironmentUpdate(simPayload);
+                    }, 500);
+                } else {
+                    isSimulating = false;
+                    clearInterval(simInterval);
+                    DOM.btnSimulatePublic.innerHTML = `<span>注入测试载荷</span>`;
+                    DOM.btnSimulatePublic.style.borderColor = 'var(--border-card)';
+                    appendLog("<<< 已停止仿真载荷注入，复位待命", "info");
+
+                    // 恢复平静状态
+                    window.onEnvironmentUpdate({
+                        environment: "私密空间",
+                        confidence: 0.85,
+                        metrics: {
+                            vertical_speed_m_s: "0.00",
+                            z_acceleration: "0.010",
+                            sound_level_dba: "36.5",
+                            gps_accuracy_m: "12.0"
                         }
                     });
-                } else {
-                    positional.push(token);
-                }
-            }
-            return { positional, flags, nativeDirectives };
-        }
-
-        // ==========================================
-        // 3. Native iOS Host Bridge (WKWebView)
-        // ==========================================
-        window.onNativeBridgeResponse = function(payload) {
-            const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
-            if (nativeCallbackResolver) {
-                nativeCallbackResolver(data);
-                nativeCallbackResolver = null;
-            } else {
-                print("[Native Response Received]:\n" + JSON.stringify(data, null, 2));
-            }
-        };
-
-        function callNativeHost(action, payload = {}) {
-            return new Promise((resolve) => {
-                nativeCallbackResolver = resolve;
-                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jrNativeBridge) {
-                    window.webkit.messageHandlers.jrNativeBridge.postMessage({ action: action, data: payload });
-                } else {
-                    // Browser Fallback Emulation for desktop testing
-                    setTimeout(() => {
-                        if (action === "getDeviceInfo") {
-                            resolve({
-                                "Device Model": navigator.platform || "iPad Simulator",
-                                "System Name": "iPadOS (Emulated)",
-                                "OS Version": "18.2",
-                                "Device Name": "Jack's iPad Pro",
-                                "Battery Level": "92%",
-                                "Battery State": "Unplugged",
-                                "Available Storage": "142.8 GB",
-                                "Thermal State": "Nominal",
-                                "Identifier": "SIMULATED-DEV-UUID-001"
-                            });
-                        } else if (action === "shutdown") {
-                            resolve({ status: "OK", message: "Emulated termination call executed." });
-                        } else {
-                            resolve({ status: "OK", data: "Executed action: " + action });
-                        }
-                    }, 50);
                 }
             });
-        }
 
-        // ==========================================
-        // 4. Pyodide Initialization
-        // ==========================================
-        async function initPyodideEngine() {
-            print("Booting JR-DOS Python 3 WebAssembly Kernel...");
-            try {
-                pyodideInstance = await loadPyodide({
-                    stdout: (txt) => print(txt),
-                    stderr: (txt) => print(txt, "error")
-                });
-                print("Python 3.11 Kernel Online.\n");
-            } catch (err) {
-                print("Python runtime loading failed: " + err.message, "error");
-            }
-        }
+            /* =========================================================================
+             * 11. 初始化与定时轮询守护
+             * ========================================================================= */
+            window.addEventListener('DOMContentLoaded', () => {
+                initCanvas();
+                appendLog("StockScope 感知界面初始化完成", "info");
+                appendLog("监听 iOS Native `getEnvironmentSnapshot` 通信链路...", "info");
 
-        // ==========================================
-        // 5. Fifty (50+) Distinct Command Roots
-        // ==========================================
-        const commands = {};
+                // 首次拉取
+                triggerNativeSnapshot();
 
-        // 1. python3
-        commands.python3 = async (ctx) => {
-            if (!pyodideInstance) return "Error: Pyodide kernel initializing...";
-            const scriptName = ctx.positional[0];
-            if (!scriptName) return "Usage: python3 <script.py> [*args] [--opts]";
-            const code = vfs.readFile(scriptName);
-            if (code === null) return `python3: error: file '${scriptName}' not found in virtual filesystem`;
+                // 启动 1000ms 心跳轮询 (向 Native 定时要数据)
+                setInterval(() => {
+                    triggerNativeSnapshot();
+                }, 1000);
 
-            try {
-                pyodideInstance.FS.writeFile(scriptName, code);
-                const argv = [scriptName, ...ctx.rawTokens.slice(1)];
-                await pyodideInstance.runPythonAsync(`
-import sys
-sys.argv = ${JSON.stringify(argv)}
-                `);
-                await pyodideInstance.runPythonAsync(`
-with open("${scriptName}", "r") as __f:
-    exec(__f.read())
-                `);
-                return "";
-            } catch (e) {
-                return `Python Error: ${e.message}`;
-            }
-        };
-
-        // 2. mkdir
-        commands.mkdir = (ctx) => {
-            const dirName = ctx.positional[0];
-            if (!dirName) return "mkdir: missing directory operand";
-            return vfs.mkdir(dirName) ? `Directory '${dirName}' created.` : `mkdir: cannot create directory '${dirName}': File exists`;
-        };
-
-        // 3. cd
-        commands.cd = (ctx) => {
-            const target = ctx.positional[0] || 'C:';
-            if (target === '..') {
-                if (vfs.currentDir.parent) {
-                    vfs.currentDir = vfs.currentDir.parent;
-                    vfs.currentPath.pop();
-                }
-            } else if (target === 'C:' || target === '/' || target === '\\') {
-                vfs.currentDir = vfs.root;
-                vfs.currentPath = ['C:'];
-            } else {
-                const node = vfs.resolvePath(target);
-                if (!node || node.type !== 'dir') return `cd: no such file or directory: ${target}`;
-                vfs.currentDir = node;
-                vfs.currentPath.push(node.name);
-            }
-            promptLabel.textContent = vfs.getAbsolutePath() + ">";
-            return "";
-        };
-
-        // 4. ls / dir
-        commands.ls = (ctx) => {
-            const isLong = ctx.flags.l || false;
-            const entries = Object.keys(vfs.currentDir.children);
-            if (entries.length === 0) return "  <Directory is empty>";
-            const lines = [` Directory of ${vfs.getAbsolutePath()}`];
-            entries.forEach(name => {
-                const item = vfs.currentDir.children[name];
-                if (isLong) {
-                    const typeTag = item.type === 'dir' ? '<DIR> ' : '      ';
-                    const size = item.type === 'file' ? item.content.length.toString().padStart(8) : "        ";
-                    lines.push(`  ${typeTag}  ${size}  ${name}`);
-                } else {
-                    lines.push(`  ${item.type === 'dir' ? '[' + name + ']' : name}`);
-                }
+                // 启动渲染绘制循环
+                requestAnimationFrame(animationLoop);
             });
-            return lines.join('\n');
-        };
-        commands.dir = (ctx) => commands.ls(ctx);
 
-        // 5. sysinfo
-        commands.sysinfo = async (ctx) => {
-            print("Querying native iPad / iPhone hardware telemetry...");
-            const data = await callNativeHost("getDeviceInfo");
-            if (ctx.flags.json) return JSON.stringify(data, null, 2);
-            const lines = ["=== iPad / iPhone Device Information ==="];
-            for (const [k, v] of Object.entries(data)) {
-                lines.push(`  ${k.padEnd(20)}: ${v}`);
-            }
-            lines.push("========================================");
-            return lines.join('\n');
-        };
-
-        // 6. dosinfo
-        commands.dosinfo = () => {
-            return [
-                "=== JR-DOS System Specifications ===",
-                "  Kernel Name        : JR-DOS Enterprise Microkernel",
-                "  Syntax Standard    : JR-Script Specification v3.0",
-                "  Python Engine      : Pyodide v0.25 (Python 3.11 Runtime)",
-                "  Host Interop       : Apple WebKit IPC via WKScriptMessageHandler",
-                "  Active Filesystem  : Hierarchical In-Memory VFS (C:\\)",
-                "  Developer / Vendor : JR Entertainment",
-                "===================================="
-            ].join('\n');
-        };
-
-        // 7. shutdown
-        commands.shutdown = async (ctx) => {
-            print("Triggering system shutdown signal to native iOS container...", "warn");
-            await callNativeHost("shutdown");
-            return "Application shutdown terminated.";
-        };
-
-        // 8. clear / cls
-        commands.clear = () => { terminal.innerHTML = ''; return ""; };
-        commands.cls = () => commands.clear();
-
-        // 9. curl
-        commands.curl = async (ctx) => {
-            const url = ctx.positional[0];
-            if (!url) return "curl: no URL specified";
-            try {
-                const res = await fetch(url);
-                return await res.text();
-            } catch (e) {
-                return `curl: network request failed: ${e.message}`;
-            }
-        };
-
-        // 10. post
-        commands.post = async (ctx) => {
-            const url = ctx.positional[0];
-            if (!url) return "Usage: post <url> [--data=<json|str>] [--headers=<json>]";
-            const bodyData = ctx.flags.data || ctx.positional[1] || "";
-            let customHeaders = { "Content-Type": "application/json" };
-            if (ctx.flags.headers) {
-                try { customHeaders = JSON.parse(ctx.flags.headers); } catch(e) { return "post: malformed headers JSON"; }
-            }
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: customHeaders,
-                    body: typeof bodyData === 'string' ? bodyData : JSON.stringify(bodyData)
-                });
-                return await res.text();
-            } catch (e) {
-                return `post: request failed: ${e.message}`;
-            }
-        };
-
-        // 11. cat
-        commands.cat = (ctx) => {
-            const file = ctx.positional[0];
-            if (!file) return "cat: missing file operand";
-            const content = vfs.readFile(file);
-            return content !== null ? content : `cat: ${file}: No such file`;
-        };
-
-        // 12. echo
-        commands.echo = (ctx) => ctx.positional.join(' ');
-
-        // 13. openfile / selectfile
-        commands.openfile = (ctx) => {
-            filePicker.onchange = (e) => {
-                const files = Array.from(e.target.files);
-                files.forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = (evt) => {
-                        vfs.writeFile(file.name, evt.target.result);
-                        print(`[VFS] Imported '${file.name}' (${file.size} bytes)`);
-                    };
-                    reader.readAsText(file);
-                });
-                filePicker.value = '';
-            };
-            filePicker.click();
-            return "Opening iOS Native Document Picker...";
-        };
-        commands.selectfile = (ctx) => commands.openfile(ctx);
-
-        // 14. rm
-        commands.rm = (ctx) => {
-            const target = ctx.positional[0];
-            if (!target) return "rm: missing operand";
-            return vfs.remove(target) ? `Removed '${target}'` : `rm: cannot remove '${target}': No such file or directory`;
-        };
-
-        // 15. touch
-        commands.touch = (ctx) => {
-            const f = ctx.positional[0];
-            if (!f) return "touch: missing file operand";
-            vfs.writeFile(f, "");
-            return `File '${f}' created.`;
-        };
-
-        // 16. pwd
-        commands.pwd = () => vfs.getAbsolutePath();
-
-        // 17. write
-        commands.write = (ctx) => {
-            const f = ctx.positional[0];
-            if (!f) return "write: missing filename";
-            const data = ctx.positional.slice(1).join(' ');
-            vfs.writeFile(f, data);
-            return `Wrote ${data.length} bytes to '${f}'`;
-        };
-
-        // 18. append
-        commands.append = (ctx) => {
-            const f = ctx.positional[0];
-            if (!f) return "append: missing filename";
-            const existing = vfs.readFile(f) || "";
-            const data = ctx.positional.slice(1).join(' ');
-            vfs.writeFile(f, existing + (existing ? "\n" : "") + data);
-            return `Appended ${data.length} bytes to '${f}'`;
-        };
-
-        // 19. py (inline Python)
-        commands.py = async (ctx) => {
-            if (!pyodideInstance) return "Python kernel not ready.";
-            try {
-                const res = await pyodideInstance.runPythonAsync(ctx.rawTokens.join(' '));
-                return res !== undefined ? String(res) : "";
-            } catch (e) {
-                return `Python Error: ${e.message}`;
-            }
-        };
-
-        // 20. battery
-        commands.battery = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Battery Level: ${data["Battery Level"] || "N/A"} | State: ${data["Battery State"] || "N/A"}`;
-        };
-
-        // 21. storage
-        commands.storage = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Available Internal Storage: ${data["Available Storage"] || "N/A"}`;
-        };
-
-        // 22. thermal
-        commands.thermal = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Hardware Thermal State: ${data["Thermal State"] || "N/A"}`;
-        };
-
-        // 23. uuid
-        commands.uuid = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Device Identifier: ${data["Identifier"] || "N/A"}`;
-        };
-
-        // 24. osver
-        commands.osver = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Operating System: ${data["System Name"] || "iOS"} ${data["OS Version"] || ""}`;
-        };
-
-        // 25. devname
-        commands.devname = async () => {
-            const data = await callNativeHost("getDeviceInfo");
-            return `Device Friendly Name: ${data["Device Name"] || "Apple Device"}`;
-        };
-
-        // 26. haptic
-        commands.haptic = async (ctx) => {
-            const style = ctx.positional[0] || "medium";
-            await callNativeHost("hapticFeedback", { style: style });
-            return `Haptic pulse [${style}] fired.`;
-        };
-
-        // 27. clipget
-        commands.clipget = async () => {
-            const res = await callNativeHost("getClipboard");
-            return res.text ? res.text : "<Clipboard empty>";
-        };
-
-        // 28. clipset
-        commands.clipset = async (ctx) => {
-            const txt = ctx.positional.join(' ');
-            await callNativeHost("setClipboard", { text: txt });
-            return "Text copied to iOS system clipboard.";
-        };
-
-        // 29. date
-        commands.date = () => new Date().toString();
-
-        // 30. time
-        commands.time = () => new Date().toLocaleTimeString();
-
-        // 31. timestamp
-        commands.timestamp = () => String(Date.now());
-
-        // 32. whoami
-        commands.whoami = () => JR_ENV.USER;
-
-        // 33. env
-        commands.env = () => Object.entries(JR_ENV).map(([k, v]) => `${k}=${v}`).join('\n');
-
-        // 34. set
-        commands.set = (ctx) => {
-            const pair = ctx.positional[0];
-            if (!pair || !pair.includes('=')) return "Usage: set KEY=VALUE";
-            const [k, v] = pair.split('=');
-            JR_ENV[k] = v;
-            return `Set env ${k}=${v}`;
-        };
-
-        // 35. unset
-        commands.unset = (ctx) => {
-            const k = ctx.positional[0];
-            delete JR_ENV[k];
-            return `Unset env ${k}`;
-        };
-
-        // 36. wc
-        commands.wc = (ctx) => {
-            const f = ctx.positional[0];
-            if (!f) return "wc: missing file operand";
-            const content = vfs.readFile(f);
-            if (content === null) return `wc: ${f}: No such file`;
-            const lines = content.split('\n').length;
-            const words = content.trim().split(/\s+/).length;
-            return `Lines: ${lines}, Words: ${words}, Bytes: ${content.length}`;
-        };
-
-        // 37. head
-        commands.head = (ctx) => {
-            const f = ctx.positional[0];
-            const n = parseInt(ctx.flags.n || 10);
-            const content = vfs.readFile(f);
-            if (content === null) return `head: ${f}: No such file`;
-            return content.split('\n').slice(0, n).join('\n');
-        };
-
-        // 38. tail
-        commands.tail = (ctx) => {
-            const f = ctx.positional[0];
-            const n = parseInt(ctx.flags.n || 10);
-            const content = vfs.readFile(f);
-            if (content === null) return `tail: ${f}: No such file`;
-            const arr = content.split('\n');
-            return arr.slice(Math.max(arr.length - n, 0)).join('\n');
-        };
-
-        // 39. grep
-        commands.grep = (ctx) => {
-            const pattern = ctx.positional[0];
-            const f = ctx.positional[1];
-            if (!pattern) return "Usage: grep <pattern> [file]";
-            const src = f ? vfs.readFile(f) : ctx.stdin;
-            if (!src) return "grep: No content to search";
-            return src.split('\n').filter(line => line.includes(pattern)).join('\n');
-        };
-
-        // 40. sort
-        commands.sort = (ctx) => {
-            const f = ctx.positional[0];
-            const src = f ? vfs.readFile(f) : ctx.stdin;
-            if (!src) return "";
-            return src.split('\n').sort().join('\n');
-        };
-
-        // 41. uniq
-        commands.uniq = (ctx) => {
-            const f = ctx.positional[0];
-            const src = f ? vfs.readFile(f) : ctx.stdin;
-            if (!src) return "";
-            return Array.from(new Set(src.split('\n'))).join('\n');
-        };
-
-        // 42. base64enc
-        commands.base64enc = (ctx) => {
-            const raw = ctx.positional.join(' ') || ctx.stdin;
-            return btoa(raw);
-        };
-
-        // 43. base64dec
-        commands.base64dec = (ctx) => {
-            const raw = ctx.positional[0] || ctx.stdin;
-            try { return atob(raw.trim()); } catch(e) { return "base64dec: Invalid base64 stream"; }
-        };
-
-        // 44. ping
-        commands.ping = async (ctx) => {
-            const host = ctx.positional[0] || "1.1.1.1";
-            const start = performance.now();
-            try {
-                await fetch("https://" + host, { mode: 'no-cors' });
-                const elapsed = (performance.now() - start).toFixed(1);
-                return `Reply from ${host}: time=${elapsed}ms`;
-            } catch (e) {
-                return `Request timeout for ping: ${host}`;
-            }
-        };
-
-        // 45. history
-        commands.history = () => commandHistory.map((cmd, i) => `  ${(i + 1).toString().padStart(3)}  ${cmd}`).join('\n');
-
-        // 46. stat
-        commands.stat = (ctx) => {
-            const f = ctx.positional[0];
-            const node = vfs.resolvePath(f);
-            if (!node) return `stat: cannot stat '${f}': No such file or directory`;
-            return `File: ${node.name}\nType: ${node.type}\nSize: ${node.type === 'file' ? node.content.length : 0} bytes\nModified: ${node.mtime || 'System'}`;
-        };
-
-        // 47. cp
-        commands.cp = (ctx) => {
-            const [src, dest] = ctx.positional;
-            if (!src || !dest) return "Usage: cp <source> <dest>";
-            const content = vfs.readFile(src);
-            if (content === null) return `cp: cannot read '${src}'`;
-            vfs.writeFile(dest, content);
-            return `Copied '${src}' -> '${dest}'`;
-        };
-
-        // 48. mv
-        commands.mv = (ctx) => {
-            const [src, dest] = ctx.positional;
-            if (!src || !dest) return "Usage: mv <source> <dest>";
-            const content = vfs.readFile(src);
-            if (content === null) return `mv: cannot read '${src}'`;
-            vfs.writeFile(dest, content);
-            vfs.remove(src);
-            return `Moved '${src}' -> '${dest}'`;
-        };
-
-        // 49. sleep
-        commands.sleep = async (ctx) => {
-            const sec = parseFloat(ctx.positional[0] || 1);
-            await new Promise(r => setTimeout(r, sec * 1000));
-            return `Slept ${sec}s`;
-        };
-
-        // 50. reboot
-        commands.reboot = () => {
-            terminal.innerHTML = '';
-            print("Restarting JR-DOS Subsystem...\n");
-            return commands.dosinfo();
-        };
-
-        // 51. calc
-        commands.calc = (ctx) => {
-            const expr = ctx.positional.join('');
-            try { return String(Function(`'use strict'; return (${expr})`)()); } catch(e) { return "calc: syntax error"; }
-        };
-
-        // 52. help
-        commands.help = () => {
-            const keys = Object.keys(commands).sort();
-            return `JR-DOS Built-in Commands (${keys.length} roots available):\n  ` + keys.join(', ');
-        };
-
-        // ==========================================
-        // 6. Pipeline & Execution Coordinator
-        // ==========================================
-        async function runSingleCommand(rawCmdStr, stdin = "") {
-            const rawTokens = jrTokenize(rawCmdStr.trim());
-            if (rawTokens.length === 0) return "";
-
-            const root = rawTokens[0].toLowerCase();
-            const tokenStream = rawTokens.slice(1);
-            const parsed = jrParseArgs(tokenStream);
-
-            const context = {
-                root: root,
-                positional: parsed.positional,
-                flags: parsed.flags,
-                directives: parsed.nativeDirectives,
-                rawTokens: tokenStream,
-                stdin: stdin
-            };
-
-            if (commands[root]) {
-                const res = await commands[root](context);
-                return res !== undefined ? String(res) : "";
-            } else {
-                return `'${root}' is not recognized as a command in JR-DOS. Type 'help'.`;
-            }
-        }
-
-        async function processCommandLine(line) {
-            let redirectFile = null;
-            let appendMode = false;
-
-            if (line.includes('>>')) {
-                const parts = line.split('>>');
-                line = parts[0];
-                redirectFile = parts[1].trim();
-                appendMode = true;
-            } else if (line.includes('>')) {
-                const parts = line.split('>');
-                line = parts[0];
-                redirectFile = parts[1].trim();
-                appendMode = false;
-            }
-
-            const pipeStages = line.split('|');
-            let pipeBuffer = "";
-
-            for (const stage of pipeStages) {
-                pipeBuffer = await runSingleCommand(stage, pipeBuffer);
-            }
-
-            if (redirectFile) {
-                if (appendMode) {
-                    const exist = vfs.readFile(redirectFile) || "";
-                    vfs.writeFile(redirectFile, exist + (exist ? "\n" : "") + pipeBuffer);
-                } else {
-                    vfs.writeFile(redirectFile, pipeBuffer);
-                }
-                print(`[Output saved to ${redirectFile}]`, "dim");
-            } else if (pipeBuffer) {
-                print(pipeBuffer);
-            }
-        }
-
-        // ==========================================
-        // 7. Input & Event Listeners
-        // ==========================================
-        cliInput.addEventListener('keydown', async (e) => {
-            if (e.key === 'Enter') {
-                const input = cliInput.value.trim();
-                cliInput.value = '';
-                if (!input) return;
-
-                print(`${vfs.getAbsolutePath()}> ${input}`);
-                commandHistory.push(input);
-                historyIndex = commandHistory.length;
-
-                await processCommandLine(input);
-            } else if (e.key === 'ArrowUp') {
-                if (historyIndex > 0) {
-                    historyIndex--;
-                    cliInput.value = commandHistory[historyIndex];
-                }
-            } else if (e.key === 'ArrowDown') {
-                if (historyIndex < commandHistory.length - 1) {
-                    historyIndex++;
-                    cliInput.value = commandHistory[historyIndex];
-                } else {
-                    historyIndex = commandHistory.length;
-                    cliInput.value = '';
-                }
-            }
-        });
-
-        document.body.addEventListener('click', () => cliInput.focus());
-
-        // System Startup
-        print("==============================================================");
-        print(" JR-DOS Operating System [Version 3.0.0-ENTERPRISE]           ");
-        print(" Proprietary JR-Script Architecture & Python 3.11 Runtime     ");
-        print(" Copyright (c) JR Entertainment. All rights reserved.          ");
-        print("==============================================================");
-        print("Type 'help' to review 50+ integrated command roots.\n");
-        initPyodideEngine();
+        })();
     </script>
 </body>
 </html>
