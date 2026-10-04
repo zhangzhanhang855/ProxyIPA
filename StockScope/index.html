@@ -3,26 +3,30 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>StockScope - 态势感知与空间环境审计系统</title>
+    <title>EnvDetector - 物理空间态势感知与多维情境审计系统</title>
     <style>
         :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #131c2e;
-            --bg-card: rgba(23, 34, 56, 0.75);
-            --border-card: rgba(64, 93, 140, 0.3);
-            --border-active: rgba(0, 240, 255, 0.6);
-            --text-main: #f0f4fc;
-            --text-muted: #7e8fa6;
+            --bg-base: #060911;
+            --bg-surface: #0c1220;
+            --bg-card: rgba(18, 27, 44, 0.75);
+            --bg-card-hover: rgba(26, 38, 62, 0.85);
+            --border-subtle: rgba(64, 93, 140, 0.25);
+            --border-active: rgba(0, 240, 255, 0.5);
+            --border-danger: rgba(255, 51, 102, 0.5);
+            --text-primary: #f0f4fc;
+            --text-secondary: #8da0b8;
+            --text-tertiary: #4f637d;
             --accent-cyan: #00f0ff;
             --accent-green: #00ff88;
             --accent-amber: #ffb800;
             --accent-red: #ff3366;
             --accent-purple: #9d00ff;
             --accent-blue: #0088ff;
-            --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * {
@@ -35,705 +39,1017 @@
         }
 
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
             font-family: var(--font-sans);
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.5;
-            padding-top: calc(var(--safe-top) + 10px);
-            padding-bottom: calc(var(--safe-bottom) + 70px);
+            padding-top: calc(var(--safe-top) + 12px);
+            padding-bottom: calc(var(--safe-bottom) + 68px);
             padding-left: 14px;
             padding-right: 14px;
             min-height: 100vh;
             overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 12% 8%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 88% 90%, rgba(157, 0, 255, 0.04) 0%, transparent 50%);
         }
 
-        /* 顶部状态头 */
-        header {
+        /* 顶部系统级 Header */
+        header.sys-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-card);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
             margin-bottom: 14px;
         }
 
-        .brand-box {
+        .brand-meta-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .brand-icon {
-            width: 24px;
-            height: 24px;
+        .brand-glyph {
+            width: 28px;
+            height: 28px;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
         }
 
-        .brand-icon svg {
-            width: 14px;
-            height: 14px;
+        .brand-glyph svg {
+            width: 16px;
+            height: 16px;
             fill: #fff;
         }
 
+        .brand-text-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
         .brand-name {
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
             color: #fff;
         }
 
-        .privacy-pill {
+        .author-tag {
             font-size: 10px;
             font-family: var(--font-mono);
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent-green);
-            padding: 2px 6px;
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.12);
+            padding: 1px 5px;
             border-radius: 4px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            font-weight: 600;
         }
 
-        /* 页面切换控制器 */
-        .page-view {
+        .brand-subtitle {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+
+        .header-status-capsule {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .live-dot-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--accent-green);
+        }
+
+        .live-pulse {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            animation: pulse-green 1.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.6); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        .mic-disabled-badge {
+            font-size: 9px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* 页面切换动画与容器 */
+        .page-viewport {
             display: none;
-            animation: fadeIn 0.25s ease-out;
+            animation: viewEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .page-view.active {
+        .page-viewport.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(3px); }
+        @keyframes viewEnter {
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 核心卡片设计 */
-        .card {
+        /* 通用卡片容器 */
+        .card-surface {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-card);
+            border: 1px solid var(--border-subtle);
             border-radius: 12px;
             padding: 14px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             position: relative;
+            transition: var(--transition-smooth);
         }
 
-        .threat-card::before {
+        /* 核心态势大卡 */
+        .threat-hero-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 6px;
+            width: 5px;
             height: 100%;
             background-color: var(--accent-green);
-            transition: all 0.3s;
+            transition: var(--transition-smooth);
         }
 
-        .threat-card.danger {
-            border-color: rgba(255, 51, 102, 0.6);
-            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12), rgba(23, 34, 56, 0.85));
+        .threat-hero-card.danger {
+            border-color: var(--border-danger);
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12), rgba(18, 27, 44, 0.9));
         }
 
-        .threat-card.danger::before {
+        .threat-hero-card.danger::before {
             background-color: var(--accent-red);
             box-shadow: 0 0 12px var(--accent-red);
         }
 
-        .threat-card.warning {
-            border-color: rgba(255, 184, 0, 0.6);
-            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12), rgba(23, 34, 56, 0.85));
+        .threat-hero-card.warning {
+            border-color: rgba(255, 184, 0, 0.5);
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12), rgba(18, 27, 44, 0.9));
         }
 
-        .threat-card.warning::before {
+        .threat-hero-card.warning::before {
             background-color: var(--accent-amber);
             box-shadow: 0 0 12px var(--accent-amber);
         }
 
-        .threat-badge {
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .status-badge {
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 10px;
             background: rgba(0, 255, 136, 0.15);
             color: var(--accent-green);
             border: 1px solid rgba(0, 255, 136, 0.3);
         }
 
-        .threat-badge.danger {
+        .status-badge.danger {
             background: rgba(255, 51, 102, 0.2);
             color: var(--accent-red);
             border-color: var(--accent-red);
+            animation: pulse-danger-border 1.5s infinite;
         }
 
-        .threat-badge.warning {
+        .status-badge.warning {
             background: rgba(255, 184, 0, 0.2);
             color: var(--accent-amber);
             border-color: var(--accent-amber);
         }
 
-        .progress-bar-bg {
+        @keyframes pulse-danger-border {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .hero-metric-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 6px 0 10px 0;
+        }
+
+        .hero-env-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #fff;
+        }
+
+        .hero-score-val {
+            font-size: 26px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+        }
+
+        .score-track {
             width: 100%;
-            height: 8px;
+            height: 7px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
             overflow: hidden;
-            margin: 10px 0 6px 0;
+            margin-bottom: 8px;
         }
 
-        .progress-bar-fill {
+        .score-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--accent-green), var(--accent-amber), var(--accent-red));
-            transition: width 0.3s;
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* 警告横幅 */
-        .alert-banner {
+        .score-legend-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+        }
+
+        /* 车载同乘/静止抵扣提示条 */
+        .cabin-deduction-strip {
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .cabin-deduction-strip.active {
+            background: rgba(0, 255, 136, 0.08);
+            border-color: rgba(0, 255, 136, 0.3);
+            color: var(--accent-green);
+        }
+
+        /* 警报通知横幅 */
+        .public-warning-banner {
             display: none;
             background: rgba(255, 51, 102, 0.15);
             border: 1px solid var(--accent-red);
             border-radius: 8px;
-            padding: 10px;
+            padding: 10px 12px;
             margin-top: 10px;
             align-items: center;
             gap: 8px;
         }
 
-        .alert-banner.show {
+        .public-warning-banner.show {
             display: flex;
         }
 
-        /* 四宫格网格 */
-        .metrics-grid {
+        .alert-icon-svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--accent-red);
+            flex-shrink: 0;
+        }
+
+        .alert-text-body {
+            font-size: 12px;
+            color: #fff;
+            line-height: 1.35;
+        }
+
+        /* 四宫格与六宫格网格 */
+        .metrics-quad-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .metric-cell {
             background: var(--bg-card);
-            border: 1px solid var(--border-card);
+            border: 1px solid var(--border-subtle);
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: var(--transition-smooth);
         }
 
-        .metric-cell.alert {
+        .metric-cell.breached {
             border-color: var(--accent-red);
             background: rgba(255, 51, 102, 0.08);
         }
 
-        .metric-header {
+        .cell-top-bar {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            color: var(--text-muted);
+            align-items: center;
             margin-bottom: 4px;
         }
 
-        .metric-num {
+        .cell-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .cell-thresh-tag {
             font-family: var(--font-mono);
-            font-size: 22px;
+            font-size: 9px;
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .cell-num-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin: 2px 0;
+        }
+
+        .cell-value {
+            font-family: var(--font-mono);
+            font-size: 20px;
             font-weight: 700;
             color: #fff;
         }
 
-        .metric-sub {
+        .cell-unit {
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--text-secondary);
+        }
+
+        .cell-footnote {
             display: flex;
             justify-content: space-between;
-            margin-top: 6px;
-        }
-
-        /* 车载过滤提示标签 */
-        .car-filter-badge {
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        /* 数据表格 (用于时序与日志) */
-        .table-wrapper {
-            max-height: 380px;
-            overflow: auto;
-            border-radius: 8px;
-            border: 1px solid var(--border-card);
-        }
-
-        table.telemetry-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            text-align: left;
-            background: rgba(10, 14, 23, 0.6);
-        }
-
-        table.telemetry-table th {
-            background: rgba(19, 28, 46, 0.95);
-            color: var(--accent-cyan);
-            padding: 8px 6px;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            border-bottom: 1px solid var(--border-card);
-            white-space: nowrap;
-        }
-
-        table.telemetry-table td {
-            padding: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            color: #d1d8e6;
-            white-space: nowrap;
-        }
-
-        table.telemetry-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        /* 白名单外设列表 */
-        .whitelist-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-card);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
-        }
-
-        .whitelist-item.auto {
-            border-left: 4px solid var(--accent-cyan);
-        }
-
-        .whitelist-info {
-            font-family: var(--font-mono);
-            font-size: 11px;
-        }
-
-        .whitelist-info .dev-name {
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 2px;
-        }
-
-        .whitelist-info .dev-uuid {
-            color: var(--text-muted);
             font-size: 10px;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+            margin-top: 4px;
         }
 
-        /* 录制浮动控制器 */
-        .record-bar {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-card);
-            border-radius: 10px;
-            padding: 10px;
+        /* 雷达图专用容器与面板 */
+        .radar-stage-card {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 14px;
+            padding: 14px;
         }
 
-        .record-bar input {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-card);
-            border-radius: 6px;
-            padding: 6px 10px;
-            color: #fff;
-            font-size: 12px;
-            outline: none;
+        .radar-canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1 / 1;
+            margin: 6px 0 12px 0;
         }
 
-        .btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: 6px;
-            color: #fff;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
+        #radarCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(12, 18, 32, 0.9) 0%, rgba(6, 9, 17, 0.98) 100%);
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.1);
+        }
+
+        .radar-legend-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 8px;
+        }
+
+        .legend-tag {
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        .btn-record {
-            background: rgba(255, 51, 102, 0.2);
+        .legend-circ {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        /* 裁判席面板设计 */
+        .judge-panel-card {
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .judge-bars-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .judge-bar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .judge-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        .judge-item-name {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .judge-trimmed-pill {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-tertiary);
+        }
+
+        .judge-item-track {
+            height: 6px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .judge-item-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-purple);
+            transition: width 0.3s ease;
+        }
+
+        .judge-item-fill.trimmed {
+            background: var(--text-tertiary);
+            opacity: 0.5;
+        }
+
+        .ai-rationale-box {
+            background: rgba(157, 0, 255, 0.06);
+            border: 1px dashed rgba(157, 0, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 12px;
+            font-size: 11px;
+            line-height: 1.45;
+            color: #d8c2ff;
+        }
+
+        /* 数据宽表 */
+        .table-responsive-wrapper {
+            max-height: 380px;
+            overflow: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table.audit-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-align: left;
+            background: rgba(9, 13, 22, 0.6);
+        }
+
+        table.audit-data-table th {
+            background: rgba(18, 27, 44, 0.95);
+            color: var(--accent-cyan);
+            padding: 8px 6px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        table.audit-data-table td {
+            padding: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #cdd6e5;
+            white-space: nowrap;
+        }
+
+        table.audit-data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* 录制与日志管理 */
+        .recording-control-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .session-name-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #fff;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .session-name-input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-core {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-core:active {
+            transform: scale(0.97);
+        }
+
+        .btn-rec {
+            background: rgba(255, 51, 102, 0.15);
             border-color: var(--accent-red);
             color: var(--accent-red);
         }
 
-        .btn-recording {
+        .btn-rec.active-recording {
             background: var(--accent-red);
             color: #fff;
-            animation: pulse-rec 1s infinite;
+            animation: pulse-rec 1.2s infinite;
         }
 
         @keyframes pulse-rec {
             0% { opacity: 1; }
-            50% { opacity: 0.6; }
+            50% { opacity: 0.65; }
             100% { opacity: 1; }
         }
 
+        .playback-modal-card {
+            display: none;
+            border-color: var(--accent-purple);
+            background: linear-gradient(135deg, rgba(157, 0, 255, 0.1), rgba(18, 27, 44, 0.9));
+        }
+
         /* 底部导航栏 */
-        nav.tab-bar {
+        nav.sys-tab-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(var(--safe-bottom) + 54px);
-            background: rgba(13, 20, 33, 0.95);
+            height: calc(var(--safe-bottom) + 52px);
+            background: rgba(12, 18, 32, 0.94);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-card);
+            border-top: 1px solid var(--border-subtle);
             display: flex;
             justify-content: space-around;
-            padding-top: 6px;
-            z-index: 1000;
+            padding-top: 5px;
+            z-index: 999;
         }
 
-        .tab-btn {
+        .nav-tab-item {
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: var(--text-tertiary);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 3px;
             font-size: 10px;
+            font-weight: 600;
             cursor: pointer;
             width: 25%;
+            transition: color 0.2s;
         }
 
-        .tab-btn svg {
+        .nav-tab-item svg {
             width: 18px;
             height: 18px;
             fill: currentColor;
         }
 
-        .tab-btn.active {
+        .nav-tab-item.active {
             color: var(--accent-cyan);
         }
 
-        canvas {
-            width: 100%;
-            height: 110px;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 6px;
-            display: block;
+        /* 全屏报警闪烁 */
+        .alert-flasher {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10000;
+            box-shadow: inset 0 0 70px rgba(255, 51, 102, 0);
+            transition: box-shadow 0.3s;
+        }
+
+        .alert-flasher.active {
+            box-shadow: inset 0 0 70px rgba(255, 51, 102, 0.55);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand-box">
-            <div class="brand-icon">
+    <div id="alertFlasher" class="alert-flasher"></div>
+
+    <!-- 顶部状态栏 -->
+    <header class="sys-header">
+        <div class="brand-meta-group">
+            <div class="brand-glyph">
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
             </div>
-            <div class="brand-name">EnvDetector</div>
+            <div class="brand-text-block">
+                <div class="brand-title-row">
+                    <span class="brand-name">EnvDetector</span>
+                    <span class="author-tag">by JackZ</span>
+                </div>
+                <span class="brand-subtitle">v3.2 PRO SENSORY CORE</span>
+            </div>
         </div>
-        <div class="privacy-pill">Designed / Developed by JackZ</div>
+        <div class="header-status-capsule">
+            <div class="live-dot-indicator">
+                <div class="live-pulse"></div>
+                <span id="sysLiveClock">00:00:00</span>
+            </div>
+            <span class="mic-disabled-badge">零麦克风侵入</span>
+        </div>
     </header>
 
-    <!-- ================= 页面 1：总览 (Dashboard) ================= -->
-    <div id="viewOverview" class="page-view active">
-        <!-- 堵车/私家车自适应提示 -->
-        <div class="car-filter-badge">
-            <span>蓝牙基线过滤</span>
-            <span id="carBaselineStatus">已自动忽视 0 台常驻外设</span>
-        </div>
-
-        <!-- 综合情境卡片 -->
-        <section class="card threat-card" id="threatCard">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">物理情境推断</span>
-                <span class="threat-badge" id="threatBadge">私密 / 独立空间</span>
+    <!-- ================= 页面 1：态势总览 (Dashboard) ================= -->
+    <div id="viewOverview" class="page-viewport active">
+        <!-- 核心公共环境威胁卡 -->
+        <section class="card-surface threat-hero-card" id="threatHeroCard">
+            <div class="card-top-row">
+                <span class="section-label">情境决策态势</span>
+                <span class="status-badge" id="threatStatusBadge">私密 / 车载空间</span>
             </div>
-            <div style="display:flex; align-items:baseline; gap:10px; margin: 8px 0;">
-                <div style="font-size:24px; font-weight:800; color:#fff;" id="envLabel">分析中...</div>
-                <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted);">置信度: <span id="confVal" style="color:var(--accent-cyan)">--</span></div>
+            <div class="hero-metric-row">
+                <div class="hero-env-title" id="envPrimaryTitle">环境解算中...</div>
+                <div class="hero-score-val" id="envScoreValue">0.0</div>
             </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="meterFill"></div>
+            <div class="score-track">
+                <div class="score-bar" id="envScoreBar"></div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:10px; font-family:var(--font-mono); color:var(--text-muted);">
-                <span>私家车/家庭 (0%)</span>
-                <span>半开放 (50%)</span>
-                <span>强公共场所 (100%)</span>
+            <div class="score-legend-row">
+                <span>封闭私密 (0%)</span>
+                <span>过渡带 (45%)</span>
+                <span>高密公共暴露 (100%)</span>
             </div>
 
-            <div class="alert-banner" id="alertBanner">
-                <svg style="width:20px; height:20px; fill:var(--accent-red); flex-shrink:0;" viewBox="0 0 24 24">
+            <!-- 车载同乘/低方差蓝牙抵扣条 -->
+            <div class="cabin-deduction-strip" id="cabinDeductionStrip">
+                <span>车载/长周期静止设备自适应</span>
+                <span id="cabinStatusText" style="font-family:var(--font-mono)">未检测到稳态同乘设备</span>
+            </div>
+
+            <!-- 公共警报条 -->
+            <div class="public-warning-banner" id="publicWarningBanner">
+                <svg class="alert-icon-svg" viewBox="0 0 24 24">
                     <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
                 </svg>
-                <div style="font-size:12px; line-height:1.3; color:#fff;">
-                    <strong>检测到潜在公共暴露环境</strong>
-                    高密陌生蓝牙外设聚集或局域网多节点，已超越非车载基线阈值。
+                <div class="alert-text-body">
+                    <strong>设备当前可能处于【公共环境】</strong>
+                    高密外部陌生蓝牙分布或局域网节点过多，已超越非车载基线阈值。
                 </div>
             </div>
         </section>
 
-        <!-- 4 大精简指标格 (去掉了麦克风) -->
-        <div class="metrics-grid">
-            <div class="metric-cell" id="cellBLE">
-                <div class="metric-header">
-                    <span>外部有效 BLE (扣减后)</span>
-                    <span style="color:var(--accent-cyan); font-family:var(--font-mono)">≥12 警报</span>
+        <!-- 关键指标 4 宫格 -->
+        <div class="metrics-quad-grid">
+            <!-- 外部蓝牙（去稳态抵扣后） -->
+            <div class="metric-cell" id="cellBle">
+                <div class="cell-top-bar">
+                    <span class="cell-label">外部陌生 BLE</span>
+                    <span class="cell-thresh-tag">≥14 警报</span>
                 </div>
-                <div class="metric-num"><span id="valBleEffective">0</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted)">台</span></div>
-                <div class="metric-sub">
-                    <span>原始扫描: <span id="valBleRaw">0</span></span>
-                    <span>已过滤: <span id="valBleFiltered">0</span></span>
+                <div class="cell-num-row">
+                    <span class="cell-value" id="valBleEffective">0</span>
+                    <span class="cell-unit">台</span>
                 </div>
-            </div>
-
-            <div class="metric-cell" id="cellLAN">
-                <div class="metric-header">
-                    <span>局域网活跃主机</span>
-                    <span style="color:var(--accent-cyan); font-family:var(--font-mono)">≥8 公共</span>
-                </div>
-                <div class="metric-num"><span id="valLAN">1</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted)">台</span></div>
-                <div class="metric-sub">
-                    <span>子网拓扑</span>
-                    <span>Class C</span>
+                <div class="cell-footnote">
+                    <span>总扫描: <span id="valBleRaw">0</span></span>
+                    <span>同乘稳态: <span id="valBleCoMoving">0</span></span>
                 </div>
             </div>
 
+            <!-- 局域网主机 -->
+            <div class="metric-cell" id="cellLan">
+                <div class="cell-top-bar">
+                    <span class="cell-label">LAN 活跃主机</span>
+                    <span class="cell-thresh-tag">≥8 公共</span>
+                </div>
+                <div class="cell-num-row">
+                    <span class="cell-value" id="valLanCount">1</span>
+                    <span class="cell-unit">台</span>
+                </div>
+                <div class="cell-footnote">
+                    <span>端口探测</span>
+                    <span>Class C 网段</span>
+                </div>
+            </div>
+
+            <!-- 垂直升降速率 (电梯) -->
             <div class="metric-cell" id="cellSpeed">
-                <div class="metric-header">
-                    <span>气压升降速率</span>
-                    <span style="color:var(--accent-cyan); font-family:var(--font-mono)">≥1.2 m/s</span>
+                <div class="cell-top-bar">
+                    <span class="cell-label">气压垂直速率</span>
+                    <span class="cell-thresh-tag">≥1.2 m/s</span>
                 </div>
-                <div class="metric-num"><span id="valSpeed">0.00</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted)">m/s</span></div>
-                <div class="metric-sub">
-                    <span>电梯特征</span>
-                    <span id="elevState">无</span>
+                <div class="cell-num-row">
+                    <span class="cell-value" id="valVerticalSpeed">0.00</span>
+                    <span class="cell-unit">m/s</span>
+                </div>
+                <div class="cell-footnote">
+                    <span>轿厢状态</span>
+                    <span id="valElevatorFlag">平层稳态</span>
                 </div>
             </div>
 
-            <div class="metric-cell" id="cellGPS">
-                <div class="metric-header">
-                    <span>GNSS 误差半径</span>
-                    <span style="color:var(--text-muted); font-family:var(--font-mono)">占比 10%</span>
+            <!-- GNSS 水平误差半径 -->
+            <div class="metric-cell" id="cellGps">
+                <div class="cell-top-bar">
+                    <span class="cell-label">GNSS 误差半径</span>
+                    <span class="cell-thresh-tag">权 10%</span>
                 </div>
-                <div class="metric-num"><span id="valGPS">0.0</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted)">m</span></div>
-                <div class="metric-sub">
-                    <span>室内衰减度</span>
-                    <span id="gpsState">正常</span>
+                <div class="cell-num-row">
+                    <span class="cell-value" id="valGpsAccuracy">0.0</span>
+                    <span class="cell-unit">m</span>
+                </div>
+                <div class="cell-footnote">
+                    <span>建筑遮蔽</span>
+                    <span id="valGpsStatus">开阔</span>
                 </div>
             </div>
         </div>
 
-        <!-- 动态示波图 -->
-        <section class="card" style="padding:10px;">
-            <div style="font-size:11px; font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between;">
-                <span>有效蓝牙密集度时序 (消除车载干扰后)</span>
-                <span style="font-family:var(--font-mono); color:var(--accent-cyan);" id="liveBleText">0 DEV</span>
+        <!-- 实时有效蓝牙时序波形 -->
+        <section class="card-surface" style="padding:10px;">
+            <div class="card-top-row" style="margin-bottom:6px;">
+                <span class="section-label">外部陌生人流时序波动 (除去车载干扰)</span>
+                <span style="font-family:var(--font-mono); color:var(--accent-cyan); font-size:11px;" id="waveformPeakText">0 DEV PEAK</span>
             </div>
-            <canvas id="overviewCanvas"></canvas>
+            <canvas id="overviewWaveCanvas" style="width:100%; height:80px; display:block;"></canvas>
         </section>
     </div>
 
-    <!-- ================= 页面 2：遥测全量详情 (Details) ================= -->
-    <div id="viewDetails" class="page-view">
-        <section class="card">
-            <h4 style="font-size:13px; margin-bottom:10px; color:var(--accent-cyan)">实时同步遥测宽表 (实时多物理量)</h4>
-            <div class="table-wrapper">
-                <table class="telemetry-table">
+    <!-- ================= 页面 2：空间雷达 (Radar) ================= -->
+    <div id="viewRadar" class="page-viewport">
+        <section class="card-surface radar-stage-card">
+            <div class="card-top-row" style="width:100%;">
+                <span class="section-label">极坐标蓝牙空间态势图</span>
+                <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-cyan)" id="radarHeadingText">航向: 000°</span>
+            </div>
+            <div class="radar-canvas-container">
+                <canvas id="radarCanvas"></canvas>
+            </div>
+            <div class="radar-legend-bar">
+                <div class="legend-tag">
+                    <div class="legend-circ" style="background:var(--accent-cyan)"></div>
+                    <span>车载/长周期静止设备 (方差≤3.2)</span>
+                </div>
+                <div class="legend-tag">
+                    <div class="legend-circ" style="background:var(--accent-red)"></div>
+                    <span>外部陌生流动外设</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 空间外设列表 -->
+        <section class="card-surface">
+            <span class="section-label">雷达解算节点明细 (实时极坐标与场强)</span>
+            <div class="table-responsive-wrapper" style="margin-top:8px; max-height:190px;">
+                <table class="audit-data-table">
                     <thead>
                         <tr>
-                            <th>指标量</th>
-                            <th>当前实时数值</th>
-                            <th>权重</th>
-                            <th>阈值界限</th>
-                            <th>单项判定状态</th>
+                            <th>UUID 标识</th>
+                            <th>方位角</th>
+                            <th>估算距离</th>
+                            <th>平均 RSSI</th>
+                            <th>离散方差</th>
+                            <th>判定类别</th>
                         </tr>
                     </thead>
-                    <tbody id="realtimeTableBody">
-                        <!-- 由 JS 实时刷新 -->
+                    <tbody id="radarNodesTableBody">
+                        <!-- 动态插入 -->
                     </tbody>
                 </table>
             </div>
         </section>
-
-        <section class="card">
-            <h4 style="font-size:13px; margin-bottom:10px;">传感器运行健康度</h4>
-            <div style="display:flex; flex-direction:column; gap:8px; font-family:var(--font-mono); font-size:11px;">
-                <div style="display:flex; justify-content:space-between;"><span>CMAltimeter (气压):</span><span style="color:var(--accent-green)">ACTIVE (0.1s 采样)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>CMMotionManager (IMU):</span><span style="color:var(--accent-green)">ACTIVE (Z轴去重力)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>CoreBluetooth (BLE):</span><span style="color:var(--accent-green)">ACTIVE (滑动窗口去重)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>POSIX Socket (LAN):</span><span style="color:var(--accent-green)">ACTIVE (12s 轮询扫网)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>AVAudioEngine (Mic):</span><span style="color:var(--accent-red)">PURGED (完全禁用)</span></div>
-            </div>
-        </section>
     </div>
 
-    <!-- ================= 页面 3：蓝牙常驻白名单 (Whitelist) ================= -->
-    <div id="viewWhitelist" class="page-view">
-        <section class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h4 style="font-size:13px;">已识别的常驻私密外设 (白名单)</h4>
-                <button class="btn" id="btnAutoLearn" style="font-size:10px; padding:3px 8px;">智能添加目前前5常驻</button>
+    <!-- ================= 页面 3：AI 裁判席 (AI-Panel) ================= -->
+    <div id="viewAI" class="page-viewport">
+        <section class="card-surface judge-panel-card">
+            <div class="card-top-row">
+                <span class="section-label">多裁判共识微型 AI (Olympic-Scoring Engine)</span>
+                <span class="status-badge" style="background:rgba(157,0,255,0.15); color:var(--accent-purple); border-color:var(--accent-purple);" id="aiConsensusConfidence">置信度: 0%</span>
             </div>
-            <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
-                在私家车堵车、办公室等场景中，经常陪伴在身边的车载蓝牙或耳机将被列入以下清单并在公共判定中自动扣减。
+            <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+                为消除堵车时蓝牙突变或地下车库定位丢失等极端单项故障，AI 引入奥运打分机制：<strong>去掉 1 个最高分与 1 个最低分</strong>，取中坚裁判加权共识。
             </p>
 
-            <div id="whitelistContainer">
-                <!-- 动态渲染白名单设备 -->
+            <div class="judge-bars-list" id="judgeBarsList">
+                <!-- 裁判柱状图 -->
+            </div>
+
+            <div class="ai-rationale-box">
+                <strong style="display:block; margin-bottom:4px; color:#fff;">AI 裁决推导陈词:</strong>
+                <span id="aiRationaleText">等待遥测数据流入仲裁席...</span>
             </div>
         </section>
 
-        <section class="card">
-            <h4 style="font-size:12px; margin-bottom:8px;">手动登记已知私有外设 UUID</h4>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="txtCustomUUID" placeholder="输入 36 位 UUID (如车机广播ID)" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border-card); border-radius:6px; padding:6px 8px; color:#fff; font-family:var(--font-mono); font-size:11px; outline:none;">
-                <button class="btn btn-primary" id="btnAddWhitelist">添加</button>
+        <!-- 规则与参数审计 -->
+        <section class="card-surface">
+            <span class="section-label">裁决席规则参数与惩罚系数</span>
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);">
+                <div style="display:flex; justify-content:space-between;"><span>BLE_Judge 权重 (人流基线):</span><span style="color:#fff;">55% (扣除稳态后)</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>LAN_Judge 权重 (子网节点):</span><span style="color:#fff;">25%</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>GNSS_Judge 权重 (空间遮蔽):</span><span style="color:#fff;">10% (弱化兜底)</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Motion/Elevator 权重 (动力学):</span><span style="color:#fff;">10% (强阶跃优先)</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>车载长周期低方差衰减率:</span><span style="color:var(--accent-green); font-weight:700;">0.88x (拉低指数)</span></div>
             </div>
         </section>
     </div>
 
-    <!-- ================= 页面 4：时序日志存储与回放 (Logs) ================= -->
-    <div id="viewLogs" class="page-view">
-        <!-- 会话录制控制器 -->
-        <div class="record-bar">
-            <input type="text" id="txtSessionName" placeholder="命名本组测试数据 (例: 晚高峰堵车测试)">
-            <button class="btn btn-record" id="btnRecordToggle">
-                <span id="recDot" style="width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block;"></span>
-                <span id="recText">开始记录表格</span>
+    <!-- ================= 页面 4：时序日志库 (Logs) ================= -->
+    <div id="viewLogs" class="page-viewport">
+        <!-- 会话命名录制栏 -->
+        <div class="recording-control-bar">
+            <input type="text" class="session-name-input" id="txtSessionName" placeholder="命名测试表格 (例: 早高峰内环堵车测试)">
+            <button class="btn-core btn-rec" id="btnToggleRecord">
+                <span id="recDot" style="width:7px; height:7px; border-radius:50%; background:currentColor;"></span>
+                <span id="recBtnText">开始录制</span>
             </button>
         </div>
 
-        <section class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h4 style="font-size:13px;">IndexedDB 历史日志表格</h4>
-                <div style="display:flex; gap:6px;">
-                    <button class="btn" id="btnRefreshLogs" style="font-size:10px;">刷新</button>
-                    <button class="btn" id="btnClearAllLogs" style="font-size:10px; color:var(--accent-red)">清空所有</button>
-                </div>
+        <!-- 回放控制器浮层 -->
+        <section class="card-surface playback-modal-card" id="playbackCard">
+            <div class="card-top-row">
+                <span style="font-size:12px; font-weight:700; color:var(--accent-purple)">数据 1:1 时序物理复现中...</span>
+                <button class="btn-core" id="btnExitPlayback" style="font-size:10px; padding:3px 8px;">退出复现</button>
             </div>
-
-            <div id="sessionsListContainer">
-                <!-- 会话表格折叠项 -->
+            <div style="font-size:11px; font-family:var(--font-mono); margin:6px 0;" id="playbackProgressText">帧序列: 0 / 0</div>
+            <div class="score-track">
+                <div class="score-bar" id="playbackProgressBar" style="background:var(--accent-purple)"></div>
             </div>
         </section>
 
-        <!-- 回放监视窗 -->
-        <section class="card" id="playbackCard" style="display:none; border-color:var(--accent-purple);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-size:12px; font-weight:700; color:var(--accent-purple)">数据 1:1 时序复现中...</span>
-                <button class="btn" id="btnStopPlayback" style="font-size:10px;">退出复现</button>
+        <!-- 历史表格卡片 -->
+        <section class="card-surface">
+            <div class="card-top-row">
+                <span class="section-label">IndexedDB 本地持久化测试宽表</span>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-core" id="btnExportJson" style="font-size:10px; padding:3px 6px;">导出JSON</button>
+                    <button class="btn-core" id="btnClearLogs" style="font-size:10px; padding:3px 6px; color:var(--accent-red)">清空所有</button>
+                </div>
             </div>
-            <div style="font-size:11px; font-family:var(--font-mono); margin-bottom:6px;" id="playbackProgress">帧: 0/0</div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="playbackBar" style="background:var(--accent-purple)"></div>
+            <div id="sessionsContainer" style="margin-top:8px;">
+                <!-- 动态列表 -->
             </div>
         </section>
     </div>
 
-    <!-- 底部常驻导航栏 -->
-    <nav class="tab-bar">
-        <button class="tab-btn active" data-target="viewOverview">
+    <!-- 底部常驻导航 -->
+    <nav class="sys-tab-nav">
+        <button class="nav-tab-item active" data-view="viewOverview">
             <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
             <span>态势总览</span>
         </button>
-        <button class="tab-btn" data-target="viewDetails">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            <span>遥测全表</span>
+        <button class="nav-tab-item" data-view="viewRadar">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+            <span>空间雷达</span>
         </button>
-        <button class="tab-btn" data-target="viewWhitelist">
+        <button class="nav-tab-item" data-view="viewAI">
             <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-            <span>蓝牙白名单</span>
+            <span>AI裁判席</span>
         </button>
-        <button class="tab-btn" data-target="viewLogs">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            <span>日志回放</span>
+        <button class="nav-tab-item" data-view="viewLogs">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <span>时序日志</span>
         </button>
     </nav>
 
-    <!-- 核心逻辑与数据库引擎 -->
+    <!-- 核心 JS 引擎代码 -->
     <script>
         (function() {
             'use strict';
 
             /* =========================================================================
-             * 1. 阈值与权重模型 (彻底废除麦克风，GNSS 降权至 10%)
+             * 1. 核心常量与判定模型规范 (EnvDetector by JackZ)
              * ========================================================================= */
-            const THRESHOLDS = {
-                ble: {
-                    publicMinCount: 12, // 扣除私家车/常驻蓝牙后的真实陌生外设数量
-                    privateMaxCount: 3
+            const ENV_CONFIG = {
+                version: "3.2.0-pro",
+                author: "JackZ",
+                appName: "EnvDetector",
+                thresholds: {
+                    ble: {
+                        alertMinStranger: 14, // 扣除同乘稳态设备后，陌生流动设备 >= 14 判定为人潮
+                        moderateStranger: 7
+                    },
+                    lan: {
+                        publicHosts: 8,
+                        officeHosts: 4
+                    },
+                    elevator: {
+                        verticalSpeed: 1.2 // m/s
+                    },
+                    spatial: {
+                        deepIndoorAccuracy: 35.0 // 米
+                    },
+                    coMovingVarianceLimit: 3.2 // RSSI 方差 <= 3.2 dBm 视作相对恒定静止设备
                 },
-                lan: {
-                    publicMinHosts: 8,
-                    privateMaxHosts: 3
-                },
-                elevator: {
-                    verticalSpeed: 1.2,
-                    verticalAccel: 0.12
-                },
-                spatial: {
-                    indoorAccuracyDegrade: 35.0
-                },
-                weights: {
-                    bleWeight: 0.55,     // 蓝牙为主导（55%）
-                    lanWeight: 0.25,     // 局域网为副主导（25%）
-                    spatialWeight: 0.10, // GNSS 弱化为空间兜底（10%）
-                    motionWeight: 0.10   // 动力学辅助（10%）
-                },
-                publicScoreBaseline: 62.0 // 综合分阈值
+                publicScoreThreshold: 62.0 // 超过此综合分判定为公共环境
             };
 
             /* =========================================================================
-             * 2. IndexedDB 存储控制器 (时序会话与设备指纹)
+             * 2. IndexedDB 存储控制器 (高密度时序宽表管理)
              * ========================================================================= */
-            const DB_NAME = "StockScopeAuditDB";
+            const DB_NAME = "EnvDetector_AuditDB";
             const DB_VERSION = 1;
-            let dbInstance = null;
+            let auditDB = null;
 
-            function initIndexedDB() {
+            function initDatabase() {
                 return new Promise((resolve, reject) => {
                     const req = indexedDB.open(DB_NAME, DB_VERSION);
                     req.onupgradeneeded = function(e) {
                         const db = e.target.result;
-                        // 1. 存储多张命名表格记录
                         if (!db.objectStoreNames.contains("sessions")) {
-                            const sessionStore = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
-                            sessionStore.createIndex("name", "name", { unique: false });
-                            sessionStore.createIndex("timestamp", "timestamp", { unique: false });
-                        }
-                        // 2. 存储蓝牙设备历史累积出现频次 (自适应白名单算法)
-                        if (!db.objectStoreNames.contains("ble_frequency")) {
-                            db.createObjectStore("ble_frequency", { keyPath: "uuid" });
-                        }
-                        // 3. 存储用户确认的常驻/私家车白名单
-                        if (!db.objectStoreNames.contains("ble_whitelist")) {
-                            db.createObjectStore("ble_whitelist", { keyPath: "uuid" });
+                            const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
+                            store.createIndex("timestamp", "timestamp", { unique: false });
+                            store.createIndex("name", "name", { unique: false });
                         }
                     };
                     req.onsuccess = function(e) {
-                        dbInstance = e.target.result;
-                        resolve(dbInstance);
+                        auditDB = e.target.result;
+                        resolve(auditDB);
                     };
                     req.onerror = function(e) {
                         reject(e);
@@ -741,503 +1057,530 @@
                 });
             }
 
-            // 保存单条记录会话 (完整宽表)
-            function saveRecordedSession(sessionObj) {
+            function saveSessionToDB(sessionData) {
                 return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["sessions"], "readwrite");
-                    const store = tx.objectStore("sessions");
-                    store.add(sessionObj);
+                    const tx = auditDB.transaction(["sessions"], "readwrite");
+                    tx.objectStore("sessions").add(sessionData);
                     tx.oncomplete = () => resolve();
                 });
             }
 
-            // 获取所有历史记录表
-            function getAllSessions() {
+            function getAllSessionsFromDB() {
                 return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["sessions"], "readonly");
-                    const store = tx.objectStore("sessions");
-                    const req = store.getAll();
+                    const tx = auditDB.transaction(["sessions"], "readonly");
+                    const req = tx.objectStore("sessions").getAll();
                     req.onsuccess = () => resolve(req.result || []);
                 });
             }
 
-            // 删除某张表格
-            function deleteSession(id) {
+            function deleteSessionFromDB(id) {
                 return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["sessions"], "readwrite");
+                    const tx = auditDB.transaction(["sessions"], "readwrite");
                     tx.objectStore("sessions").delete(id);
                     tx.oncomplete = () => resolve();
                 });
             }
 
-            // 存取白名单
-            function getWhitelistDB() {
-                return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["ble_whitelist"], "readonly");
-                    const req = tx.objectStore("ble_whitelist").getAll();
-                    req.onsuccess = () => resolve(req.result || []);
-                });
-            }
-
-            function addToWhitelistDB(item) {
-                return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["ble_whitelist"], "readwrite");
-                    tx.objectStore("ble_whitelist").put(item);
-                    tx.oncomplete = () => resolve();
-                });
-            }
-
-            function removeFromWhitelistDB(uuid) {
-                return new Promise((resolve) => {
-                    const tx = dbInstance.transaction(["ble_whitelist"], "readwrite");
-                    tx.objectStore("ble_whitelist").delete(uuid);
-                    tx.oncomplete = () => resolve();
-                });
-            }
-
             /* =========================================================================
-             * 3. 运行时上下文与车载自适应算法
+             * 3. 系统运行时状态中心 (Telemetry State Center)
              * ========================================================================= */
-            const RuntimeState = {
-                rawBleDevices: [],      // 原生上报的所有设备 [{id, rssi}]
-                whitelistUUIDs: new Set(), // 确认被白名单忽视的集合
-                autoFrequencyMap: new Map(), // 运行时出现的频次统计
-
-                // 物理量
+            const SystemState = {
+                heading: 0.0,
                 verticalSpeed: 0.0,
                 zAcceleration: 0.0,
-                gpsAccuracy: 12.0,
+                gpsAccuracy: -1.0,
                 lanCount: 1,
+                radarNodes: [], // [{id, rssi, distance, bearing, variance, is_comoving}]
+                
+                // AI 裁决结果
+                aiScore: 0.0,
+                aiCategory: "初始化中...",
+                aiConfidence: 0.85,
+                aiRationale: "正在侦测周边物理场与无线电网络...",
+                judgeScores: {},
+                trimmedJudges: [],
 
-                // 计算输出
-                effectiveBleCount: 0,
-                filteredBleCount: 0,
-                compositeScore: 0.0,
-                environmentLabel: "初始化中...",
-                confidence: 0.0,
+                // 统计量
+                effectiveStrangers: 0,
+                coMovingCount: 0,
                 isElevator: false,
                 isPublic: false,
 
-                // 示波器波形缓冲
-                historyBleCurve: new Array(40).fill(0),
+                // 示波波形缓冲
+                bleHistoryWave: new Array(40).fill(0),
 
-                // 录制状态
+                // 会话录制
                 isRecording: false,
-                currentSessionName: "",
-                currentRecordingRows: []
+                sessionName: "",
+                recordingFrames: []
             };
 
-            // 刷新本地白名单集合
-            async function reloadWhitelistCache() {
-                const list = await getWhitelistDB();
-                RuntimeState.whitelistUUIDs = new Set(list.map(x => x.uuid));
-                renderWhitelistUI(list);
-            }
+            /* =========================================================================
+             * 4. 界面 DOM 引用集合
+             * ========================================================================= */
+            const DOM = {
+                sysLiveClock: document.getElementById('sysLiveClock'),
+                alertFlasher: document.getElementById('alertFlasher'),
+                threatHeroCard: document.getElementById('threatHeroCard'),
+                threatStatusBadge: document.getElementById('threatStatusBadge'),
+                envPrimaryTitle: document.getElementById('envPrimaryTitle'),
+                envScoreValue: document.getElementById('envScoreValue'),
+                envScoreBar: document.getElementById('envScoreBar'),
+                cabinDeductionStrip: document.getElementById('cabinDeductionStrip'),
+                cabinStatusText: document.getElementById('cabinStatusText'),
+                publicWarningBanner: document.getElementById('publicWarningBanner'),
 
-            // 蓝牙动态抵扣过滤逻辑 (解决堵车时私家车内的蓝牙暴增问题)
-            function processBleFiltering(bleArray) {
-                RuntimeState.rawBleDevices = bleArray;
-                let ignored = 0;
-                let active = 0;
+                // 单元格
+                cellBle: document.getElementById('cellBle'),
+                cellLan: document.getElementById('cellLan'),
+                cellSpeed: document.getElementById('cellSpeed'),
+                cellGps: document.getElementById('cellGps'),
+                valBleEffective: document.getElementById('valBleEffective'),
+                valBleRaw: document.getElementById('valBleRaw'),
+                valBleCoMoving: document.getElementById('valBleCoMoving'),
+                valLanCount: document.getElementById('valLanCount'),
+                valVerticalSpeed: document.getElementById('valVerticalSpeed'),
+                valElevatorFlag: document.getElementById('valElevatorFlag'),
+                valGpsAccuracy: document.getElementById('valGpsAccuracy'),
+                valGpsStatus: document.getElementById('valGpsStatus'),
+                waveformPeakText: document.getElementById('waveformPeakText'),
 
-                for (let dev of bleArray) {
-                    const id = dev.id;
-                    // 记录活跃频次
-                    const count = (RuntimeState.autoFrequencyMap.get(id) || 0) + 1;
-                    RuntimeState.autoFrequencyMap.set(id, count);
+                // 画布
+                overviewWaveCanvas: document.getElementById('overviewWaveCanvas'),
+                radarCanvas: document.getElementById('radarCanvas'),
+                radarHeadingText: document.getElementById('radarHeadingText'),
+                radarNodesTableBody: document.getElementById('radarNodesTableBody'),
 
-                    // 如果该 ID 命中白名单（如用户已认领的车机、耳机、同行亲友手机）
-                    if (RuntimeState.whitelistUUIDs.has(id)) {
-                        ignored++;
-                    } else {
-                        active++;
-                    }
-                }
+                // AI 裁判
+                judgeBarsList: document.getElementById('judgeBarsList'),
+                aiRationaleText: document.getElementById('aiRationaleText'),
+                aiConsensusConfidence: document.getElementById('aiConsensusConfidence'),
 
-                RuntimeState.filteredBleCount = ignored;
-                RuntimeState.effectiveBleCount = active;
-                document.getElementById('carBaselineStatus').textContent = `已自动忽视 ${ignored} 台常驻/车载外设`;
-            }
+                // 录制与日志
+                txtSessionName: document.getElementById('txtSessionName'),
+                btnToggleRecord: document.getElementById('btnToggleRecord'),
+                recBtnText: document.getElementById('recBtnText'),
+                playbackCard: document.getElementById('playbackCard'),
+                playbackProgressText: document.getElementById('playbackProgressText'),
+                playbackProgressBar: document.getElementById('playbackProgressBar'),
+                btnExitPlayback: document.getElementById('btnExitPlayback'),
+                sessionsContainer: document.getElementById('sessionsContainer'),
+                btnExportJson: document.getElementById('btnExportJson'),
+                btnClearLogs: document.getElementById('btnClearLogs')
+            };
 
             /* =========================================================================
-             * 4. 核心评估模型 (剥离麦克风)
+             * 5. 实时时钟更新
              * ========================================================================= */
-            function evaluateContext() {
-                const ble = RuntimeState.effectiveBleCount;
-                const lan = RuntimeState.lanCount;
-                const vSpeed = Math.abs(RuntimeState.verticalSpeed);
-                const zAcc = Math.abs(RuntimeState.zAcceleration);
-                const gps = RuntimeState.gpsAccuracy;
-
-                // 1. 电梯绝对优先判定
-                const isElevator = vSpeed >= THRESHOLDS.elevator.verticalSpeed;
-
-                // 2. BLE 蓝牙评分 (55% 权重，基于过滤后数值)
-                let bleScore = 0;
-                if (ble >= THRESHOLDS.ble.publicMinCount) {
-                    bleScore = 88 + Math.min(12, (ble - THRESHOLDS.ble.publicMinCount) * 1.5);
-                } else if (ble > THRESHOLDS.ble.privateMaxCount) {
-                    bleScore = ((ble - THRESHOLDS.ble.privateMaxCount) / (THRESHOLDS.ble.publicMinCount - THRESHOLDS.ble.privateMaxCount)) * 75;
-                }
-
-                // 3. 局域网主机评分 (25% 权重)
-                let lanScore = 0;
-                if (lan >= THRESHOLDS.lan.publicMinHosts) {
-                    lanScore = 85 + Math.min(15, (lan - THRESHOLDS.lan.publicMinHosts) * 2);
-                } else if (lan > THRESHOLDS.lan.privateMaxHosts) {
-                    lanScore = ((lan - THRESHOLDS.lan.privateMaxHosts) / (THRESHOLDS.lan.publicMinHosts - THRESHOLDS.lan.privateMaxHosts)) * 65;
-                }
-
-                // 4. GNSS 弱化评分 (10% 权重)
-                let gpsScore = 0;
-                if (gps > 15.0 || gps < 0) {
-                    gpsScore = (gps < 0 || gps >= THRESHOLDS.spatial.indoorAccuracyDegrade) ? 70 : 35;
-                }
-
-                // 5. 动力学评分 (10% 权重)
-                let motionScore = zAcc > 0.08 ? 60 : 10;
-
-                // 加权总和
-                let score = (bleScore * THRESHOLDS.weights.bleWeight) +
-                            (lanScore * THRESHOLDS.weights.lanWeight) +
-                            (gpsScore * THRESHOLDS.weights.spatialWeight) +
-                            (motionScore * THRESHOLDS.weights.motionWeight);
-
-                let label = "私密 / 车载独立空间";
-                let isPub = false;
-                let conf = 0.85;
-
-                if (isElevator) {
-                    label = "垂直运载轿厢 (电梯)";
-                    score = Math.max(score, 95.0);
-                    isPub = true;
-                    conf = 0.96;
-                } else if (score >= THRESHOLDS.publicScoreBaseline) {
-                    label = "高密度公共场所 (商场/大厅)";
-                    isPub = true;
-                    conf = Math.min(0.95, score / 100);
-                } else if (score >= 40.0) {
-                    label = "半公开过渡带 / 办公室";
-                    isPub = false;
-                    conf = 0.70;
-                }
-
-                RuntimeState.compositeScore = Math.min(100, Math.max(0, score));
-                RuntimeState.environmentLabel = label;
-                RuntimeState.confidence = conf;
-                RuntimeState.isElevator = isElevator;
-                RuntimeState.isPublic = isPub;
+            function tickSystemClock() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                DOM.sysLiveClock.textContent = `${h}:${m}:${s}`;
             }
+            setInterval(tickSystemClock, 1000);
+            tickSystemClock();
 
             /* =========================================================================
-             * 5. UI 渲染与数据绑定
+             * 6. 核心渲染与状态绑定引擎
              * ========================================================================= */
-            function renderAllViews() {
-                evaluateContext();
+            function updateDashboardUI() {
+                // 1. 标题与分数
+                DOM.envPrimaryTitle.textContent = SystemState.aiCategory;
+                DOM.envScoreValue.textContent = SystemState.aiScore.toFixed(1);
+                DOM.envScoreBar.style.width = `${SystemState.aiScore}%`;
 
-                // 1. 总览页
-                document.getElementById('envLabel').textContent = RuntimeState.environmentLabel;
-                document.getElementById('confVal').textContent = `${(RuntimeState.confidence * 100).toFixed(0)}%`;
-                document.getElementById('meterFill').style.width = `${RuntimeState.compositeScore}%`;
-
-                document.getElementById('valBleEffective').textContent = RuntimeState.effectiveBleCount;
-                document.getElementById('valBleRaw').textContent = RuntimeState.rawBleDevices.length;
-                document.getElementById('valBleFiltered').textContent = RuntimeState.filteredBleCount;
-                document.getElementById('valLAN').textContent = RuntimeState.lanCount;
-                document.getElementById('valSpeed').textContent = RuntimeState.verticalSpeed.toFixed(2);
-                document.getElementById('valGPS').textContent = RuntimeState.gpsAccuracy > 0 ? RuntimeState.gpsAccuracy.toFixed(1) : "无锁";
-
-                document.getElementById('elevState').textContent = RuntimeState.isElevator ? "触发" : "无";
-                document.getElementById('gpsState').textContent = (RuntimeState.gpsAccuracy > 35 || RuntimeState.gpsAccuracy < 0) ? "深层遮蔽" : "正常";
-
-                // 卡片高亮与警报
-                const threatCard = document.getElementById('threatCard');
-                const threatBadge = document.getElementById('threatBadge');
-                const banner = document.getElementById('alertBanner');
-
-                if (RuntimeState.isPublic) {
-                    threatCard.className = "card threat-card danger";
-                    threatBadge.className = "threat-badge danger";
-                    threatBadge.textContent = "公共暴露状态";
-                    banner.classList.add('show');
-                } else if (RuntimeState.compositeScore >= 40.0) {
-                    threatCard.className = "card threat-card warning";
-                    threatBadge.className = "threat-badge warning";
-                    threatBadge.textContent = "流动过渡区";
-                    banner.classList.remove('show');
+                // 2. 状态卡与全屏闪烁
+                if (SystemState.isPublic) {
+                    DOM.threatHeroCard.className = "card-surface threat-hero-card danger";
+                    DOM.threatStatusBadge.className = "status-badge danger";
+                    DOM.threatStatusBadge.textContent = "公共暴露状态";
+                    DOM.publicWarningBanner.classList.add('show');
+                    DOM.alertFlasher.classList.add('active');
+                } else if (SystemState.aiScore >= 40.0) {
+                    DOM.threatHeroCard.className = "card-surface threat-hero-card warning";
+                    DOM.threatStatusBadge.className = "status-badge warning";
+                    DOM.threatStatusBadge.textContent = "流动过渡区";
+                    DOM.publicWarningBanner.classList.remove('show');
+                    DOM.alertFlasher.classList.remove('active');
                 } else {
-                    threatCard.className = "card threat-card";
-                    threatBadge.className = "threat-badge";
-                    threatBadge.textContent = "私密 / 车载空间";
-                    banner.classList.remove('show');
+                    DOM.threatHeroCard.className = "card-surface threat-hero-card";
+                    DOM.threatStatusBadge.className = "status-badge";
+                    DOM.threatStatusBadge.textContent = "私密 / 车载独立";
+                    DOM.publicWarningBanner.classList.remove('show');
+                    DOM.alertFlasher.classList.remove('active');
                 }
 
-                document.getElementById('cellBLE').classList.toggle('alert', RuntimeState.effectiveBleCount >= THRESHOLDS.ble.publicMinCount);
-                document.getElementById('cellLAN').classList.toggle('alert', RuntimeState.lanCount >= THRESHOLDS.lan.publicMinHosts);
-                document.getElementById('cellSpeed').classList.toggle('alert', Math.abs(RuntimeState.verticalSpeed) >= THRESHOLDS.elevator.verticalSpeed);
+                // 3. 车载自适应横条
+                if (SystemState.coMovingCount >= 2) {
+                    DOM.cabinDeductionStrip.className = "cabin-deduction-strip active";
+                    DOM.cabinStatusText.textContent = `检测到 ${SystemState.coMovingCount} 台恒距同乘外设 (指数已打折 0.88x)`;
+                } else {
+                    DOM.cabinDeductionStrip.className = "cabin-deduction-strip";
+                    DOM.cabinStatusText.textContent = SystemState.coMovingCount === 1 ? "仅 1 台静止外设，未激活车载折损" : "未检测到稳态同乘设备";
+                }
 
-                // 2. 详情页实时全量宽表更新
-                const tbody = document.getElementById('realtimeTableBody');
-                tbody.innerHTML = `
-                    <tr>
-                        <td>BLE 有效外设</td>
-                        <td>${RuntimeState.effectiveBleCount} 台 (总扫到 ${RuntimeState.rawBleDevices.length})</td>
-                        <td>55% (主导)</td>
-                        <td>≥ 12 台</td>
-                        <td style="color:${RuntimeState.effectiveBleCount >= 12 ? 'var(--accent-red)' : 'var(--accent-green)'}">
-                            ${RuntimeState.effectiveBleCount >= 12 ? '超标 (人群聚集)' : '安全'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>LAN 局域网主机</td>
-                        <td>${RuntimeState.lanCount} 台</td>
-                        <td>25%</td>
-                        <td>≥ 8 台</td>
-                        <td style="color:${RuntimeState.lanCount >= 8 ? 'var(--accent-red)' : 'var(--accent-green)'}">
-                            ${RuntimeState.lanCount >= 8 ? '超标 (企业/公共网)' : '私有家用'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>垂直气压升降</td>
-                        <td>${RuntimeState.verticalSpeed.toFixed(2)} m/s</td>
-                        <td>覆写 (10%)</td>
-                        <td>≥ 1.2 m/s</td>
-                        <td style="color:${RuntimeState.isElevator ? 'var(--accent-amber)' : 'var(--text-muted)'}">
-                            ${RuntimeState.isElevator ? '电梯位移中' : '常态平层'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>GNSS 空间不确定度</td>
-                        <td>${RuntimeState.gpsAccuracy > 0 ? RuntimeState.gpsAccuracy.toFixed(1) + ' m' : '无信号'}</td>
-                        <td>10% (弱化)</td>
-                        <td>≥ 35.0 m</td>
-                        <td style="color:${RuntimeState.gpsAccuracy >= 35 || RuntimeState.gpsAccuracy < 0 ? 'var(--accent-amber)' : 'var(--accent-green)'}">
-                            ${RuntimeState.gpsAccuracy >= 35 || RuntimeState.gpsAccuracy < 0 ? '建筑深度遮蔽' : '开阔/近窗'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>垂直加速度 (Z轴)</td>
-                        <td>${Math.abs(RuntimeState.zAcceleration).toFixed(3)} G</td>
-                        <td>辅助指标</td>
-                        <td>≥ 0.12 G</td>
-                        <td>${Math.abs(RuntimeState.zAcceleration) >= 0.12 ? '动态过载' : '稳态'}</td>
-                    </tr>
-                `;
+                // 4. 指标卡片数值更新
+                DOM.valBleEffective.textContent = SystemState.effectiveStrangers;
+                DOM.valBleRaw.textContent = SystemState.radarNodes.length;
+                DOM.valBleCoMoving.textContent = SystemState.coMovingCount;
+                DOM.valLanCount.textContent = SystemState.lanCount;
+                DOM.valVerticalSpeed.textContent = SystemState.verticalSpeed.toFixed(2);
+                DOM.valGpsAccuracy.textContent = SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy.toFixed(1) : "无锁";
 
-                // 3. 示波器历史缓存推进
-                RuntimeState.historyBleCurve.push(RuntimeState.effectiveBleCount);
-                RuntimeState.historyBleCurve.shift();
-                document.getElementById('liveBleText').textContent = `${RuntimeState.effectiveBleCount} DEV ACTIVE`;
+                DOM.valElevatorFlag.textContent = SystemState.isElevator ? "运动激活" : "平层稳态";
+                DOM.valGpsStatus.textContent = (SystemState.gpsAccuracy >= 35 || SystemState.gpsAccuracy < 0) ? "深度遮蔽" : "良好";
 
-                // 4. 若正在录制，则将当前宽表行插入时序数组
-                if (RuntimeState.isRecording) {
-                    RuntimeState.currentRecordingRows.push({
+                DOM.cellBle.classList.toggle('breached', SystemState.effectiveStrangers >= ENV_CONFIG.thresholds.ble.alertMinStranger);
+                DOM.cellLan.classList.toggle('breached', SystemState.lanCount >= ENV_CONFIG.thresholds.lan.publicHosts);
+                DOM.cellSpeed.classList.toggle('breached', SystemState.isElevator);
+
+                // 5. 波形更新
+                SystemState.bleHistoryWave.push(SystemState.effectiveStrangers);
+                SystemState.bleHistoryWave.shift();
+                const maxWaveVal = Math.max(...SystemState.bleHistoryWave, 10);
+                DOM.waveformPeakText.textContent = `${maxWaveVal} DEV PEAK`;
+
+                // 6. 录制帧入栈
+                if (SystemState.isRecording) {
+                    SystemState.recordingFrames.push({
                         time: new Date().toLocaleTimeString(),
-                        vSpeed: RuntimeState.verticalSpeed.toFixed(2),
-                        zAcc: RuntimeState.zAcceleration.toFixed(3),
-                        gps: RuntimeState.gpsAccuracy.toFixed(1),
-                        bleRaw: RuntimeState.rawBleDevices.length,
-                        bleFiltered: RuntimeState.filteredBleCount,
-                        bleEffective: RuntimeState.effectiveBleCount,
-                        lan: RuntimeState.lanCount,
-                        score: RuntimeState.compositeScore.toFixed(1),
-                        env: RuntimeState.environmentLabel
+                        vSpeed: SystemState.verticalSpeed.toFixed(2),
+                        zAcc: SystemState.zAcceleration.toFixed(3),
+                        gps: SystemState.gpsAccuracy.toFixed(1),
+                        strangers: SystemState.effectiveStrangers,
+                        coMoving: SystemState.coMovingCount,
+                        lan: SystemState.lanCount,
+                        score: SystemState.aiScore.toFixed(1),
+                        category: SystemState.aiCategory
                     });
                 }
             }
 
             /* =========================================================================
-             * 6. Canvas 实时图表
+             * 7. 60FPS 极坐标空间雷达渲染引擎
              * ========================================================================= */
-            const canvas = document.getElementById('overviewCanvas');
-            const ctx = canvas.getContext('2d');
+            const radarCtx = DOM.radarCanvas.getContext('2d');
+            let radarSweepAngle = 0;
 
-            function setupCanvasDPI() {
+            function setupRadarCanvasDPI() {
                 const dpr = window.devicePixelRatio || 1;
-                const rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-                ctx.scale(dpr, dpr);
+                const rect = DOM.radarCanvas.getBoundingClientRect();
+                DOM.radarCanvas.width = rect.width * dpr;
+                DOM.radarCanvas.height = rect.height * dpr;
+                radarCtx.scale(dpr, dpr);
             }
-            setupCanvasDPI();
-            window.addEventListener('resize', setupCanvasDPI);
 
-            function drawWaveform() {
-                const w = canvas.clientWidth;
-                const h = canvas.clientHeight;
-                ctx.clearRect(0, 0, w, h);
+            function drawRadarFrame() {
+                const w = DOM.radarCanvas.clientWidth;
+                const h = DOM.radarCanvas.clientHeight;
+                const cx = w / 2;
+                const cy = h / 2;
+                const maxR = cx - 12;
 
-                const data = RuntimeState.historyBleCurve;
-                const maxVal = 25; // 满量程 25 台
-                const step = w / (data.length - 1);
+                radarCtx.clearRect(0, 0, w, h);
 
-                // 绘制 12 台警报线
-                const alertY = h - (THRESHOLDS.ble.publicMinCount / maxVal) * h;
-                ctx.strokeStyle = 'rgba(255, 51, 102, 0.3)';
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(0, alertY);
-                ctx.lineTo(w, alertY);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // 绘制波形
-                ctx.strokeStyle = '#00f0ff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                for (let i = 0; i < data.length; i++) {
-                    const y = h - (Math.min(maxVal, data[i]) / maxVal) * (h - 10) - 5;
-                    if (i === 0) ctx.moveTo(0, y);
-                    else ctx.lineTo(i * step, y);
+                // 1. 绘制极坐标网格圆环 (5m, 10m, 15m, 20m)
+                radarCtx.strokeStyle = 'rgba(64, 93, 140, 0.25)';
+                radarCtx.lineWidth = 1;
+                for (let r = 1; r <= 4; r++) {
+                    radarCtx.beginPath();
+                    radarCtx.arc(cx, cy, (maxR / 4) * r, 0, Math.PI * 2);
+                    radarCtx.stroke();
                 }
-                ctx.stroke();
 
-                requestAnimationFrame(drawWaveform);
+                // 2. 十字准星与刻度
+                radarCtx.beginPath();
+                radarCtx.moveTo(cx, cy - maxR);
+                radarCtx.lineTo(cx, cy + maxR);
+                radarCtx.moveTo(cx - maxR, cy);
+                radarCtx.lineTo(cx + maxR, cy);
+                radarCtx.stroke();
+
+                // 3. 扫描光束 (动态旋转扇形)
+                radarSweepAngle = (radarSweepAngle + 0.035) % (Math.PI * 2);
+                const sweepGradient = radarCtx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+                sweepGradient.addColorStop(0, 'rgba(0, 240, 255, 0.15)');
+                sweepGradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+
+                radarCtx.save();
+                radarCtx.beginPath();
+                radarCtx.moveTo(cx, cy);
+                radarCtx.arc(cx, cy, maxR, radarSweepAngle - 0.45, radarSweepAngle);
+                radarCtx.closePath();
+                radarCtx.fillStyle = sweepGradient;
+                radarCtx.fill();
+                radarCtx.restore();
+
+                // 4. 绘制中心本机圆点
+                radarCtx.fillStyle = '#fff';
+                radarCtx.beginPath();
+                radarCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+                radarCtx.fill();
+
+                // 5. 渲染外设节点 (以对数估算距离为半径，方位角为极角)
+                const nodes = SystemState.radarNodes;
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    const distRatio = Math.min(node.distance, 20.0) / 20.0;
+                    const r = distRatio * maxR;
+                    const rad = (node.bearing - 90) * (Math.PI / 180);
+                    const nx = cx + r * Math.cos(rad);
+                    const ny = cy + r * Math.sin(rad);
+
+                    // 同乘/车内稳态用青色，流动陌生设备用红色
+                    const isCo = node.is_comoving;
+                    radarCtx.fillStyle = isCo ? '#00f0ff' : '#ff3366';
+
+                    // 绘制外发光光晕
+                    radarCtx.beginPath();
+                    radarCtx.arc(nx, ny, isCo ? 5.5 : 4.5, 0, Math.PI * 2);
+                    radarCtx.fill();
+
+                    // 文字距离标识
+                    radarCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    radarCtx.font = '8px monospace';
+                    radarCtx.fillText(`${node.distance.toFixed(1)}m`, nx + 6, ny + 3);
+                }
+
+                requestAnimationFrame(drawRadarFrame);
             }
-            requestAnimationFrame(drawWaveform);
 
             /* =========================================================================
-             * 7. 白名单管理业务逻辑
+             * 8. 实时总览波形绘制 (Overview Waveform Canvas)
              * ========================================================================= */
-            function renderWhitelistUI(list) {
-                const container = document.getElementById('whitelistContainer');
-                if (!list || list.length === 0) {
-                    container.innerHTML = `<div style="font-size:11px; color:var(--text-muted); text-align:center; padding:12px;">暂无白名单设备（所有扫描到的蓝牙均视作外部陌生设备）</div>`;
+            const waveCtx = DOM.overviewWaveCanvas.getContext('2d');
+
+            function setupWaveCanvasDPI() {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = DOM.overviewWaveCanvas.getBoundingClientRect();
+                DOM.overviewWaveCanvas.width = rect.width * dpr;
+                DOM.overviewWaveCanvas.height = rect.height * dpr;
+                waveCtx.scale(dpr, dpr);
+            }
+
+            function drawWaveformFrame() {
+                const w = DOM.overviewWaveCanvas.clientWidth;
+                const h = DOM.overviewWaveCanvas.clientHeight;
+                waveCtx.clearRect(0, 0, w, h);
+
+                const data = SystemState.bleHistoryWave;
+                const maxRange = 25;
+                const step = w / (data.length - 1);
+
+                // 警报线 (14 台)
+                const alertY = h - (ENV_CONFIG.thresholds.ble.alertMinStranger / maxRange) * h;
+                waveCtx.strokeStyle = 'rgba(255, 51, 102, 0.35)';
+                waveCtx.setLineDash([4, 4]);
+                waveCtx.beginPath();
+                waveCtx.moveTo(0, alertY);
+                waveCtx.lineTo(w, alertY);
+                waveCtx.stroke();
+                waveCtx.setLineDash([]);
+
+                // 波形曲线
+                waveCtx.strokeStyle = '#00f0ff';
+                waveCtx.lineWidth = 2;
+                waveCtx.beginPath();
+                for (let i = 0; i < data.length; i++) {
+                    const y = h - (Math.min(maxRange, data[i]) / maxRange) * (h - 8) - 4;
+                    if (i === 0) waveCtx.moveTo(0, y);
+                    else waveCtx.lineTo(i * step, y);
+                }
+                waveCtx.stroke();
+
+                requestAnimationFrame(drawWaveformFrame);
+            }
+
+            /* =========================================================================
+             * 9. AI 裁判席面板动态更新 (Olympic Truncated Scorer)
+             * ========================================================================= */
+            function renderAIArbitrationUI() {
+                DOM.aiConsensusConfidence.textContent = `置信度: ${(SystemState.aiConfidence * 100).toFixed(0)}%`;
+                DOM.aiRationaleText.textContent = SystemState.aiRationale;
+
+                const scores = SystemState.judgeScores;
+                const trimmed = SystemState.trimmedJudges;
+                const keys = Object.keys(scores);
+
+                DOM.judgeBarsList.innerHTML = keys.map(k => {
+                    const val = scores[k] || 0.0;
+                    const isTrimmed = trimmed.includes(k);
+                    let judgeAlias = k;
+                    if (k === "BLE_Judge") judgeAlias = "裁判 A (陌生蓝牙人群密度)";
+                    if (k === "LAN_Judge") judgeAlias = "裁判 B (网络拓扑与主机开放度)";
+                    if (k === "GNSS_Judge") judgeAlias = "裁判 C (空间遮蔽几何衰减)";
+                    if (k === "Elevator_Judge") judgeAlias = "裁判 D (垂直升降动力学)";
+                    if (k === "Motion_Judge") judgeAlias = "裁判 E (惯性稳态加重)";
+
+                    return `
+                        <div class="judge-bar-item">
+                            <div class="judge-item-header">
+                                <span class="judge-item-name">
+                                    ${judgeAlias}
+                                    ${isTrimmed ? '<span class="judge-trimmed-pill">极值已被裁减</span>' : ''}
+                                </span>
+                                <span style="color:${isTrimmed ? 'var(--text-tertiary)' : 'var(--accent-purple)'}; font-weight:700;">
+                                    ${val.toFixed(1)} 分
+                                </span>
+                            </div>
+                            <div class="judge-item-track">
+                                <div class="judge-item-fill ${isTrimmed ? 'trimmed' : ''}" style="width: ${val}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            /* =========================================================================
+             * 10. 雷达明细表格刷新
+             * ========================================================================= */
+            function renderRadarNodesTable() {
+                const tbody = DOM.radarNodesTableBody;
+                if (SystemState.radarNodes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary); padding:10px;">周围暂无可见低功耗蓝牙广播</td></tr>`;
                     return;
                 }
 
-                container.innerHTML = list.map(item => `
-                    <div class="whitelist-item ${item.isAuto ? 'auto' : ''}">
-                        <div class="whitelist-info">
-                            <div class="dev-name">${item.alias || '未知私密外设'} <span style="font-size:9px; color:var(--accent-cyan)">[${item.isAuto ? '系统自学习' : '手动'}]</span></div>
-                            <div class="dev-uuid">${item.uuid}</div>
-                        </div>
-                        <button class="btn" style="color:var(--accent-red); font-size:11px; padding:3px 8px;" onclick="window.removeWhitelistItem('${item.uuid}')">移除</button>
-                    </div>
+                tbody.innerHTML = SystemState.radarNodes.map(node => `
+                    <tr>
+                        <td style="color:#fff; font-weight:600;">${node.id.substring(0, 8)}...</td>
+                        <td>${node.bearing.toFixed(0)}°</td>
+                        <td>${node.distance.toFixed(1)} m</td>
+                        <td>${node.rssi} dBm</td>
+                        <td style="color:${node.variance <= 3.2 ? 'var(--accent-cyan)' : 'var(--text-secondary)'}">${node.variance.toFixed(2)}</td>
+                        <td style="color:${node.is_comoving ? 'var(--accent-cyan)' : 'var(--accent-red)'}">
+                            ${node.is_comoving ? '车载/同乘 (稳态)' : '外部陌生流动'}
+                        </td>
+                    </tr>
                 `).join('');
             }
 
-            window.removeWhitelistItem = async function(uuid) {
-                await removeFromWhitelistDB(uuid);
-                await reloadWhitelistCache();
+            /* =========================================================================
+             * 11. 原生数据注入入口 (iOS Native Bridge)
+             * ========================================================================= */
+            window.onEnvironmentUpdate = function(payload) {
+                if (!payload) return;
+
+                // 航向与物理指标
+                SystemState.heading = payload.heading || 0.0;
+                DOM.radarHeadingText.textContent = `航向: ${String(Math.round(SystemState.heading)).padStart(3, '0')}°`;
+
+                if (payload.metrics) {
+                    const m = payload.metrics;
+                    SystemState.verticalSpeed = parseFloat(m.vertical_speed_m_s) || 0.0;
+                    SystemState.zAcceleration = parseFloat(m.z_acceleration) || 0.0;
+                    SystemState.gpsAccuracy = parseFloat(m.gps_accuracy_m) || -1.0;
+                    SystemState.lanCount = parseInt(m.lan_devices_count, 10) || 1;
+                }
+
+                // 雷达外设集合
+                SystemState.radarNodes = payload.radar_peripherals || [];
+                SystemState.coMovingCount = SystemState.radarNodes.filter(x => x.is_comoving).length;
+                SystemState.effectiveStrangers = Math.max(0, SystemState.radarNodes.length - SystemState.coMovingCount);
+
+                // AI 裁判结果
+                if (payload.ai_arbitration) {
+                    const ai = payload.ai_arbitration;
+                    SystemState.aiScore = ai.score || 0.0;
+                    SystemState.aiCategory = ai.category || "分析中...";
+                    SystemState.aiConfidence = ai.confidence || 0.85;
+                    SystemState.aiRationale = ai.rationale || "";
+                    SystemState.judgeScores = ai.judge_scores || {};
+                    SystemState.trimmedJudges = ai.trimmed_judges || [];
+                }
+
+                // 特殊标记判定
+                SystemState.isElevator = Math.abs(SystemState.verticalSpeed) >= ENV_CONFIG.thresholds.elevator.verticalSpeed;
+                SystemState.isPublic = SystemState.aiScore >= ENV_CONFIG.publicScoreThreshold;
+
+                // 驱动各视图渲染
+                updateDashboardUI();
+                renderAIArbitrationUI();
+                renderRadarNodesTable();
             };
 
-            // 一键吸纳当前高频出现的外设（解决堵车瞬间判定问题）
-            document.getElementById('btnAutoLearn').addEventListener('click', async () => {
-                // 挑选当前出现频次最高的 5 个设备
-                const sorted = Array.from(RuntimeState.autoFrequencyMap.entries())
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-
-                for (let [uuid, count] of sorted) {
-                    await addToWhitelistDB({
-                        uuid: uuid,
-                        alias: `常用车载/同乘设备 (${count}次捕获)`,
-                        isAuto: true,
-                        addTime: Date.now()
-                    });
-                }
-                await reloadWhitelistCache();
-            });
-
-            // 手动添加
-            document.getElementById('btnAddWhitelist').addEventListener('click', async () => {
-                const txt = document.getElementById('txtCustomUUID');
-                const val = txt.value.trim();
-                if (!val) return;
-                await addToWhitelistDB({
-                    uuid: val,
-                    alias: '自定义私家车机',
-                    isAuto: false,
-                    addTime: Date.now()
-                });
-                txt.value = '';
-                await reloadWhitelistCache();
-            });
-
             /* =========================================================================
-             * 8. 日志记录、时序表格与 1:1 回放系统
+             * 12. 录制与回放控制器逻辑
              * ========================================================================= */
-            const btnRecord = document.getElementById('btnRecordToggle');
-            const txtSessionName = document.getElementById('txtSessionName');
-
-            btnRecord.addEventListener('click', async () => {
-                if (!RuntimeState.isRecording) {
+            DOM.btnToggleRecord.addEventListener('click', async () => {
+                if (!SystemState.isRecording) {
                     // 开始录制
-                    const name = txtSessionName.value.trim() || `环境测试 #${new Date().toLocaleTimeString()}`;
-                    RuntimeState.isRecording = true;
-                    RuntimeState.currentSessionName = name;
-                    RuntimeState.currentRecordingRows = [];
+                    const name = DOM.txtSessionName.value.trim() || `环境特征采样 #${new Date().toLocaleTimeString()}`;
+                    SystemState.isRecording = true;
+                    SystemState.sessionName = name;
+                    SystemState.recordingFrames = [];
 
-                    btnRecord.className = "btn btn-record btn-recording";
-                    document.getElementById('recText').textContent = "停止并生成表格";
+                    DOM.btnToggleRecord.className = "btn-core btn-rec active-recording";
+                    DOM.recBtnText.textContent = "停止生成宽表";
                 } else {
-                    // 停止录制并存入 IndexedDB
-                    RuntimeState.isRecording = false;
-                    btnRecord.className = "btn btn-record";
-                    document.getElementById('recText').textContent = "开始记录表格";
+                    // 停止录制
+                    SystemState.isRecording = false;
+                    DOM.btnToggleRecord.className = "btn-core btn-rec";
+                    DOM.recBtnText.textContent = "开始录制";
 
-                    if (RuntimeState.currentRecordingRows.length > 0) {
-                        const sessionData = {
-                            name: RuntimeState.currentSessionName,
+                    if (SystemState.recordingFrames.length > 0) {
+                        const sessionDoc = {
+                            name: SystemState.sessionName,
                             timestamp: Date.now(),
-                            frameCount: RuntimeState.currentRecordingRows.length,
-                            rows: RuntimeState.currentRecordingRows
+                            totalFrames: SystemState.recordingFrames.length,
+                            frames: SystemState.recordingFrames
                         };
-                        await saveRecordedSession(sessionData);
-                        alert(`表格【${sessionData.name}】已保存，共记录 ${sessionData.frameCount} 帧实时多维数据。`);
-                        loadSessionsList();
+                        await saveSessionToDB(sessionDoc);
+                        alert(`时序表格【${sessionDoc.name}】已保存到 IndexedDB，包含 ${sessionDoc.totalFrames} 帧完整物理遥测序列。`);
+                        loadHistorySessions();
                     }
                 }
             });
 
-            // 渲染历史表格列表
-            async function loadSessionsList() {
-                const list = await getAllSessions();
-                const container = document.getElementById('sessionsListContainer');
-                if (list.length === 0) {
-                    container.innerHTML = `<div style="font-size:11px; color:var(--text-muted); text-align:center; padding:12px;">暂无历史记录表，请在上方输入名称开始测试</div>`;
+            async function loadHistorySessions() {
+                const sessions = await getAllSessionsFromDB();
+                const container = DOM.sessionsContainer;
+                if (!sessions || sessions.length === 0) {
+                    container.innerHTML = `<div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding:12px;">暂无本地历史宽表数据</div>`;
                     return;
                 }
 
-                container.innerHTML = list.map(sess => `
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-card); border-radius:8px; padding:10px; margin-bottom:8px;">
+                container.innerHTML = sessions.map(sess => `
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:8px; padding:10px; margin-bottom:8px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                             <div>
                                 <strong style="font-size:12px; color:#fff;">${sess.name}</strong>
-                                <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); margin-left:6px;">${new Date(sess.timestamp).toLocaleString()}</span>
+                                <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-tertiary); margin-left:6px;">${new Date(sess.timestamp).toLocaleString()}</span>
                             </div>
                             <div style="display:flex; gap:4px;">
-                                <button class="btn" style="font-size:10px; padding:2px 6px; color:var(--accent-purple);" onclick="window.playSession(${sess.id})">回放</button>
-                                <button class="btn" style="font-size:10px; padding:2px 6px; color:var(--accent-red);" onclick="window.removeSession(${sess.id})">删除</button>
+                                <button class="btn-core" style="font-size:10px; padding:2px 6px; color:var(--accent-purple);" onclick="window.startPlaybackSession(${sess.id})">回放</button>
+                                <button class="btn-core" style="font-size:10px; padding:2px 6px; color:var(--accent-red);" onclick="window.deleteSessionRecord(${sess.id})">删除</button>
                             </div>
                         </div>
-                        <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); margin-bottom:6px;">数据规模: ${sess.frameCount} 帧时序数据</div>
+                        <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:6px;">样本量: ${sess.totalFrames} 帧数据</div>
                         
-                        <!-- 预览表格折叠 -->
-                        <div class="table-wrapper" style="max-height:160px;">
-                            <table class="telemetry-table">
+                        <div class="table-responsive-wrapper" style="max-height:120px;">
+                            <table class="audit-data-table">
                                 <thead>
                                     <tr>
-                                        <th>时刻</th>
-                                        <th>垂直速</th>
+                                        <th>时间戳</th>
+                                        <th>垂直速率</th>
                                         <th>Z轴G</th>
-                                        <th>BLE扣减后</th>
+                                        <th>外部陌生BLE</th>
+                                        <th>同乘稳态</th>
                                         <th>LAN</th>
-                                        <th>风险分</th>
-                                        <th>推断结论</th>
+                                        <th>最终指数</th>
+                                        <th>裁决类别</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${sess.rows.slice(0, 5).map(r => `
+                                    ${sess.frames.slice(0, 4).map(f => `
                                         <tr>
-                                            <td>${r.time}</td>
-                                            <td>${r.vSpeed}</td>
-                                            <td>${r.zAcc}</td>
-                                            <td>${r.bleEffective}</td>
-                                            <td>${r.lan}</td>
-                                            <td>${r.score}</td>
-                                            <td>${r.env}</td>
+                                            <td>${f.time}</td>
+                                            <td>${f.vSpeed}</td>
+                                            <td>${f.zAcc}</td>
+                                            <td>${f.strangers}</td>
+                                            <td>${f.coMoving}</td>
+                                            <td>${f.lan}</td>
+                                            <td>${f.score}</td>
+                                            <td>${f.category}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1247,110 +1590,113 @@
                 `).join('');
             }
 
-            window.removeSession = async function(id) {
-                if (confirm("确定删除该测试数据表吗？")) {
-                    await deleteSession(id);
-                    loadSessionsList();
+            window.deleteSessionRecord = async function(id) {
+                if (confirm("确定删除该历史宽表吗？")) {
+                    await deleteSessionFromDB(id);
+                    loadHistorySessions();
                 }
             };
 
-            // 1:1 时序动态复现引擎
-            let playbackTimer = null;
-            window.playSession = async function(id) {
-                const list = await getAllSessions();
-                const target = list.find(x => x.id === id);
+            // 1:1 动态时序复现
+            let playbackTimerId = null;
+            window.startPlaybackSession = async function(id) {
+                const sessions = await getAllSessionsFromDB();
+                const target = sessions.find(x => x.id === id);
                 if (!target) return;
 
-                // 切到总览页进行复现
-                switchTab('viewOverview');
-                const playbackCard = document.getElementById('playbackCard');
-                playbackCard.style.display = 'block';
+                switchTabTo('viewOverview');
+                DOM.playbackCard.style.display = 'block';
 
-                let idx = 0;
-                clearInterval(playbackTimer);
-                playbackTimer = setInterval(() => {
-                    if (idx >= target.rows.length) {
-                        clearInterval(playbackTimer);
-                        playbackCard.style.display = 'none';
-                        alert("数据复现完毕。");
+                let fIdx = 0;
+                clearInterval(playbackTimerId);
+                playbackTimerId = setInterval(() => {
+                    if (fIdx >= target.frames.length) {
+                        clearInterval(playbackTimerId);
+                        DOM.playbackCard.style.display = 'none';
+                        alert("时序数据 1:1 回放复现完成。");
                         return;
                     }
 
-                    const frame = target.rows[idx];
-                    document.getElementById('playbackProgress').textContent = `复现中: ${target.name} [${idx + 1}/${target.frameCount}] - ${frame.time}`;
-                    document.getElementById('playbackBar').style.width = `${((idx + 1) / target.frameCount) * 100}%`;
+                    const f = target.frames[fIdx];
+                    DOM.playbackProgressText.textContent = `复现: ${target.name} [${fIdx + 1}/${target.totalFrames}] - ${f.time}`;
+                    DOM.playbackProgressBar.style.width = `${((fIdx + 1) / target.totalFrames) * 100}%`;
 
-                    // 注入该帧状态刷新 UI
-                    RuntimeState.verticalSpeed = parseFloat(frame.vSpeed);
-                    RuntimeState.zAcceleration = parseFloat(frame.zAcc);
-                    RuntimeState.gpsAccuracy = parseFloat(frame.gps);
-                    RuntimeState.effectiveBleCount = parseInt(frame.bleEffective, 10);
-                    RuntimeState.lanCount = parseInt(frame.lan, 10);
+                    // 状态驱动刷新
+                    SystemState.verticalSpeed = parseFloat(f.vSpeed);
+                    SystemState.zAcceleration = parseFloat(f.zAcc);
+                    SystemState.gpsAccuracy = parseFloat(f.gps);
+                    SystemState.effectiveStrangers = parseInt(f.strangers, 10);
+                    SystemState.coMovingCount = parseInt(f.coMoving, 10);
+                    SystemState.lanCount = parseInt(f.lan, 10);
+                    SystemState.aiScore = parseFloat(f.score);
+                    SystemState.aiCategory = f.category;
 
-                    renderAllViews();
-                    idx++;
-                }, 300); // 300ms 一帧步进
+                    SystemState.isElevator = Math.abs(SystemState.verticalSpeed) >= ENV_CONFIG.thresholds.elevator.verticalSpeed;
+                    SystemState.isPublic = SystemState.aiScore >= ENV_CONFIG.publicScoreThreshold;
+
+                    updateDashboardUI();
+                    fIdx++;
+                }, 300);
             };
 
-            document.getElementById('btnStopPlayback').addEventListener('click', () => {
-                clearInterval(playbackTimer);
-                document.getElementById('playbackCard').style.display = 'none';
+            DOM.btnExitPlayback.addEventListener('click', () => {
+                clearInterval(playbackTimerId);
+                DOM.playbackCard.style.display = 'none';
             });
 
-            document.getElementById('btnRefreshLogs').addEventListener('click', loadSessionsList);
-            document.getElementById('btnClearAllLogs').addEventListener('click', async () => {
-                if (confirm("这将清空 IndexedDB 中的所有测试表格，不可撤回。")) {
-                    const tx = dbInstance.transaction(["sessions"], "readwrite");
+            DOM.btnExportJson.addEventListener('click', async () => {
+                const list = await getAllSessionsFromDB();
+                const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `EnvDetector_Export_${Date.now()}.json`;
+                a.click();
+            });
+
+            DOM.btnClearLogs.addEventListener('click', async () => {
+                if (confirm("警告：确认清空所有历史时序宽表？不可逆！")) {
+                    const tx = auditDB.transaction(["sessions"], "readwrite");
                     tx.objectStore("sessions").clear();
-                    tx.oncomplete = () => loadSessionsList();
+                    tx.oncomplete = () => loadHistorySessions();
                 }
             });
 
             /* =========================================================================
-             * 9. 原生通信网关与多页面切换
+             * 13. 导航切换与初始化
              * ========================================================================= */
-            // iOS Native 回调入口
-            window.onEnvironmentUpdate = function(nativeData) {
-                if (nativeData && nativeData.metrics) {
-                    const m = nativeData.metrics;
-                    RuntimeState.verticalSpeed = parseFloat(m.vertical_speed_m_s) || 0.0;
-                    RuntimeState.zAcceleration = parseFloat(m.z_acceleration) || 0.0;
-                    RuntimeState.gpsAccuracy = parseFloat(m.gps_accuracy_m) || -1.0;
-                    RuntimeState.lanCount = parseInt(m.lan_devices_count, 10) || 1;
-
-                    // 处理蓝牙过滤
-                    const bles = m.ble_devices || [];
-                    processBleFiltering(bles);
-                }
-                renderAllViews();
-            };
-
-            // 页面 Tab 切换路由
-            function switchTab(viewId) {
-                document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            function switchTabTo(viewId) {
+                document.querySelectorAll('.page-viewport').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.nav-tab-item').forEach(b => b.classList.remove('active'));
 
                 const targetView = document.getElementById(viewId);
                 if (targetView) targetView.classList.add('active');
 
-                const targetBtn = document.querySelector(`.tab-btn[data-target="${viewId}"]`);
+                const targetBtn = document.querySelector(`.nav-tab-item[data-view="${viewId}"]`);
                 if (targetBtn) targetBtn.classList.add('active');
             }
 
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            document.querySelectorAll('.nav-tab-item').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const target = btn.getAttribute('data-target');
-                    switchTab(target);
+                    switchTabTo(btn.getAttribute('data-view'));
                 });
             });
 
-            // 启动初始化
             window.addEventListener('DOMContentLoaded', async () => {
-                await initIndexedDB();
-                await reloadWhitelistCache();
-                await loadSessionsList();
+                setupWaveCanvasDPI();
+                setupRadarCanvasDPI();
+                window.addEventListener('resize', () => {
+                    setupWaveCanvasDPI();
+                    setupRadarCanvasDPI();
+                });
 
-                // 启动轮询
+                requestAnimationFrame(drawWaveformFrame);
+                requestAnimationFrame(drawRadarFrame);
+
+                await initDatabase();
+                await loadHistorySessions();
+
+                // 驱动 iOS Native 定时抓取快照
                 setInterval(() => {
                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
                         window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({});
