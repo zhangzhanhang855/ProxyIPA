@@ -2,39 +2,40 @@ import UIKit
 import WebKit
 
 class ViewController: UIViewController, WKScriptMessageHandler {
-    var webView: WKWebView!
+    private var webView: WKWebView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupWebView()
+        EnvironmentDetector.shared.startMonitoring()
+    }
+
+    private func setupWebView() {
         let config = WKWebViewConfiguration()
-        let userContentController = WKUserContentController()
-        userContentController.add(self, name: "getEnvironmentSnapshot")
-        config.userContentController = userContentController
+        let userContent = WKUserContentController()
+        userContent.add(self, name: "getEnvironmentSnapshot")
+        config.userContentController = userContent
 
         webView = WKWebView(frame: view.bounds, configuration: config)
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(webView)
 
-        // 启动传感器
-        EnvironmentDetector.shared.startMonitoring()
-
-        // 正确加载本地 index.html
+        // 加载本地打包的 index.html
         if let htmlPath = Bundle.main.path(forResource: "index", ofType: "html") {
             let htmlUrl = URL(fileURLWithPath: htmlPath)
             webView.loadFileURL(htmlUrl, allowingReadAccessTo: htmlUrl.deletingLastPathComponent())
         } else {
-            print("[StockScope] 错误：未在 Bundle 根目录下找到 index.html")
+            print("[StockScope] 找不到 index.html 文件")
         }
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "getEnvironmentSnapshot" {
-            let envData = EnvironmentDetector.shared.evaluateCurrentEnvironment()
-            if let jsonData = try? JSONSerialization.data(withJSONObject: envData),
+            let payload = EnvironmentDetector.shared.evaluateCurrentEnvironment()
+            if let jsonData = try? JSONSerialization.data(withJSONObject: payload),
                let jsonString = String(data: jsonData, encoding: .utf8) {
-                let jsCallback = "if(window.onEnvironmentUpdate){window.onEnvironmentUpdate(\(jsonString));}"
-                webView.evaluateJavaScript(jsCallback, completionHandler: nil)
+                let js = "if(window.onEnvironmentUpdate){ window.onEnvironmentUpdate(\(jsonString)); }"
+                webView.evaluateJavaScript(js, completionHandler: nil)
             }
         }
     }
