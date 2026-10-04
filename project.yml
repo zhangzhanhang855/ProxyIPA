@@ -14,15 +14,15 @@ targets:
       - framework: CoreMotion.framework
       - framework: CoreLocation.framework
       - framework: CoreBluetooth.framework
-      - framework: WebKit.framework
       - framework: Network.framework
+      - framework: WebKit.framework
     info:
       path: StockScope/Info.plist
       properties:
         NSMotionUsageDescription: "需要访问气压与运动传感器以分析空间垂直位移与电梯状态"
-        NSLocationWhenInUseUsageDescription: "需要获取位置精度以判断室内外遮蔽情况"
-        NSBluetoothAlwaysUsageDescription: "需要扫描周围低功耗蓝牙外设数量以评估人群密集度"
-        NSLocalNetworkUsageDescription: "需要探测当前 Wi-Fi 局域网主机拓扑以识别网络属性"
+        NSLocationWhenInUseUsageDescription: "需要获取空间朝向与坐标用于雷达图设备方位解算及遮蔽审计"
+        NSBluetoothAlwaysUsageDescription: "需要扫描周围低功耗蓝牙外设数量与场强以评估人群聚集度"
+        NSLocalNetworkUsageDescription: "需要探测当前 Wi-Fi 局域网主机拓扑以识别网络开放属性"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.stockscope
