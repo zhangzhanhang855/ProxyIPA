@@ -450,16 +450,16 @@
             <div class="brand-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
             </div>
-            <div class="brand-name">StockScope</div>
+            <div class="brand-name">EnvDetector</div>
         </div>
-        <div class="privacy-pill">麦克风已禁用 / 零声学调用</div>
+        <div class="privacy-pill">Designed / Developed by JackZ</div>
     </header>
 
     <!-- ================= 页面 1：总览 (Dashboard) ================= -->
     <div id="viewOverview" class="page-view active">
         <!-- 堵车/私家车自适应提示 -->
         <div class="car-filter-badge">
-            <span>车载/自适应蓝牙基线过滤</span>
+            <span>蓝牙基线过滤</span>
             <span id="carBaselineStatus">已自动忽视 0 台常驻外设</span>
         </div>
 
@@ -593,7 +593,7 @@
         <section class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <h4 style="font-size:13px;">已识别的常驻私密外设 (白名单)</h4>
-                <button class="btn" id="btnAutoLearn" style="font-size:10px; padding:3px 8px;">一键吸纳前5常驻</button>
+                <button class="btn" id="btnAutoLearn" style="font-size:10px; padding:3px 8px;">智能添加目前前5常驻</button>
             </div>
             <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
                 在私家车堵车、办公室等场景中，经常陪伴在身边的车载蓝牙或耳机将被列入以下清单并在公共判定中自动扣减。
@@ -1299,7 +1299,7 @@
 
             document.getElementById('btnRefreshLogs').addEventListener('click', loadSessionsList);
             document.getElementById('btnClearAllLogs').addEventListener('click', async () => {
-                if (confirm("警告：这将清空 IndexedDB 中的所有测试表格，不可撤回！")) {
+                if (confirm("这将清空 IndexedDB 中的所有测试表格，不可撤回。")) {
                     const tx = dbInstance.transaction(["sessions"], "readwrite");
                     tx.objectStore("sessions").clear();
                     tx.oncomplete = () => loadSessionsList();
