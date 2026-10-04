@@ -2,31 +2,38 @@ import Foundation
 import CoreMotion
 import CoreLocation
 import CoreBluetooth
+import Network
 
 @objc public class EnvironmentDetector: NSObject, CLLocationManagerDelegate, CBCentralManagerDelegate {
     public static let shared = EnvironmentDetector()
 
+    // 传感器组件
     private let altimeter = CMAltimeter()
     private let motionManager = CMMotionManager()
     private var locationManager: CLLocationManager?
     private var centralManager: CBCentralManager?
 
+    // 状态数据
     private var lastPressureTime: Date?
     private var lastAltitude: Double = 0.0
     private var verticalSpeed: Double = 0.0
     private var currentZAccel: Double = 0.0
     private var gpsAccuracy: Double = -1.0
 
-    // 存储当前窗口内扫描到的设备：UUID -> (最后出现时间, 信号强度)
+    // BLE 扫描缓存（UUID 字符串映射时间与信号）
     private var bleDeviceMap: [String: (lastSeen: Date, rssi: Int)] = [:]
     private let bleLock = NSLock()
+    
+    // 网络探测状态
     private var currentLanDeviceCount: Int = 1
     private var isLanScanning: Bool = false
+    private let lanQueue = DispatchQueue(label: "com.stockscope.lanQueue", qos: .utility)
 
     private override init() {
         super.init()
     }
 
+    /// 统一启动入口
     public func startMonitoring() {
         startMotionAndAltimeter()
         initLocationSafely()
@@ -34,13 +41,14 @@ import CoreBluetooth
         startLanScanLoop()
     }
 
+    // MARK: - 1. 蓝牙 BLE 扫描与去重 (无麦克风)
     private func initBluetoothSafely() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.global(qos: .background))
         }
 
-        // 每 2 秒剔除超过 8 秒未活跃的外设
+        // 定期淘汰 8 秒未活跃的外设
         Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             self.bleLock.lock()
@@ -63,20 +71,21 @@ import CoreBluetooth
         bleLock.unlock()
     }
 
+    // MARK: - 2. 现代 Network.framework 局域网探测（彻底移除易错 C Socket）
     private func startLanScanLoop() {
         Timer.scheduledTimer(withTimeInterval: 12.0, repeats: true) { [weak self] _ in
-            self?.performLanSweep()
+            self?.performModernLanSweep()
         }
-        performLanSweep()
+        performModernLanSweep()
     }
 
-    private func performLanSweep() {
+    private func performModernLanSweep() {
         guard !isLanScanning else { return }
         isLanScanning = true
 
-        DispatchQueue.global(qos: .utility).async { [weak self] in
+        lanQueue.async { [weak self] in
             guard let self = self else { return }
-            guard let localIP = self.getLocalIPAddress() else {
+            guard let localIP = self.getWiFiAddress() else {
                 self.isLanScanning = false
                 return
             }
@@ -92,16 +101,48 @@ import CoreBluetooth
             let group = DispatchGroup()
             let lock = NSLock()
 
-            for i in 1...60 {
+            // 采样扫描前 40 个常用局域网主机 IP
+            for i in 1...40 {
                 let targetHost = "\(subnet).\(i)"
                 group.enter()
-                self.checkPortOpen(host: targetHost, port: 80, timeout: 0.15) { isOpen in
-                    if isOpen {
+                
+                let host = NWEndpoint.Host(targetHost)
+                let port = NWEndpoint.Port(integerLiteral: 80)
+                let tcp = NWParameters.tcp
+                tcp.prohibitedInterfaceTypes = [.cellular]
+                
+                let connection = NWConnection(host: host, port: port, using: tcp)
+                let queue = DispatchQueue(label: "ping.\(targetHost)")
+
+                var hasResponded = false
+                connection.stateUpdateHandler = { state in
+                    if hasResponded { return }
+                    switch state {
+                    case .ready, .waiting:
+                        hasResponded = true
                         lock.lock()
                         discoveredCount += 1
                         lock.unlock()
+                        connection.cancel()
+                        group.leave()
+                    case .failed:
+                        hasResponded = true
+                        connection.cancel()
+                        group.leave()
+                    default:
+                        break
                     }
-                    group.leave()
+                }
+
+                connection.start(queue: queue)
+
+                // 250ms 超时强制回收连接，防止线程悬挂
+                queue.asyncAfter(deadline: .now() + 0.25) {
+                    if !hasResponded {
+                        hasResponded = true
+                        connection.cancel()
+                        group.leave()
+                    }
                 }
             }
 
@@ -112,45 +153,7 @@ import CoreBluetooth
         }
     }
 
-    private func checkPortOpen(host: String, port: UInt16, timeout: TimeInterval, completion: @escaping (Bool) -> Void) {
-        let clientSocket = socket(AF_INET, SOCK_STREAM, 0)
-        guard clientSocket >= 0 else {
-            completion(false)
-            return
-        }
-
-        let flags = fcntl(clientSocket, F_GETFL, 0)
-        _ = fcntl(clientSocket, F_SETFL, flags | O_NONBLOCK)
-
-        var addr = sockaddr_in()
-        addr.sin_len = __uint8_t(MemoryLayout<sockaddr_in>.size)
-        addr.sin_family = sa_family_t(AF_INET)
-        addr.sin_port = in_port_t(port.bigEndian)
-        inet_pton(AF_INET, host, &addr.sin_addr)
-
-        let result = withUnsafePointer(to: &addr) {
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                connect(clientSocket, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
-            }
-        }
-
-        if result == 0 {
-            close(clientSocket)
-            completion(true)
-            return
-        }
-
-        var fdSet = fd_set()
-        fdSet.zero()
-        fdSet.add(fd: clientSocket)
-        var tv = timeval(tv_sec: 0, tv_usec: __darwin_suseconds_t(timeout * 1_000_000))
-
-        let selectRes = select(clientSocket + 1, nil, &fdSet, nil, &tv)
-        close(clientSocket)
-        completion(selectRes > 0)
-    }
-
-    private func getLocalIPAddress() -> String? {
+    private func getWiFiAddress() -> String? {
         var address: String?
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else { return nil }
@@ -173,6 +176,7 @@ import CoreBluetooth
         return address
     }
 
+    // MARK: - 3. 气压、加速度与 GNSS 定位
     private func startMotionAndAltimeter() {
         if CMAltimeter.isRelativeAltitudeAvailable() {
             altimeter.startRelativeAltitudeUpdates(to: .main) { [weak self] data, error in
@@ -219,10 +223,17 @@ import CoreBluetooth
         }
     }
 
-    /// 导出全量遥测数据，包含具体活跃的 BLE 设备 ID 列表
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("[StockScope] Location fail: \(error.localizedDescription)")
+    }
+
+    // MARK: - 4. 导出遥测数据供 JS 渲染
     public func evaluateCurrentEnvironment() -> [String: Any] {
         bleLock.lock()
-        let bleList = bleDeviceMap.map { ["id": $0.key, "rssi": $0.value.rssi] }
+        let bleList: [[String: Any]] = bleDeviceMap.map { [
+            "id": $0.key,
+            "rssi": $0.value.rssi
+        ] }
         bleLock.unlock()
 
         return [
