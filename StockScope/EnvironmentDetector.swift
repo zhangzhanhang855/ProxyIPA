@@ -10,7 +10,7 @@ public struct RadarPeripheralNode {
     public let rssi: Int
     public let estimatedDistanceMeters: Double
     public let bearingDegrees: Double
-    public let rssiVariance: Double      // RSSI 方差/离散度
+    public let rssiVariance: Double      // RSSI 离散方差
     public let sampleCount: Int
     public let isStaticCoMoving: Bool    // 是否为长时间相对恒定同乘/随身设备
 }
@@ -137,7 +137,7 @@ public struct AIArbitrationResult {
 
             for (uuid, record) in self.bleTelemetryMap {
                 if now.timeIntervalSince(record.lastSeen) > 8.0 {
-                    continue // 超时未刷新丢弃
+                    continue
                 }
                 let filteredList = record.rssiList.filter { now.timeIntervalSince($0.timestamp) <= 15.0 }
                 if !filteredList.isEmpty {
@@ -287,21 +287,20 @@ public struct AIArbitrationResult {
             let count = values.count
             let avgRssi = values.reduce(0, +) / Double(count)
 
-            // 计算样本标准差 (方差平方根)
             let variance = values.reduce(0) { $0 + pow($1 - avgRssi, 2) } / Double(max(count, 1))
             let stdDev = sqrt(variance)
 
-            // 1. 无线电衰减测距模型: d = 10 ^ ((|RSSI| - A) / (10 * n))
+            // Log-distance 衰减测距模型
             let absRssi = abs(avgRssi)
             let exponent = (absRssi - 59.0) / (10.0 * 2.2)
             let estimatedDist = min(20.0, max(0.5, pow(10.0, exponent)))
 
-            // 2. 伪方位角解算：散列基准角 + 罗盘航向补偿
+            // 伪方位角解算 (散列基准角 + 罗盘航向补偿)
             let hashVal = abs(uuid.hashValue)
             let baseAngle = Double(hashVal % 360)
             let finalAngle = (baseAngle - currentHeadingDegrees + 360.0).truncatingRemainder(dividingBy: 360.0)
 
-            // 3. 车载相对静止/同乘判定：样本充足且 RSSI 标准差 <= 3.2 dBm
+            // 车载恒距/同乘判定 (样本数 >= 6 且 RSSI 标准差 <= 3.2 dBm)
             let isCoMoving = count >= 6 && stdDev <= 3.2
 
             nodes.append(RadarPeripheralNode(
@@ -318,22 +317,19 @@ public struct AIArbitrationResult {
         return nodes
     }
 
-    // MARK: - 6. 自适应微型 AI 裁判席 (22 台报警阈值与多场景判别)
+    // MARK: - 6. 微型多裁判规则裁决 (基础底层基线)
     private func runArbitrationAI(nodes: [RadarPeripheralNode]) -> AIArbitrationResult {
         let totalCount = nodes.count
         let coMovingNodes = nodes.filter { $0.isStaticCoMoving }
         let coMovingCount = coMovingNodes.count
 
-        // 核心判别 1：私家车座舱容积天花板校验
-        // 私家车哪怕满载+邻车，高信噪比设备总盘很少突破 8 台。
-        // 若总设备数 >= 12 且有稳态人群，属于典型的【地铁车厢 / 公交车】
         let isPublicTransit = totalCount >= 12 && coMovingCount >= 2
         let isPrivateCabin = (totalCount <= 8) && (coMovingCount >= 2)
 
-        // 裁判 1: BLE 人群密度裁判 (Judge A) - 设定为 22 台报警基线
+        // 裁判 1: BLE 人群密度裁判 (22 台基准)
         var judgeA = 0.0
         if totalCount >= 22 {
-            judgeA = 96.0 // 突破 22 台，确认高密度人潮/大型公共场所
+            judgeA = 96.0
         } else if totalCount >= 14 {
             judgeA = 75.0 + Double(totalCount - 14) * 2.5
         } else if totalCount >= 6 {
@@ -342,12 +338,11 @@ public struct AIArbitrationResult {
             judgeA = Double(totalCount) * 6.5
         }
 
-        // 严格确认在私家车物理特征内时，执行 15% 衰减折损
         if isPrivateCabin {
             judgeA *= 0.85
         }
 
-        // 裁判 2: 网络子网拓扑裁判 (Judge B)
+        // 裁判 2: 网络子网拓扑裁判
         var judgeB = 0.0
         if currentLanDeviceCount >= 10 {
             judgeB = 90.0
@@ -359,7 +354,7 @@ public struct AIArbitrationResult {
             judgeB = 10.0
         }
 
-        // 裁判 3: GNSS 空间衰减裁判 (Judge C)
+        // 裁判 3: GNSS 空间衰减裁判
         var judgeC = 0.0
         if gpsAccuracy < 0 || gpsAccuracy >= 35.0 {
             judgeC = 80.0
@@ -369,14 +364,14 @@ public struct AIArbitrationResult {
             judgeC = 15.0
         }
 
-        // 裁判 4: 电梯动力学裁决者 (Judge D)
+        // 裁判 4: 电梯动力学裁决者
         var judgeD = 10.0
         let absSpeed = abs(verticalSpeed)
         if absSpeed >= 1.2 {
             judgeD = 98.0
         }
 
-        // 裁判 5: 惯性稳态与加重裁判 (Judge E)
+        // 裁判 5: 惯性稳态裁判
         var judgeE = 15.0
         if abs(currentZAccel) > 0.15 {
             judgeE = 70.0
@@ -396,40 +391,28 @@ public struct AIArbitrationResult {
         var category = "私密 / 车载空间"
         var confidence = 0.85
 
-        // ================= 智能共识仲裁层 =================
-
-        // 特殊场景 A：电梯绝对物理优先
         if judgeD > 95.0 {
             category = "垂直运载设施 (电梯轿厢)"
             confidence = 0.98
             finalConsensus = 95.0
-            rationale = "检测到持续的气压梯度与垂直重力过载，动力学特征唯一，以最高优先权直接定性为电梯。"
-        }
-        // 特殊场景 B：地铁车厢识别（大量设备 + 稳态人群 + 地下GNSS缺失）
-        else if isPublicTransit && (gpsAccuracy >= 30.0 || gpsAccuracy < 0) {
+            rationale = "检测到显著垂直升降气压梯度，物理动力学特征唯一，定性为电梯。"
+        } else if isPublicTransit && (gpsAccuracy >= 30.0 || gpsAccuracy < 0) {
             category = "公共交通载具 (地铁车厢/公交)"
             confidence = 0.94
             finalConsensus = max(78.0, judgeA)
-            rationale = "检测到高密度设备池 (\(totalCount)台) 伴随地下空间遮蔽。虽有同乘相对静止，但整体基数超出私家车物理容量，定性为公共交通。"
-        }
-        // 特殊场景 C：饭店/餐饮聚集区（BLE极高，但LAN与Motion静止）
-        // 防误剪机制：防止将饭店唯一的 BLE 高分当成极值噪点砍掉
-        else if judgeA >= 70.0 && (gpsAccuracy >= 20.0 || gpsAccuracy < 0) && !isPrivateCabin {
+            rationale = "检测到高密度设备池 (\(totalCount)台) 伴随地下空间遮蔽，超出私家车物理容量，定性为公共交通。"
+        } else if judgeA >= 70.0 && (gpsAccuracy >= 20.0 || gpsAccuracy < 0) && !isPrivateCabin {
             category = "高密度室内公共区 (餐厅/商场)"
             confidence = 0.91
             finalConsensus = (judgeA * 0.65) + (judgeC * 0.25) + (judgeB * 0.10)
             trimmedOutliers = ["Motion_Judge", "Elevator_Judge"]
-            rationale = "室内环境下无线电人群密度极高，检测到餐厅/商业区特征。微型AI主动挂起惯性静止裁判，保留人流高分裁决。"
-        }
-        // 特殊场景 D：真实私家车堵车
-        else if isPrivateCabin {
+            rationale = "室内高密无线电人流显著，防误剪机制已挂起静止加速度裁判，保留人流高分裁决。"
+        } else if isPrivateCabin {
             category = "私家车座舱 (堵车同乘态)"
             confidence = 0.92
             finalConsensus = min(42.0, (judgeA * 0.5) + (judgeC * 0.3) + (judgeB * 0.2))
-            rationale = "设备总基数符合小型车舱物理界限 (\(totalCount)台)，且观测到恒定距离同乘信标，成功抵扣外部车流干扰，定性为私密空间。"
-        }
-        // 默认场景：受约束的奥运剪裁算法
-        else {
+            rationale = "设备总基数符合小型车舱物理界限 (\(totalCount)台)，检测到固定距离同乘信标，判定为私密。"
+        } else {
             let sortedJudges = panel.sorted { $0.value < $1.value }
             let lowest = sortedJudges.first!
             let highest = sortedJudges.last!
@@ -442,7 +425,7 @@ public struct AIArbitrationResult {
             if finalConsensus >= 62.0 {
                 category = "高密度公共开放空间"
                 confidence = min(0.95, finalConsensus / 100.0)
-                rationale = "多裁判共识裁定：剔除极值后，周边设备分布与网络拓扑呈现标准公共空间特征。"
+                rationale = "多裁判共识裁定：剔除极值后，设备分布呈现标准公共空间特征。"
             } else if finalConsensus >= 40.0 {
                 category = "半私密办公 / 缓冲区"
                 confidence = 0.70
@@ -464,7 +447,7 @@ public struct AIArbitrationResult {
         )
     }
 
-    // MARK: - 7. 导出全量载荷供前端渲染
+    // MARK: - 7. 导出全量载荷供前端学习与渲染
     @objc public func evaluateCurrentEnvironment() -> [String: Any] {
         let radarNodes = computeRadarNodes()
         let aiDecision = runArbitrationAI(nodes: radarNodes)
