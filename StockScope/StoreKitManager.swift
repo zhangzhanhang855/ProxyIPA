@@ -5,7 +5,7 @@ import StoreKit
     public static let shared = StoreKitManager()
 
     // 替换为你在 App Store Connect 中配置的非消耗型商品 ID
-    public let proProductID = "com.example.stockscope.aipro"
+    "productID" = "com.example.stockscope.aipro"
     private var proProduct: SKProduct?
     private let kIsProUnlockedKey = "com.stockscope.iap.isProUnlocked"
 
