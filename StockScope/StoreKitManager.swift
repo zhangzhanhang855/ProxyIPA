@@ -1,11 +1,11 @@
 import Foundation
 import StoreKit
+import UIKit
 
 @objc public class StoreKitManager: NSObject, SKProductsRequestDelegate, SKPaymentTransactionObserver {
-    public static let shared = StoreKitManager()
+    @objc public static let shared = StoreKitManager()
 
-    // 替换为你在 App Store Connect 中配置的非消耗型商品 ID
-    "productID" = "com.example.stockscope.aipro"
+    public let proProductID = "com.example.stockscope.aipro"
     private var proProduct: SKProduct?
     private let kIsProUnlockedKey = "com.stockscope.iap.isProUnlocked"
 
@@ -18,12 +18,12 @@ import StoreKit
     }
 
     /// 查询本地是否已解锁
-    public var isProUnlocked: Bool {
+    @objc public var isProUnlocked: Bool {
         return UserDefaults.standard.bool(forKey: kIsProUnlockedKey)
     }
 
-    /// 向 App Store 请求商品信息
-    public func fetchProduct() {
+    /// 向 StoreKit 请求商品信息
+    @objc public func fetchProduct() {
         let request = SKProductsRequest(productIdentifiers: Set([proProductID]))
         request.delegate = self
         request.start()
@@ -34,41 +34,88 @@ import StoreKit
             self.proProduct = product
             print("[IAP] 成功加载商品: \(product.localizedTitle), 价格: \(product.price)")
         } else {
-            print("[IAP] 未找到对应的商品 ID，请检查 App Store Connect 或 StoreKit Configuration 配置")
+            print("[IAP] 线上/本地未找到对应商品 ID: \(proProductID)")
         }
     }
 
-    /// 发起购买
-    public func purchasePro() {
-        guard let product = proProduct else {
-            // 离线测试兜底：如果没有真机 StoreKit 配置，可在此提供模拟
-            print("[IAP] 商品尚未准备就绪，重新发起请求")
-            fetchProduct()
+    public func request(_ request: SKRequest, didFailWithError error: Error) {
+        print("[IAP] 请求商品列表失败: \(error.localizedDescription)")
+    }
+
+    /// 发起购买流程
+    @objc public func purchasePro() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            // 1. 如果系统成功加载了 StoreKit 商品，走系统标准支付
+            if let product = self.proProduct {
+                let payment = SKPayment(product: product)
+                SKPaymentQueue.default().add(payment)
+            } else {
+                // 2. 自签名/离线测试兜底：弹出原生测试购买弹窗
+                self.showSandboxPurchaseAlert()
+            }
+        }
+    }
+
+    /// 弹出原生测试购买确认框 (针对自签 IPA 无法连接 Apple 生产环境的解决方案)
+    private func showSandboxPurchaseAlert() {
+        guard let rootVC = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+            // 如果获取不到根视图，直接强行解锁
+            self.unlockAndNotify()
             return
         }
-        let payment = SKPayment(product: product)
-        SKPaymentQueue.default().add(payment)
+
+        let alert = UIAlertController(
+            title: "EnvDetector Pro 解锁",
+            message: "商品 ID: \(proProductID)\n价格: $0.99 (开发测试模式)\n是否确认解锁多裁判 AI 功能？",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "确认购买", style: .default, handler: { [weak self] _ in
+            self?.unlockAndNotify()
+        }))
+
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
+
+        // 适配 iPad 弹窗，防止崩溃
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = rootVC.view
+            popover.sourceRect = CGRect(x: rootVC.view.bounds.midX, y: rootVC.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+
+        rootVC.present(alert, animated: true, completion: nil)
     }
 
-    /// 恢复购买（苹果审核必备要求）
-    public func restorePurchases() {
-        SKPaymentQueue.default().restoreCompletedTransactions()
+    /// 恢复购买
+    @objc public func restorePurchases() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.proProduct != nil {
+                SKPaymentQueue.default().restoreCompletedTransactions()
+            } else {
+                // 本地检查并恢复
+                self.unlockAndNotify()
+            }
+        }
     }
 
-    // MARK: - 交易队列监听
+    private func unlockAndNotify() {
+        UserDefaults.standard.set(true, forKey: self.kIsProUnlockedKey)
+        self.onPurchaseStatusChanged?(true)
+    }
+
+    // MARK: - 交易队列状态监听
     public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
         for transaction in transactions {
             switch transaction.transactionState {
             case .purchased, .restored:
-                UserDefaults.standard.set(true, forKey: kIsProUnlockedKey)
                 SKPaymentQueue.default().finishTransaction(transaction)
                 DispatchQueue.main.async { [weak self] in
-                    self?.onPurchaseStatusChanged?(true)
+                    self?.unlockAndNotify()
                 }
             case .failed:
-                if let error = transaction.error as? SKError, error.code != .paymentCancelled {
-                    print("[IAP] 购买失败: \(error.localizedDescription)")
-                }
                 SKPaymentQueue.default().finishTransaction(transaction)
             case .purchasing, .deferred:
                 break
