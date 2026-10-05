@@ -8,11 +8,11 @@
         :root {
             --bg-base: #060911;
             --bg-surface: #0c1220;
-            --bg-card: rgba(18, 27, 44, 0.75);
-            --bg-card-hover: rgba(26, 38, 62, 0.85);
-            --border-subtle: rgba(64, 93, 140, 0.25);
+            --bg-card: rgba(18, 27, 44, 0.78);
+            --bg-card-hover: rgba(26, 38, 62, 0.88);
+            --border-subtle: rgba(64, 93, 140, 0.28);
             --border-active: rgba(0, 240, 255, 0.5);
-            --border-danger: rgba(255, 51, 102, 0.5);
+            --border-danger: rgba(255, 51, 102, 0.55);
             --text-primary: #f0f4fc;
             --text-secondary: #8da0b8;
             --text-tertiary: #4f637d;
@@ -55,7 +55,7 @@
                 radial-gradient(circle at 88% 90%, rgba(157, 0, 255, 0.04) 0%, transparent 50%);
         }
 
-        /* 顶部系统级 Header */
+        /* 顶部导航头 */
         header.sys-header {
             display: flex;
             justify-content: space-between;
@@ -176,7 +176,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 通用卡片容器 */
+        /* 卡片容器 */
         .card-surface {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
@@ -189,7 +189,7 @@
             transition: var(--transition-smooth);
         }
 
-        /* 核心态势大卡 */
+        /* 态势卡 */
         .threat-hero-card::before {
             content: '';
             position: absolute;
@@ -329,7 +329,7 @@
             color: var(--accent-green);
         }
 
-        /* 警报通知横幅 */
+        /* 警报横幅 */
         .public-warning-banner {
             display: none;
             background: rgba(255, 51, 102, 0.15);
@@ -358,7 +358,7 @@
             line-height: 1.35;
         }
 
-        /* 四宫格与六宫格网格 */
+        /* 四宫格网格 */
         .metrics-quad-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -431,7 +431,7 @@
             margin-top: 4px;
         }
 
-        /* 雷达图专用容器与面板 */
+        /* 空间雷达容器与画布 */
         .radar-stage-card {
             display: flex;
             flex-direction: column;
@@ -479,9 +479,87 @@
             border-radius: 50%;
         }
 
-        /* 裁判席面板设计 */
+        /* AI 裁判席与内购锁定蒙版 */
         .judge-panel-card {
             border-left: 4px solid var(--accent-purple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .iap-lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 9, 17, 0.90);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 20px;
+            text-align: center;
+            z-index: 20;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .iap-lock-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .iap-crown-svg {
+            width: 38px;
+            height: 38px;
+            fill: var(--accent-purple);
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(157, 0, 255, 0.5));
+        }
+
+        .iap-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .iap-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 270px;
+            margin-bottom: 14px;
+        }
+
+        .btn-iap-buy {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            color: #fff;
+            padding: 9px 24px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .btn-iap-buy:active {
+            transform: scale(0.96);
+        }
+
+        .btn-iap-restore {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 11px;
+            margin-top: 10px;
+            text-decoration: underline;
+            cursor: pointer;
         }
 
         .judge-bars-list {
@@ -550,7 +628,7 @@
             color: #d8c2ff;
         }
 
-        /* 数据宽表 */
+        /* 宽表展示 */
         .table-responsive-wrapper {
             max-height: 380px;
             overflow: auto;
@@ -657,7 +735,7 @@
             background: linear-gradient(135deg, rgba(157, 0, 255, 0.1), rgba(18, 27, 44, 0.9));
         }
 
-        /* 底部导航栏 */
+        /* 底部导航 */
         nav.sys-tab-nav {
             position: fixed;
             bottom: 0;
@@ -907,7 +985,20 @@
 
     <!-- ================= 页面 3：AI 裁判席 (AI-Panel) ================= -->
     <div id="viewAI" class="page-viewport">
-        <section class="card-surface judge-panel-card">
+        <section class="card-surface judge-panel-card" id="judgePanelCard">
+            <!-- StoreKit IAP 购买锁蒙版 -->
+            <div class="iap-lock-overlay" id="aiLockOverlay">
+                <svg class="iap-crown-svg" viewBox="0 0 24 24">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
+                </svg>
+                <div class="iap-title">EnvDetector Pro AI 裁决席</div>
+                <div class="iap-desc">
+                    解锁后开放多裁判共识微型 AI (Olympic-Scoring)、5 位独立裁判权重量化打分细则与自然语言推理陈词。
+                </div>
+                <button class="btn-iap-buy" id="btnBuyPro">解锁 AI 裁判高级版</button>
+                <button class="btn-iap-restore" id="btnRestorePro">恢复已购项目 (Restore)</button>
+            </div>
+
             <div class="card-top-row">
                 <span class="section-label">多裁判共识微型 AI (Olympic-Scoring Engine)</span>
                 <span class="status-badge" style="background:rgba(157,0,255,0.15); color:var(--accent-purple); border-color:var(--accent-purple);" id="aiConsensusConfidence">置信度: 0%</span>
@@ -928,7 +1019,7 @@
 
         <!-- 规则与参数审计 -->
         <section class="card-surface">
-            <span class="section-label">裁决席规则参数与惩罚系数</span>
+            <span class="section-label">裁决席规则参数与惩罚系数 (by JackZ)</span>
             <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);">
                 <div style="display:flex; justify-content:space-between;"><span>BLE_Judge 权重 (人流基线):</span><span style="color:#fff;">55% (扣除稳态后)</span></div>
                 <div style="display:flex; justify-content:space-between;"><span>LAN_Judge 权重 (子网节点):</span><span style="color:#fff;">25%</span></div>
@@ -1003,7 +1094,7 @@
             'use strict';
 
             /* =========================================================================
-             * 1. 核心常量与判定模型规范 (EnvDetector by JackZ)
+             * 1. 核心常量与配置规范 (EnvDetector by JackZ)
              * ========================================================================= */
             const ENV_CONFIG = {
                 version: "3.2.0-pro",
@@ -1092,6 +1183,9 @@
                 lanCount: 1,
                 radarNodes: [], // [{id, rssi, distance, bearing, variance, is_comoving}]
                 
+                // StoreKit IAP 购买锁状态
+                isProUnlocked: false,
+
                 // AI 裁决结果
                 aiScore: 0.0,
                 aiCategory: "初始化中...",
@@ -1151,7 +1245,10 @@
                 radarHeadingText: document.getElementById('radarHeadingText'),
                 radarNodesTableBody: document.getElementById('radarNodesTableBody'),
 
-                // AI 裁判
+                // AI 裁判与 IAP
+                aiLockOverlay: document.getElementById('aiLockOverlay'),
+                btnBuyPro: document.getElementById('btnBuyPro'),
+                btnRestorePro: document.getElementById('btnRestorePro'),
                 judgeBarsList: document.getElementById('judgeBarsList'),
                 aiRationaleText: document.getElementById('aiRationaleText'),
                 aiConsensusConfidence: document.getElementById('aiConsensusConfidence'),
@@ -1186,7 +1283,7 @@
              * 6. 核心渲染与状态绑定引擎
              * ========================================================================= */
             function updateDashboardUI() {
-                // 1. 标题与分数
+                // 1. 标题与分数展示 (未解锁时对详细语义做保护)
                 DOM.envPrimaryTitle.textContent = SystemState.aiCategory;
                 DOM.envScoreValue.textContent = SystemState.aiScore.toFixed(1);
                 DOM.envScoreBar.style.width = `${SystemState.aiScore}%`;
@@ -1333,7 +1430,7 @@
                     const isCo = node.is_comoving;
                     radarCtx.fillStyle = isCo ? '#00f0ff' : '#ff3366';
 
-                    // 绘制外发光光晕
+                    // 绘制外发光节点
                     radarCtx.beginPath();
                     radarCtx.arc(nx, ny, isCo ? 5.5 : 4.5, 0, Math.PI * 2);
                     radarCtx.fill();
@@ -1394,9 +1491,24 @@
             }
 
             /* =========================================================================
-             * 9. AI 裁判席面板动态更新 (Olympic Truncated Scorer)
+             * 9. AI 裁判席面板与 IAP 锁控制
              * ========================================================================= */
             function renderAIArbitrationUI() {
+                // 如果未解锁，保持蒙版开启并脱敏
+                if (!SystemState.isProUnlocked) {
+                    DOM.aiLockOverlay.classList.remove('hidden');
+                    DOM.aiConsensusConfidence.textContent = "置信度: LOCKED";
+                    DOM.aiRationaleText.textContent = "【EnvDetector Pro 专属特权】需解锁购买后查看 5 裁判独立加权与自然语言推导陈词。";
+                    DOM.judgeBarsList.innerHTML = `
+                        <div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding:18px 0; font-family:var(--font-mono);">
+                            -- 裁判打分通道已锁定 (PRO REQUIRED) --
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 已解锁，隐藏蒙版并渲染真实裁判数据
+                DOM.aiLockOverlay.classList.add('hidden');
                 DOM.aiConsensusConfidence.textContent = `置信度: ${(SystemState.aiConfidence * 100).toFixed(0)}%`;
                 DOM.aiRationaleText.textContent = SystemState.aiRationale;
 
@@ -1458,10 +1570,22 @@
             }
 
             /* =========================================================================
-             * 11. 原生数据注入入口 (iOS Native Bridge)
+             * 11. 原生数据注入与 IAP 桥接 (iOS Native WKWebView Bridge)
              * ========================================================================= */
+            // 接收 Swift 端的内购状态改变事件
+            window.onPurchaseStateUpdate = function(unlocked) {
+                SystemState.isProUnlocked = Boolean(unlocked);
+                renderAIArbitrationUI();
+            };
+
+            // 原生主轮询回调
             window.onEnvironmentUpdate = function(payload) {
                 if (!payload) return;
+
+                // 读取内购锁状态
+                if (typeof payload.is_pro_unlocked !== 'undefined') {
+                    SystemState.isProUnlocked = Boolean(payload.is_pro_unlocked);
+                }
 
                 // 航向与物理指标
                 SystemState.heading = payload.heading || 0.0;
@@ -1501,13 +1625,33 @@
                 renderRadarNodesTable();
             };
 
+            // 购买交互桥接
+            DOM.btnBuyPro.addEventListener('click', () => {
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.purchaseProFeature) {
+                    window.webkit.messageHandlers.purchaseProFeature.postMessage({});
+                } else {
+                    // 非真机浏览器环境兜底调试模拟
+                    console.log("[IAP] 触发本地调试解锁...");
+                    window.onPurchaseStateUpdate(true);
+                }
+            });
+
+            DOM.btnRestorePro.addEventListener('click', () => {
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.restoreProFeature) {
+                    window.webkit.messageHandlers.restoreProFeature.postMessage({});
+                } else {
+                    console.log("[IAP] 触发本地调试恢复...");
+                    window.onPurchaseStateUpdate(true);
+                }
+            });
+
             /* =========================================================================
-             * 12. 录制与回放控制器逻辑
+             * 12. 录制与回放控制器逻辑 (时序宽表持久化)
              * ========================================================================= */
             DOM.btnToggleRecord.addEventListener('click', async () => {
                 if (!SystemState.isRecording) {
                     // 开始录制
-                    const name = DOM.txtSessionName.value.trim() || `环境特征采样 #${new Date().toLocaleTimeString()}`;
+                    const name = DOM.txtSessionName.value.trim() || `环境特征宽表 #${new Date().toLocaleTimeString()}`;
                     SystemState.isRecording = true;
                     SystemState.sessionName = name;
                     SystemState.recordingFrames = [];
@@ -1524,11 +1668,13 @@
                         const sessionDoc = {
                             name: SystemState.sessionName,
                             timestamp: Date.now(),
+                            author: ENV_CONFIG.author,
+                            appName: ENV_CONFIG.appName,
                             totalFrames: SystemState.recordingFrames.length,
                             frames: SystemState.recordingFrames
                         };
                         await saveSessionToDB(sessionDoc);
-                        alert(`时序表格【${sessionDoc.name}】已保存到 IndexedDB，包含 ${sessionDoc.totalFrames} 帧完整物理遥测序列。`);
+                        alert(`时序表格【${sessionDoc.name}】已成功持久化至 IndexedDB，包含 ${sessionDoc.totalFrames} 帧高密遥测序列。`);
                         loadHistorySessions();
                     }
                 }
@@ -1554,7 +1700,7 @@
                                 <button class="btn-core" style="font-size:10px; padding:2px 6px; color:var(--accent-red);" onclick="window.deleteSessionRecord(${sess.id})">删除</button>
                             </div>
                         </div>
-                        <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:6px;">样本量: ${sess.totalFrames} 帧数据</div>
+                        <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:6px;">样本量: ${sess.totalFrames} 帧数据 (by ${sess.author || 'JackZ'})</div>
                         
                         <div class="table-responsive-wrapper" style="max-height:120px;">
                             <table class="audit-data-table">
@@ -1646,11 +1792,15 @@
 
             DOM.btnExportJson.addEventListener('click', async () => {
                 const list = await getAllSessionsFromDB();
-                const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify({
+                    exportedBy: "EnvDetector by JackZ",
+                    exportTime: new Date().toISOString(),
+                    data: list
+                }, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `EnvDetector_Export_${Date.now()}.json`;
+                a.download = `EnvDetector_Audit_${Date.now()}.json`;
                 a.click();
             });
 
@@ -1696,7 +1846,7 @@
                 await initDatabase();
                 await loadHistorySessions();
 
-                // 驱动 iOS Native 定时抓取快照
+                // 驱动 iOS Native 定时抓取快照 (每 1000ms 触发一次)
                 setInterval(() => {
                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
                         window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({});
