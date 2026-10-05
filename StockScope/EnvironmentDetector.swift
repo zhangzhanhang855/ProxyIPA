@@ -333,7 +333,7 @@ public struct AIArbitrationResult {
 
         // 裁判 1: BLE 人群密度裁判 (Judge A)
         var judgeA = 0.0
-        if totalCount >= 18 {
+        if totalCount >= 32 {
             judgeA = 96.0 // 无论如何，18台以上必定是大型公共场所/地铁
         } else if totalCount >= 10 {
             judgeA = 75.0 + Double(totalCount - 10) * 2.5
@@ -350,7 +350,7 @@ public struct AIArbitrationResult {
 
         // 裁判 2: 网络子网拓扑裁判 (Judge B)
         var judgeB = 0.0
-        if currentLanDeviceCount >= 10 {
+        if currentLanDeviceCount >= 18 {
             judgeB = 90.0
         } else if currentLanDeviceCount >= 5 {
             judgeB = 60.0
