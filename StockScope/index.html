@@ -329,6 +329,73 @@
             color: var(--accent-green);
         }
 
+        /* 用户自适应反馈与在线学习卡片 */
+        .feedback-correction-card {
+            background: rgba(18, 27, 44, 0.65);
+            border: 1px dashed var(--border-active);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .feedback-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .learned-count {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .feedback-chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 11px;
+            padding: 5px 8px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .chip-btn:active {
+            background: var(--accent-cyan);
+            color: #000;
+            transform: scale(0.95);
+        }
+
+        .feedback-status {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
         /* 警报横幅 */
         .public-warning-banner {
             display: none;
@@ -849,6 +916,27 @@
                 <span id="cabinStatusText" style="font-family:var(--font-mono)">未检测到稳态同乘设备</span>
             </div>
 
+            <!-- 用户在线自适应纠偏反馈卡片 (越用越聪明) -->
+            <div class="feedback-correction-card" id="feedbackCard">
+                <div class="feedback-header">
+                    <div class="feedback-title">
+                        <svg style="width:14px; height:14px; fill:var(--accent-cyan);" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .88-.36 1.68-.93 2.25z"/>
+                        </svg>
+                        <span>当前判断不准？教 AI 纠偏 (持续学习)</span>
+                    </div>
+                    <span class="learned-count" id="lblLearnedCount">已学习 0 条经验</span>
+                </div>
+                <div class="feedback-chips">
+                    <button class="chip-btn" data-tag="subway">🚇 这是地铁</button>
+                    <button class="chip-btn" data-tag="car">🚗 这是私家车</button>
+                    <button class="chip-btn" data-tag="restaurant">🍽️ 这是餐馆/商场</button>
+                    <button class="chip-btn" data-tag="office">🏢 这是办公室</button>
+                    <button class="chip-btn" data-tag="home">🏠 这是家里/私密</button>
+                </div>
+                <div class="feedback-status" id="feedbackStatusText">点击上方标签，将当前物理指纹永久载入端侧自愈模型</div>
+            </div>
+
             <!-- 公共警报条 -->
             <div class="public-warning-banner" id="publicWarningBanner">
                 <svg class="alert-icon-svg" viewBox="0 0 24 24">
@@ -861,13 +949,12 @@
             </div>
         </section>
 
-        <!-- 关键指标 4 宫格 -->
+        <!-- 关键指标 4 宫格 (已设为 ≥22 台报警) -->
         <div class="metrics-quad-grid">
-            <!-- 外部蓝牙（去稳态抵扣后） -->
             <div class="metric-cell" id="cellBle">
                 <div class="cell-top-bar">
                     <span class="cell-label">外部陌生 BLE</span>
-                    <span class="cell-thresh-tag">≥14 警报</span>
+                    <span class="cell-thresh-tag">≥22 警报</span>
                 </div>
                 <div class="cell-num-row">
                     <span class="cell-value" id="valBleEffective">0</span>
@@ -879,7 +966,6 @@
                 </div>
             </div>
 
-            <!-- 局域网主机 -->
             <div class="metric-cell" id="cellLan">
                 <div class="cell-top-bar">
                     <span class="cell-label">LAN 活跃主机</span>
@@ -895,7 +981,6 @@
                 </div>
             </div>
 
-            <!-- 垂直升降速率 (电梯) -->
             <div class="metric-cell" id="cellSpeed">
                 <div class="cell-top-bar">
                     <span class="cell-label">气压垂直速率</span>
@@ -911,7 +996,6 @@
                 </div>
             </div>
 
-            <!-- GNSS 水平误差半径 -->
             <div class="metric-cell" id="cellGps">
                 <div class="cell-top-bar">
                     <span class="cell-label">GNSS 误差半径</span>
@@ -1094,7 +1178,7 @@
             'use strict';
 
             /* =========================================================================
-             * 1. 核心常量与配置规范 (EnvDetector by JackZ)
+             * 1. 核心常量与配置规范 (22 台基准)
              * ========================================================================= */
             const ENV_CONFIG = {
                 version: "3.2.0-pro",
@@ -1102,29 +1186,29 @@
                 appName: "EnvDetector",
                 thresholds: {
                     ble: {
-                        alertMinStranger: 14, // 扣除同乘稳态设备后，陌生流动设备 >= 14 判定为人潮
-                        moderateStranger: 7
+                        alertMinStranger: 22, // 外部陌生设备 >= 22 台触发报警
+                        moderateStranger: 10
                     },
                     lan: {
                         publicHosts: 8,
                         officeHosts: 4
                     },
                     elevator: {
-                        verticalSpeed: 1.2 // m/s
+                        verticalSpeed: 1.2
                     },
                     spatial: {
-                        deepIndoorAccuracy: 35.0 // 米
+                        deepIndoorAccuracy: 35.0
                     },
-                    coMovingVarianceLimit: 3.2 // RSSI 方差 <= 3.2 dBm 视作相对恒定静止设备
+                    coMovingVarianceLimit: 3.2
                 },
-                publicScoreThreshold: 62.0 // 超过此综合分判定为公共环境
+                publicScoreThreshold: 62.0
             };
 
             /* =========================================================================
-             * 2. IndexedDB 存储控制器 (高密度时序宽表管理)
+             * 2. IndexedDB 存储控制器 (高密度宽表 + AI 经验记忆库)
              * ========================================================================= */
             const DB_NAME = "EnvDetector_AuditDB";
-            const DB_VERSION = 1;
+            const DB_VERSION = 2; // 版本 2 支持在线自适应学习表
             let auditDB = null;
 
             function initDatabase() {
@@ -1136,6 +1220,12 @@
                             const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
                             store.createIndex("timestamp", "timestamp", { unique: false });
                             store.createIndex("name", "name", { unique: false });
+                        }
+                        // 用户反馈经验记忆表
+                        if (!db.objectStoreNames.contains("ai_feedback_memory")) {
+                            const fStore = db.createObjectStore("ai_feedback_memory", { keyPath: "id", autoIncrement: true });
+                            fStore.createIndex("tag", "tag", { unique: false });
+                            fStore.createIndex("timestamp", "timestamp", { unique: false });
                         }
                     };
                     req.onsuccess = function(e) {
@@ -1173,7 +1263,106 @@
             }
 
             /* =========================================================================
-             * 3. 系统运行时状态中心 (Telemetry State Center)
+             * 3. 用户经验记忆与在线自学习引擎 (KNN Matching)
+             * ========================================================================= */
+            const AdaptiveLearningEngine = {
+                memoryList: [],
+
+                async reloadMemory() {
+                    return new Promise((resolve) => {
+                        const tx = auditDB.transaction(["ai_feedback_memory"], "readonly");
+                        const req = tx.objectStore("ai_feedback_memory").getAll();
+                        req.onsuccess = () => {
+                            this.memoryList = req.result || [];
+                            const badge = document.getElementById('lblLearnedCount');
+                            if (badge) badge.textContent = `已学习 ${this.memoryList.length} 条经验`;
+                            resolve(this.memoryList);
+                        };
+                    });
+                },
+
+                async learnCurrentContext(userTag) {
+                    const totalBle = SystemState.radarNodes.length;
+                    const coMovingRatio = totalBle > 0 ? (SystemState.coMovingCount / totalBle) : 0;
+                    
+                    const featureVector = {
+                        bleCount: SystemState.effectiveStrangers,
+                        totalBle: totalBle,
+                        coMovingRatio: coMovingRatio,
+                        lanCount: SystemState.lanCount,
+                        verticalSpeed: Math.abs(SystemState.verticalSpeed),
+                        gpsAccuracy: SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy : 50.0
+                    };
+
+                    const sample = {
+                        tag: userTag,
+                        timestamp: Date.now(),
+                        features: featureVector
+                    };
+
+                    await new Promise((resolve) => {
+                        const tx = auditDB.transaction(["ai_feedback_memory"], "readwrite");
+                        tx.objectStore("ai_feedback_memory").add(sample);
+                        tx.oncomplete = () => resolve();
+                    });
+
+                    await this.reloadMemory();
+
+                    const status = document.getElementById('feedbackStatusText');
+                    const tagNameMap = {
+                        'subway': '地铁车厢',
+                        'car': '私家车座舱',
+                        'restaurant': '餐馆/商场',
+                        'office': '办公室',
+                        'home': '私密/家'
+                    };
+                    if (status) {
+                        status.innerHTML = `<span style="color:var(--accent-green)">✓ 已将当前特征印记记录为【${tagNameMap[userTag]}】！AI 纠偏已生效。</span>`;
+                    }
+                },
+
+                evaluateMemoryMatch() {
+                    if (!this.memoryList || this.memoryList.length === 0) {
+                        return null;
+                    }
+
+                    const currentTotal = SystemState.radarNodes.length;
+                    const currentRatio = currentTotal > 0 ? (SystemState.coMovingCount / currentTotal) : 0;
+                    const currentLan = SystemState.lanCount;
+                    const currentGps = SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy : 50.0;
+
+                    let bestMatch = null;
+                    let minDistance = 9999.0;
+
+                    for (const item of this.memoryList) {
+                        const f = item.features;
+                        const dBle = Math.pow((currentTotal - f.totalBle) / 10.0, 2) * 1.5;
+                        const dRatio = Math.pow((currentRatio - f.coMovingRatio) * 3.0, 2) * 1.2;
+                        const dLan = Math.pow((currentLan - f.lanCount) / 5.0, 2) * 0.8;
+                        const dGps = Math.pow((Math.min(currentGps, 50) - Math.min(f.gpsAccuracy, 50)) / 20.0, 2) * 0.5;
+
+                        const distance = Math.sqrt(dBle + dRatio + dLan + dGps);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestMatch = item;
+                        }
+                    }
+
+                    if (minDistance <= 1.8 && bestMatch) {
+                        const similarity = Math.max(0.6, 1.0 - (minDistance / 3.0));
+                        return {
+                            matchedTag: bestMatch.tag,
+                            similarity: similarity,
+                            matchedSampleId: bestMatch.id
+                        };
+                    }
+
+                    return null;
+                }
+            };
+
+            /* =========================================================================
+             * 4. 系统运行时状态中心
              * ========================================================================= */
             const SystemState = {
                 heading: 0.0,
@@ -1181,12 +1370,10 @@
                 zAcceleration: 0.0,
                 gpsAccuracy: -1.0,
                 lanCount: 1,
-                radarNodes: [], // [{id, rssi, distance, bearing, variance, is_comoving}]
+                radarNodes: [],
                 
-                // StoreKit IAP 购买锁状态
                 isProUnlocked: false,
 
-                // AI 裁决结果
                 aiScore: 0.0,
                 aiCategory: "初始化中...",
                 aiConfidence: 0.85,
@@ -1194,23 +1381,20 @@
                 judgeScores: {},
                 trimmedJudges: [],
 
-                // 统计量
                 effectiveStrangers: 0,
                 coMovingCount: 0,
                 isElevator: false,
                 isPublic: false,
 
-                // 示波波形缓冲
                 bleHistoryWave: new Array(40).fill(0),
 
-                // 会话录制
                 isRecording: false,
                 sessionName: "",
                 recordingFrames: []
             };
 
             /* =========================================================================
-             * 4. 界面 DOM 引用集合
+             * 5. DOM 引用
              * ========================================================================= */
             const DOM = {
                 sysLiveClock: document.getElementById('sysLiveClock'),
@@ -1224,7 +1408,6 @@
                 cabinStatusText: document.getElementById('cabinStatusText'),
                 publicWarningBanner: document.getElementById('publicWarningBanner'),
 
-                // 单元格
                 cellBle: document.getElementById('cellBle'),
                 cellLan: document.getElementById('cellLan'),
                 cellSpeed: document.getElementById('cellSpeed'),
@@ -1239,13 +1422,11 @@
                 valGpsStatus: document.getElementById('valGpsStatus'),
                 waveformPeakText: document.getElementById('waveformPeakText'),
 
-                // 画布
                 overviewWaveCanvas: document.getElementById('overviewWaveCanvas'),
                 radarCanvas: document.getElementById('radarCanvas'),
                 radarHeadingText: document.getElementById('radarHeadingText'),
                 radarNodesTableBody: document.getElementById('radarNodesTableBody'),
 
-                // AI 裁判与 IAP
                 aiLockOverlay: document.getElementById('aiLockOverlay'),
                 btnBuyPro: document.getElementById('btnBuyPro'),
                 btnRestorePro: document.getElementById('btnRestorePro'),
@@ -1253,7 +1434,6 @@
                 aiRationaleText: document.getElementById('aiRationaleText'),
                 aiConsensusConfidence: document.getElementById('aiConsensusConfidence'),
 
-                // 录制与日志
                 txtSessionName: document.getElementById('txtSessionName'),
                 btnToggleRecord: document.getElementById('btnToggleRecord'),
                 recBtnText: document.getElementById('recBtnText'),
@@ -1266,9 +1446,6 @@
                 btnClearLogs: document.getElementById('btnClearLogs')
             };
 
-            /* =========================================================================
-             * 5. 实时时钟更新
-             * ========================================================================= */
             function tickSystemClock() {
                 const now = new Date();
                 const h = String(now.getHours()).padStart(2, '0');
@@ -1280,15 +1457,13 @@
             tickSystemClock();
 
             /* =========================================================================
-             * 6. 核心渲染与状态绑定引擎
+             * 6. 视图渲染引擎
              * ========================================================================= */
             function updateDashboardUI() {
-                // 1. 标题与分数展示 (未解锁时对详细语义做保护)
                 DOM.envPrimaryTitle.textContent = SystemState.aiCategory;
                 DOM.envScoreValue.textContent = SystemState.aiScore.toFixed(1);
                 DOM.envScoreBar.style.width = `${SystemState.aiScore}%`;
 
-                // 2. 状态卡与全屏闪烁
                 if (SystemState.isPublic) {
                     DOM.threatHeroCard.className = "card-surface threat-hero-card danger";
                     DOM.threatStatusBadge.className = "status-badge danger";
@@ -1309,7 +1484,6 @@
                     DOM.alertFlasher.classList.remove('active');
                 }
 
-                // 3. 车载自适应横条
                 if (SystemState.coMovingCount >= 2) {
                     DOM.cabinDeductionStrip.className = "cabin-deduction-strip active";
                     DOM.cabinStatusText.textContent = `检测到 ${SystemState.coMovingCount} 台恒距同乘外设 (指数已打折 0.88x)`;
@@ -1318,7 +1492,6 @@
                     DOM.cabinStatusText.textContent = SystemState.coMovingCount === 1 ? "仅 1 台静止外设，未激活车载折损" : "未检测到稳态同乘设备";
                 }
 
-                // 4. 指标卡片数值更新
                 DOM.valBleEffective.textContent = SystemState.effectiveStrangers;
                 DOM.valBleRaw.textContent = SystemState.radarNodes.length;
                 DOM.valBleCoMoving.textContent = SystemState.coMovingCount;
@@ -1329,17 +1502,16 @@
                 DOM.valElevatorFlag.textContent = SystemState.isElevator ? "运动激活" : "平层稳态";
                 DOM.valGpsStatus.textContent = (SystemState.gpsAccuracy >= 35 || SystemState.gpsAccuracy < 0) ? "深度遮蔽" : "良好";
 
+                // 22 台高亮判定
                 DOM.cellBle.classList.toggle('breached', SystemState.effectiveStrangers >= ENV_CONFIG.thresholds.ble.alertMinStranger);
                 DOM.cellLan.classList.toggle('breached', SystemState.lanCount >= ENV_CONFIG.thresholds.lan.publicHosts);
                 DOM.cellSpeed.classList.toggle('breached', SystemState.isElevator);
 
-                // 5. 波形更新
                 SystemState.bleHistoryWave.push(SystemState.effectiveStrangers);
                 SystemState.bleHistoryWave.shift();
                 const maxWaveVal = Math.max(...SystemState.bleHistoryWave, 10);
                 DOM.waveformPeakText.textContent = `${maxWaveVal} DEV PEAK`;
 
-                // 6. 录制帧入栈
                 if (SystemState.isRecording) {
                     SystemState.recordingFrames.push({
                         time: new Date().toLocaleTimeString(),
@@ -1356,7 +1528,7 @@
             }
 
             /* =========================================================================
-             * 7. 60FPS 极坐标空间雷达渲染引擎
+             * 7. 60FPS 极坐标雷达渲染引擎
              * ========================================================================= */
             const radarCtx = DOM.radarCanvas.getContext('2d');
             let radarSweepAngle = 0;
@@ -1378,7 +1550,7 @@
 
                 radarCtx.clearRect(0, 0, w, h);
 
-                // 1. 绘制极坐标网格圆环 (5m, 10m, 15m, 20m)
+                // 极坐标同心环 (5m, 10m, 15m, 20m)
                 radarCtx.strokeStyle = 'rgba(64, 93, 140, 0.25)';
                 radarCtx.lineWidth = 1;
                 for (let r = 1; r <= 4; r++) {
@@ -1387,7 +1559,7 @@
                     radarCtx.stroke();
                 }
 
-                // 2. 十字准星与刻度
+                // 十字轴
                 radarCtx.beginPath();
                 radarCtx.moveTo(cx, cy - maxR);
                 radarCtx.lineTo(cx, cy + maxR);
@@ -1395,7 +1567,7 @@
                 radarCtx.lineTo(cx + maxR, cy);
                 radarCtx.stroke();
 
-                // 3. 扫描光束 (动态旋转扇形)
+                // 扫描光束
                 radarSweepAngle = (radarSweepAngle + 0.035) % (Math.PI * 2);
                 const sweepGradient = radarCtx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
                 sweepGradient.addColorStop(0, 'rgba(0, 240, 255, 0.15)');
@@ -1410,13 +1582,13 @@
                 radarCtx.fill();
                 radarCtx.restore();
 
-                // 4. 绘制中心本机圆点
+                // 本机中心点
                 radarCtx.fillStyle = '#fff';
                 radarCtx.beginPath();
                 radarCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
                 radarCtx.fill();
 
-                // 5. 渲染外设节点 (以对数估算距离为半径，方位角为极角)
+                // 外设节点
                 const nodes = SystemState.radarNodes;
                 for (let i = 0; i < nodes.length; i++) {
                     const node = nodes[i];
@@ -1426,16 +1598,13 @@
                     const nx = cx + r * Math.cos(rad);
                     const ny = cy + r * Math.sin(rad);
 
-                    // 同乘/车内稳态用青色，流动陌生设备用红色
                     const isCo = node.is_comoving;
                     radarCtx.fillStyle = isCo ? '#00f0ff' : '#ff3366';
 
-                    // 绘制外发光节点
                     radarCtx.beginPath();
                     radarCtx.arc(nx, ny, isCo ? 5.5 : 4.5, 0, Math.PI * 2);
                     radarCtx.fill();
 
-                    // 文字距离标识
                     radarCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                     radarCtx.font = '8px monospace';
                     radarCtx.fillText(`${node.distance.toFixed(1)}m`, nx + 6, ny + 3);
@@ -1445,7 +1614,7 @@
             }
 
             /* =========================================================================
-             * 8. 实时总览波形绘制 (Overview Waveform Canvas)
+             * 8. 时序波形绘制
              * ========================================================================= */
             const waveCtx = DOM.overviewWaveCanvas.getContext('2d');
 
@@ -1463,12 +1632,12 @@
                 waveCtx.clearRect(0, 0, w, h);
 
                 const data = SystemState.bleHistoryWave;
-                const maxRange = 25;
+                const maxRange = 30; // 适配 22 台量程
                 const step = w / (data.length - 1);
 
-                // 警报线 (14 台)
+                // 22 台红色虚线
                 const alertY = h - (ENV_CONFIG.thresholds.ble.alertMinStranger / maxRange) * h;
-                waveCtx.strokeStyle = 'rgba(255, 51, 102, 0.35)';
+                waveCtx.strokeStyle = 'rgba(255, 51, 102, 0.4)';
                 waveCtx.setLineDash([4, 4]);
                 waveCtx.beginPath();
                 waveCtx.moveTo(0, alertY);
@@ -1476,7 +1645,6 @@
                 waveCtx.stroke();
                 waveCtx.setLineDash([]);
 
-                // 波形曲线
                 waveCtx.strokeStyle = '#00f0ff';
                 waveCtx.lineWidth = 2;
                 waveCtx.beginPath();
@@ -1494,7 +1662,6 @@
              * 9. AI 裁判席面板与 IAP 锁控制
              * ========================================================================= */
             function renderAIArbitrationUI() {
-                // 如果未解锁，保持蒙版开启并脱敏
                 if (!SystemState.isProUnlocked) {
                     DOM.aiLockOverlay.classList.remove('hidden');
                     DOM.aiConsensusConfidence.textContent = "置信度: LOCKED";
@@ -1507,7 +1674,6 @@
                     return;
                 }
 
-                // 已解锁，隐藏蒙版并渲染真实裁判数据
                 DOM.aiLockOverlay.classList.add('hidden');
                 DOM.aiConsensusConfidence.textContent = `置信度: ${(SystemState.aiConfidence * 100).toFixed(0)}%`;
                 DOM.aiRationaleText.textContent = SystemState.aiRationale;
@@ -1545,9 +1711,6 @@
                 }).join('');
             }
 
-            /* =========================================================================
-             * 10. 雷达明细表格刷新
-             * ========================================================================= */
             function renderRadarNodesTable() {
                 const tbody = DOM.radarNodesTableBody;
                 if (SystemState.radarNodes.length === 0) {
@@ -1570,24 +1733,23 @@
             }
 
             /* =========================================================================
-             * 11. 原生数据注入与 IAP 桥接 (iOS Native WKWebView Bridge)
+             * 10. 原生通信主入口与在线自学习纠偏注入
              * ========================================================================= */
-            // 接收 Swift 端的内购状态改变事件
+            window.lastRawPayload = null;
+
             window.onPurchaseStateUpdate = function(unlocked) {
                 SystemState.isProUnlocked = Boolean(unlocked);
                 renderAIArbitrationUI();
             };
 
-            // 原生主轮询回调
             window.onEnvironmentUpdate = function(payload) {
                 if (!payload) return;
+                window.lastRawPayload = payload;
 
-                // 读取内购锁状态
                 if (typeof payload.is_pro_unlocked !== 'undefined') {
                     SystemState.isProUnlocked = Boolean(payload.is_pro_unlocked);
                 }
 
-                // 航向与物理指标
                 SystemState.heading = payload.heading || 0.0;
                 DOM.radarHeadingText.textContent = `航向: ${String(Math.round(SystemState.heading)).padStart(3, '0')}°`;
 
@@ -1599,12 +1761,10 @@
                     SystemState.lanCount = parseInt(m.lan_devices_count, 10) || 1;
                 }
 
-                // 雷达外设集合
                 SystemState.radarNodes = payload.radar_peripherals || [];
                 SystemState.coMovingCount = SystemState.radarNodes.filter(x => x.is_comoving).length;
                 SystemState.effectiveStrangers = Math.max(0, SystemState.radarNodes.length - SystemState.coMovingCount);
 
-                // AI 裁判结果
                 if (payload.ai_arbitration) {
                     const ai = payload.ai_arbitration;
                     SystemState.aiScore = ai.score || 0.0;
@@ -1615,23 +1775,48 @@
                     SystemState.trimmedJudges = ai.trimmed_judges || [];
                 }
 
-                // 特殊标记判定
+                // ================= 在线自学习记忆重写层 =================
+                const memoryMatch = AdaptiveLearningEngine.evaluateMemoryMatch();
+                if (memoryMatch && SystemState.isProUnlocked) {
+                    const tag = memoryMatch.matchedTag;
+                    const sim = Math.round(memoryMatch.similarity * 100);
+
+                    if (tag === 'subway') {
+                        SystemState.aiCategory = "公共交通载具 (地铁车厢 - 用户记忆校准)";
+                        SystemState.aiScore = Math.max(SystemState.aiScore, 82.0);
+                        SystemState.isPublic = true;
+                        SystemState.aiRationale = `【在线学习驱动】物理指纹与您先前标注的“地铁”吻合度达 ${sim}%。AI 优先采信用户经验覆盖默认规则。`;
+                    } else if (tag === 'car') {
+                        SystemState.aiCategory = "私家车座舱 (堵车同乘 - 用户记忆校准)";
+                        SystemState.aiScore = Math.min(SystemState.aiScore, 36.0);
+                        SystemState.isPublic = false;
+                        SystemState.aiRationale = `【在线学习驱动】物理指纹与您先前标注的“私家车”高度匹配 (${sim}%)，AI 豁免高密报警，锁定为私密状态。`;
+                    } else if (tag === 'restaurant') {
+                        SystemState.aiCategory = "高密度室内商业区 (餐馆/商场 - 用户记忆校准)";
+                        SystemState.aiScore = Math.max(SystemState.aiScore, 78.0);
+                        SystemState.isPublic = true;
+                        SystemState.aiRationale = `【在线学习驱动】匹配到餐馆静止高密特征 (${sim}%)，AI 主动强化人流高分裁决。`;
+                    } else if (tag === 'home') {
+                        SystemState.aiCategory = "完全私密空间 (家庭环境 - 用户记忆校准)";
+                        SystemState.aiScore = 15.0;
+                        SystemState.isPublic = false;
+                        SystemState.aiRationale = `【在线学习驱动】已识别为您专属的私密空间模式 (${sim}%)。`;
+                    }
+                }
+
                 SystemState.isElevator = Math.abs(SystemState.verticalSpeed) >= ENV_CONFIG.thresholds.elevator.verticalSpeed;
                 SystemState.isPublic = SystemState.aiScore >= ENV_CONFIG.publicScoreThreshold;
 
-                // 驱动各视图渲染
                 updateDashboardUI();
                 renderAIArbitrationUI();
                 renderRadarNodesTable();
             };
 
-            // 购买交互桥接
+            // 购买交互
             DOM.btnBuyPro.addEventListener('click', () => {
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.purchaseProFeature) {
                     window.webkit.messageHandlers.purchaseProFeature.postMessage({});
                 } else {
-                    // 非真机浏览器环境兜底调试模拟
-                    console.log("[IAP] 触发本地调试解锁...");
                     window.onPurchaseStateUpdate(true);
                 }
             });
@@ -1640,17 +1825,15 @@
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.restoreProFeature) {
                     window.webkit.messageHandlers.restoreProFeature.postMessage({});
                 } else {
-                    console.log("[IAP] 触发本地调试恢复...");
                     window.onPurchaseStateUpdate(true);
                 }
             });
 
             /* =========================================================================
-             * 12. 录制与回放控制器逻辑 (时序宽表持久化)
+             * 11. 录制与回放控制器逻辑
              * ========================================================================= */
             DOM.btnToggleRecord.addEventListener('click', async () => {
                 if (!SystemState.isRecording) {
-                    // 开始录制
                     const name = DOM.txtSessionName.value.trim() || `环境特征宽表 #${new Date().toLocaleTimeString()}`;
                     SystemState.isRecording = true;
                     SystemState.sessionName = name;
@@ -1659,7 +1842,6 @@
                     DOM.btnToggleRecord.className = "btn-core btn-rec active-recording";
                     DOM.recBtnText.textContent = "停止生成宽表";
                 } else {
-                    // 停止录制
                     SystemState.isRecording = false;
                     DOM.btnToggleRecord.className = "btn-core btn-rec";
                     DOM.recBtnText.textContent = "开始录制";
@@ -1743,7 +1925,6 @@
                 }
             };
 
-            // 1:1 动态时序复现
             let playbackTimerId = null;
             window.startPlaybackSession = async function(id) {
                 const sessions = await getAllSessionsFromDB();
@@ -1767,7 +1948,6 @@
                     DOM.playbackProgressText.textContent = `复现: ${target.name} [${fIdx + 1}/${target.totalFrames}] - ${f.time}`;
                     DOM.playbackProgressBar.style.width = `${((fIdx + 1) / target.totalFrames) * 100}%`;
 
-                    // 状态驱动刷新
                     SystemState.verticalSpeed = parseFloat(f.vSpeed);
                     SystemState.zAcceleration = parseFloat(f.zAcc);
                     SystemState.gpsAccuracy = parseFloat(f.gps);
@@ -1813,7 +1993,7 @@
             });
 
             /* =========================================================================
-             * 13. 导航切换与初始化
+             * 12. 路由切换与初始化
              * ========================================================================= */
             function switchTabTo(viewId) {
                 document.querySelectorAll('.page-viewport').forEach(v => v.classList.remove('active'));
@@ -1843,10 +2023,22 @@
                 requestAnimationFrame(drawWaveformFrame);
                 requestAnimationFrame(drawRadarFrame);
 
+                // 绑定用户纠偏学习按钮
+                document.querySelectorAll('.chip-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const tag = btn.getAttribute('data-tag');
+                        await AdaptiveLearningEngine.learnCurrentContext(tag);
+                        if (window.lastRawPayload) {
+                            window.onEnvironmentUpdate(window.lastRawPayload);
+                        }
+                    });
+                });
+
                 await initDatabase();
+                await AdaptiveLearningEngine.reloadMemory();
                 await loadHistorySessions();
 
-                // 驱动 iOS Native 定时抓取快照 (每 1000ms 触发一次)
+                // 驱动 iOS Native 每秒抓取快照
                 setInterval(() => {
                     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
                         window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({});
