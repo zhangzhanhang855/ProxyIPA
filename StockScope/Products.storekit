@@ -1,0 +1,33 @@
+{
+  "identifier" : "E2B7853A",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "A1B2C3D4",
+      "localizations" : [
+        {
+          "description" : "解锁多裁判共识微型 AI 与自然语言推理陈词",
+          "displayName" : "EnvDetector Pro AI 裁决席",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.example.stockscope.aipro",
+      "referenceName" : "EnvDetector Pro (iPad)",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}
