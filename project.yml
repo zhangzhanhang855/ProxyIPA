@@ -33,3 +33,4 @@ targets:
         CODE_SIGN_STYLE: "Automatic"
         DEVELOPMENT_TEAM: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        STOREKIT_CONFIGURATION_FILE_PATH: StockScope/Products.storekit
