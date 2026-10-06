@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Phira Pure Engine - Autoplay Edition</title>
+  <title>Phira Pure Engine - Cloud & Storage Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -70,105 +70,115 @@
       letter-spacing: 1px;
       margin-top: 4px;
     }
-    #upload-panel {
+
+    /* 启动与管理主面板 */
+    #main-dashboard {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(6, 6, 10, 0.95);
+      background: rgba(6, 6, 12, 0.95);
       backdrop-filter: blur(16px);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       z-index: 30;
+      padding: 24px;
+      overflow-y: auto;
       gap: 16px;
     }
-    .upload-card-group {
+    .header-bar {
       display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 90%;
-      max-width: 800px;
-    }
-    .drop-zone {
-      flex: 1 1 320px;
-      min-width: 280px;
-      padding: 24px 16px;
-      border: 2px dashed #304ffe;
-      border-radius: 16px;
-      text-align: center;
-      background: rgba(48, 79, 254, 0.06);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .drop-zone.ready {
-      border-color: #00e676;
-      background: rgba(0, 230, 118, 0.08);
-    }
-    .btn {
-      padding: 14px 50px;
-      background: linear-gradient(135deg, #2979ff, #00e5ff);
-      border: none;
-      border-radius: 30px;
-      color: #fff;
-      font-size: 19px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.35);
-    }
-    .btn:disabled {
-      background: #333;
-      box-shadow: none;
-      cursor: not-allowed;
-      color: #777;
-    }
-    #status-text {
-      font-size: 13px;
-      color: #90a4ae;
-      text-align: center;
-      min-height: 20px;
-    }
-    .setting-group {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .slider-box {
-      display: flex;
+      width: 100%;
+      max-width: 900px;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.06);
-      padding: 8px 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .rks-badge {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      padding: 6px 16px;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 13px;
-      color: #cfd8dc;
+      font-weight: 800;
+      font-size: 14px;
     }
-    .slider-box input[type="range"] {
-      cursor: pointer;
-      width: 120px;
+    .tabs {
+      display: flex;
+      gap: 12px;
+      max-width: 900px;
+      width: 100%;
     }
-    .toggle-btn {
-      background: rgba(255, 255, 255, 0.1);
+    .tab-btn {
+      padding: 8px 20px;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
       color: #fff;
-      padding: 6px 14px;
-      border-radius: 16px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
     }
-    .toggle-btn.active {
+    .tab-btn.active {
       background: #00e5ff;
       color: #000;
       font-weight: bold;
+      border-color: #00e5ff;
     }
-    input[type="file"] {
-      display: none;
+    .content-area {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 48vh;
+      overflow-y: auto;
+    }
+    .item-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .item-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .btn {
+      padding: 8px 22px;
+      background: linear-gradient(135deg, #2979ff, #00e5ff);
+      border: none;
+      border-radius: 20px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:active {
+      transform: scale(0.96);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .upload-zone {
+      padding: 20px;
+      border: 2px dashed rgba(0, 229, 255, 0.4);
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(0, 229, 255, 0.02);
+    }
+
+    /* 结算面板样式 */
     #result-panel {
       position: absolute;
       top: 0;
@@ -242,7 +252,6 @@
         <div id="song-name" style="font-weight: bold; font-size: 18px;">曲目名称</div>
         <div id="song-desc" style="opacity: 0.7; font-size: 13px;">等待载入...</div>
       </div>
-      <!-- 连击显示区域：严格保留 COMBO 字样与连击数 -->
       <div class="hud-combo">
         <div id="combo-num">0</div>
         <span>COMBO</span>
@@ -254,45 +263,62 @@
     </div>
   </div>
 
-  <div id="upload-panel">
-    <h1 style="letter-spacing: 5px; font-weight: 300; font-size: 28px;">PHIRA ZIP ENGINE</h1>
-    <div class="upload-card-group">
-      <div class="drop-zone" id="chart-drop">
-        <h3 style="margin-bottom: 8px;">1. 导入谱面 ZIP (5文件)</h3>
-        <p style="font-size: 12px; opacity: 0.8; line-height: 1.6;">
-          包含：info.txt、info.yml、JSON、歌曲、曲绘
-        </p>
-        <span id="chart-file-name" style="display:block; margin-top:10px; font-size:12px; color:#00e5ff;">未选择</span>
-        <input type="file" id="chart-input" accept=".zip">
+  <!-- 主控制面板 -->
+  <div id="main-dashboard">
+    <div class="header-bar">
+      <div>
+        <h2 style="font-weight:300; letter-spacing:2px;">PHIRA CLIENT</h2>
+        <span style="font-size:12px; color:#90a4ae;">IndexedDB Storage & GitHub Sync</span>
       </div>
+      <div class="rks-badge">rks: <span id="user-rks">0.00</span></div>
+    </div>
 
-      <div class="drop-zone" id="skin-drop">
-        <h3 style="margin-bottom: 8px;">2. 导入皮肤与音效 ZIP</h3>
-        <p style="font-size: 12px; opacity: 0.8; line-height: 1.6;">
-          包含：贴图及 _mh、hit_fx 爆弹图、<br>音效与 ending.mp3
-        </p>
-        <span id="skin-file-name" style="display:block; margin-top:10px; font-size:12px; color:#00e5ff;">未选择 (可选)</span>
-        <input type="file" id="skin-input" accept=".zip">
+    <!-- 选项卡 -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-local">本地曲库 (IndexedDB)</button>
+      <button class="tab-btn" id="tab-cloud">GitHub 在线同步</button>
+      <button class="tab-btn" id="tab-settings">偏好设置</button>
+    </div>
+
+    <!-- 1. 本地曲库面板 -->
+    <div class="content-area" id="panel-local">
+      <div class="upload-zone" onclick="document.getElementById('import-local-zip').click()">
+        <p style="font-size:14px; font-weight:bold;">导入本地谱面 / 皮肤 ZIP 文件</p>
+        <p style="font-size:12px; color:#80deea; margin-top:4px;">导入后将永久保存在本地数据库中</p>
+        <input type="file" id="import-local-zip" accept=".zip" style="display:none;">
+      </div>
+      <h4 style="font-size:13px; color:#cfd8dc; margin-top:4px;">已保存谱面列表：</h4>
+      <div class="card-list" id="local-chart-list">
+        <!-- 动态生成 -->
       </div>
     </div>
 
-    <div class="setting-group">
-      <div class="slider-box">
-        <span>Note 尺寸:</span>
+    <!-- 2. GitHub 云端下载面板 -->
+    <div class="content-area" id="panel-cloud" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:13px; color:#90a4ae;">仓库：zhangzhanhang855/phira-emu</span>
+        <button class="btn btn-secondary" id="btn-refresh-cloud">刷新云端列表</button>
+      </div>
+      <div class="card-list" id="cloud-item-list">
+        <!-- 动态生成 -->
+      </div>
+    </div>
+
+    <!-- 3. 设置面板 -->
+    <div class="content-area" id="panel-settings" style="display:none;">
+      <div class="item-card">
+        <span>Note 缩放倍率</span>
         <input type="range" id="size-slider" min="0.6" max="2.2" step="0.05" value="1.25">
         <span id="size-val" style="color:#00e5ff; font-weight:bold;">1.25x</span>
       </div>
-      <!-- Autoplay 切换按钮 -->
-      <div class="slider-box">
-        <span>自动游玩 (Autoplay):</span>
-        <button class="toggle-btn" id="autoplay-btn">关 (OFF)</button>
+      <div class="item-card">
+        <span>自动游玩模式 (Autoplay)</span>
+        <button class="btn btn-secondary" id="autoplay-btn">关 (OFF)</button>
       </div>
     </div>
-
-    <div id="status-text">请先导入谱面 ZIP 包</div>
-    <button class="btn" id="start-btn" disabled>开始游玩</button>
   </div>
 
+  <!-- 结算结果面板 -->
   <div id="result-panel">
     <div class="result-card">
       <div class="result-rank" id="res-rank">V</div>
@@ -302,19 +328,97 @@
         <div class="result-stats">
           <div>ACC: <span class="stat-val" id="res-acc">100.00%</span></div>
           <div>Max Combo: <span class="stat-val" id="res-combo">0</span></div>
+          <div>单曲 rks: <span class="stat-val" style="color:#ffd700;" id="res-song-rks">0.00</span></div>
           <div>Perfect: <span class="stat-val" style="color:#00e5ff;" id="res-perf">0</span></div>
           <div>Good: <span class="stat-val" style="color:#ffd54f;" id="res-good">0</span></div>
           <div>Miss: <span class="stat-val" style="color:#ff1744;" id="res-miss">0</span></div>
         </div>
       </div>
     </div>
-    <button class="btn" style="margin-top: 24px;" onclick="location.reload()">重新载入</button>
+    <button class="btn" style="margin-top: 24px;" onclick="closeResultPanel()">返回曲目列表</button>
   </div>
 
   <script>
+    // --- 1. IndexedDB 存储核心 ---
+    const DB_NAME = "PhiraPureDB";
+    const DB_VERSION = 1;
+    let db = null;
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains("charts")) {
+            d.createObjectStore("charts", { keyPath: "id" });
+          }
+          if (!d.objectStoreNames.contains("skins")) {
+            d.createObjectStore("skins", { keyPath: "id" });
+          }
+          if (!d.objectStoreNames.contains("scores")) {
+            d.createObjectStore("scores", { keyPath: "chartId" });
+          }
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbSave(storeName, data) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction([storeName], "readwrite");
+        const store = tx.objectStore(storeName);
+        store.put(data);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbGetAll(storeName) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction([storeName], "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbGet(storeName, key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction([storeName], "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    // --- 2. 官方 rks 计算模型 ---
+    function calcSongRks(acc, difficulty) {
+      if (acc < 70) return 0;
+      if (acc >= 100) return difficulty;
+      const factor = Math.pow((acc - 55) / 45, 2);
+      return Math.round(factor * difficulty * 100) / 100;
+    }
+
+    async function updateOverallRks() {
+      const scores = await dbGetAll("scores");
+      if (scores.length === 0) {
+        document.getElementById('user-rks').innerText = "0.00";
+        return;
+      }
+      // 取最高的前 19 首 (Best 19)
+      scores.sort((a, b) => (b.rks || 0) - (a.rks || 0));
+      const topScores = scores.slice(0, 19);
+      const sum = topScores.reduce((acc, cur) => acc + (cur.rks || 0), 0);
+      const overall = sum / 19;
+      document.getElementById('user-rks').innerText = overall.toFixed(2);
+    }
+
+    // --- 3. 基础游戏上下文与全局变量 ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-    
     let audioCtx = null;
     let sfxGainNode = null;
     let bgmBuffer = null;
@@ -324,27 +428,14 @@
     let isPlaying = false;
     let isEnded = false;
 
-    // 自定义配置
     let userNoteScale = 1.25;
-    let isAutoplay = false; // 自动游玩开关
+    let isAutoplay = false;
 
-    const sizeSlider = document.getElementById('size-slider');
-    const sizeVal = document.getElementById('size-val');
-    sizeSlider.oninput = (e) => {
-      userNoteScale = parseFloat(e.target.value);
-      sizeVal.innerText = userNoteScale.toFixed(2) + "x";
-    };
-
-    const autoplayBtn = document.getElementById('autoplay-btn');
-    autoplayBtn.onclick = () => {
-      isAutoplay = !isAutoplay;
-      autoplayBtn.classList.toggle('active', isAutoplay);
-      autoplayBtn.innerText = isAutoplay ? "开 (ON)" : "关 (OFF)";
-    };
-
+    let currentChartId = "";
     let songMeta = {
       title: "Phira Track",
-      level: "Lv.15",
+      level: "IN Lv.15",
+      difficulty: 15.0,
       composer: "Unknown",
       charter: "Unknown",
       offset: 0.0
@@ -362,7 +453,6 @@
     let score = 0, combo = 0, maxCombo = 0;
     let perfectCount = 0, goodCount = 0, missCount = 0, totalNotes = 0;
     let W = 0, H = 0, scale = 1;
-
     const hitParticles = [];
 
     function resize() {
@@ -391,7 +481,6 @@
     }
 
     const lastSoundPlayTime = { Tap: 0, Drag: 0, Hold: 0, Flick: 0 };
-
     function playHitSound(type) {
       if (!audioCtx) return;
       const now = performance.now();
@@ -406,40 +495,7 @@
         s.buffer = ASSETS.audioBuffers[name];
         s.connect(sfxGainNode);
         s.start(0);
-        return;
       }
-
-      try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(sfxGainNode);
-        const t = audioCtx.currentTime;
-        if (type === 1) {
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(1400, t);
-          osc.frequency.exponentialRampToValueAtTime(300, t + 0.035);
-          gain.gain.setValueAtTime(0.6, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
-          osc.start(t);
-          osc.stop(t + 0.035);
-        } else if (type === 2) {
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(750, t);
-          gain.gain.setValueAtTime(0.35, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
-          osc.start(t);
-          osc.stop(t + 0.02);
-        } else if (type === 4) {
-          osc.type = "sawtooth";
-          osc.frequency.setValueAtTime(900, t);
-          osc.frequency.linearRampToValueAtTime(2400, t + 0.05);
-          gain.gain.setValueAtTime(0.5, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-          osc.start(t);
-          osc.stop(t + 0.05);
-        }
-      } catch (e) {}
     }
 
     function spawnHitFX(worldX, worldY, isPerfect) {
@@ -468,87 +524,17 @@
       return res;
     }
 
-    // --- ZIP 导入逻辑 ---
-    const chartDrop = document.getElementById('chart-drop');
-    const chartInput = document.getElementById('chart-input');
-    const skinDrop = document.getElementById('skin-drop');
-    const skinInput = document.getElementById('skin-input');
-    const statusText = document.getElementById('status-text');
-    const startBtn = document.getElementById('start-btn');
-
-    chartDrop.onclick = () => chartInput.click();
-    skinDrop.onclick = () => skinInput.click();
-
-    chartInput.onchange = (e) => { if (e.target.files[0]) handleChartZip(e.target.files[0]); };
-    skinInput.onchange = (e) => { if (e.target.files[0]) handleSkinZip(e.target.files[0]); };
-
-    async function handleChartZip(file) {
+    // --- 4. ZIP 处理与载入流 ---
+    async function processAndLoadZip(fileBlob, isSkin = false) {
       await initAudio();
-      statusText.innerText = "正在读取谱面 ZIP 包 (包含 5 文件)...";
-      try {
-        const zip = await JSZip.loadAsync(file);
-        let infoData = {};
-        const entries = zip.files;
+      const zip = await JSZip.loadAsync(fileBlob);
+      const entries = zip.files;
 
+      if (isSkin) {
         for (let path in entries) {
           const l = path.toLowerCase();
-          if (l.endsWith('info.yml') || l.endsWith('info.yaml') || l.endsWith('info.txt')) {
-            const txt = await entries[path].async('text');
-            infoData = Object.assign(infoData, parseInfoString(txt));
-          }
-        }
-
-        if (infoData.name) songMeta.title = infoData.name;
-        if (infoData.level) songMeta.level = infoData.level;
-        if (infoData.composer) songMeta.composer = infoData.composer;
-        if (infoData.charter) songMeta.charter = infoData.charter;
-        if (infoData.offset !== undefined) songMeta.offset = parseFloat(infoData.offset) || 0;
-
-        document.getElementById('song-name').innerText = songMeta.title;
-        document.getElementById('song-desc').innerText = `${songMeta.level} | ${songMeta.composer}`;
-
-        for (let path in entries) {
           const entry = entries[path];
           if (entry.dir) continue;
-          const l = path.toLowerCase();
-
-          if (l.endsWith('.json')) {
-            const txt = await entry.async('text');
-            const j = JSON.parse(txt);
-            if (j.judgeLineList) ASSETS.chartJson = j;
-          } else if (l.endsWith('.ogg') || l.endsWith('.mp3') || l.endsWith('.wav')) {
-            const ab = await entry.async('arraybuffer');
-            bgmBuffer = await audioCtx.decodeAudioData(ab);
-          } else if (l.endsWith('.png') || l.endsWith('.jpg') || l.endsWith('.jpeg')) {
-            const blob = await entry.async('blob');
-            const img = new Image();
-            img.src = URL.createObjectURL(blob);
-            await new Promise(r => { img.onload = r; });
-            ASSETS.bgImage = img;
-          }
-        }
-
-        if (!ASSETS.chartJson) throw new Error("未在谱面 ZIP 中找到合法的 judgeLineList JSON 谱面！");
-        if (!bgmBuffer) throw new Error("未在谱面 ZIP 中找到歌曲音频！");
-
-        chartDrop.classList.add('ready');
-        document.getElementById('chart-file-name').innerText = `已载入: ${file.name}`;
-        statusText.innerText = "谱面 ZIP 加载完成！可直接开始或导入皮肤/音效 ZIP。";
-        startBtn.disabled = false;
-      } catch (err) {
-        statusText.innerText = `谱面读取失败: ${err.message}`;
-      }
-    }
-
-    async function handleSkinZip(file) {
-      await initAudio();
-      statusText.innerText = "正在解压皮肤与音效 ZIP 包...";
-      try {
-        const zip = await JSZip.loadAsync(file);
-        for (let path in zip.files) {
-          const entry = zip.files[path];
-          if (entry.dir) continue;
-          const l = path.toLowerCase();
 
           if (l.endsWith('.png') || l.endsWith('.jpg')) {
             const blob = await entry.async('blob');
@@ -556,38 +542,234 @@
             img.src = URL.createObjectURL(blob);
             await new Promise(r => { img.onload = r; });
 
-            if (l.includes('hit_fx') || l.includes('hitfx') || l.includes('image_7')) {
-              ASSETS.hitFxImage = img;
-            } else if (l.includes('tap') || l.includes('click')) {
-              ASSETS.images[l.includes('mh') ? 'Tap_mh' : 'Tap'] = img;
-            } else if (l.includes('drag')) {
-              ASSETS.images[l.includes('mh') ? 'Drag_mh' : 'Drag'] = img;
-            } else if (l.includes('hold')) {
-              ASSETS.images[l.includes('mh') ? 'Hold_mh' : 'Hold'] = img;
-            } else if (l.includes('flick')) {
-              ASSETS.images[l.includes('mh') ? 'Flick_mh' : 'Flick'] = img;
-            }
+            if (l.includes('hit_fx') || l.includes('hitfx') || l.includes('image_7')) ASSETS.hitFxImage = img;
+            else if (l.includes('tap')) ASSETS.images[l.includes('mh') ? 'Tap_mh' : 'Tap'] = img;
+            else if (l.includes('drag')) ASSETS.images[l.includes('mh') ? 'Drag_mh' : 'Drag'] = img;
+            else if (l.includes('hold')) ASSETS.images[l.includes('mh') ? 'Hold_mh' : 'Hold'] = img;
+            else if (l.includes('flick')) ASSETS.images[l.includes('mh') ? 'Flick_mh' : 'Flick'] = img;
           } else if (l.endsWith('.ogg') || l.endsWith('.wav') || l.endsWith('.mp3')) {
             const ab = await entry.async('arraybuffer');
             const buf = await audioCtx.decodeAudioData(ab);
-
-            if (l.includes('tap') || l.includes('click')) ASSETS.audioBuffers['Tap'] = buf;
+            if (l.includes('tap')) ASSETS.audioBuffers['Tap'] = buf;
             else if (l.includes('drag')) ASSETS.audioBuffers['Drag'] = buf;
             else if (l.includes('hold')) ASSETS.audioBuffers['Hold'] = buf;
             else if (l.includes('flick')) ASSETS.audioBuffers['Flick'] = buf;
             else if (l.includes('ending')) endingBuffer = buf;
           }
         }
+        await dbSave("skins", { id: "default_skin", blob: fileBlob });
+        alert("皮肤资源包已更新并保存至数据库！");
+        return;
+      }
 
-        skinDrop.classList.add('ready');
-        document.getElementById('skin-file-name').innerText = `已载入: ${file.name}`;
-        statusText.innerText = "皮肤与音效包解压装配完成！";
+      // 谱面包 (包含 5 文件)
+      let infoData = {};
+      for (let path in entries) {
+        const l = path.toLowerCase();
+        if (l.endsWith('info.yml') || l.endsWith('info.yaml') || l.endsWith('info.txt')) {
+          const txt = await entries[path].async('text');
+          infoData = Object.assign(infoData, parseInfoString(txt));
+        }
+      }
+
+      let chartJson = null;
+      let audioBuf = null;
+      let bgImg = null;
+
+      for (let path in entries) {
+        const entry = entries[path];
+        if (entry.dir) continue;
+        const l = path.toLowerCase();
+
+        if (l.endsWith('.json')) {
+          const txt = await entry.async('text');
+          const j = JSON.parse(txt);
+          if (j.judgeLineList) chartJson = j;
+        } else if (l.endsWith('.ogg') || l.endsWith('.mp3') || l.endsWith('.wav')) {
+          const ab = await entry.async('arraybuffer');
+          audioBuf = await audioCtx.decodeAudioData(ab);
+        } else if (l.endsWith('.png') || l.endsWith('.jpg') || l.endsWith('.jpeg')) {
+          const blob = await entry.async('blob');
+          const img = new Image();
+          img.src = URL.createObjectURL(blob);
+          await new Promise(r => { img.onload = r; });
+          bgImg = img;
+        }
+      }
+
+      if (!chartJson || !audioBuf) throw new Error("谱面包文件结构不完整，未识别到 JSON 或音频！");
+
+      const cid = infoData.name || ("chart_" + Date.now());
+      const record = {
+        id: cid,
+        name: infoData.name || "未命名谱面",
+        level: infoData.level || "IN Lv.15",
+        difficulty: parseFloat(infoData.difficulty) || 15.0,
+        composer: infoData.composer || "Unknown",
+        charter: infoData.charter || "Unknown",
+        blob: fileBlob
+      };
+
+      await dbSave("charts", record);
+      await refreshLocalList();
+      alert(`谱面《${record.name}》已存入本地数据库！`);
+    }
+
+    async function loadChartFromDB(cid) {
+      const record = await dbGet("charts", cid);
+      if (!record) return;
+
+      currentChartId = record.id;
+      songMeta.title = record.name;
+      songMeta.level = record.level;
+      songMeta.difficulty = record.difficulty;
+      songMeta.composer = record.composer;
+      songMeta.charter = record.charter;
+
+      const zip = await JSZip.loadAsync(record.blob);
+      for (let path in zip.files) {
+        const entry = zip.files[path];
+        if (entry.dir) continue;
+        const l = path.toLowerCase();
+        if (l.endsWith('.json')) {
+          ASSETS.chartJson = JSON.parse(await entry.async('text'));
+        } else if (l.endsWith('.ogg') || l.endsWith('.mp3') || l.endsWith('.wav')) {
+          bgmBuffer = await audioCtx.decodeAudioData(await entry.async('arraybuffer'));
+        } else if (l.endsWith('.png') || l.endsWith('.jpg')) {
+          const img = new Image();
+          img.src = URL.createObjectURL(await entry.async('blob'));
+          await new Promise(r => { img.onload = r; });
+          ASSETS.bgImage = img;
+        }
+      }
+
+      document.getElementById('song-name').innerText = songMeta.title;
+      document.getElementById('song-desc').innerText = `${songMeta.level} | ${songMeta.composer}`;
+
+      // 启动游戏
+      prepareChart();
+      document.getElementById('main-dashboard').style.display = 'none';
+      isPlaying = true;
+      isEnded = false;
+
+      if (bgmBuffer) {
+        bgmSource = audioCtx.createBufferSource();
+        bgmSource.buffer = bgmBuffer;
+        bgmSource.connect(audioCtx.destination);
+        startTime = audioCtx.currentTime;
+        bgmSource.start(0);
+      } else {
+        startTime = audioCtx.currentTime;
+      }
+      requestAnimationFrame(render);
+    }
+
+    // --- 5. GitHub 仓库云端抓取 ---
+    const REPO_OWNER = "zhangzhanhang855";
+    const REPO_NAME = "phira-emu";
+
+    async function fetchGitHubDirectory(dirPath) {
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${dirPath}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("GitHub API 请求受限或目录不存在");
+      return await res.json();
+    }
+
+    async function downloadAndImportGitHubFile(downloadUrl, isSkin) {
+      const btn = event.target;
+      const originText = btn.innerText;
+      btn.innerText = "下载中...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(downloadUrl);
+        const blob = await res.blob();
+        await processAndLoadZip(blob, isSkin);
+        btn.innerText = "已保存";
       } catch (err) {
-        statusText.innerText = `皮肤包读取异常: ${err.message}`;
+        alert("下载失败: " + err.message);
+        btn.innerText = originText;
+        btn.disabled = false;
       }
     }
 
-    // --- 谱面数据与速度积分表构建 ---
+    async function refreshCloudList() {
+      const cloudList = document.getElementById('cloud-item-list');
+      cloudList.innerHTML = "<p style='font-size:12px; opacity:0.7;'>正在获取 GitHub 资源目录...</p>";
+
+      try {
+        const [charts, resources] = await Promise.all([
+          fetchGitHubDirectory("charts").catch(() => []),
+          fetchGitHubDirectory("resources").catch(() => [])
+        ]);
+
+        cloudList.innerHTML = "";
+
+        // 显示皮肤资源
+        resources.forEach(file => {
+          if (file.name.endsWith('.zip')) {
+            const card = document.createElement('div');
+            card.className = "item-card";
+            card.innerHTML = `
+              <div>
+                <span style="font-size:14px; font-weight:bold; color:#00e5ff;">[资源包] ${file.name}</span>
+                <span style="display:block; font-size:11px; opacity:0.6;">大小: ${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+              <button class="btn" onclick="downloadAndImportGitHubFile('${file.download_url}', true)">下载装配</button>
+            `;
+            cloudList.appendChild(card);
+          }
+        });
+
+        // 显示谱面包
+        charts.forEach(file => {
+          if (file.name.endsWith('.zip')) {
+            const card = document.createElement('div');
+            card.className = "item-card";
+            card.innerHTML = `
+              <div>
+                <span style="font-size:14px; font-weight:bold;">[谱面] ${file.name}</span>
+                <span style="display:block; font-size:11px; opacity:0.6;">大小: ${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+              <button class="btn" onclick="downloadAndImportGitHubFile('${file.download_url}', false)">下载至本地</button>
+            `;
+            cloudList.appendChild(card);
+          }
+        });
+
+        if (cloudList.children.length === 0) {
+          cloudList.innerHTML = "<p style='font-size:12px; opacity:0.7;'>未在对应文件夹中检测到 ZIP 文件</p>";
+        }
+      } catch (e) {
+        cloudList.innerHTML = `<p style='font-size:12px; color:#ff1744;'>加载失败: ${e.message}</p>`;
+      }
+    }
+
+    async function refreshLocalList() {
+      const list = document.getElementById('local-chart-list');
+      const charts = await dbGetAll("charts");
+      list.innerHTML = "";
+
+      if (charts.length === 0) {
+        list.innerHTML = "<p style='font-size:12px; opacity:0.6; padding:10px;'>暂无已保存谱面，请先导入或从 GitHub 下载！</p>";
+        return;
+      }
+
+      charts.forEach(c => {
+        const card = document.createElement('div');
+        card.className = "item-card";
+        card.innerHTML = `
+          <div>
+            <span style="font-size:15px; font-weight:bold;">${c.name}</span>
+            <span style="display:block; font-size:12px; color:#80deea;">${c.level} | 定数: ${c.difficulty}</span>
+          </div>
+          <button class="btn" onclick="loadChartFromDB('${c.id}')">游玩</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // --- 6. 核心游戏引擎与渲染 ---
     function prepareChart() {
       if (!ASSETS.chartJson || !ASSETS.chartJson.judgeLineList) return;
       totalNotes = 0;
@@ -723,7 +905,6 @@
       const dt = note.timeSec - curSec;
       const rawFloorDiff = Math.abs(note.startFloor - curFloorPos);
       const dist = rawFloorDiff * 380 * scale;
-
       let y = 0;
       if (note.isAbove) {
         y = (dt >= 0) ? -dist : dist;
@@ -733,7 +914,6 @@
       return y;
     }
 
-    // --- 自动游玩 (Autoplay) 核心执行器 ---
     function updateAutoplay(curTime) {
       if (!isAutoplay) return;
 
@@ -755,23 +935,18 @@
         for (let i = startIdx; i < notes.length; i++) {
           const note = notes[i];
           if (note.hit || note.miss) continue;
-
-          // 尚未到来的音符无需提前处理
           if (note.timeSec - curTime > 0.005) break;
 
           const noteLocalX = (note.x / 9) * (W * 0.42);
           const hitWorldX = lx + noteLocalX * cosR;
           const hitWorldY = ly + noteLocalX * -sinR;
 
-          // 单击、滑动、划键：准时触线瞬间 Perfect 消除
           if (note.type === 1 || note.type === 2 || note.type === 4) {
             note.hit = true;
             playHitSound(note.type);
             registerHit(1.0);
             spawnHitFX(hitWorldX, hitWorldY, true);
-          }
-          // 长条：准时触线起手激活
-          else if (note.type === 3) {
+          } else if (note.type === 3) {
             if (!note.headHit) {
               note.headHit = true;
               note.holding = true;
@@ -784,7 +959,6 @@
       }
     }
 
-    // --- 触控引擎与打击判定 (手动游玩模式) ---
     const activeTouches = new Map();
 
     window.addEventListener('pointerdown', (e) => {
@@ -896,7 +1070,6 @@
       }
     }
 
-    // 严谨跟踪 Hold 持续按压
     function updateHoldingStates(curTime) {
       for (let l = 0; l < parsedLines.length; l++) {
         const line = parsedLines[l];
@@ -920,7 +1093,6 @@
 
           if (curTime < note.timeSec) continue;
 
-          // 长条完整走完自然结算
           if (curTime >= note.timeSec + note.holdTimeSec) {
             note.hit = true;
             registerHit(1.0);
@@ -933,7 +1105,6 @@
           const horizThreshold = 160 * scale * userNoteScale;
           const vertThreshold = 180 * scale * userNoteScale;
 
-          // Autoplay 模式下长条永远自动完美按压
           let isTouchCovering = isAutoplay;
 
           if (!isTouchCovering) {
@@ -1030,20 +1201,18 @@
       }
     }
 
-    // --- 主渲染管线 ---
     function render() {
       if (!isPlaying) return;
 
       const now = performance.now();
       const curSec = (audioCtx.currentTime - startTime) + (songMeta.offset || 0);
 
-      // 驱动自动游玩
       updateAutoplay(curSec);
       updateHoldingStates(curSec);
 
       ctx.clearRect(0, 0, W, H);
 
-      // 1. 曲绘背景
+      // 背景
       if (ASSETS.bgImage) {
         ctx.save();
         ctx.globalAlpha = 0.35;
@@ -1060,7 +1229,7 @@
         ctx.restore();
       }
 
-      // 2. 判定线与音符
+      // 判定线与音符
       for (let l = 0; l < parsedLines.length; l++) {
         const line = parsedLines[l];
         const curTick = line.secToTick(curSec);
@@ -1111,7 +1280,6 @@
           const note = notes[i];
           if (note.hit) continue;
 
-          // 手动游玩下的超时判定
           if (!isAutoplay) {
             if (note.type !== 3 && curSec - note.timeSec > 0.18 && !note.miss) {
               note.miss = true;
@@ -1215,7 +1383,7 @@
       requestAnimationFrame(render);
     }
 
-    function showResult() {
+    async function showResult() {
       isPlaying = false;
       if (endingBuffer) {
         const endSrc = audioCtx.createBufferSource();
@@ -1227,6 +1395,25 @@
       const processed = perfectCount + goodCount + missCount;
       const totalScore = processed === 0 ? 0 : Math.round(((perfectCount + goodCount * 0.65) / totalNotes) * 1000000);
       const acc = processed === 0 ? 100 : (((perfectCount + goodCount * 0.65) / processed) * 100);
+
+      // 计算本曲 rks
+      const songRks = calcSongRks(acc, songMeta.difficulty);
+
+      // 非 Autoplay 模式下保存成绩到 IndexedDB
+      if (!isAutoplay && currentChartId) {
+        const old = await dbGet("scores", currentChartId);
+        if (!old || totalScore > old.score) {
+          await dbSave("scores", {
+            chartId: currentChartId,
+            score: totalScore,
+            acc: acc,
+            rks: songRks,
+            maxCombo: maxCombo,
+            updateTime: Date.now()
+          });
+        }
+        await updateOverallRks();
+      }
 
       let rank = "F";
       let rankColor = "#f44336";
@@ -1245,6 +1432,7 @@
       document.getElementById('res-title').innerText = songMeta.title;
       document.getElementById('res-score').innerText = totalScore.toString().padStart(7, '0');
       document.getElementById('res-acc').innerText = acc.toFixed(2) + '%';
+      document.getElementById('res-song-rks').innerText = songRks.toFixed(2);
       document.getElementById('res-combo').innerText = maxCombo;
       document.getElementById('res-perf').innerText = perfectCount;
       document.getElementById('res-good').innerText = goodCount;
@@ -1255,23 +1443,57 @@
       setTimeout(() => { p.style.opacity = '1'; }, 50);
     }
 
-    startBtn.onclick = () => {
-      if (!ASSETS.chartJson) return;
-      prepareChart();
-      document.getElementById('upload-panel').style.display = 'none';
-      isPlaying = true;
+    function closeResultPanel() {
+      document.getElementById('result-panel').style.display = 'none';
+      document.getElementById('result-panel').style.opacity = '0';
+      document.getElementById('main-dashboard').style.display = 'flex';
+      refreshLocalList();
+    }
 
-      if (bgmBuffer) {
-        bgmSource = audioCtx.createBufferSource();
-        bgmSource.buffer = bgmBuffer;
-        bgmSource.connect(audioCtx.destination);
-        startTime = audioCtx.currentTime;
-        bgmSource.start(0);
-      } else {
-        startTime = audioCtx.currentTime;
+    // --- 7. UI 选项卡与控制绑定 ---
+    document.getElementById('tab-local').onclick = () => switchTab('local');
+    document.getElementById('tab-cloud').onclick = () => switchTab('cloud');
+    document.getElementById('tab-settings').onclick = () => switchTab('settings');
+
+    function switchTab(name) {
+      document.getElementById('tab-local').classList.toggle('active', name === 'local');
+      document.getElementById('tab-cloud').classList.toggle('active', name === 'cloud');
+      document.getElementById('tab-settings').classList.toggle('active', name === 'settings');
+
+      document.getElementById('panel-local').style.display = name === 'local' ? 'flex' : 'none';
+      document.getElementById('panel-cloud').style.display = name === 'cloud' ? 'flex' : 'none';
+      document.getElementById('panel-settings').style.display = name === 'settings' ? 'flex' : 'none';
+
+      if (name === 'cloud') refreshCloudList();
+      if (name === 'local') refreshLocalList();
+    }
+
+    document.getElementById('btn-refresh-cloud').onclick = refreshCloudList;
+
+    document.getElementById('import-local-zip').onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        await processAndLoadZip(file, false);
+      } catch (err) {
+        alert("导入失败: " + err.message);
       }
+    };
 
-      requestAnimationFrame(render);
+    // 自动恢复数据库中已存在的默认皮肤
+    async function restoreCachedSkin() {
+      const skinRecord = await dbGet("skins", "default_skin");
+      if (skinRecord && skinRecord.blob) {
+        await processAndLoadZip(skinRecord.blob, true);
+      }
+    }
+
+    // 页面初始化
+    window.onload = async () => {
+      await openDatabase();
+      await updateOverallRks();
+      await refreshLocalList();
+      await restoreCachedSkin().catch(() => {});
     };
   </script>
 </body>
