@@ -1,2052 +1,1112 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EnvDetector - 物理空间态势感知与多维情境审计系统</title>
-    <style>
-        :root {
-            --bg-base: #060911;
-            --bg-surface: #0c1220;
-            --bg-card: rgba(18, 27, 44, 0.78);
-            --bg-card-hover: rgba(26, 38, 62, 0.88);
-            --border-subtle: rgba(64, 93, 140, 0.28);
-            --border-active: rgba(0, 240, 255, 0.5);
-            --border-danger: rgba(255, 51, 102, 0.55);
-            --text-primary: #f0f4fc;
-            --text-secondary: #8da0b8;
-            --text-tertiary: #4f637d;
-            --accent-cyan: #00f0ff;
-            --accent-green: #00ff88;
-            --accent-amber: #ffb800;
-            --accent-red: #ff3366;
-            --accent-purple: #9d00ff;
-            --accent-blue: #0088ff;
-            --font-mono: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
-            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: var(--font-sans);
-            font-size: 13px;
-            line-height: 1.5;
-            padding-top: calc(var(--safe-top) + 12px);
-            padding-bottom: calc(var(--safe-bottom) + 68px);
-            padding-left: 14px;
-            padding-right: 14px;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 12% 8%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
-                radial-gradient(circle at 88% 90%, rgba(157, 0, 255, 0.04) 0%, transparent 50%);
-        }
-
-        /* 顶部导航头 */
-        header.sys-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-subtle);
-            margin-bottom: 14px;
-        }
-
-        .brand-meta-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand-glyph {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
-        }
-
-        .brand-glyph svg {
-            width: 16px;
-            height: 16px;
-            fill: #fff;
-        }
-
-        .brand-text-block {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .brand-title-row {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-
-        .brand-name {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 0.3px;
-            color: #fff;
-        }
-
-        .author-tag {
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.12);
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 240, 255, 0.25);
-            font-weight: 600;
-        }
-
-        .brand-subtitle {
-            font-size: 10px;
-            color: var(--text-tertiary);
-            font-family: var(--font-mono);
-        }
-
-        .header-status-capsule {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 3px;
-        }
-
-        .live-dot-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--accent-green);
-        }
-
-        .live-pulse {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--accent-green);
-            animation: pulse-green 1.8s infinite;
-        }
-
-        @keyframes pulse-green {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.6); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-        }
-
-        .mic-disabled-badge {
-            font-size: 9px;
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-secondary);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
-
-        /* 页面切换动画与容器 */
-        .page-viewport {
-            display: none;
-            animation: viewEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .page-viewport.active {
-            display: block;
-        }
-
-        @keyframes viewEnter {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 卡片容器 */
-        .card-surface {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 12px;
-            position: relative;
-            transition: var(--transition-smooth);
-        }
-
-        /* 态势卡 */
-        .threat-hero-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background-color: var(--accent-green);
-            transition: var(--transition-smooth);
-        }
-
-        .threat-hero-card.danger {
-            border-color: var(--border-danger);
-            background: linear-gradient(135deg, rgba(255, 51, 102, 0.12), rgba(18, 27, 44, 0.9));
-        }
-
-        .threat-hero-card.danger::before {
-            background-color: var(--accent-red);
-            box-shadow: 0 0 12px var(--accent-red);
-        }
-
-        .threat-hero-card.warning {
-            border-color: rgba(255, 184, 0, 0.5);
-            background: linear-gradient(135deg, rgba(255, 184, 0, 0.12), rgba(18, 27, 44, 0.9));
-        }
-
-        .threat-hero-card.warning::before {
-            background-color: var(--accent-amber);
-            box-shadow: 0 0 12px var(--accent-amber);
-        }
-
-        .card-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .section-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            font-weight: 700;
-        }
-
-        .status-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-        .status-badge.danger {
-            background: rgba(255, 51, 102, 0.2);
-            color: var(--accent-red);
-            border-color: var(--accent-red);
-            animation: pulse-danger-border 1.5s infinite;
-        }
-
-        .status-badge.warning {
-            background: rgba(255, 184, 0, 0.2);
-            color: var(--accent-amber);
-            border-color: var(--accent-amber);
-        }
-
-        @keyframes pulse-danger-border {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-
-        .hero-metric-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin: 6px 0 10px 0;
-        }
-
-        .hero-env-title {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: #fff;
-        }
-
-        .hero-score-val {
-            font-size: 26px;
-            font-weight: 900;
-            font-family: var(--font-mono);
-            color: var(--accent-cyan);
-        }
-
-        .score-track {
-            width: 100%;
-            height: 7px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .score-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-amber), var(--accent-red));
-            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .score-legend-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--text-tertiary);
-        }
-
-        /* 车载同乘/静止抵扣提示条 */
-        .cabin-deduction-strip {
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid rgba(0, 240, 255, 0.25);
-            border-radius: 6px;
-            padding: 6px 10px;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 11px;
-        }
-
-        .cabin-deduction-strip.active {
-            background: rgba(0, 255, 136, 0.08);
-            border-color: rgba(0, 255, 136, 0.3);
-            color: var(--accent-green);
-        }
-
-        /* 用户自适应反馈与在线学习卡片 */
-        .feedback-correction-card {
-            background: rgba(18, 27, 44, 0.65);
-            border: 1px dashed var(--border-active);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-top: 10px;
-        }
-
-        .feedback-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .feedback-title {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
-        .learned-count {
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--accent-green);
-            background: rgba(0, 255, 136, 0.1);
-            padding: 1px 6px;
-            border-radius: 4px;
-        }
-
-        .feedback-chips {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .chip-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 11px;
-            padding: 5px 8px;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .chip-btn:active {
-            background: var(--accent-cyan);
-            color: #000;
-            transform: scale(0.95);
-        }
-
-        .feedback-status {
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        /* 警报横幅 */
-        .public-warning-banner {
-            display: none;
-            background: rgba(255, 51, 102, 0.15);
-            border: 1px solid var(--accent-red);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .public-warning-banner.show {
-            display: flex;
-        }
-
-        .alert-icon-svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--accent-red);
-            flex-shrink: 0;
-        }
-
-        .alert-text-body {
-            font-size: 12px;
-            color: #fff;
-            line-height: 1.35;
-        }
-
-        /* 四宫格网格 */
-        .metrics-quad-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .metric-cell {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: var(--transition-smooth);
-        }
-
-        .metric-cell.breached {
-            border-color: var(--accent-red);
-            background: rgba(255, 51, 102, 0.08);
-        }
-
-        .cell-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .cell-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .cell-thresh-tag {
-            font-family: var(--font-mono);
-            font-size: 9px;
-            color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.08);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
-
-        .cell-num-row {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            margin: 2px 0;
-        }
-
-        .cell-value {
-            font-family: var(--font-mono);
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .cell-unit {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .cell-footnote {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            color: var(--text-tertiary);
-            font-family: var(--font-mono);
-            margin-top: 4px;
-        }
-
-        /* 空间雷达容器与画布 */
-        .radar-stage-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 14px;
-        }
-
-        .radar-canvas-container {
-            position: relative;
-            width: 100%;
-            max-width: 320px;
-            aspect-ratio: 1 / 1;
-            margin: 6px 0 12px 0;
-        }
-
-        #radarCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(12, 18, 32, 0.9) 0%, rgba(6, 9, 17, 0.98) 100%);
-            box-shadow: 0 0 24px rgba(0, 240, 255, 0.1);
-        }
-
-        .radar-legend-bar {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 8px;
-        }
-
-        .legend-tag {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .legend-circ {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-        }
-
-        /* AI 裁判席与内购锁定蒙版 */
-        .judge-panel-card {
-            border-left: 4px solid var(--accent-purple);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .iap-lock-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(6, 9, 17, 0.90);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 20px;
-            text-align: center;
-            z-index: 20;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .iap-lock-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .iap-crown-svg {
-            width: 38px;
-            height: 38px;
-            fill: var(--accent-purple);
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 10px rgba(157, 0, 255, 0.5));
-        }
-
-        .iap-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .iap-desc {
-            font-size: 11px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            max-width: 270px;
-            margin-bottom: 14px;
-        }
-
-        .btn-iap-buy {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border: none;
-            color: #fff;
-            padding: 9px 24px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
-            transition: transform 0.2s;
-        }
-
-        .btn-iap-buy:active {
-            transform: scale(0.96);
-        }
-
-        .btn-iap-restore {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            font-size: 11px;
-            margin-top: 10px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        .judge-bars-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .judge-bar-item {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .judge-item-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-family: var(--font-mono);
-        }
-
-        .judge-item-name {
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .judge-trimmed-pill {
-            font-size: 9px;
-            padding: 1px 4px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-tertiary);
-        }
-
-        .judge-item-track {
-            height: 6px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .judge-item-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--accent-purple);
-            transition: width 0.3s ease;
-        }
-
-        .judge-item-fill.trimmed {
-            background: var(--text-tertiary);
-            opacity: 0.5;
-        }
-
-        .ai-rationale-box {
-            background: rgba(157, 0, 255, 0.06);
-            border: 1px dashed rgba(157, 0, 255, 0.3);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 12px;
-            font-size: 11px;
-            line-height: 1.45;
-            color: #d8c2ff;
-        }
-
-        /* 宽表展示 */
-        .table-responsive-wrapper {
-            max-height: 380px;
-            overflow: auto;
-            border-radius: 8px;
-            border: 1px solid var(--border-subtle);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table.audit-data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            text-align: left;
-            background: rgba(9, 13, 22, 0.6);
-        }
-
-        table.audit-data-table th {
-            background: rgba(18, 27, 44, 0.95);
-            color: var(--accent-cyan);
-            padding: 8px 6px;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            border-bottom: 1px solid var(--border-subtle);
-            white-space: nowrap;
-        }
-
-        table.audit-data-table td {
-            padding: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            color: #cdd6e5;
-            white-space: nowrap;
-        }
-
-        table.audit-data-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        /* 录制与日志管理 */
-        .recording-control-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .session-name-input {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 8px 10px;
-            color: #fff;
-            font-size: 12px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .session-name-input:focus {
-            border-color: var(--accent-cyan);
-        }
-
-        .btn-core {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            color: #fff;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .btn-core:active {
-            transform: scale(0.97);
-        }
-
-        .btn-rec {
-            background: rgba(255, 51, 102, 0.15);
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
-
-        .btn-rec.active-recording {
-            background: var(--accent-red);
-            color: #fff;
-            animation: pulse-rec 1.2s infinite;
-        }
-
-        @keyframes pulse-rec {
-            0% { opacity: 1; }
-            50% { opacity: 0.65; }
-            100% { opacity: 1; }
-        }
-
-        .playback-modal-card {
-            display: none;
-            border-color: var(--accent-purple);
-            background: linear-gradient(135deg, rgba(157, 0, 255, 0.1), rgba(18, 27, 44, 0.9));
-        }
-
-        /* 底部导航 */
-        nav.sys-tab-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: calc(var(--safe-bottom) + 52px);
-            background: rgba(12, 18, 32, 0.94);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            justify-content: space-around;
-            padding-top: 5px;
-            z-index: 999;
-        }
-
-        .nav-tab-item {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 25%;
-            transition: color 0.2s;
-        }
-
-        .nav-tab-item svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-
-        .nav-tab-item.active {
-            color: var(--accent-cyan);
-        }
-
-        /* 全屏报警闪烁 */
-        .alert-flasher {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: 10000;
-            box-shadow: inset 0 0 70px rgba(255, 51, 102, 0);
-            transition: box-shadow 0.3s;
-        }
-
-        .alert-flasher.active {
-            box-shadow: inset 0 0 70px rgba(255, 51, 102, 0.55);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Phira Pure Engine - Hold Fixed</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      touch-action: none;
+    }
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      display: block;
+      touch-action: none;
+    }
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 26px;
+      z-index: 10;
+    }
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+    }
+    .hud-combo {
+      text-align: center;
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+    .hud-combo span {
+      font-size: 13px;
+      font-weight: normal;
+      display: block;
+      opacity: 0.8;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    /* 导入遮罩层 */
+    #upload-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 6, 10, 0.95);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 30;
+      gap: 16px;
+    }
+    .upload-card-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 90%;
+      max-width: 800px;
+    }
+    .drop-zone {
+      flex: 1 1 320px;
+      min-width: 280px;
+      padding: 24px 16px;
+      border: 2px dashed #304ffe;
+      border-radius: 16px;
+      text-align: center;
+      background: rgba(48, 79, 254, 0.06);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .drop-zone.ready {
+      border-color: #00e676;
+      background: rgba(0, 230, 118, 0.08);
+    }
+    .btn {
+      padding: 14px 50px;
+      background: linear-gradient(135deg, #2979ff, #00e5ff);
+      border: none;
+      border-radius: 30px;
+      color: #fff;
+      font-size: 19px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.35);
+    }
+    .btn:disabled {
+      background: #333;
+      box-shadow: none;
+      cursor: not-allowed;
+      color: #777;
+    }
+    #status-text {
+      font-size: 13px;
+      color: #90a4ae;
+      text-align: center;
+      min-height: 20px;
+    }
+    .slider-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 14px;
+      color: #cfd8dc;
+    }
+    .slider-box input[type="range"] {
+      cursor: pointer;
+      width: 140px;
+    }
+    input[type="file"] {
+      display: none;
+    }
+
+    /* 结算面板样式 */
+    #result-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 6, 12, 0.94);
+      backdrop-filter: blur(20px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 40;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .result-card {
+      width: 90%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: row;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      gap: 30px;
+      align-items: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .result-rank {
+      font-size: 90px;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+      width: 140px;
+      text-align: center;
+    }
+    .result-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .result-score {
+      font-size: 40px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .result-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+      font-size: 14px;
+      color: #b0bec5;
+    }
+    .stat-val {
+      font-weight: bold;
+      color: #fff;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
+  </div>
 
-    <div id="alertFlasher" class="alert-flasher"></div>
+  <div id="ui-overlay">
+    <div class="hud-top">
+      <div>
+        <div id="song-name" style="font-weight: bold; font-size: 18px;">Cryogenic</div>
+        <div id="song-desc" style="opacity: 0.7; font-size: 13px;">等待载入...</div>
+      </div>
+      <div class="hud-combo">
+        <div id="combo-num">0</div>
+        <span>COMBO</span>
+      </div>
+      <div style="text-align: right;">
+        <div id="score-val" style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums;">0000000</div>
+        <div id="acc-val" style="opacity: 0.7; font-size: 13px;">100.00%</div>
+      </div>
+    </div>
+  </div>
 
-    <!-- 顶部状态栏 -->
-    <header class="sys-header">
-        <div class="brand-meta-group">
-            <div class="brand-glyph">
-                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-            </div>
-            <div class="brand-text-block">
-                <div class="brand-title-row">
-                    <span class="brand-name">EnvDetector</span>
-                    <span class="author-tag">by JackZ</span>
-                </div>
-                <span class="brand-subtitle">v3.2 PRO SENSORY CORE</span>
-            </div>
-        </div>
-        <div class="header-status-capsule">
-            <div class="live-dot-indicator">
-                <div class="live-pulse"></div>
-                <span id="sysLiveClock">00:00:00</span>
-            </div>
-            <span class="mic-disabled-badge">零麦克风侵入</span>
-        </div>
-    </header>
+  <div id="upload-panel">
+    <h1 style="letter-spacing: 5px; font-weight: 300; font-size: 28px;">PHIRA ZIP ENGINE</h1>
+    <div class="upload-card-group">
+      <div class="drop-zone" id="chart-drop">
+        <h3 style="margin-bottom: 8px;">1. 导入谱面 ZIP (5文件)</h3>
+        <p style="font-size: 12px; opacity: 0.8; line-height: 1.6;">
+          包含：info.txt、info.yml、JSON、歌曲、曲绘
+        </p>
+        <span id="chart-file-name" style="display:block; margin-top:10px; font-size:12px; color:#00e5ff;">未选择</span>
+        <input type="file" id="chart-input" accept=".zip">
+      </div>
 
-    <!-- ================= 页面 1：态势总览 (Dashboard) ================= -->
-    <div id="viewOverview" class="page-viewport active">
-        <!-- 核心公共环境威胁卡 -->
-        <section class="card-surface threat-hero-card" id="threatHeroCard">
-            <div class="card-top-row">
-                <span class="section-label">情境决策态势</span>
-                <span class="status-badge" id="threatStatusBadge">私密 / 车载空间</span>
-            </div>
-            <div class="hero-metric-row">
-                <div class="hero-env-title" id="envPrimaryTitle">环境解算中...</div>
-                <div class="hero-score-val" id="envScoreValue">0.0</div>
-            </div>
-            <div class="score-track">
-                <div class="score-bar" id="envScoreBar"></div>
-            </div>
-            <div class="score-legend-row">
-                <span>封闭私密 (0%)</span>
-                <span>过渡带 (45%)</span>
-                <span>高密公共暴露 (100%)</span>
-            </div>
-
-            <!-- 车载同乘/低方差蓝牙抵扣条 -->
-            <div class="cabin-deduction-strip" id="cabinDeductionStrip">
-                <span>车载/长周期静止设备自适应</span>
-                <span id="cabinStatusText" style="font-family:var(--font-mono)">未检测到稳态同乘设备</span>
-            </div>
-
-            <!-- 用户在线自适应纠偏反馈卡片 (越用越聪明) -->
-            <div class="feedback-correction-card" id="feedbackCard">
-                <div class="feedback-header">
-                    <div class="feedback-title">
-                        <svg style="width:14px; height:14px; fill:var(--accent-cyan);" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .88-.36 1.68-.93 2.25z"/>
-                        </svg>
-                        <span>当前判断不准？教 AI 纠偏 (持续学习)</span>
-                    </div>
-                    <span class="learned-count" id="lblLearnedCount">已学习 0 条经验</span>
-                </div>
-                <div class="feedback-chips">
-                    <button class="chip-btn" data-tag="subway">🚇 这是地铁</button>
-                    <button class="chip-btn" data-tag="car">🚗 这是私家车</button>
-                    <button class="chip-btn" data-tag="restaurant">🍽️ 这是餐馆/商场</button>
-                    <button class="chip-btn" data-tag="office">🏢 这是办公室</button>
-                    <button class="chip-btn" data-tag="home">🏠 这是家里/私密</button>
-                </div>
-                <div class="feedback-status" id="feedbackStatusText">点击上方标签，将当前物理指纹永久载入端侧自愈模型</div>
-            </div>
-
-            <!-- 公共警报条 -->
-            <div class="public-warning-banner" id="publicWarningBanner">
-                <svg class="alert-icon-svg" viewBox="0 0 24 24">
-                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-                </svg>
-                <div class="alert-text-body">
-                    <strong>设备当前可能处于【公共环境】</strong>
-                    高密外部陌生蓝牙分布或局域网节点过多，已超越非车载基线阈值。
-                </div>
-            </div>
-        </section>
-
-        <!-- 关键指标 4 宫格 (已设为 ≥22 台报警) -->
-        <div class="metrics-quad-grid">
-            <div class="metric-cell" id="cellBle">
-                <div class="cell-top-bar">
-                    <span class="cell-label">外部陌生 BLE</span>
-                    <span class="cell-thresh-tag">≥22 警报</span>
-                </div>
-                <div class="cell-num-row">
-                    <span class="cell-value" id="valBleEffective">0</span>
-                    <span class="cell-unit">台</span>
-                </div>
-                <div class="cell-footnote">
-                    <span>总扫描: <span id="valBleRaw">0</span></span>
-                    <span>同乘稳态: <span id="valBleCoMoving">0</span></span>
-                </div>
-            </div>
-
-            <div class="metric-cell" id="cellLan">
-                <div class="cell-top-bar">
-                    <span class="cell-label">LAN 活跃主机</span>
-                    <span class="cell-thresh-tag">≥8 公共</span>
-                </div>
-                <div class="cell-num-row">
-                    <span class="cell-value" id="valLanCount">1</span>
-                    <span class="cell-unit">台</span>
-                </div>
-                <div class="cell-footnote">
-                    <span>端口探测</span>
-                    <span>Class C 网段</span>
-                </div>
-            </div>
-
-            <div class="metric-cell" id="cellSpeed">
-                <div class="cell-top-bar">
-                    <span class="cell-label">气压垂直速率</span>
-                    <span class="cell-thresh-tag">≥1.2 m/s</span>
-                </div>
-                <div class="cell-num-row">
-                    <span class="cell-value" id="valVerticalSpeed">0.00</span>
-                    <span class="cell-unit">m/s</span>
-                </div>
-                <div class="cell-footnote">
-                    <span>轿厢状态</span>
-                    <span id="valElevatorFlag">平层稳态</span>
-                </div>
-            </div>
-
-            <div class="metric-cell" id="cellGps">
-                <div class="cell-top-bar">
-                    <span class="cell-label">GNSS 误差半径</span>
-                    <span class="cell-thresh-tag">权 10%</span>
-                </div>
-                <div class="cell-num-row">
-                    <span class="cell-value" id="valGpsAccuracy">0.0</span>
-                    <span class="cell-unit">m</span>
-                </div>
-                <div class="cell-footnote">
-                    <span>建筑遮蔽</span>
-                    <span id="valGpsStatus">开阔</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 实时有效蓝牙时序波形 -->
-        <section class="card-surface" style="padding:10px;">
-            <div class="card-top-row" style="margin-bottom:6px;">
-                <span class="section-label">外部陌生人流时序波动 (除去车载干扰)</span>
-                <span style="font-family:var(--font-mono); color:var(--accent-cyan); font-size:11px;" id="waveformPeakText">0 DEV PEAK</span>
-            </div>
-            <canvas id="overviewWaveCanvas" style="width:100%; height:80px; display:block;"></canvas>
-        </section>
+      <div class="drop-zone" id="skin-drop">
+        <h3 style="margin-bottom: 8px;">2. 导入皮肤与音效 ZIP</h3>
+        <p style="font-size: 12px; opacity: 0.8; line-height: 1.6;">
+          包含：贴图及 _mh、hit_fx 爆弹序列图、<br>音效与 ending.mp3
+        </p>
+        <span id="skin-file-name" style="display:block; margin-top:10px; font-size:12px; color:#00e5ff;">未选择 (可选)</span>
+        <input type="file" id="skin-input" accept=".zip">
+      </div>
     </div>
 
-    <!-- ================= 页面 2：空间雷达 (Radar) ================= -->
-    <div id="viewRadar" class="page-viewport">
-        <section class="card-surface radar-stage-card">
-            <div class="card-top-row" style="width:100%;">
-                <span class="section-label">极坐标蓝牙空间态势图</span>
-                <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-cyan)" id="radarHeadingText">航向: 000°</span>
-            </div>
-            <div class="radar-canvas-container">
-                <canvas id="radarCanvas"></canvas>
-            </div>
-            <div class="radar-legend-bar">
-                <div class="legend-tag">
-                    <div class="legend-circ" style="background:var(--accent-cyan)"></div>
-                    <span>车载/长周期静止设备 (方差≤3.2)</span>
-                </div>
-                <div class="legend-tag">
-                    <div class="legend-circ" style="background:var(--accent-red)"></div>
-                    <span>外部陌生流动外设</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- 空间外设列表 -->
-        <section class="card-surface">
-            <span class="section-label">雷达解算节点明细 (实时极坐标与场强)</span>
-            <div class="table-responsive-wrapper" style="margin-top:8px; max-height:190px;">
-                <table class="audit-data-table">
-                    <thead>
-                        <tr>
-                            <th>UUID 标识</th>
-                            <th>方位角</th>
-                            <th>估算距离</th>
-                            <th>平均 RSSI</th>
-                            <th>离散方差</th>
-                            <th>判定类别</th>
-                        </tr>
-                    </thead>
-                    <tbody id="radarNodesTableBody">
-                        <!-- 动态插入 -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    <!-- 用户自定义音符大小调节滑块 -->
+    <div class="slider-box">
+      <span>音符大小 (Note Size):</span>
+      <input type="range" id="size-slider" min="0.6" max="2.2" step="0.05" value="1.25">
+      <span id="size-val" style="color:#00e5ff; font-weight:bold;">1.25x</span>
     </div>
 
-    <!-- ================= 页面 3：AI 裁判席 (AI-Panel) ================= -->
-    <div id="viewAI" class="page-viewport">
-        <section class="card-surface judge-panel-card" id="judgePanelCard">
-            <!-- StoreKit IAP 购买锁蒙版 -->
-            <div class="iap-lock-overlay" id="aiLockOverlay">
-                <svg class="iap-crown-svg" viewBox="0 0 24 24">
-                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
-                </svg>
-                <div class="iap-title">EnvDetector Pro AI 裁决席</div>
-                <div class="iap-desc">
-                    解锁后开放多裁判共识微型 AI (Olympic-Scoring)、5 位独立裁判权重量化打分细则与自然语言推理陈词。
-                </div>
-                <button class="btn-iap-buy" id="btnBuyPro">解锁 AI 裁判高级版</button>
-                <button class="btn-iap-restore" id="btnRestorePro">恢复已购项目 (Restore)</button>
-            </div>
+    <div id="status-text">请先导入谱面 ZIP 包</div>
+    <button class="btn" id="start-btn" disabled>开始游玩</button>
+  </div>
 
-            <div class="card-top-row">
-                <span class="section-label">多裁判共识微型 AI (Olympic-Scoring Engine)</span>
-                <span class="status-badge" style="background:rgba(157,0,255,0.15); color:var(--accent-purple); border-color:var(--accent-purple);" id="aiConsensusConfidence">置信度: 0%</span>
-            </div>
-            <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-                为消除堵车时蓝牙突变或地下车库定位丢失等极端单项故障，AI 引入奥运打分机制：<strong>去掉 1 个最高分与 1 个最低分</strong>，取中坚裁判加权共识。
-            </p>
-
-            <div class="judge-bars-list" id="judgeBarsList">
-                <!-- 裁判柱状图 -->
-            </div>
-
-            <div class="ai-rationale-box">
-                <strong style="display:block; margin-bottom:4px; color:#fff;">AI 裁决推导陈词:</strong>
-                <span id="aiRationaleText">等待遥测数据流入仲裁席...</span>
-            </div>
-        </section>
-
-        <!-- 规则与参数审计 -->
-        <section class="card-surface">
-            <span class="section-label">裁决席规则参数与惩罚系数 (by JackZ)</span>
-            <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);">
-                <div style="display:flex; justify-content:space-between;"><span>BLE_Judge 权重 (人流基线):</span><span style="color:#fff;">55% (扣除稳态后)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>LAN_Judge 权重 (子网节点):</span><span style="color:#fff;">25%</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>GNSS_Judge 权重 (空间遮蔽):</span><span style="color:#fff;">10% (弱化兜底)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>Motion/Elevator 权重 (动力学):</span><span style="color:#fff;">10% (强阶跃优先)</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>车载长周期低方差衰减率:</span><span style="color:var(--accent-green); font-weight:700;">0.88x (拉低指数)</span></div>
-            </div>
-        </section>
-    </div>
-
-    <!-- ================= 页面 4：时序日志库 (Logs) ================= -->
-    <div id="viewLogs" class="page-viewport">
-        <!-- 会话命名录制栏 -->
-        <div class="recording-control-bar">
-            <input type="text" class="session-name-input" id="txtSessionName" placeholder="命名测试表格 (例: 早高峰内环堵车测试)">
-            <button class="btn-core btn-rec" id="btnToggleRecord">
-                <span id="recDot" style="width:7px; height:7px; border-radius:50%; background:currentColor;"></span>
-                <span id="recBtnText">开始录制</span>
-            </button>
+  <!-- 结算界面 -->
+  <div id="result-panel">
+    <div class="result-card">
+      <div class="result-rank" id="res-rank">V</div>
+      <div class="result-info">
+        <div id="res-title" style="font-size: 20px; font-weight: 700;">Cryogenic</div>
+        <div class="result-score" id="res-score">0982540</div>
+        <div class="result-stats">
+          <div>ACC: <span class="stat-val" id="res-acc">98.25%</span></div>
+          <div>Max Combo: <span class="stat-val" id="res-combo">620</span></div>
+          <div>Perfect: <span class="stat-val" style="color:#00e5ff;" id="res-perf">580</span></div>
+          <div>Good: <span class="stat-val" style="color:#ffd54f;" id="res-good">20</span></div>
+          <div>Miss: <span class="stat-val" style="color:#ff1744;" id="res-miss">5</span></div>
         </div>
-
-        <!-- 回放控制器浮层 -->
-        <section class="card-surface playback-modal-card" id="playbackCard">
-            <div class="card-top-row">
-                <span style="font-size:12px; font-weight:700; color:var(--accent-purple)">数据 1:1 时序物理复现中...</span>
-                <button class="btn-core" id="btnExitPlayback" style="font-size:10px; padding:3px 8px;">退出复现</button>
-            </div>
-            <div style="font-size:11px; font-family:var(--font-mono); margin:6px 0;" id="playbackProgressText">帧序列: 0 / 0</div>
-            <div class="score-track">
-                <div class="score-bar" id="playbackProgressBar" style="background:var(--accent-purple)"></div>
-            </div>
-        </section>
-
-        <!-- 历史表格卡片 -->
-        <section class="card-surface">
-            <div class="card-top-row">
-                <span class="section-label">IndexedDB 本地持久化测试宽表</span>
-                <div style="display:flex; gap:6px;">
-                    <button class="btn-core" id="btnExportJson" style="font-size:10px; padding:3px 6px;">导出JSON</button>
-                    <button class="btn-core" id="btnClearLogs" style="font-size:10px; padding:3px 6px; color:var(--accent-red)">清空所有</button>
-                </div>
-            </div>
-            <div id="sessionsContainer" style="margin-top:8px;">
-                <!-- 动态列表 -->
-            </div>
-        </section>
+      </div>
     </div>
+    <button class="btn" style="margin-top: 24px;" onclick="location.reload()">重新载入</button>
+  </div>
 
-    <!-- 底部常驻导航 -->
-    <nav class="sys-tab-nav">
-        <button class="nav-tab-item active" data-view="viewOverview">
-            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-            <span>态势总览</span>
-        </button>
-        <button class="nav-tab-item" data-view="viewRadar">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-            <span>空间雷达</span>
-        </button>
-        <button class="nav-tab-item" data-view="viewAI">
-            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-            <span>AI裁判席</span>
-        </button>
-        <button class="nav-tab-item" data-view="viewLogs">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            <span>时序日志</span>
-        </button>
-    </nav>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let audioCtx = null;
+    let bgmBuffer = null;
+    let endingBuffer = null;
+    let bgmSource = null;
+    let startTime = 0;
+    let isPlaying = false;
+    let isEnded = false;
 
-    <!-- 核心 JS 引擎代码 -->
-    <script>
-        (function() {
-            'use strict';
+    let userNoteScale = 1.25;
+    const sizeSlider = document.getElementById('size-slider');
+    const sizeVal = document.getElementById('size-val');
+    sizeSlider.oninput = (e) => {
+      userNoteScale = parseFloat(e.target.value);
+      sizeVal.innerText = userNoteScale.toFixed(2) + "x";
+    };
 
-            /* =========================================================================
-             * 1. 核心常量与配置规范 (22 台基准)
-             * ========================================================================= */
-            const ENV_CONFIG = {
-                version: "3.2.0-pro",
-                author: "JackZ",
-                appName: "EnvDetector",
-                thresholds: {
-                    ble: {
-                        alertMinStranger: 22, // 外部陌生设备 >= 22 台触发报警
-                        moderateStranger: 10
-                    },
-                    lan: {
-                        publicHosts: 8,
-                        officeHosts: 4
-                    },
-                    elevator: {
-                        verticalSpeed: 1.2
-                    },
-                    spatial: {
-                        deepIndoorAccuracy: 35.0
-                    },
-                    coMovingVarianceLimit: 3.2
-                },
-                publicScoreThreshold: 62.0
+    let songMeta = {
+      title: "Cryogenic",
+      level: "IN Lv.15",
+      composer: "Camellia ft. Petra Gurin",
+      charter: "「HD」 Falsus",
+      offset: 0.0
+    };
+
+    const ASSETS = {
+      chartJson: null,
+      bgImage: null,
+      hitFxImage: null,
+      audioBuffers: {},
+      images: {}
+    };
+
+    let parsedLines = [];
+    let score = 0, combo = 0, maxCombo = 0;
+    let perfectCount = 0, goodCount = 0, missCount = 0, totalNotes = 0;
+    let W = 0, H = 0, scale = 1;
+
+    const hitParticles = [];
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      scale = Math.min(W / 1280, H / 720);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    async function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+    }
+
+    function playHitSound(type) {
+      if (!audioCtx) return;
+      const map = { 1: "Tap", 2: "Drag", 3: "Hold", 4: "Flick" };
+      const name = map[type];
+      if (ASSETS.audioBuffers[name]) {
+        const s = audioCtx.createBufferSource();
+        s.buffer = ASSETS.audioBuffers[name];
+        s.connect(audioCtx.destination);
+        s.start(0);
+        return;
+      }
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const t = audioCtx.currentTime;
+        if (type === 1) {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(1400, t);
+          osc.frequency.exponentialRampToValueAtTime(300, t + 0.04);
+          gain.gain.setValueAtTime(0.7, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          osc.start(t);
+          osc.stop(t + 0.04);
+        } else if (type === 2) {
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(750, t);
+          gain.gain.setValueAtTime(0.35, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+          osc.start(t);
+          osc.stop(t + 0.025);
+        } else if (type === 4) {
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(900, t);
+          osc.frequency.linearRampToValueAtTime(2400, t + 0.06);
+          gain.gain.setValueAtTime(0.6, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          osc.start(t);
+          osc.stop(t + 0.06);
+        }
+      } catch (e) {}
+    }
+
+    function spawnHitFX(worldX, worldY, isPerfect) {
+      hitParticles.push({
+        x: worldX,
+        y: worldY,
+        startTime: performance.now(),
+        duration: 340,
+        isPerfect: isPerfect
+      });
+    }
+
+    function parseInfoString(str) {
+      const res = {};
+      const lines = str.split(/\r?\n/);
+      lines.forEach(l => {
+        const idx = l.indexOf(':');
+        if (idx > -1) {
+          const k = l.slice(0, idx).trim().replace(/^#\s*/, '');
+          let v = l.slice(idx + 1).trim();
+          v = v.replace(/^["']|["']$/g, '');
+          if (k) res[k] = v;
+        }
+      });
+      return res;
+    }
+
+    // --- ZIP 导入逻辑 ---
+    const chartDrop = document.getElementById('chart-drop');
+    const chartInput = document.getElementById('chart-input');
+    const skinDrop = document.getElementById('skin-drop');
+    const skinInput = document.getElementById('skin-input');
+    const statusText = document.getElementById('status-text');
+    const startBtn = document.getElementById('start-btn');
+
+    chartDrop.onclick = () => chartInput.click();
+    skinDrop.onclick = () => skinInput.click();
+
+    chartInput.onchange = (e) => { if (e.target.files[0]) handleChartZip(e.target.files[0]); };
+    skinInput.onchange = (e) => { if (e.target.files[0]) handleSkinZip(e.target.files[0]); };
+
+    async function handleChartZip(file) {
+      await initAudio();
+      statusText.innerText = "正在读取谱面 ZIP 包 (包含 5 文件)...";
+      try {
+        const zip = await JSZip.loadAsync(file);
+        let infoData = {};
+        const entries = zip.files;
+
+        for (let path in entries) {
+          const l = path.toLowerCase();
+          if (l.endsWith('info.yml') || l.endsWith('info.yaml') || l.endsWith('info.txt')) {
+            const txt = await entries[path].async('text');
+            infoData = Object.assign(infoData, parseInfoString(txt));
+          }
+        }
+
+        if (infoData.name) songMeta.title = infoData.name;
+        if (infoData.level) songMeta.level = infoData.level;
+        if (infoData.composer) songMeta.composer = infoData.composer;
+        if (infoData.charter) songMeta.charter = infoData.charter;
+        if (infoData.offset !== undefined) songMeta.offset = parseFloat(infoData.offset) || 0;
+
+        document.getElementById('song-name').innerText = songMeta.title;
+        document.getElementById('song-desc').innerText = `${songMeta.level} | ${songMeta.composer}`;
+
+        for (let path in entries) {
+          const entry = entries[path];
+          if (entry.dir) continue;
+          const l = path.toLowerCase();
+
+          if (l.endsWith('.json')) {
+            const txt = await entry.async('text');
+            const j = JSON.parse(txt);
+            if (j.judgeLineList) ASSETS.chartJson = j;
+          } else if (l.endsWith('.ogg') || l.endsWith('.mp3') || l.endsWith('.wav')) {
+            const ab = await entry.async('arraybuffer');
+            bgmBuffer = await audioCtx.decodeAudioData(ab);
+          } else if (l.endsWith('.png') || l.endsWith('.jpg') || l.endsWith('.jpeg')) {
+            const blob = await entry.async('blob');
+            const img = new Image();
+            img.src = URL.createObjectURL(blob);
+            await new Promise(r => { img.onload = r; });
+            ASSETS.bgImage = img;
+          }
+        }
+
+        if (!ASSETS.chartJson) throw new Error("未在谱面 ZIP 中找到合法的 judgeLineList JSON 谱面！");
+        if (!bgmBuffer) throw new Error("未在谱面 ZIP 中找到歌曲音频！");
+
+        chartDrop.classList.add('ready');
+        document.getElementById('chart-file-name').innerText = `已载入: ${file.name}`;
+        statusText.innerText = "谱面 ZIP 加载完成！可直接开始或导入皮肤/音效 ZIP。";
+        startBtn.disabled = false;
+      } catch (err) {
+        statusText.innerText = `谱面读取失败: ${err.message}`;
+      }
+    }
+
+    async function handleSkinZip(file) {
+      await initAudio();
+      statusText.innerText = "正在解压皮肤与音效 ZIP 包...";
+      try {
+        const zip = await JSZip.loadAsync(file);
+        for (let path in zip.files) {
+          const entry = zip.files[path];
+          if (entry.dir) continue;
+          const l = path.toLowerCase();
+
+          if (l.endsWith('.png') || l.endsWith('.jpg')) {
+            const blob = await entry.async('blob');
+            const img = new Image();
+            img.src = URL.createObjectURL(blob);
+            await new Promise(r => { img.onload = r; });
+
+            if (l.includes('hit_fx') || l.includes('hitfx') || l.includes('image_7')) {
+              ASSETS.hitFxImage = img;
+            } else if (l.includes('tap') || l.includes('click')) {
+              ASSETS.images[l.includes('mh') ? 'Tap_mh' : 'Tap'] = img;
+            } else if (l.includes('drag')) {
+              ASSETS.images[l.includes('mh') ? 'Drag_mh' : 'Drag'] = img;
+            } else if (l.includes('hold')) {
+              ASSETS.images[l.includes('mh') ? 'Hold_mh' : 'Hold'] = img;
+            } else if (l.includes('flick')) {
+              ASSETS.images[l.includes('mh') ? 'Flick_mh' : 'Flick'] = img;
+            }
+          } else if (l.endsWith('.ogg') || l.endsWith('.wav') || l.endsWith('.mp3')) {
+            const ab = await entry.async('arraybuffer');
+            const buf = await audioCtx.decodeAudioData(ab);
+
+            if (l.includes('tap') || l.includes('click')) ASSETS.audioBuffers['Tap'] = buf;
+            else if (l.includes('drag')) ASSETS.audioBuffers['Drag'] = buf;
+            else if (l.includes('hold')) ASSETS.audioBuffers['Hold'] = buf;
+            else if (l.includes('flick')) ASSETS.audioBuffers['Flick'] = buf;
+            else if (l.includes('ending')) endingBuffer = buf;
+          }
+        }
+
+        skinDrop.classList.add('ready');
+        document.getElementById('skin-file-name').innerText = `已载入: ${file.name}`;
+        statusText.innerText = "皮肤与音效包解压装配完成！";
+      } catch (err) {
+        statusText.innerText = `皮肤包读取异常: ${err.message}`;
+      }
+    }
+
+    // --- 严谨预处理与积分表 ---
+    function prepareChart() {
+      if (!ASSETS.chartJson || !ASSETS.chartJson.judgeLineList) return;
+      totalNotes = 0;
+
+      const timeCount = new Map();
+      ASSETS.chartJson.judgeLineList.forEach(line => {
+        const allNotes = [...(line.notesAbove || []), ...(line.notesBelow || [])];
+        allNotes.forEach(n => {
+          const t = Math.round(n.time);
+          timeCount.set(t, (timeCount.get(t) || 0) + 1);
+        });
+      });
+
+      parsedLines = ASSETS.chartJson.judgeLineList.map((line, idx) => {
+        const bpm = line.bpm || 140.0;
+        const tickToSec = (tick) => (tick / 32) * (60 / bpm);
+        const secToTick = (sec) => (sec / (60 / bpm)) * 32;
+
+        let accumulatedFloor = 0;
+        const speedEvents = (line.speedEvents || []).map(e => {
+          const startFloor = accumulatedFloor;
+          const duration = e.endTime - e.startTime;
+          const deltaFloor = (duration / 32) * (e.value / (bpm / 60));
+          accumulatedFloor += deltaFloor;
+          return {
+            startTime: e.startTime,
+            endTime: e.endTime,
+            value: e.value,
+            startFloor: startFloor,
+            endFloor: accumulatedFloor
+          };
+        });
+
+        function getFloorPosAtTick(tick) {
+          if (speedEvents.length === 0) return 0;
+          if (tick <= speedEvents[0].startTime) return 0;
+          const last = speedEvents[speedEvents.length - 1];
+          if (tick >= last.endTime) return last.endFloor;
+
+          for (let i = 0; i < speedEvents.length; i++) {
+            const ev = speedEvents[i];
+            if (tick >= ev.startTime && tick <= ev.endTime) {
+              const p = (tick - ev.startTime) / (ev.endTime - ev.startTime || 1);
+              return ev.startFloor + (ev.endFloor - ev.startFloor) * p;
+            }
+          }
+          return 0;
+        }
+
+        function formatNotes(notes, isAbove) {
+          return (notes || []).map(n => {
+            totalNotes++;
+            const startFloor = (n.floorPosition !== undefined) ? n.floorPosition : getFloorPosAtTick(n.time);
+            const endFloor = getFloorPosAtTick(n.time + (n.holdTime || 0));
+            const isMulti = (timeCount.get(Math.round(n.time)) || 0) >= 2;
+
+            return {
+              type: n.type,
+              time: n.time,
+              timeSec: tickToSec(n.time),
+              holdTime: n.holdTime || 0,
+              holdTimeSec: tickToSec(n.holdTime || 0),
+              x: n.positionX,
+              speed: n.speed || 1.0,
+              startFloor: startFloor,
+              endFloor: endFloor,
+              isAbove: isAbove,
+              isMulti: isMulti,
+              hit: false,
+              miss: false,
+              holding: false,
+              headHit: false,
+              lastTouchTime: 0
             };
+          });
+        }
 
-            /* =========================================================================
-             * 2. IndexedDB 存储控制器 (高密度宽表 + AI 经验记忆库)
-             * ========================================================================= */
-            const DB_NAME = "EnvDetector_AuditDB";
-            const DB_VERSION = 2; // 版本 2 支持在线自适应学习表
-            let auditDB = null;
+        return {
+          id: idx,
+          bpm: bpm,
+          tickToSec: tickToSec,
+          secToTick: secToTick,
+          getFloorPosAtTick: getFloorPosAtTick,
+          moveEvents: line.judgeLineMoveEvents || [],
+          rotateEvents: line.rotateEvents || line.judgeLineRotateEvents || [],
+          disappearEvents: line.judgeLineDisappearEvents || [],
+          notes: [...formatNotes(line.notesAbove, true), ...formatNotes(line.notesBelow, false)]
+        };
+      });
+    }
 
-            function initDatabase() {
-                return new Promise((resolve, reject) => {
-                    const req = indexedDB.open(DB_NAME, DB_VERSION);
-                    req.onupgradeneeded = function(e) {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains("sessions")) {
-                            const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
-                            store.createIndex("timestamp", "timestamp", { unique: false });
-                            store.createIndex("name", "name", { unique: false });
-                        }
-                        // 用户反馈经验记忆表
-                        if (!db.objectStoreNames.contains("ai_feedback_memory")) {
-                            const fStore = db.createObjectStore("ai_feedback_memory", { keyPath: "id", autoIncrement: true });
-                            fStore.createIndex("tag", "tag", { unique: false });
-                            fStore.createIndex("timestamp", "timestamp", { unique: false });
-                        }
-                    };
-                    req.onsuccess = function(e) {
-                        auditDB = e.target.result;
-                        resolve(auditDB);
-                    };
-                    req.onerror = function(e) {
-                        reject(e);
-                    };
-                });
+    function evalNumberEvent(events, curTick, defaultVal) {
+      if (!events || events.length === 0) return defaultVal;
+      if (curTick <= events[0].startTime) return events[0].start;
+      const last = events[events.length - 1];
+      if (curTick >= last.endTime) return last.end;
+
+      for (let i = 0; i < events.length; i++) {
+        const ev = events[i];
+        if (curTick >= ev.startTime && curTick <= ev.endTime) {
+          const t = (curTick - ev.startTime) / (ev.endTime - ev.startTime || 1);
+          return ev.start + (ev.end - ev.start) * t;
+        }
+      }
+      return defaultVal;
+    }
+
+    function evalMoveEvent(events, curTick) {
+      if (!events || events.length === 0) return { x: 0.5, y: 0.5 };
+      if (curTick <= events[0].startTime) return { x: events[0].start, y: events[0].start2 ?? 0.5 };
+      const last = events[events.length - 1];
+      if (curTick >= last.endTime) return { x: last.end, y: last.end2 ?? 0.5 };
+
+      for (let i = 0; i < events.length; i++) {
+        const ev = events[i];
+        if (curTick >= ev.startTime && curTick <= ev.endTime) {
+          const t = (curTick - ev.startTime) / (ev.endTime - ev.startTime || 1);
+          return {
+            x: ev.start + (ev.end - ev.start) * t,
+            y: (ev.start2 ?? 0.5) + ((ev.end2 ?? 0.5) - (ev.start2 ?? 0.5)) * t
+          };
+        }
+      }
+      return { x: 0.5, y: 0.5 };
+    }
+
+    // --- 触控响应逻辑 ---
+    const activeTouches = new Map();
+
+    window.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      activeTouches.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY,
+        lastX: e.clientX,
+        lastY: e.clientY,
+        startTime: performance.now()
+      });
+      checkHits(e.clientX, e.clientY, 'tap');
+    }, { passive: false });
+
+    window.addEventListener('pointermove', (e) => {
+      e.preventDefault();
+      if (activeTouches.has(e.pointerId)) {
+        const p = activeTouches.get(e.pointerId);
+        const dx = e.clientX - p.lastX;
+        const dy = e.clientY - p.lastY;
+        const dist = Math.hypot(dx, dy);
+        const isFlick = dist > 14;
+
+        p.lastX = e.clientX;
+        p.lastY = e.clientY;
+        p.x = e.clientX;
+        p.y = e.clientY;
+
+        if (isFlick) checkHits(e.clientX, e.clientY, 'flick');
+        checkHits(e.clientX, e.clientY, 'drag');
+      }
+    }, { passive: false });
+
+    function onPointerUp(e) { activeTouches.delete(e.pointerId); }
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+
+    // 瞬时打击判定 (Tap, Drag, Flick, Hold起始击打)
+    function checkHits(screenX, screenY, inputType) {
+      if (!isPlaying) return;
+      const curTime = (audioCtx.currentTime - startTime) + (songMeta.offset || 0);
+
+      parsedLines.forEach(line => {
+        const curTick = line.secToTick(curTime);
+        const linePos = evalMoveEvent(line.moveEvents, curTick);
+        const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
+        const curFloorPos = line.getFloorPosAtTick(curTick);
+
+        const lx = linePos.x * W;
+        const ly = (1.0 - linePos.y) * H;
+        const rad = (-rotDeg * Math.PI) / 180;
+
+        const dx = screenX - lx;
+        const dy = screenY - ly;
+        const touchLocalX = dx * Math.cos(rad) - dy * Math.sin(rad);
+        const touchLocalY = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+        line.notes.forEach(note => {
+          if (note.hit || note.miss) return;
+          const dt = curTime - note.timeSec;
+
+          const floorDiff = note.startFloor - curFloorPos;
+          const dist = floorDiff * 380 * scale;
+          const noteLocalY = note.isAbove ? -dist : dist;
+          const noteLocalX = (note.x / 9) * (W * 0.42);
+
+          const vertDist = Math.abs(touchLocalY - noteLocalY);
+          const horizDist = Math.abs(touchLocalX - noteLocalX);
+
+          const vertThreshold = 110 * scale * userNoteScale;
+          const horizThreshold = 120 * scale * userNoteScale;
+
+          if (horizDist < horizThreshold && vertDist < vertThreshold) {
+            const hitWorldX = lx + noteLocalX * Math.cos(-rad);
+            const hitWorldY = ly + noteLocalX * Math.sin(-rad);
+
+            if (note.type === 1 && inputType === 'tap' && Math.abs(dt) <= 0.16) {
+              note.hit = true;
+              playHitSound(1);
+              const isPerf = Math.abs(dt) <= 0.08;
+              registerHit(isPerf ? 1.0 : 0.65);
+              spawnHitFX(hitWorldX, hitWorldY, isPerf);
+            } else if (note.type === 2 && Math.abs(dt) <= 0.18) {
+              note.hit = true;
+              playHitSound(2);
+              registerHit(1.0);
+              spawnHitFX(hitWorldX, hitWorldY, true);
+            } else if (note.type === 4 && inputType === 'flick' && Math.abs(dt) <= 0.18) {
+              note.hit = true;
+              playHitSound(4);
+              registerHit(1.0);
+              spawnHitFX(hitWorldX, hitWorldY, true);
+            } else if (note.type === 3) {
+              // Hold 头部触发：首次 Tap 击中
+              if (inputType === 'tap' && Math.abs(dt) <= 0.16 && !note.headHit) {
+                note.headHit = true;
+                note.holding = true;
+                note.lastTouchTime = curTime;
+                playHitSound(1);
+                spawnHitFX(hitWorldX, hitWorldY, true);
+              }
+            }
+          }
+        });
+      });
+    }
+
+    // 逐帧主动轮询按压中的 Hold（彻底解决“手按着不动断触”的问题）
+    function updateHoldingStates(curTime) {
+      if (activeTouches.size === 0) return;
+
+      parsedLines.forEach(line => {
+        const curTick = line.secToTick(curTime);
+        const linePos = evalMoveEvent(line.moveEvents, curTick);
+        const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
+
+        const lx = linePos.x * W;
+        const ly = (1.0 - linePos.y) * H;
+        const rad = (-rotDeg * Math.PI) / 180;
+
+        line.notes.forEach(note => {
+          if (note.type !== 3 || !note.headHit || note.hit || note.miss) return;
+          if (curTime < note.timeSec || curTime > note.timeSec + note.holdTimeSec) return;
+
+          const noteLocalX = (note.x / 9) * (W * 0.42);
+          const horizThreshold = 140 * scale * userNoteScale;
+          const vertThreshold = 180 * scale * userNoteScale; // 长按中的贴线宽容度加大
+
+          // 遍历屏幕上每一根手指
+          for (let [id, touch] of activeTouches) {
+            const dx = touch.x - lx;
+            const dy = touch.y - ly;
+            const tX = dx * Math.cos(rad) - dy * Math.sin(rad);
+            const tY = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+            // 手指只要在判定线附近的对应轨道按着
+            if (Math.abs(tX - noteLocalX) < horizThreshold && Math.abs(tY) < vertThreshold) {
+              note.holding = true;
+              note.lastTouchTime = curTime;
+              break;
+            }
+          }
+        });
+      });
+    }
+
+    function registerHit(weight) {
+      if (weight === 1.0) perfectCount++;
+      else goodCount++;
+      combo++;
+      if (combo > maxCombo) maxCombo = combo;
+      updateHUD();
+    }
+
+    function registerMiss() {
+      missCount++;
+      combo = 0;
+      updateHUD();
+    }
+
+    function updateHUD() {
+      const processed = perfectCount + goodCount + missCount;
+      const totalScore = processed === 0 ? 0 : Math.round(((perfectCount + goodCount * 0.65) / totalNotes) * 1000000);
+      const acc = processed === 0 ? 100 : (((perfectCount + goodCount * 0.65) / processed) * 100);
+
+      document.getElementById('combo-num').innerText = combo;
+      document.getElementById('score-val').innerText = totalScore.toString().padStart(7, '0');
+      document.getElementById('acc-val').innerText = acc.toFixed(2) + '%';
+    }
+
+    function renderHitFX(now) {
+      for (let i = hitParticles.length - 1; i >= 0; i--) {
+        const p = hitParticles[i];
+        const elapsed = now - p.startTime;
+        if (elapsed >= p.duration) {
+          hitParticles.splice(i, 1);
+          continue;
+        }
+
+        const progress = elapsed / p.duration;
+        const frameIndex = Math.min(29, Math.floor(progress * 30));
+        const col = frameIndex % 5;
+        const row = Math.floor(frameIndex / 5);
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        if (ASSETS.hitFxImage) {
+          const img = ASSETS.hitFxImage;
+          const fw = img.width / 5;
+          const fh = img.height / 6;
+          const renderSize = 145 * scale * userNoteScale;
+
+          ctx.drawImage(img, col * fw, row * fh, fw, fh, -renderSize / 2, -renderSize / 2, renderSize, renderSize);
+        } else {
+          ctx.strokeStyle = p.isPerfect ? '#ffe082' : '#80deea';
+          ctx.lineWidth = 3.5 * (1 - progress);
+          ctx.beginPath();
+          ctx.arc(0, 0, (35 + progress * 45) * scale * userNoteScale, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    // --- 主渲染管线 ---
+    function render() {
+      if (!isPlaying) return;
+
+      const now = performance.now();
+      const curSec = (audioCtx.currentTime - startTime) + (songMeta.offset || 0);
+
+      // 每帧轮询长按音符手指按压
+      updateHoldingStates(curSec);
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. 曲绘背景
+      if (ASSETS.bgImage) {
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        const img = ASSETS.bgImage;
+        const imgRatio = img.width / img.height;
+        const screenRatio = W / H;
+        let dw, dh, dx, dy;
+        if (screenRatio > imgRatio) {
+          dw = W; dh = W / imgRatio; dx = 0; dy = (H - dh) / 2;
+        } else {
+          dh = H; dw = H * imgRatio; dx = (W - dw) / 2; dy = 0;
+        }
+        ctx.drawImage(img, dx, dy, dw, dh);
+        ctx.restore();
+      }
+
+      // 2. 判定线与音符
+      parsedLines.forEach(line => {
+        const curTick = line.secToTick(curSec);
+        const linePos = evalMoveEvent(line.moveEvents, curTick);
+        const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
+        const lineAlpha = evalNumberEvent(line.disappearEvents, curTick, 1.0);
+        const curFloorPos = line.getFloorPosAtTick(curTick);
+
+        const lx = linePos.x * W;
+        const ly = (1.0 - linePos.y) * H;
+
+        ctx.save();
+        ctx.translate(lx, ly);
+        ctx.rotate((rotDeg * Math.PI) / 180);
+
+        if (lineAlpha > 0.01) {
+          ctx.save();
+          ctx.globalAlpha = lineAlpha;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3.5 * scale;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 5 * scale;
+          ctx.beginPath();
+          ctx.moveTo(-W * 4, 0);
+          ctx.lineTo(W * 4, 0);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        line.notes.forEach(note => {
+          if (note.hit) return;
+
+          // 普通音符超时判定
+          if (note.type !== 3 && curSec - note.timeSec > 0.18 && !note.miss) {
+            note.miss = true;
+            registerMiss();
+            return;
+          }
+
+          // Hold 音符生命周期逻辑
+          if (note.type === 3) {
+            // 未按且超时未激活
+            if (!note.headHit && curSec - note.timeSec > 0.18 && !note.miss) {
+              note.miss = true;
+              registerMiss();
+              return;
             }
 
-            function saveSessionToDB(sessionData) {
-                return new Promise((resolve) => {
-                    const tx = auditDB.transaction(["sessions"], "readwrite");
-                    tx.objectStore("sessions").add(sessionData);
-                    tx.oncomplete = () => resolve();
-                });
+            // 已激活：检测断触 (容错时间扩充到 0.28s)
+            if (note.headHit && !note.miss) {
+              if (curSec > note.lastTouchTime + 0.28 && curSec < note.timeSec + note.holdTimeSec) {
+                note.miss = true;
+                note.holding = false;
+                registerMiss();
+                return;
+              }
             }
 
-            function getAllSessionsFromDB() {
-                return new Promise((resolve) => {
-                    const tx = auditDB.transaction(["sessions"], "readonly");
-                    const req = tx.objectStore("sessions").getAll();
-                    req.onsuccess = () => resolve(req.result || []);
-                });
+            // Hold 尾部完成结算
+            if (note.headHit && curSec >= note.timeSec + note.holdTimeSec) {
+              note.hit = true;
+              registerHit(1.0);
+              const noteLocalX = (note.x / 9) * (W * 0.42);
+              const rad = (-rotDeg * Math.PI) / 180;
+              spawnHitFX(lx + noteLocalX * Math.cos(-rad), ly + noteLocalX * Math.sin(-rad), true);
+              return;
             }
+          }
 
-            function deleteSessionFromDB(id) {
-                return new Promise((resolve) => {
-                    const tx = auditDB.transaction(["sessions"], "readwrite");
-                    tx.objectStore("sessions").delete(id);
-                    tx.oncomplete = () => resolve();
-                });
+          const timeToHit = note.timeSec - curSec;
+          if (timeToHit < -0.25 || timeToHit > 2.2) return;
+
+          // 核心落点与垂直对齐
+          const floorDiff = note.startFloor - curFloorPos;
+          const dist = floorDiff * 380 * scale;
+          const noteY = note.isAbove ? -dist : dist;
+          const noteX = (note.x / 9) * (W * 0.42);
+
+          if (Math.abs(noteY) > H * 1.5) return;
+
+          ctx.save();
+          ctx.translate(noteX, noteY);
+
+          const nw = 120 * scale * userNoteScale;
+          const nh = 18 * scale * userNoteScale;
+          const isMh = note.isMulti;
+
+          if (note.type === 1) { // Tap
+            const img = isMh ? ASSETS.images['Tap_mh'] : ASSETS.images['Tap'];
+            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
+            else {
+              ctx.fillStyle = isMh ? '#ffeb3b' : '#03a9f4';
+              ctx.fillRect(-nw / 2, -nh / 2, nw, nh);
+              ctx.strokeStyle = '#fff';
+              ctx.strokeRect(-nw / 2, -nh / 2, nw, nh);
             }
-
-            /* =========================================================================
-             * 3. 用户经验记忆与在线自学习引擎 (KNN Matching)
-             * ========================================================================= */
-            const AdaptiveLearningEngine = {
-                memoryList: [],
-
-                async reloadMemory() {
-                    return new Promise((resolve) => {
-                        const tx = auditDB.transaction(["ai_feedback_memory"], "readonly");
-                        const req = tx.objectStore("ai_feedback_memory").getAll();
-                        req.onsuccess = () => {
-                            this.memoryList = req.result || [];
-                            const badge = document.getElementById('lblLearnedCount');
-                            if (badge) badge.textContent = `已学习 ${this.memoryList.length} 条经验`;
-                            resolve(this.memoryList);
-                        };
-                    });
-                },
-
-                async learnCurrentContext(userTag) {
-                    const totalBle = SystemState.radarNodes.length;
-                    const coMovingRatio = totalBle > 0 ? (SystemState.coMovingCount / totalBle) : 0;
-                    
-                    const featureVector = {
-                        bleCount: SystemState.effectiveStrangers,
-                        totalBle: totalBle,
-                        coMovingRatio: coMovingRatio,
-                        lanCount: SystemState.lanCount,
-                        verticalSpeed: Math.abs(SystemState.verticalSpeed),
-                        gpsAccuracy: SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy : 50.0
-                    };
-
-                    const sample = {
-                        tag: userTag,
-                        timestamp: Date.now(),
-                        features: featureVector
-                    };
-
-                    await new Promise((resolve) => {
-                        const tx = auditDB.transaction(["ai_feedback_memory"], "readwrite");
-                        tx.objectStore("ai_feedback_memory").add(sample);
-                        tx.oncomplete = () => resolve();
-                    });
-
-                    await this.reloadMemory();
-
-                    const status = document.getElementById('feedbackStatusText');
-                    const tagNameMap = {
-                        'subway': '地铁车厢',
-                        'car': '私家车座舱',
-                        'restaurant': '餐馆/商场',
-                        'office': '办公室',
-                        'home': '私密/家'
-                    };
-                    if (status) {
-                        status.innerHTML = `<span style="color:var(--accent-green)">✓ 已将当前特征印记记录为【${tagNameMap[userTag]}】！AI 纠偏已生效。</span>`;
-                    }
-                },
-
-                evaluateMemoryMatch() {
-                    if (!this.memoryList || this.memoryList.length === 0) {
-                        return null;
-                    }
-
-                    const currentTotal = SystemState.radarNodes.length;
-                    const currentRatio = currentTotal > 0 ? (SystemState.coMovingCount / currentTotal) : 0;
-                    const currentLan = SystemState.lanCount;
-                    const currentGps = SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy : 50.0;
-
-                    let bestMatch = null;
-                    let minDistance = 9999.0;
-
-                    for (const item of this.memoryList) {
-                        const f = item.features;
-                        const dBle = Math.pow((currentTotal - f.totalBle) / 10.0, 2) * 1.5;
-                        const dRatio = Math.pow((currentRatio - f.coMovingRatio) * 3.0, 2) * 1.2;
-                        const dLan = Math.pow((currentLan - f.lanCount) / 5.0, 2) * 0.8;
-                        const dGps = Math.pow((Math.min(currentGps, 50) - Math.min(f.gpsAccuracy, 50)) / 20.0, 2) * 0.5;
-
-                        const distance = Math.sqrt(dBle + dRatio + dLan + dGps);
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            bestMatch = item;
-                        }
-                    }
-
-                    if (minDistance <= 1.8 && bestMatch) {
-                        const similarity = Math.max(0.6, 1.0 - (minDistance / 3.0));
-                        return {
-                            matchedTag: bestMatch.tag,
-                            similarity: similarity,
-                            matchedSampleId: bestMatch.id
-                        };
-                    }
-
-                    return null;
-                }
-            };
-
-            /* =========================================================================
-             * 4. 系统运行时状态中心
-             * ========================================================================= */
-            const SystemState = {
-                heading: 0.0,
-                verticalSpeed: 0.0,
-                zAcceleration: 0.0,
-                gpsAccuracy: -1.0,
-                lanCount: 1,
-                radarNodes: [],
-                
-                isProUnlocked: false,
-
-                aiScore: 0.0,
-                aiCategory: "初始化中...",
-                aiConfidence: 0.85,
-                aiRationale: "正在侦测周边物理场与无线电网络...",
-                judgeScores: {},
-                trimmedJudges: [],
-
-                effectiveStrangers: 0,
-                coMovingCount: 0,
-                isElevator: false,
-                isPublic: false,
-
-                bleHistoryWave: new Array(40).fill(0),
-
-                isRecording: false,
-                sessionName: "",
-                recordingFrames: []
-            };
-
-            /* =========================================================================
-             * 5. DOM 引用
-             * ========================================================================= */
-            const DOM = {
-                sysLiveClock: document.getElementById('sysLiveClock'),
-                alertFlasher: document.getElementById('alertFlasher'),
-                threatHeroCard: document.getElementById('threatHeroCard'),
-                threatStatusBadge: document.getElementById('threatStatusBadge'),
-                envPrimaryTitle: document.getElementById('envPrimaryTitle'),
-                envScoreValue: document.getElementById('envScoreValue'),
-                envScoreBar: document.getElementById('envScoreBar'),
-                cabinDeductionStrip: document.getElementById('cabinDeductionStrip'),
-                cabinStatusText: document.getElementById('cabinStatusText'),
-                publicWarningBanner: document.getElementById('publicWarningBanner'),
-
-                cellBle: document.getElementById('cellBle'),
-                cellLan: document.getElementById('cellLan'),
-                cellSpeed: document.getElementById('cellSpeed'),
-                cellGps: document.getElementById('cellGps'),
-                valBleEffective: document.getElementById('valBleEffective'),
-                valBleRaw: document.getElementById('valBleRaw'),
-                valBleCoMoving: document.getElementById('valBleCoMoving'),
-                valLanCount: document.getElementById('valLanCount'),
-                valVerticalSpeed: document.getElementById('valVerticalSpeed'),
-                valElevatorFlag: document.getElementById('valElevatorFlag'),
-                valGpsAccuracy: document.getElementById('valGpsAccuracy'),
-                valGpsStatus: document.getElementById('valGpsStatus'),
-                waveformPeakText: document.getElementById('waveformPeakText'),
-
-                overviewWaveCanvas: document.getElementById('overviewWaveCanvas'),
-                radarCanvas: document.getElementById('radarCanvas'),
-                radarHeadingText: document.getElementById('radarHeadingText'),
-                radarNodesTableBody: document.getElementById('radarNodesTableBody'),
-
-                aiLockOverlay: document.getElementById('aiLockOverlay'),
-                btnBuyPro: document.getElementById('btnBuyPro'),
-                btnRestorePro: document.getElementById('btnRestorePro'),
-                judgeBarsList: document.getElementById('judgeBarsList'),
-                aiRationaleText: document.getElementById('aiRationaleText'),
-                aiConsensusConfidence: document.getElementById('aiConsensusConfidence'),
-
-                txtSessionName: document.getElementById('txtSessionName'),
-                btnToggleRecord: document.getElementById('btnToggleRecord'),
-                recBtnText: document.getElementById('recBtnText'),
-                playbackCard: document.getElementById('playbackCard'),
-                playbackProgressText: document.getElementById('playbackProgressText'),
-                playbackProgressBar: document.getElementById('playbackProgressBar'),
-                btnExitPlayback: document.getElementById('btnExitPlayback'),
-                sessionsContainer: document.getElementById('sessionsContainer'),
-                btnExportJson: document.getElementById('btnExportJson'),
-                btnClearLogs: document.getElementById('btnClearLogs')
-            };
-
-            function tickSystemClock() {
-                const now = new Date();
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-                DOM.sysLiveClock.textContent = `${h}:${m}:${s}`;
+          } else if (note.type === 2) { // Drag
+            const img = isMh ? ASSETS.images['Drag_mh'] : ASSETS.images['Drag'];
+            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
+            else {
+              ctx.fillStyle = '#ffeb3b';
+              ctx.fillRect(-nw / 2.2, -nh / 2.5, nw / 1.1, nh / 1.25);
             }
-            setInterval(tickSystemClock, 1000);
-            tickSystemClock();
-
-            /* =========================================================================
-             * 6. 视图渲染引擎
-             * ========================================================================= */
-            function updateDashboardUI() {
-                DOM.envPrimaryTitle.textContent = SystemState.aiCategory;
-                DOM.envScoreValue.textContent = SystemState.aiScore.toFixed(1);
-                DOM.envScoreBar.style.width = `${SystemState.aiScore}%`;
-
-                if (SystemState.isPublic) {
-                    DOM.threatHeroCard.className = "card-surface threat-hero-card danger";
-                    DOM.threatStatusBadge.className = "status-badge danger";
-                    DOM.threatStatusBadge.textContent = "公共暴露状态";
-                    DOM.publicWarningBanner.classList.add('show');
-                    DOM.alertFlasher.classList.add('active');
-                } else if (SystemState.aiScore >= 40.0) {
-                    DOM.threatHeroCard.className = "card-surface threat-hero-card warning";
-                    DOM.threatStatusBadge.className = "status-badge warning";
-                    DOM.threatStatusBadge.textContent = "流动过渡区";
-                    DOM.publicWarningBanner.classList.remove('show');
-                    DOM.alertFlasher.classList.remove('active');
-                } else {
-                    DOM.threatHeroCard.className = "card-surface threat-hero-card";
-                    DOM.threatStatusBadge.className = "status-badge";
-                    DOM.threatStatusBadge.textContent = "私密 / 车载独立";
-                    DOM.publicWarningBanner.classList.remove('show');
-                    DOM.alertFlasher.classList.remove('active');
-                }
-
-                if (SystemState.coMovingCount >= 2) {
-                    DOM.cabinDeductionStrip.className = "cabin-deduction-strip active";
-                    DOM.cabinStatusText.textContent = `检测到 ${SystemState.coMovingCount} 台恒距同乘外设 (指数已打折 0.88x)`;
-                } else {
-                    DOM.cabinDeductionStrip.className = "cabin-deduction-strip";
-                    DOM.cabinStatusText.textContent = SystemState.coMovingCount === 1 ? "仅 1 台静止外设，未激活车载折损" : "未检测到稳态同乘设备";
-                }
-
-                DOM.valBleEffective.textContent = SystemState.effectiveStrangers;
-                DOM.valBleRaw.textContent = SystemState.radarNodes.length;
-                DOM.valBleCoMoving.textContent = SystemState.coMovingCount;
-                DOM.valLanCount.textContent = SystemState.lanCount;
-                DOM.valVerticalSpeed.textContent = SystemState.verticalSpeed.toFixed(2);
-                DOM.valGpsAccuracy.textContent = SystemState.gpsAccuracy > 0 ? SystemState.gpsAccuracy.toFixed(1) : "无锁";
-
-                DOM.valElevatorFlag.textContent = SystemState.isElevator ? "运动激活" : "平层稳态";
-                DOM.valGpsStatus.textContent = (SystemState.gpsAccuracy >= 35 || SystemState.gpsAccuracy < 0) ? "深度遮蔽" : "良好";
-
-                // 22 台高亮判定
-                DOM.cellBle.classList.toggle('breached', SystemState.effectiveStrangers >= ENV_CONFIG.thresholds.ble.alertMinStranger);
-                DOM.cellLan.classList.toggle('breached', SystemState.lanCount >= ENV_CONFIG.thresholds.lan.publicHosts);
-                DOM.cellSpeed.classList.toggle('breached', SystemState.isElevator);
-
-                SystemState.bleHistoryWave.push(SystemState.effectiveStrangers);
-                SystemState.bleHistoryWave.shift();
-                const maxWaveVal = Math.max(...SystemState.bleHistoryWave, 10);
-                DOM.waveformPeakText.textContent = `${maxWaveVal} DEV PEAK`;
-
-                if (SystemState.isRecording) {
-                    SystemState.recordingFrames.push({
-                        time: new Date().toLocaleTimeString(),
-                        vSpeed: SystemState.verticalSpeed.toFixed(2),
-                        zAcc: SystemState.zAcceleration.toFixed(3),
-                        gps: SystemState.gpsAccuracy.toFixed(1),
-                        strangers: SystemState.effectiveStrangers,
-                        coMoving: SystemState.coMovingCount,
-                        lan: SystemState.lanCount,
-                        score: SystemState.aiScore.toFixed(1),
-                        category: SystemState.aiCategory
-                    });
-                }
+          } else if (note.type === 3) { // Hold (彻底删除多余的 Tap 头部绘制)
+            let holdFloorSpan = Math.max(0.01, note.endFloor - note.startFloor);
+            // 实时修剪变短：被按住时推平到判定线上
+            if (note.headHit) {
+              const remainingFloor = Math.max(0, note.endFloor - curFloorPos);
+              holdFloorSpan = remainingFloor;
             }
+            const holdLen = holdFloorSpan * 380 * scale;
+            const holdImg = isMh ? ASSETS.images['Hold_mh'] : ASSETS.images['Hold'];
 
-            /* =========================================================================
-             * 7. 60FPS 极坐标雷达渲染引擎
-             * ========================================================================= */
-            const radarCtx = DOM.radarCanvas.getContext('2d');
-            let radarSweepAngle = 0;
-
-            function setupRadarCanvasDPI() {
-                const dpr = window.devicePixelRatio || 1;
-                const rect = DOM.radarCanvas.getBoundingClientRect();
-                DOM.radarCanvas.width = rect.width * dpr;
-                DOM.radarCanvas.height = rect.height * dpr;
-                radarCtx.scale(dpr, dpr);
+            if (holdImg) {
+              // 直接以 Hold 贴图的头部对准 (0,0) 开始绘制，严禁额外绘制 Tap
+              if (note.isAbove) ctx.drawImage(holdImg, -nw / 2, -holdLen, nw, holdLen);
+              else ctx.drawImage(holdImg, -nw / 2, 0, nw, holdLen);
+            } else {
+              ctx.fillStyle = isMh ? 'rgba(255, 235, 59, 0.45)' : 'rgba(3, 169, 244, 0.4)';
+              if (note.isAbove) ctx.fillRect(-nw / 2, -holdLen, nw, holdLen);
+              else ctx.fillRect(-nw / 2, 0, nw, holdLen);
             }
-
-            function drawRadarFrame() {
-                const w = DOM.radarCanvas.clientWidth;
-                const h = DOM.radarCanvas.clientHeight;
-                const cx = w / 2;
-                const cy = h / 2;
-                const maxR = cx - 12;
-
-                radarCtx.clearRect(0, 0, w, h);
-
-                // 极坐标同心环 (5m, 10m, 15m, 20m)
-                radarCtx.strokeStyle = 'rgba(64, 93, 140, 0.25)';
-                radarCtx.lineWidth = 1;
-                for (let r = 1; r <= 4; r++) {
-                    radarCtx.beginPath();
-                    radarCtx.arc(cx, cy, (maxR / 4) * r, 0, Math.PI * 2);
-                    radarCtx.stroke();
-                }
-
-                // 十字轴
-                radarCtx.beginPath();
-                radarCtx.moveTo(cx, cy - maxR);
-                radarCtx.lineTo(cx, cy + maxR);
-                radarCtx.moveTo(cx - maxR, cy);
-                radarCtx.lineTo(cx + maxR, cy);
-                radarCtx.stroke();
-
-                // 扫描光束
-                radarSweepAngle = (radarSweepAngle + 0.035) % (Math.PI * 2);
-                const sweepGradient = radarCtx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-                sweepGradient.addColorStop(0, 'rgba(0, 240, 255, 0.15)');
-                sweepGradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
-
-                radarCtx.save();
-                radarCtx.beginPath();
-                radarCtx.moveTo(cx, cy);
-                radarCtx.arc(cx, cy, maxR, radarSweepAngle - 0.45, radarSweepAngle);
-                radarCtx.closePath();
-                radarCtx.fillStyle = sweepGradient;
-                radarCtx.fill();
-                radarCtx.restore();
-
-                // 本机中心点
-                radarCtx.fillStyle = '#fff';
-                radarCtx.beginPath();
-                radarCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
-                radarCtx.fill();
-
-                // 外设节点
-                const nodes = SystemState.radarNodes;
-                for (let i = 0; i < nodes.length; i++) {
-                    const node = nodes[i];
-                    const distRatio = Math.min(node.distance, 20.0) / 20.0;
-                    const r = distRatio * maxR;
-                    const rad = (node.bearing - 90) * (Math.PI / 180);
-                    const nx = cx + r * Math.cos(rad);
-                    const ny = cy + r * Math.sin(rad);
-
-                    const isCo = node.is_comoving;
-                    radarCtx.fillStyle = isCo ? '#00f0ff' : '#ff3366';
-
-                    radarCtx.beginPath();
-                    radarCtx.arc(nx, ny, isCo ? 5.5 : 4.5, 0, Math.PI * 2);
-                    radarCtx.fill();
-
-                    radarCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                    radarCtx.font = '8px monospace';
-                    radarCtx.fillText(`${node.distance.toFixed(1)}m`, nx + 6, ny + 3);
-                }
-
-                requestAnimationFrame(drawRadarFrame);
+          } else if (note.type === 4) { // Flick
+            const img = isMh ? ASSETS.images['Flick_mh'] : ASSETS.images['Flick'];
+            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
+            else {
+              ctx.fillStyle = '#ff1744';
+              ctx.fillRect(-nw / 2, -nh / 2, nw, nh);
+              ctx.fillStyle = '#fff';
+              ctx.fillRect(-nw / 6, -nh / 4, nw / 3, nh / 2);
             }
+          }
 
-            /* =========================================================================
-             * 8. 时序波形绘制
-             * ========================================================================= */
-            const waveCtx = DOM.overviewWaveCanvas.getContext('2d');
+          ctx.restore();
+        });
 
-            function setupWaveCanvasDPI() {
-                const dpr = window.devicePixelRatio || 1;
-                const rect = DOM.overviewWaveCanvas.getBoundingClientRect();
-                DOM.overviewWaveCanvas.width = rect.width * dpr;
-                DOM.overviewWaveCanvas.height = rect.height * dpr;
-                waveCtx.scale(dpr, dpr);
-            }
+        ctx.restore();
+      });
 
-            function drawWaveformFrame() {
-                const w = DOM.overviewWaveCanvas.clientWidth;
-                const h = DOM.overviewWaveCanvas.clientHeight;
-                waveCtx.clearRect(0, 0, w, h);
+      renderHitFX(now);
 
-                const data = SystemState.bleHistoryWave;
-                const maxRange = 30; // 适配 22 台量程
-                const step = w / (data.length - 1);
+      if (bgmBuffer && curSec > bgmBuffer.duration + 0.8 && !isEnded) {
+        isEnded = true;
+        showResult();
+      }
 
-                // 22 台红色虚线
-                const alertY = h - (ENV_CONFIG.thresholds.ble.alertMinStranger / maxRange) * h;
-                waveCtx.strokeStyle = 'rgba(255, 51, 102, 0.4)';
-                waveCtx.setLineDash([4, 4]);
-                waveCtx.beginPath();
-                waveCtx.moveTo(0, alertY);
-                waveCtx.lineTo(w, alertY);
-                waveCtx.stroke();
-                waveCtx.setLineDash([]);
+      requestAnimationFrame(render);
+    }
 
-                waveCtx.strokeStyle = '#00f0ff';
-                waveCtx.lineWidth = 2;
-                waveCtx.beginPath();
-                for (let i = 0; i < data.length; i++) {
-                    const y = h - (Math.min(maxRange, data[i]) / maxRange) * (h - 8) - 4;
-                    if (i === 0) waveCtx.moveTo(0, y);
-                    else waveCtx.lineTo(i * step, y);
-                }
-                waveCtx.stroke();
+    function showResult() {
+      isPlaying = false;
+      if (endingBuffer) {
+        const endSrc = audioCtx.createBufferSource();
+        endSrc.buffer = endingBuffer;
+        endSrc.connect(audioCtx.destination);
+        endSrc.start(0);
+      }
 
-                requestAnimationFrame(drawWaveformFrame);
-            }
+      const processed = perfectCount + goodCount + missCount;
+      const totalScore = processed === 0 ? 0 : Math.round(((perfectCount + goodCount * 0.65) / totalNotes) * 1000000);
+      const acc = processed === 0 ? 100 : (((perfectCount + goodCount * 0.65) / processed) * 100);
 
-            /* =========================================================================
-             * 9. AI 裁判席面板与 IAP 锁控制
-             * ========================================================================= */
-            function renderAIArbitrationUI() {
-                if (!SystemState.isProUnlocked) {
-                    DOM.aiLockOverlay.classList.remove('hidden');
-                    DOM.aiConsensusConfidence.textContent = "置信度: LOCKED";
-                    DOM.aiRationaleText.textContent = "【EnvDetector Pro 专属特权】需解锁购买后查看 5 裁判独立加权与自然语言推导陈词。";
-                    DOM.judgeBarsList.innerHTML = `
-                        <div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding:18px 0; font-family:var(--font-mono);">
-                            -- 裁判打分通道已锁定 (PRO REQUIRED) --
-                        </div>
-                    `;
-                    return;
-                }
+      let rank = "F";
+      let rankColor = "#f44336";
+      if (totalScore === 1000000) { rank = "φ"; rankColor = "#00e5ff"; }
+      else if (totalScore >= 960000) { rank = "V"; rankColor = "#ffd700"; }
+      else if (totalScore >= 920000) { rank = "S"; rankColor = "#ffb300"; }
+      else if (totalScore >= 880000) { rank = "A"; rankColor = "#4caf50"; }
+      else if (totalScore >= 820000) { rank = "B"; rankColor = "#29b6f6"; }
+      else if (totalScore >= 700000) { rank = "C"; rankColor = "#ab47bc"; }
 
-                DOM.aiLockOverlay.classList.add('hidden');
-                DOM.aiConsensusConfidence.textContent = `置信度: ${(SystemState.aiConfidence * 100).toFixed(0)}%`;
-                DOM.aiRationaleText.textContent = SystemState.aiRationale;
+      const rankElem = document.getElementById('res-rank');
+      rankElem.innerText = rank;
+      rankElem.style.color = rankColor;
+      rankElem.style.textShadow = `0 0 25px ${rankColor}`;
 
-                const scores = SystemState.judgeScores;
-                const trimmed = SystemState.trimmedJudges;
-                const keys = Object.keys(scores);
+      document.getElementById('res-title').innerText = songMeta.title;
+      document.getElementById('res-score').innerText = totalScore.toString().padStart(7, '0');
+      document.getElementById('res-acc').innerText = acc.toFixed(2) + '%';
+      document.getElementById('res-combo').innerText = maxCombo;
+      document.getElementById('res-perf').innerText = perfectCount;
+      document.getElementById('res-good').innerText = goodCount;
+      document.getElementById('res-miss').innerText = missCount;
 
-                DOM.judgeBarsList.innerHTML = keys.map(k => {
-                    const val = scores[k] || 0.0;
-                    const isTrimmed = trimmed.includes(k);
-                    let judgeAlias = k;
-                    if (k === "BLE_Judge") judgeAlias = "裁判 A (陌生蓝牙人群密度)";
-                    if (k === "LAN_Judge") judgeAlias = "裁判 B (网络拓扑与主机开放度)";
-                    if (k === "GNSS_Judge") judgeAlias = "裁判 C (空间遮蔽几何衰减)";
-                    if (k === "Elevator_Judge") judgeAlias = "裁判 D (垂直升降动力学)";
-                    if (k === "Motion_Judge") judgeAlias = "裁判 E (惯性稳态加重)";
+      const p = document.getElementById('result-panel');
+      p.style.display = 'flex';
+      setTimeout(() => { p.style.opacity = '1'; }, 50);
+    }
 
-                    return `
-                        <div class="judge-bar-item">
-                            <div class="judge-item-header">
-                                <span class="judge-item-name">
-                                    ${judgeAlias}
-                                    ${isTrimmed ? '<span class="judge-trimmed-pill">极值已被裁减</span>' : ''}
-                                </span>
-                                <span style="color:${isTrimmed ? 'var(--text-tertiary)' : 'var(--accent-purple)'}; font-weight:700;">
-                                    ${val.toFixed(1)} 分
-                                </span>
-                            </div>
-                            <div class="judge-item-track">
-                                <div class="judge-item-fill ${isTrimmed ? 'trimmed' : ''}" style="width: ${val}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+    startBtn.onclick = () => {
+      if (!ASSETS.chartJson) return;
+      prepareChart();
+      document.getElementById('upload-panel').style.display = 'none';
+      isPlaying = true;
 
-            function renderRadarNodesTable() {
-                const tbody = DOM.radarNodesTableBody;
-                if (SystemState.radarNodes.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary); padding:10px;">周围暂无可见低功耗蓝牙广播</td></tr>`;
-                    return;
-                }
+      if (bgmBuffer) {
+        bgmSource = audioCtx.createBufferSource();
+        bgmSource.buffer = bgmBuffer;
+        bgmSource.connect(audioCtx.destination);
+        startTime = audioCtx.currentTime;
+        bgmSource.start(0);
+      } else {
+        startTime = audioCtx.currentTime;
+      }
 
-                tbody.innerHTML = SystemState.radarNodes.map(node => `
-                    <tr>
-                        <td style="color:#fff; font-weight:600;">${node.id.substring(0, 8)}...</td>
-                        <td>${node.bearing.toFixed(0)}°</td>
-                        <td>${node.distance.toFixed(1)} m</td>
-                        <td>${node.rssi} dBm</td>
-                        <td style="color:${node.variance <= 3.2 ? 'var(--accent-cyan)' : 'var(--text-secondary)'}">${node.variance.toFixed(2)}</td>
-                        <td style="color:${node.is_comoving ? 'var(--accent-cyan)' : 'var(--accent-red)'}">
-                            ${node.is_comoving ? '车载/同乘 (稳态)' : '外部陌生流动'}
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            /* =========================================================================
-             * 10. 原生通信主入口与在线自学习纠偏注入
-             * ========================================================================= */
-            window.lastRawPayload = null;
-
-            window.onPurchaseStateUpdate = function(unlocked) {
-                SystemState.isProUnlocked = Boolean(unlocked);
-                renderAIArbitrationUI();
-            };
-
-            window.onEnvironmentUpdate = function(payload) {
-                if (!payload) return;
-                window.lastRawPayload = payload;
-
-                if (typeof payload.is_pro_unlocked !== 'undefined') {
-                    SystemState.isProUnlocked = Boolean(payload.is_pro_unlocked);
-                }
-
-                SystemState.heading = payload.heading || 0.0;
-                DOM.radarHeadingText.textContent = `航向: ${String(Math.round(SystemState.heading)).padStart(3, '0')}°`;
-
-                if (payload.metrics) {
-                    const m = payload.metrics;
-                    SystemState.verticalSpeed = parseFloat(m.vertical_speed_m_s) || 0.0;
-                    SystemState.zAcceleration = parseFloat(m.z_acceleration) || 0.0;
-                    SystemState.gpsAccuracy = parseFloat(m.gps_accuracy_m) || -1.0;
-                    SystemState.lanCount = parseInt(m.lan_devices_count, 10) || 1;
-                }
-
-                SystemState.radarNodes = payload.radar_peripherals || [];
-                SystemState.coMovingCount = SystemState.radarNodes.filter(x => x.is_comoving).length;
-                SystemState.effectiveStrangers = Math.max(0, SystemState.radarNodes.length - SystemState.coMovingCount);
-
-                if (payload.ai_arbitration) {
-                    const ai = payload.ai_arbitration;
-                    SystemState.aiScore = ai.score || 0.0;
-                    SystemState.aiCategory = ai.category || "分析中...";
-                    SystemState.aiConfidence = ai.confidence || 0.85;
-                    SystemState.aiRationale = ai.rationale || "";
-                    SystemState.judgeScores = ai.judge_scores || {};
-                    SystemState.trimmedJudges = ai.trimmed_judges || [];
-                }
-
-                // ================= 在线自学习记忆重写层 =================
-                const memoryMatch = AdaptiveLearningEngine.evaluateMemoryMatch();
-                if (memoryMatch && SystemState.isProUnlocked) {
-                    const tag = memoryMatch.matchedTag;
-                    const sim = Math.round(memoryMatch.similarity * 100);
-
-                    if (tag === 'subway') {
-                        SystemState.aiCategory = "公共交通载具 (地铁车厢 - 用户记忆校准)";
-                        SystemState.aiScore = Math.max(SystemState.aiScore, 82.0);
-                        SystemState.isPublic = true;
-                        SystemState.aiRationale = `【在线学习驱动】物理指纹与您先前标注的“地铁”吻合度达 ${sim}%。AI 优先采信用户经验覆盖默认规则。`;
-                    } else if (tag === 'car') {
-                        SystemState.aiCategory = "私家车座舱 (堵车同乘 - 用户记忆校准)";
-                        SystemState.aiScore = Math.min(SystemState.aiScore, 36.0);
-                        SystemState.isPublic = false;
-                        SystemState.aiRationale = `【在线学习驱动】物理指纹与您先前标注的“私家车”高度匹配 (${sim}%)，AI 豁免高密报警，锁定为私密状态。`;
-                    } else if (tag === 'restaurant') {
-                        SystemState.aiCategory = "高密度室内商业区 (餐馆/商场 - 用户记忆校准)";
-                        SystemState.aiScore = Math.max(SystemState.aiScore, 78.0);
-                        SystemState.isPublic = true;
-                        SystemState.aiRationale = `【在线学习驱动】匹配到餐馆静止高密特征 (${sim}%)，AI 主动强化人流高分裁决。`;
-                    } else if (tag === 'home') {
-                        SystemState.aiCategory = "完全私密空间 (家庭环境 - 用户记忆校准)";
-                        SystemState.aiScore = 15.0;
-                        SystemState.isPublic = false;
-                        SystemState.aiRationale = `【在线学习驱动】已识别为您专属的私密空间模式 (${sim}%)。`;
-                    }
-                }
-
-                SystemState.isElevator = Math.abs(SystemState.verticalSpeed) >= ENV_CONFIG.thresholds.elevator.verticalSpeed;
-                SystemState.isPublic = SystemState.aiScore >= ENV_CONFIG.publicScoreThreshold;
-
-                updateDashboardUI();
-                renderAIArbitrationUI();
-                renderRadarNodesTable();
-            };
-
-            // 购买交互
-            DOM.btnBuyPro.addEventListener('click', () => {
-                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.purchaseProFeature) {
-                    window.webkit.messageHandlers.purchaseProFeature.postMessage({});
-                } else {
-                    window.onPurchaseStateUpdate(true);
-                }
-            });
-
-            DOM.btnRestorePro.addEventListener('click', () => {
-                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.restoreProFeature) {
-                    window.webkit.messageHandlers.restoreProFeature.postMessage({});
-                } else {
-                    window.onPurchaseStateUpdate(true);
-                }
-            });
-
-            /* =========================================================================
-             * 11. 录制与回放控制器逻辑
-             * ========================================================================= */
-            DOM.btnToggleRecord.addEventListener('click', async () => {
-                if (!SystemState.isRecording) {
-                    const name = DOM.txtSessionName.value.trim() || `环境特征宽表 #${new Date().toLocaleTimeString()}`;
-                    SystemState.isRecording = true;
-                    SystemState.sessionName = name;
-                    SystemState.recordingFrames = [];
-
-                    DOM.btnToggleRecord.className = "btn-core btn-rec active-recording";
-                    DOM.recBtnText.textContent = "停止生成宽表";
-                } else {
-                    SystemState.isRecording = false;
-                    DOM.btnToggleRecord.className = "btn-core btn-rec";
-                    DOM.recBtnText.textContent = "开始录制";
-
-                    if (SystemState.recordingFrames.length > 0) {
-                        const sessionDoc = {
-                            name: SystemState.sessionName,
-                            timestamp: Date.now(),
-                            author: ENV_CONFIG.author,
-                            appName: ENV_CONFIG.appName,
-                            totalFrames: SystemState.recordingFrames.length,
-                            frames: SystemState.recordingFrames
-                        };
-                        await saveSessionToDB(sessionDoc);
-                        alert(`时序表格【${sessionDoc.name}】已成功持久化至 IndexedDB，包含 ${sessionDoc.totalFrames} 帧高密遥测序列。`);
-                        loadHistorySessions();
-                    }
-                }
-            });
-
-            async function loadHistorySessions() {
-                const sessions = await getAllSessionsFromDB();
-                const container = DOM.sessionsContainer;
-                if (!sessions || sessions.length === 0) {
-                    container.innerHTML = `<div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding:12px;">暂无本地历史宽表数据</div>`;
-                    return;
-                }
-
-                container.innerHTML = sessions.map(sess => `
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:8px; padding:10px; margin-bottom:8px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                            <div>
-                                <strong style="font-size:12px; color:#fff;">${sess.name}</strong>
-                                <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-tertiary); margin-left:6px;">${new Date(sess.timestamp).toLocaleString()}</span>
-                            </div>
-                            <div style="display:flex; gap:4px;">
-                                <button class="btn-core" style="font-size:10px; padding:2px 6px; color:var(--accent-purple);" onclick="window.startPlaybackSession(${sess.id})">回放</button>
-                                <button class="btn-core" style="font-size:10px; padding:2px 6px; color:var(--accent-red);" onclick="window.deleteSessionRecord(${sess.id})">删除</button>
-                            </div>
-                        </div>
-                        <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:6px;">样本量: ${sess.totalFrames} 帧数据 (by ${sess.author || 'JackZ'})</div>
-                        
-                        <div class="table-responsive-wrapper" style="max-height:120px;">
-                            <table class="audit-data-table">
-                                <thead>
-                                    <tr>
-                                        <th>时间戳</th>
-                                        <th>垂直速率</th>
-                                        <th>Z轴G</th>
-                                        <th>外部陌生BLE</th>
-                                        <th>同乘稳态</th>
-                                        <th>LAN</th>
-                                        <th>最终指数</th>
-                                        <th>裁决类别</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${sess.frames.slice(0, 4).map(f => `
-                                        <tr>
-                                            <td>${f.time}</td>
-                                            <td>${f.vSpeed}</td>
-                                            <td>${f.zAcc}</td>
-                                            <td>${f.strangers}</td>
-                                            <td>${f.coMoving}</td>
-                                            <td>${f.lan}</td>
-                                            <td>${f.score}</td>
-                                            <td>${f.category}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            window.deleteSessionRecord = async function(id) {
-                if (confirm("确定删除该历史宽表吗？")) {
-                    await deleteSessionFromDB(id);
-                    loadHistorySessions();
-                }
-            };
-
-            let playbackTimerId = null;
-            window.startPlaybackSession = async function(id) {
-                const sessions = await getAllSessionsFromDB();
-                const target = sessions.find(x => x.id === id);
-                if (!target) return;
-
-                switchTabTo('viewOverview');
-                DOM.playbackCard.style.display = 'block';
-
-                let fIdx = 0;
-                clearInterval(playbackTimerId);
-                playbackTimerId = setInterval(() => {
-                    if (fIdx >= target.frames.length) {
-                        clearInterval(playbackTimerId);
-                        DOM.playbackCard.style.display = 'none';
-                        alert("时序数据 1:1 回放复现完成。");
-                        return;
-                    }
-
-                    const f = target.frames[fIdx];
-                    DOM.playbackProgressText.textContent = `复现: ${target.name} [${fIdx + 1}/${target.totalFrames}] - ${f.time}`;
-                    DOM.playbackProgressBar.style.width = `${((fIdx + 1) / target.totalFrames) * 100}%`;
-
-                    SystemState.verticalSpeed = parseFloat(f.vSpeed);
-                    SystemState.zAcceleration = parseFloat(f.zAcc);
-                    SystemState.gpsAccuracy = parseFloat(f.gps);
-                    SystemState.effectiveStrangers = parseInt(f.strangers, 10);
-                    SystemState.coMovingCount = parseInt(f.coMoving, 10);
-                    SystemState.lanCount = parseInt(f.lan, 10);
-                    SystemState.aiScore = parseFloat(f.score);
-                    SystemState.aiCategory = f.category;
-
-                    SystemState.isElevator = Math.abs(SystemState.verticalSpeed) >= ENV_CONFIG.thresholds.elevator.verticalSpeed;
-                    SystemState.isPublic = SystemState.aiScore >= ENV_CONFIG.publicScoreThreshold;
-
-                    updateDashboardUI();
-                    fIdx++;
-                }, 300);
-            };
-
-            DOM.btnExitPlayback.addEventListener('click', () => {
-                clearInterval(playbackTimerId);
-                DOM.playbackCard.style.display = 'none';
-            });
-
-            DOM.btnExportJson.addEventListener('click', async () => {
-                const list = await getAllSessionsFromDB();
-                const blob = new Blob([JSON.stringify({
-                    exportedBy: "EnvDetector by JackZ",
-                    exportTime: new Date().toISOString(),
-                    data: list
-                }, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `EnvDetector_Audit_${Date.now()}.json`;
-                a.click();
-            });
-
-            DOM.btnClearLogs.addEventListener('click', async () => {
-                if (confirm("警告：确认清空所有历史时序宽表？不可逆！")) {
-                    const tx = auditDB.transaction(["sessions"], "readwrite");
-                    tx.objectStore("sessions").clear();
-                    tx.oncomplete = () => loadHistorySessions();
-                }
-            });
-
-            /* =========================================================================
-             * 12. 路由切换与初始化
-             * ========================================================================= */
-            function switchTabTo(viewId) {
-                document.querySelectorAll('.page-viewport').forEach(v => v.classList.remove('active'));
-                document.querySelectorAll('.nav-tab-item').forEach(b => b.classList.remove('active'));
-
-                const targetView = document.getElementById(viewId);
-                if (targetView) targetView.classList.add('active');
-
-                const targetBtn = document.querySelector(`.nav-tab-item[data-view="${viewId}"]`);
-                if (targetBtn) targetBtn.classList.add('active');
-            }
-
-            document.querySelectorAll('.nav-tab-item').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    switchTabTo(btn.getAttribute('data-view'));
-                });
-            });
-
-            window.addEventListener('DOMContentLoaded', async () => {
-                setupWaveCanvasDPI();
-                setupRadarCanvasDPI();
-                window.addEventListener('resize', () => {
-                    setupWaveCanvasDPI();
-                    setupRadarCanvasDPI();
-                });
-
-                requestAnimationFrame(drawWaveformFrame);
-                requestAnimationFrame(drawRadarFrame);
-
-                // 绑定用户纠偏学习按钮
-                document.querySelectorAll('.chip-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const tag = btn.getAttribute('data-tag');
-                        await AdaptiveLearningEngine.learnCurrentContext(tag);
-                        if (window.lastRawPayload) {
-                            window.onEnvironmentUpdate(window.lastRawPayload);
-                        }
-                    });
-                });
-
-                await initDatabase();
-                await AdaptiveLearningEngine.reloadMemory();
-                await loadHistorySessions();
-
-                // 驱动 iOS Native 每秒抓取快照
-                setInterval(() => {
-                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.getEnvironmentSnapshot) {
-                        window.webkit.messageHandlers.getEnvironmentSnapshot.postMessage({});
-                    }
-                }, 1000);
-            });
-
-        })();
-    </script>
+      requestAnimationFrame(render);
+    };
+  </script>
 </body>
 </html>
