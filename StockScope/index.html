@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Phira Pure Engine - Hold Fixed</title>
+  <title>Phira Pure Engine - Autoplay Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -70,7 +70,6 @@
       letter-spacing: 1px;
       margin-top: 4px;
     }
-    /* 导入遮罩层 */
     #upload-panel {
       position: absolute;
       top: 0;
@@ -132,26 +131,44 @@
       text-align: center;
       min-height: 20px;
     }
+    .setting-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
     .slider-box {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       background: rgba(255, 255, 255, 0.06);
-      padding: 10px 20px;
+      padding: 8px 18px;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 14px;
+      font-size: 13px;
       color: #cfd8dc;
     }
     .slider-box input[type="range"] {
       cursor: pointer;
-      width: 140px;
+      width: 120px;
+    }
+    .toggle-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .toggle-btn.active {
+      background: #00e5ff;
+      color: #000;
+      font-weight: bold;
     }
     input[type="file"] {
       display: none;
     }
-
-    /* 结算面板样式 */
     #result-panel {
       position: absolute;
       top: 0;
@@ -222,9 +239,10 @@
   <div id="ui-overlay">
     <div class="hud-top">
       <div>
-        <div id="song-name" style="font-weight: bold; font-size: 18px;">Cryogenic</div>
+        <div id="song-name" style="font-weight: bold; font-size: 18px;">曲目名称</div>
         <div id="song-desc" style="opacity: 0.7; font-size: 13px;">等待载入...</div>
       </div>
+      <!-- 连击显示区域：严格保留 COMBO 字样与连击数 -->
       <div class="hud-combo">
         <div id="combo-num">0</div>
         <span>COMBO</span>
@@ -251,37 +269,42 @@
       <div class="drop-zone" id="skin-drop">
         <h3 style="margin-bottom: 8px;">2. 导入皮肤与音效 ZIP</h3>
         <p style="font-size: 12px; opacity: 0.8; line-height: 1.6;">
-          包含：贴图及 _mh、hit_fx 爆弹序列图、<br>音效与 ending.mp3
+          包含：贴图及 _mh、hit_fx 爆弹图、<br>音效与 ending.mp3
         </p>
         <span id="skin-file-name" style="display:block; margin-top:10px; font-size:12px; color:#00e5ff;">未选择 (可选)</span>
         <input type="file" id="skin-input" accept=".zip">
       </div>
     </div>
 
-    <!-- 用户自定义音符大小调节滑块 -->
-    <div class="slider-box">
-      <span>音符大小 (Note Size):</span>
-      <input type="range" id="size-slider" min="0.6" max="2.2" step="0.05" value="1.25">
-      <span id="size-val" style="color:#00e5ff; font-weight:bold;">1.25x</span>
+    <div class="setting-group">
+      <div class="slider-box">
+        <span>Note 尺寸:</span>
+        <input type="range" id="size-slider" min="0.6" max="2.2" step="0.05" value="1.25">
+        <span id="size-val" style="color:#00e5ff; font-weight:bold;">1.25x</span>
+      </div>
+      <!-- Autoplay 切换按钮 -->
+      <div class="slider-box">
+        <span>自动游玩 (Autoplay):</span>
+        <button class="toggle-btn" id="autoplay-btn">关 (OFF)</button>
+      </div>
     </div>
 
     <div id="status-text">请先导入谱面 ZIP 包</div>
     <button class="btn" id="start-btn" disabled>开始游玩</button>
   </div>
 
-  <!-- 结算界面 -->
   <div id="result-panel">
     <div class="result-card">
       <div class="result-rank" id="res-rank">V</div>
       <div class="result-info">
-        <div id="res-title" style="font-size: 20px; font-weight: 700;">Cryogenic</div>
-        <div class="result-score" id="res-score">0982540</div>
+        <div id="res-title" style="font-size: 20px; font-weight: 700;">曲目完成</div>
+        <div class="result-score" id="res-score">0000000</div>
         <div class="result-stats">
-          <div>ACC: <span class="stat-val" id="res-acc">98.25%</span></div>
-          <div>Max Combo: <span class="stat-val" id="res-combo">620</span></div>
-          <div>Perfect: <span class="stat-val" style="color:#00e5ff;" id="res-perf">580</span></div>
-          <div>Good: <span class="stat-val" style="color:#ffd54f;" id="res-good">20</span></div>
-          <div>Miss: <span class="stat-val" style="color:#ff1744;" id="res-miss">5</span></div>
+          <div>ACC: <span class="stat-val" id="res-acc">100.00%</span></div>
+          <div>Max Combo: <span class="stat-val" id="res-combo">0</span></div>
+          <div>Perfect: <span class="stat-val" style="color:#00e5ff;" id="res-perf">0</span></div>
+          <div>Good: <span class="stat-val" style="color:#ffd54f;" id="res-good">0</span></div>
+          <div>Miss: <span class="stat-val" style="color:#ff1744;" id="res-miss">0</span></div>
         </div>
       </div>
     </div>
@@ -290,8 +313,10 @@
 
   <script>
     const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    
     let audioCtx = null;
+    let sfxGainNode = null;
     let bgmBuffer = null;
     let endingBuffer = null;
     let bgmSource = null;
@@ -299,7 +324,10 @@
     let isPlaying = false;
     let isEnded = false;
 
+    // 自定义配置
     let userNoteScale = 1.25;
+    let isAutoplay = false; // 自动游玩开关
+
     const sizeSlider = document.getElementById('size-slider');
     const sizeVal = document.getElementById('size-val');
     sizeSlider.oninput = (e) => {
@@ -307,11 +335,18 @@
       sizeVal.innerText = userNoteScale.toFixed(2) + "x";
     };
 
+    const autoplayBtn = document.getElementById('autoplay-btn');
+    autoplayBtn.onclick = () => {
+      isAutoplay = !isAutoplay;
+      autoplayBtn.classList.toggle('active', isAutoplay);
+      autoplayBtn.innerText = isAutoplay ? "开 (ON)" : "关 (OFF)";
+    };
+
     let songMeta = {
-      title: "Cryogenic",
-      level: "IN Lv.15",
-      composer: "Camellia ft. Petra Gurin",
-      charter: "「HD」 Falsus",
+      title: "Phira Track",
+      level: "Lv.15",
+      composer: "Unknown",
+      charter: "Unknown",
       offset: 0.0
     };
 
@@ -333,7 +368,7 @@
     function resize() {
       W = window.innerWidth;
       H = window.innerHeight;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = W * dpr;
       canvas.height = H * dpr;
       canvas.style.width = W + 'px';
@@ -346,60 +381,74 @@
     resize();
 
     async function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+        sfxGainNode = audioCtx.createGain();
+        sfxGainNode.gain.setValueAtTime(0.85, audioCtx.currentTime);
+        sfxGainNode.connect(audioCtx.destination);
+      }
       if (audioCtx.state === 'suspended') await audioCtx.resume();
     }
 
+    const lastSoundPlayTime = { Tap: 0, Drag: 0, Hold: 0, Flick: 0 };
+
     function playHitSound(type) {
       if (!audioCtx) return;
+      const now = performance.now();
       const map = { 1: "Tap", 2: "Drag", 3: "Hold", 4: "Flick" };
       const name = map[type];
+
+      if (now - lastSoundPlayTime[name] < 12) return;
+      lastSoundPlayTime[name] = now;
+
       if (ASSETS.audioBuffers[name]) {
         const s = audioCtx.createBufferSource();
         s.buffer = ASSETS.audioBuffers[name];
-        s.connect(audioCtx.destination);
+        s.connect(sfxGainNode);
         s.start(0);
         return;
       }
+
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(sfxGainNode);
         const t = audioCtx.currentTime;
         if (type === 1) {
           osc.type = "sine";
           osc.frequency.setValueAtTime(1400, t);
-          osc.frequency.exponentialRampToValueAtTime(300, t + 0.04);
-          gain.gain.setValueAtTime(0.7, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          osc.frequency.exponentialRampToValueAtTime(300, t + 0.035);
+          gain.gain.setValueAtTime(0.6, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
           osc.start(t);
-          osc.stop(t + 0.04);
+          osc.stop(t + 0.035);
         } else if (type === 2) {
           osc.type = "triangle";
           osc.frequency.setValueAtTime(750, t);
           gain.gain.setValueAtTime(0.35, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
           osc.start(t);
-          osc.stop(t + 0.025);
+          osc.stop(t + 0.02);
         } else if (type === 4) {
           osc.type = "sawtooth";
           osc.frequency.setValueAtTime(900, t);
-          osc.frequency.linearRampToValueAtTime(2400, t + 0.06);
-          gain.gain.setValueAtTime(0.6, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          osc.frequency.linearRampToValueAtTime(2400, t + 0.05);
+          gain.gain.setValueAtTime(0.5, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
           osc.start(t);
-          osc.stop(t + 0.06);
+          osc.stop(t + 0.05);
         }
       } catch (e) {}
     }
 
     function spawnHitFX(worldX, worldY, isPerfect) {
+      if (hitParticles.length > 36) hitParticles.shift();
       hitParticles.push({
         x: worldX,
         y: worldY,
         startTime: performance.now(),
-        duration: 340,
+        duration: 280,
         isPerfect: isPerfect
       });
     }
@@ -538,7 +587,7 @@
       }
     }
 
-    // --- 严谨预处理与积分表 ---
+    // --- 谱面数据与速度积分表构建 ---
     function prepareChart() {
       if (!ASSETS.chartJson || !ASSETS.chartJson.judgeLineList) return;
       totalNotes = 0;
@@ -611,10 +660,14 @@
               miss: false,
               holding: false,
               headHit: false,
-              lastTouchTime: 0
+              lastTouchTime: 0,
+              holdFxTimer: 0
             };
           });
         }
+
+        const allNotes = [...formatNotes(line.notesAbove, true), ...formatNotes(line.notesBelow, false)];
+        allNotes.sort((a, b) => a.timeSec - b.timeSec);
 
         return {
           id: idx,
@@ -625,7 +678,8 @@
           moveEvents: line.judgeLineMoveEvents || [],
           rotateEvents: line.rotateEvents || line.judgeLineRotateEvents || [],
           disappearEvents: line.judgeLineDisappearEvents || [],
-          notes: [...formatNotes(line.notesAbove, true), ...formatNotes(line.notesBelow, false)]
+          notes: allNotes,
+          activeNoteHeadIndex: 0
         };
       });
     }
@@ -665,11 +719,77 @@
       return { x: 0.5, y: 0.5 };
     }
 
-    // --- 触控响应逻辑 ---
+    function computeNoteLocalY(note, curFloorPos, curSec) {
+      const dt = note.timeSec - curSec;
+      const rawFloorDiff = Math.abs(note.startFloor - curFloorPos);
+      const dist = rawFloorDiff * 380 * scale;
+
+      let y = 0;
+      if (note.isAbove) {
+        y = (dt >= 0) ? -dist : dist;
+      } else {
+        y = (dt >= 0) ? dist : -dist;
+      }
+      return y;
+    }
+
+    // --- 自动游玩 (Autoplay) 核心执行器 ---
+    function updateAutoplay(curTime) {
+      if (!isAutoplay) return;
+
+      for (let l = 0; l < parsedLines.length; l++) {
+        const line = parsedLines[l];
+        const curTick = line.secToTick(curTime);
+        const linePos = evalMoveEvent(line.moveEvents, curTick);
+        const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
+
+        const lx = linePos.x * W;
+        const ly = (1.0 - linePos.y) * H;
+        const rad = (-rotDeg * Math.PI) / 180;
+        const cosR = Math.cos(rad);
+        const sinR = Math.sin(rad);
+
+        const notes = line.notes;
+        const startIdx = line.activeNoteHeadIndex;
+
+        for (let i = startIdx; i < notes.length; i++) {
+          const note = notes[i];
+          if (note.hit || note.miss) continue;
+
+          // 尚未到来的音符无需提前处理
+          if (note.timeSec - curTime > 0.005) break;
+
+          const noteLocalX = (note.x / 9) * (W * 0.42);
+          const hitWorldX = lx + noteLocalX * cosR;
+          const hitWorldY = ly + noteLocalX * -sinR;
+
+          // 单击、滑动、划键：准时触线瞬间 Perfect 消除
+          if (note.type === 1 || note.type === 2 || note.type === 4) {
+            note.hit = true;
+            playHitSound(note.type);
+            registerHit(1.0);
+            spawnHitFX(hitWorldX, hitWorldY, true);
+          }
+          // 长条：准时触线起手激活
+          else if (note.type === 3) {
+            if (!note.headHit) {
+              note.headHit = true;
+              note.holding = true;
+              note.lastTouchTime = curTime;
+              playHitSound(1);
+              spawnHitFX(hitWorldX, hitWorldY, true);
+            }
+          }
+        }
+      }
+    }
+
+    // --- 触控引擎与打击判定 (手动游玩模式) ---
     const activeTouches = new Map();
 
     window.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (isAutoplay) return;
       activeTouches.set(e.pointerId, {
         x: e.clientX,
         y: e.clientY,
@@ -682,6 +802,7 @@
 
     window.addEventListener('pointermove', (e) => {
       e.preventDefault();
+      if (isAutoplay) return;
       if (activeTouches.has(e.pointerId)) {
         const p = activeTouches.get(e.pointerId);
         const dx = e.clientX - p.lastX;
@@ -703,12 +824,12 @@
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('pointercancel', onPointerUp);
 
-    // 瞬时打击判定 (Tap, Drag, Flick, Hold起始击打)
     function checkHits(screenX, screenY, inputType) {
-      if (!isPlaying) return;
+      if (!isPlaying || isAutoplay) return;
       const curTime = (audioCtx.currentTime - startTime) + (songMeta.offset || 0);
 
-      parsedLines.forEach(line => {
+      for (let l = 0; l < parsedLines.length; l++) {
+        const line = parsedLines[l];
         const curTick = line.secToTick(curTime);
         const linePos = evalMoveEvent(line.moveEvents, curTick);
         const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
@@ -717,30 +838,35 @@
         const lx = linePos.x * W;
         const ly = (1.0 - linePos.y) * H;
         const rad = (-rotDeg * Math.PI) / 180;
+        const cosR = Math.cos(rad);
+        const sinR = Math.sin(rad);
 
         const dx = screenX - lx;
         const dy = screenY - ly;
-        const touchLocalX = dx * Math.cos(rad) - dy * Math.sin(rad);
-        const touchLocalY = dx * Math.sin(rad) + dy * Math.cos(rad);
+        const touchLocalX = dx * cosR - dy * sinR;
+        const touchLocalY = dx * sinR + dy * cosR;
 
-        line.notes.forEach(note => {
-          if (note.hit || note.miss) return;
+        const notes = line.notes;
+        const startIdx = line.activeNoteHeadIndex;
+
+        for (let i = startIdx; i < notes.length; i++) {
+          const note = notes[i];
+          if (note.hit || note.miss) continue;
+
           const dt = curTime - note.timeSec;
+          if (dt < -0.22) break;
 
-          const floorDiff = note.startFloor - curFloorPos;
-          const dist = floorDiff * 380 * scale;
-          const noteLocalY = note.isAbove ? -dist : dist;
+          const noteLocalY = computeNoteLocalY(note, curFloorPos, curTime);
           const noteLocalX = (note.x / 9) * (W * 0.42);
 
-          const vertDist = Math.abs(touchLocalY - noteLocalY);
           const horizDist = Math.abs(touchLocalX - noteLocalX);
+          const horizThreshold = 130 * scale * userNoteScale;
+          const isTouchNearLine = Math.abs(touchLocalY) < (130 * scale * userNoteScale);
+          const noteDistToLine = Math.abs(noteLocalY);
 
-          const vertThreshold = 110 * scale * userNoteScale;
-          const horizThreshold = 120 * scale * userNoteScale;
-
-          if (horizDist < horizThreshold && vertDist < vertThreshold) {
-            const hitWorldX = lx + noteLocalX * Math.cos(-rad);
-            const hitWorldY = ly + noteLocalX * Math.sin(-rad);
+          if (horizDist < horizThreshold && isTouchNearLine) {
+            const hitWorldX = lx + noteLocalX * cosR;
+            const hitWorldY = ly + noteLocalX * -sinR;
 
             if (note.type === 1 && inputType === 'tap' && Math.abs(dt) <= 0.16) {
               note.hit = true;
@@ -748,36 +874,32 @@
               const isPerf = Math.abs(dt) <= 0.08;
               registerHit(isPerf ? 1.0 : 0.65);
               spawnHitFX(hitWorldX, hitWorldY, isPerf);
-            } else if (note.type === 2 && Math.abs(dt) <= 0.18) {
+            } else if (note.type === 2 && noteDistToLine < (70 * scale * userNoteScale) && Math.abs(dt) <= 0.14) {
               note.hit = true;
               playHitSound(2);
               registerHit(1.0);
               spawnHitFX(hitWorldX, hitWorldY, true);
-            } else if (note.type === 4 && inputType === 'flick' && Math.abs(dt) <= 0.18) {
+            } else if (note.type === 4 && inputType === 'flick' && Math.abs(dt) <= 0.16) {
               note.hit = true;
               playHitSound(4);
               registerHit(1.0);
               spawnHitFX(hitWorldX, hitWorldY, true);
-            } else if (note.type === 3) {
-              // Hold 头部触发：首次 Tap 击中
-              if (inputType === 'tap' && Math.abs(dt) <= 0.16 && !note.headHit) {
-                note.headHit = true;
-                note.holding = true;
-                note.lastTouchTime = curTime;
-                playHitSound(1);
-                spawnHitFX(hitWorldX, hitWorldY, true);
-              }
+            } else if (note.type === 3 && inputType === 'tap' && Math.abs(dt) <= 0.16 && !note.headHit) {
+              note.headHit = true;
+              note.holding = true;
+              note.lastTouchTime = curTime;
+              playHitSound(1);
+              spawnHitFX(hitWorldX, hitWorldY, true);
             }
           }
-        });
-      });
+        }
+      }
     }
 
-    // 逐帧主动轮询按压中的 Hold（彻底解决“手按着不动断触”的问题）
+    // 严谨跟踪 Hold 持续按压
     function updateHoldingStates(curTime) {
-      if (activeTouches.size === 0) return;
-
-      parsedLines.forEach(line => {
+      for (let l = 0; l < parsedLines.length; l++) {
+        const line = parsedLines[l];
         const curTick = line.secToTick(curTime);
         const linePos = evalMoveEvent(line.moveEvents, curTick);
         const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
@@ -785,31 +907,68 @@
         const lx = linePos.x * W;
         const ly = (1.0 - linePos.y) * H;
         const rad = (-rotDeg * Math.PI) / 180;
+        const cosR = Math.cos(rad);
+        const sinR = Math.sin(rad);
 
-        line.notes.forEach(note => {
-          if (note.type !== 3 || !note.headHit || note.hit || note.miss) return;
-          if (curTime < note.timeSec || curTime > note.timeSec + note.holdTimeSec) return;
+        const notes = line.notes;
+        const startIdx = line.activeNoteHeadIndex;
+
+        for (let i = startIdx; i < notes.length; i++) {
+          const note = notes[i];
+          if (note.timeSec - curTime > 0.5) break;
+          if (note.type !== 3 || !note.headHit || note.hit || note.miss) continue;
+
+          if (curTime < note.timeSec) continue;
+
+          // 长条完整走完自然结算
+          if (curTime >= note.timeSec + note.holdTimeSec) {
+            note.hit = true;
+            registerHit(1.0);
+            const noteLocalX = (note.x / 9) * (W * 0.42);
+            spawnHitFX(lx + noteLocalX * cosR, ly + noteLocalX * -sinR, true);
+            continue;
+          }
 
           const noteLocalX = (note.x / 9) * (W * 0.42);
-          const horizThreshold = 140 * scale * userNoteScale;
-          const vertThreshold = 180 * scale * userNoteScale; // 长按中的贴线宽容度加大
+          const horizThreshold = 160 * scale * userNoteScale;
+          const vertThreshold = 180 * scale * userNoteScale;
 
-          // 遍历屏幕上每一根手指
-          for (let [id, touch] of activeTouches) {
-            const dx = touch.x - lx;
-            const dy = touch.y - ly;
-            const tX = dx * Math.cos(rad) - dy * Math.sin(rad);
-            const tY = dx * Math.sin(rad) + dy * Math.cos(rad);
+          // Autoplay 模式下长条永远自动完美按压
+          let isTouchCovering = isAutoplay;
 
-            // 手指只要在判定线附近的对应轨道按着
-            if (Math.abs(tX - noteLocalX) < horizThreshold && Math.abs(tY) < vertThreshold) {
-              note.holding = true;
-              note.lastTouchTime = curTime;
-              break;
+          if (!isTouchCovering) {
+            for (let [id, touch] of activeTouches) {
+              const dx = touch.x - lx;
+              const dy = touch.y - ly;
+              const tX = dx * cosR - dy * sinR;
+              const tY = dx * sinR + dy * cosR;
+
+              if (Math.abs(tX - noteLocalX) < horizThreshold && Math.abs(tY) < vertThreshold) {
+                isTouchCovering = true;
+                break;
+              }
             }
           }
-        });
-      });
+
+          if (isTouchCovering) {
+            note.holding = true;
+            note.lastTouchTime = curTime;
+
+            if (!note.holdFxTimer || curTime - note.holdFxTimer > 0.12) {
+              note.holdFxTimer = curTime;
+              const hitWorldX = lx + noteLocalX * cosR;
+              const hitWorldY = ly + noteLocalX * -sinR;
+              spawnHitFX(hitWorldX, hitWorldY, true);
+            }
+          } else {
+            if (curTime - note.lastTouchTime > 0.45) {
+              note.holding = false;
+              note.miss = true;
+              registerMiss();
+            }
+          }
+        }
+      }
     }
 
     function registerHit(weight) {
@@ -837,6 +996,7 @@
     }
 
     function renderHitFX(now) {
+      if (hitParticles.length === 0) return;
       for (let i = hitParticles.length - 1; i >= 0; i--) {
         const p = hitParticles[i];
         const elapsed = now - p.startTime;
@@ -857,8 +1017,7 @@
           const img = ASSETS.hitFxImage;
           const fw = img.width / 5;
           const fh = img.height / 6;
-          const renderSize = 145 * scale * userNoteScale;
-
+          const renderSize = 150 * scale * userNoteScale;
           ctx.drawImage(img, col * fw, row * fh, fw, fh, -renderSize / 2, -renderSize / 2, renderSize, renderSize);
         } else {
           ctx.strokeStyle = p.isPerfect ? '#ffe082' : '#80deea';
@@ -878,7 +1037,8 @@
       const now = performance.now();
       const curSec = (audioCtx.currentTime - startTime) + (songMeta.offset || 0);
 
-      // 每帧轮询长按音符手指按压
+      // 驱动自动游玩
+      updateAutoplay(curSec);
       updateHoldingStates(curSec);
 
       ctx.clearRect(0, 0, W, H);
@@ -901,7 +1061,8 @@
       }
 
       // 2. 判定线与音符
-      parsedLines.forEach(line => {
+      for (let l = 0; l < parsedLines.length; l++) {
+        const line = parsedLines[l];
         const curTick = line.secToTick(curSec);
         const linePos = evalMoveEvent(line.moveEvents, curTick);
         const rotDeg = evalNumberEvent(line.rotateEvents, curTick, 0);
@@ -918,126 +1079,131 @@
         if (lineAlpha > 0.01) {
           ctx.save();
           ctx.globalAlpha = lineAlpha;
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 3.5 * scale;
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 5 * scale;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.lineWidth = 7 * scale;
           ctx.beginPath();
           ctx.moveTo(-W * 4, 0);
           ctx.lineTo(W * 4, 0);
           ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3.5 * scale;
+          ctx.stroke();
           ctx.restore();
         }
 
-        line.notes.forEach(note => {
-          if (note.hit) return;
+        const notes = line.notes;
+        let headIdx = line.activeNoteHeadIndex;
 
-          // 普通音符超时判定
-          if (note.type !== 3 && curSec - note.timeSec > 0.18 && !note.miss) {
-            note.miss = true;
-            registerMiss();
-            return;
+        while (headIdx < notes.length) {
+          const n = notes[headIdx];
+          const isHoldAlive = (n.type === 3 && n.headHit && !n.hit && !n.miss);
+          if ((n.hit || n.miss) && !isHoldAlive) {
+            headIdx++;
+          } else if (curSec - n.timeSec > 0.35 && !isHoldAlive) {
+            headIdx++;
+          } else {
+            break;
           }
+        }
+        line.activeNoteHeadIndex = headIdx;
 
-          // Hold 音符生命周期逻辑
-          if (note.type === 3) {
-            // 未按且超时未激活
-            if (!note.headHit && curSec - note.timeSec > 0.18 && !note.miss) {
+        for (let i = headIdx; i < notes.length; i++) {
+          const note = notes[i];
+          if (note.hit) continue;
+
+          // 手动游玩下的超时判定
+          if (!isAutoplay) {
+            if (note.type !== 3 && curSec - note.timeSec > 0.18 && !note.miss) {
               note.miss = true;
               registerMiss();
-              return;
+              continue;
             }
-
-            // 已激活：检测断触 (容错时间扩充到 0.28s)
-            if (note.headHit && !note.miss) {
-              if (curSec > note.lastTouchTime + 0.28 && curSec < note.timeSec + note.holdTimeSec) {
-                note.miss = true;
-                note.holding = false;
-                registerMiss();
-                return;
-              }
-            }
-
-            // Hold 尾部完成结算
-            if (note.headHit && curSec >= note.timeSec + note.holdTimeSec) {
-              note.hit = true;
-              registerHit(1.0);
-              const noteLocalX = (note.x / 9) * (W * 0.42);
-              const rad = (-rotDeg * Math.PI) / 180;
-              spawnHitFX(lx + noteLocalX * Math.cos(-rad), ly + noteLocalX * Math.sin(-rad), true);
-              return;
+            if (note.type === 3 && !note.headHit && curSec - note.timeSec > 0.18 && !note.miss) {
+              note.miss = true;
+              registerMiss();
+              continue;
             }
           }
 
           const timeToHit = note.timeSec - curSec;
-          if (timeToHit < -0.25 || timeToHit > 2.2) return;
+          if (timeToHit > 2.0) break;
+          if (timeToHit < -0.25 && note.type !== 3) continue;
 
-          // 核心落点与垂直对齐
-          const floorDiff = note.startFloor - curFloorPos;
-          const dist = floorDiff * 380 * scale;
-          const noteY = note.isAbove ? -dist : dist;
+          const noteY = computeNoteLocalY(note, curFloorPos, curSec);
           const noteX = (note.x / 9) * (W * 0.42);
 
-          if (Math.abs(noteY) > H * 1.5) return;
+          if (Math.abs(noteY) > H * 1.5 && note.type !== 3) continue;
 
           ctx.save();
           ctx.translate(noteX, noteY);
 
-          const nw = 120 * scale * userNoteScale;
-          const nh = 18 * scale * userNoteScale;
+          const baseWidth = 125 * scale * userNoteScale;
           const isMh = note.isMulti;
 
           if (note.type === 1) { // Tap
             const img = isMh ? ASSETS.images['Tap_mh'] : ASSETS.images['Tap'];
-            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
-            else {
+            if (img) {
+              const h = baseWidth * (img.height / img.width);
+              ctx.drawImage(img, -baseWidth / 2, -h / 2, baseWidth, h);
+            } else {
+              const h = 18 * scale * userNoteScale;
               ctx.fillStyle = isMh ? '#ffeb3b' : '#03a9f4';
-              ctx.fillRect(-nw / 2, -nh / 2, nw, nh);
+              ctx.fillRect(-baseWidth / 2, -h / 2, baseWidth, h);
               ctx.strokeStyle = '#fff';
-              ctx.strokeRect(-nw / 2, -nh / 2, nw, nh);
+              ctx.strokeRect(-baseWidth / 2, -h / 2, baseWidth, h);
             }
           } else if (note.type === 2) { // Drag
             const img = isMh ? ASSETS.images['Drag_mh'] : ASSETS.images['Drag'];
-            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
-            else {
+            if (img) {
+              const h = baseWidth * (img.height / img.width);
+              ctx.drawImage(img, -baseWidth / 2, -h / 2, baseWidth, h);
+            } else {
+              const h = 15 * scale * userNoteScale;
               ctx.fillStyle = '#ffeb3b';
-              ctx.fillRect(-nw / 2.2, -nh / 2.5, nw / 1.1, nh / 1.25);
+              ctx.fillRect(-baseWidth / 2.2, -h / 2, baseWidth / 1.1, h);
             }
-          } else if (note.type === 3) { // Hold (彻底删除多余的 Tap 头部绘制)
-            let holdFloorSpan = Math.max(0.01, note.endFloor - note.startFloor);
-            // 实时修剪变短：被按住时推平到判定线上
+          } else if (note.type === 3) { // Hold
+            let holdFloorSpan = Math.abs(note.endFloor - note.startFloor);
             if (note.headHit) {
-              const remainingFloor = Math.max(0, note.endFloor - curFloorPos);
-              holdFloorSpan = remainingFloor;
+              holdFloorSpan = Math.max(0, Math.abs(note.endFloor - curFloorPos));
             }
-            const holdLen = holdFloorSpan * 380 * scale;
+            const holdLen = Math.max(0.01, holdFloorSpan * 380 * scale);
             const holdImg = isMh ? ASSETS.images['Hold_mh'] : ASSETS.images['Hold'];
 
             if (holdImg) {
-              // 直接以 Hold 贴图的头部对准 (0,0) 开始绘制，严禁额外绘制 Tap
-              if (note.isAbove) ctx.drawImage(holdImg, -nw / 2, -holdLen, nw, holdLen);
-              else ctx.drawImage(holdImg, -nw / 2, 0, nw, holdLen);
+              if (note.isAbove) ctx.drawImage(holdImg, -baseWidth / 2, -holdLen, baseWidth, holdLen);
+              else ctx.drawImage(holdImg, -baseWidth / 2, 0, baseWidth, holdLen);
             } else {
               ctx.fillStyle = isMh ? 'rgba(255, 235, 59, 0.45)' : 'rgba(3, 169, 244, 0.4)';
-              if (note.isAbove) ctx.fillRect(-nw / 2, -holdLen, nw, holdLen);
-              else ctx.fillRect(-nw / 2, 0, nw, holdLen);
+              if (note.isAbove) ctx.fillRect(-baseWidth / 2, -holdLen, baseWidth, holdLen);
+              else ctx.fillRect(-baseWidth / 2, 0, baseWidth, holdLen);
+            }
+
+            if (note.headHit) {
+              ctx.fillStyle = isMh ? 'rgba(255, 235, 59, 0.28)' : 'rgba(0, 229, 255, 0.28)';
+              ctx.beginPath();
+              ctx.arc(0, 0, 36 * scale * userNoteScale, 0, Math.PI * 2);
+              ctx.fill();
             }
           } else if (note.type === 4) { // Flick
             const img = isMh ? ASSETS.images['Flick_mh'] : ASSETS.images['Flick'];
-            if (img) ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
-            else {
+            if (img) {
+              const h = baseWidth * (img.height / img.width);
+              ctx.drawImage(img, -baseWidth / 2, -h / 2, baseWidth, h);
+            } else {
+              const h = 20 * scale * userNoteScale;
               ctx.fillStyle = '#ff1744';
-              ctx.fillRect(-nw / 2, -nh / 2, nw, nh);
+              ctx.fillRect(-baseWidth / 2, -h / 2, baseWidth, h);
               ctx.fillStyle = '#fff';
-              ctx.fillRect(-nw / 6, -nh / 4, nw / 3, nh / 2);
+              ctx.fillRect(-baseWidth / 6, -h / 4, baseWidth / 3, h / 2);
             }
           }
 
           ctx.restore();
-        });
+        }
 
         ctx.restore();
-      });
+      }
 
       renderHitFX(now);
 
