@@ -34,6 +34,8 @@
       --accent-emerald: #10b981;
       --accent-emerald-glow: rgba(16, 185, 129, 0.35);
       --accent-rose: #f43f5e;
+      --spotify-green: #1db954;
+      --spotify-glow: rgba(29, 185, 84, 0.45);
 
       /* Typography Tokens */
       --text-primary: #f8fafc;
@@ -138,7 +140,6 @@
         radial-gradient(ellipse at 50% 50%, rgba(15, 23, 42, 0.7), transparent 100%);
     }
 
-    /* Architectural Geometric Grid Pattern */
     .app-ambient-grid {
       position: fixed;
       inset: 0;
@@ -150,7 +151,6 @@
       z-index: 1;
     }
 
-    /* Scrollbars */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
@@ -175,7 +175,7 @@
       min-width: 320px;
       max-width: 440px;
       padding: 14px 18px;
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       border: 1px solid var(--border-elevated);
@@ -204,6 +204,7 @@
       box-shadow: 0 0 12px var(--accent);
     }
     .ui-toast.success::before { background: var(--accent-emerald); box-shadow: 0 0 12px var(--accent-emerald); }
+    .ui-toast.spotify::before { background: var(--spotify-green); box-shadow: 0 0 12px var(--spotify-green); }
     .ui-toast.error::before { background: var(--accent-rose); box-shadow: 0 0 12px var(--accent-rose); }
     .ui-toast.info::before { background: var(--accent-cyan); box-shadow: 0 0 12px var(--accent-cyan); }
 
@@ -229,7 +230,6 @@
       overflow: hidden;
     }
 
-    /* Glass Studio Sidebar */
     aside.studio-sidebar {
       width: var(--sidebar-width);
       height: 100%;
@@ -267,7 +267,6 @@
     }
     .brand-cube-badge svg { width: 22px; height: 22px; fill: #fff; }
 
-    .brand-text-block { display: flex; flex-direction: column; }
     .brand-main-title { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.2; }
     .brand-sub-badge {
       font-size: 0.65rem;
@@ -279,7 +278,6 @@
       margin-top: 2px;
     }
 
-    /* Navigation Menu */
     .sidebar-menu-list {
       display: flex;
       flex-direction: column;
@@ -334,7 +332,6 @@
       transform: scale(1.08);
     }
 
-    /* Sidebar Footer Account Card */
     .sidebar-user-card {
       background: var(--bg-glass-card);
       border: 1px solid var(--border-subtle);
@@ -369,11 +366,8 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       overflow: hidden;
     }
-    .liquid-user-btn img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .liquid-user-btn img { width: 100%; height: 100%; object-fit: cover; }
+
     body.is-premium-tier .liquid-user-btn {
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #000;
@@ -385,7 +379,6 @@
     .user-card-name { font-size: 0.88rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-card-role { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); }
 
-    /* Studio Main Workstation Pane */
     main.studio-main-body {
       flex: 1;
       height: 100%;
@@ -395,7 +388,6 @@
       position: relative;
     }
 
-    /* Top Studio Operational Bar */
     header.studio-action-bar {
       height: calc(var(--safe-top) + 68px);
       padding-top: var(--safe-top);
@@ -425,7 +417,6 @@
       height: 18px;
       fill: var(--text-muted);
       pointer-events: none;
-      transition: var(--trans-quick);
     }
 
     .cloud-input {
@@ -446,7 +437,6 @@
       background: rgba(15, 23, 42, 0.98);
       box-shadow: 0 0 0 4px var(--accent-dim);
     }
-    .cloud-input:focus + svg { fill: var(--accent); }
 
     .search-quick-btn {
       position: absolute;
@@ -474,7 +464,6 @@
       gap: 16px;
     }
 
-    /* Quality Badge Module */
     .quality-spec-badge {
       display: flex;
       align-items: center;
@@ -506,7 +495,6 @@
       color: #fff;
     }
 
-    /* Master Scrollable Canvas */
     .cockpit-body-scroll {
       flex: 1;
       overflow-y: auto;
@@ -517,7 +505,6 @@
       gap: 36px;
     }
 
-    /* Hero Studio Telemetry Deck */
     .hero-summary-deck {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -604,7 +591,6 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      font-family: var(--font-stack);
       transition: var(--trans-quick);
       backdrop-filter: blur(12px);
     }
@@ -618,17 +604,17 @@
       border-color: transparent;
       box-shadow: 0 4px 18px var(--accent-glow);
     }
-    .control-pill-btn.primary:hover {
-      background: var(--accent-hover);
-      box-shadow: 0 6px 24px var(--accent-glow);
+    .control-pill-btn.spotify-btn {
+      background: rgba(29, 185, 84, 0.15);
+      border-color: var(--spotify-green);
+      color: #1db954;
     }
-    .control-pill-btn.danger {
-      background: linear-gradient(135deg, #f43f5e, #be123c);
-      border-color: transparent;
-      box-shadow: 0 4px 18px rgba(244, 63, 94, 0.4);
+    .control-pill-btn.spotify-btn:hover {
+      background: var(--spotify-green);
+      color: #000;
+      box-shadow: 0 0 18px var(--spotify-glow);
     }
 
-    /* Telemetry Diagnostics Grid */
     .hero-stats-card {
       background: rgba(15, 23, 42, 0.7);
       border: 1px solid var(--border-subtle);
@@ -666,23 +652,12 @@
       font-weight: 800;
       font-family: var(--font-mono);
       color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    /* Section Component Layout */
     .cockpit-section-block {
       display: flex;
       flex-direction: column;
       gap: 20px;
-    }
-
-    .cockpit-section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 8px;
     }
 
     .section-title-label {
@@ -703,7 +678,6 @@
       box-shadow: 0 0 12px var(--accent);
     }
 
-    /* Card Grid Collections */
     .grid-deck-cards {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -719,8 +693,6 @@
       flex-direction: column;
       cursor: pointer;
       transition: var(--trans-spring);
-      position: relative;
-      overflow: hidden;
     }
     .cockpit-card:hover {
       background: var(--bg-surface-elevated);
@@ -739,21 +711,8 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 18px;
-      transition: var(--trans-quick);
     }
-    .cockpit-card-icon svg { width: 22px; height: 22px; fill: var(--text-secondary); transition: var(--trans-quick); }
-
-    .cockpit-card:hover .cockpit-card-icon {
-      background: var(--accent-dim);
-      border-color: var(--border-accent);
-    }
-    .cockpit-card:hover .cockpit-card-icon svg { fill: var(--accent); }
-
-    .cockpit-card.fav-theme .cockpit-card-icon {
-      background: rgba(244, 63, 94, 0.12);
-      border-color: rgba(244, 63, 94, 0.25);
-    }
-    .cockpit-card.fav-theme .cockpit-card-icon svg { fill: var(--accent-rose); }
+    .cockpit-card-icon svg { width: 22px; height: 22px; fill: var(--text-secondary); }
 
     .cockpit-card-title {
       font-size: 1.05rem;
@@ -769,7 +728,6 @@
       margin-top: 4px;
     }
 
-    /* Track Pipeline Table */
     .stream-pipeline-table {
       display: flex;
       flex-direction: column;
@@ -795,7 +753,6 @@
     .track-row-node.current-playing {
       background: linear-gradient(90deg, var(--accent-dim) 0%, rgba(30, 41, 59, 0.8) 100%);
       border-color: var(--accent);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .track-idx-col {
@@ -807,9 +764,6 @@
       align-items: center;
       justify-content: center;
     }
-    .track-idx-col svg { width: 18px; height: 18px; fill: var(--accent); display: none; }
-    .track-row-node.current-playing .track-idx-col span { display: none; }
-    .track-row-node.current-playing .track-idx-col svg { display: block; }
 
     .track-meta-col {
       display: flex;
@@ -825,7 +779,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .track-row-node.current-playing .track-name-main { color: var(--accent); }
     .track-subpath {
       font-size: 0.75rem;
       color: var(--text-muted);
@@ -889,32 +842,22 @@
       color: #fff;
       background: rgba(255, 255, 255, 0.1);
     }
-    .action-icon-hit.active-fav {
-      color: var(--accent-rose);
-    }
+    .action-icon-hit.active-fav { color: var(--accent-rose); }
     .action-icon-hit svg { width: 18px; height: 18px; fill: currentColor; }
 
-    /* ==========================================================================
-       BOTTOM STUDIO MASTER DOCK (INTEGRATED MEDIA CONTROLS)
-       ========================================================================== */
     footer.bottom-cockpit-dock {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: calc(var(--player-dock-height) + var(--safe-bottom));
       padding-bottom: var(--safe-bottom);
-      padding-left: 32px;
-      padding-right: 32px;
+      padding-left: 32px; padding-right: 32px;
       background: rgba(8, 13, 26, 0.88);
       backdrop-filter: blur(32px) saturate(200%);
-      -webkit-backdrop-filter: blur(32px) saturate(200%);
       border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
       z-index: 100;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
     }
 
     .dock-meta-unit {
@@ -937,13 +880,10 @@
       justify-content: center;
       flex-shrink: 0;
       overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-      position: relative;
     }
     .dock-cover-thumb img { width: 100%; height: 100%; object-fit: cover; display: none; }
     .dock-cover-thumb svg { width: 26px; height: 26px; fill: var(--text-muted); }
 
-    .dock-text-meta { display: flex; flex-direction: column; overflow: hidden; }
     .dock-track-title {
       font-size: 0.95rem;
       font-weight: 700;
@@ -962,7 +902,6 @@
       margin-top: 2px;
     }
 
-    /* Center Controls Module */
     .dock-controls-unit {
       display: flex;
       flex-direction: column;
@@ -992,16 +931,7 @@
       box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
       transition: var(--trans-quick);
     }
-    .circle-play-trigger:hover {
-      transform: scale(1.08);
-      box-shadow: 0 6px 26px rgba(255, 255, 255, 0.5);
-    }
     .circle-play-trigger svg { width: 22px; height: 22px; fill: currentColor; }
-
-    body.is-premium-tier .circle-play-trigger {
-      background: linear-gradient(135deg, #fbbf24, #d97706);
-      box-shadow: 0 4px 20px var(--accent-glow);
-    }
 
     .dock-scrub-bar {
       width: 100%;
@@ -1024,9 +954,7 @@
       background: rgba(255, 255, 255, 0.1);
       position: relative;
       cursor: pointer;
-      overflow: hidden;
     }
-    .dock-progress-rail:hover { height: 7px; }
     .dock-progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
@@ -1035,7 +963,6 @@
       transition: width 0.1s linear;
     }
 
-    /* Right Studio Utilities */
     .dock-utilities-unit {
       display: flex;
       align-items: center;
@@ -1044,45 +971,11 @@
       width: 28%;
     }
 
-    .dock-vol-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 130px;
-    }
-
-    input[type="range"].dock-slider {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.12);
-      height: 4px;
-      border-radius: 99px;
-      outline: none;
-      cursor: pointer;
-    }
-    input[type="range"].dock-slider::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #fff;
-      cursor: pointer;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-      transition: var(--trans-quick);
-    }
-    input[type="range"].dock-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
-    }
-
-    /* Simulated Spectrum Visualizer Widget */
     .studio-live-spectrum {
       display: flex;
       align-items: flex-end;
       gap: 3px;
       height: 22px;
-      padding-right: 6px;
     }
     .spectrum-bar {
       width: 3px;
@@ -1093,19 +986,17 @@
     }
 
     /* ==========================================================================
-       SPOTLIGHT LYRICS & FULLSCREEN IMMERSIVE STAGE
+       SPOTLIGHT FULLSCREEN LYRICS
        ========================================================================== */
     #lyrics-fullscreen-overlay {
       position: fixed;
       inset: 0;
       background: radial-gradient(circle at center, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 0.99) 100%);
       backdrop-filter: blur(48px);
-      -webkit-backdrop-filter: blur(48px);
       z-index: 2000;
       display: none;
       flex-direction: column;
       padding: calc(var(--safe-top) + 24px) 50px calc(var(--safe-bottom) + 30px) 50px;
-      animation: modalFadeIn 0.3s ease;
     }
     #lyrics-fullscreen-overlay.is-open { display: flex; }
 
@@ -1126,11 +1017,6 @@
       justify-content: center;
       color: #fff;
       cursor: pointer;
-      transition: var(--trans-quick);
-    }
-    .lyrics-close-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-      transform: rotate(90deg);
     }
 
     .lyrics-body-grid {
@@ -1139,90 +1025,18 @@
       grid-template-columns: 1fr 1.4fr;
       gap: 60px;
       align-items: center;
-      overflow: hidden;
       max-width: 1200px;
       margin: 0 auto;
       width: 100%;
     }
 
-    .lyrics-cover-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-    }
     .lyrics-album-art {
       width: 380px;
       height: 380px;
-      max-width: 75vw;
-      max-height: 75vw;
       border-radius: var(--radius-lg);
       object-fit: cover;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
       border: 1px solid var(--border-elevated);
-    }
-
-    .lyrics-artist-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    .lyrics-interactive-artist {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      color: var(--accent-cyan);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--trans-quick);
-    }
-    .lyrics-interactive-artist:hover {
-      background: var(--accent-dim);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .lyrics-interactive-artist svg { width: 16px; height: 16px; fill: currentColor; }
-
-    .lyrics-add-to-pl-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: var(--radius-full);
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid var(--border-accent);
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: var(--trans-quick);
-    }
-    .lyrics-add-to-pl-btn:hover {
-      background: var(--accent);
-      box-shadow: 0 0 16px var(--accent-glow);
-      transform: translateY(-2px);
-    }
-    .lyrics-add-to-pl-btn svg { width: 16px; height: 16px; fill: currentColor; }
-
-    .lyrics-single-spotlight-col {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 30px;
-      position: relative;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
     }
 
     .spotlight-lyric-text {
@@ -1231,26 +1045,7 @@
       line-height: 1.4;
       color: #ffffff;
       text-shadow: 0 0 40px var(--accent-glow);
-      transition: var(--trans-spring);
-      max-width: 90%;
-    }
-    .spotlight-lyric-text.animating {
-      opacity: 0.15;
-      transform: scale(0.95) translateY(10px);
-    }
-
-    .spotlight-source-badge {
-      position: absolute;
-      bottom: 24px;
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      padding: 6px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
+      text-align: center;
     }
 
     /* ==========================================================================
@@ -1262,9 +1057,6 @@
       z-index: 1000;
       background: var(--bg-deep);
       display: flex;
-      overflow: hidden;
-      opacity: 1;
-      visibility: visible;
       transition: var(--trans-spring);
     }
     #fullscreen-auth-stage.stage-hidden {
@@ -1275,73 +1067,14 @@
 
     .auth-banner-pane {
       flex: 1.1;
-      background: 
-        radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
-        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
-        #070a13;
+      background: radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 60%), #070a13;
       border-right: 1px solid var(--border-subtle);
       padding: calc(var(--safe-top) + 60px) 70px 60px 70px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
     }
 
-    .banner-brand-row { display: flex; align-items: center; gap: 14px; }
-    .banner-brand-title { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
-    .banner-brand-sub {
-      font-size: 0.7rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      color: var(--accent);
-      padding: 4px 10px;
-      background: var(--accent-dim);
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-full);
-      letter-spacing: 0.08em;
-    }
-
-    .banner-copy-block {
-      max-width: 560px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 40px 0;
-    }
-    .banner-headline {
-      font-size: 3.2rem;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .banner-desc { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6; }
-
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .telemetry-card {
-      background: rgba(30, 41, 59, 0.4);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      backdrop-filter: blur(10px);
-    }
-    .telemetry-label { font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; }
-    .telemetry-value { font-size: 1.25rem; font-weight: 800; font-family: var(--font-mono); color: #fff; margin-top: 6px; }
-    .telemetry-value.green { color: var(--accent-emerald); }
-    .telemetry-value.cyan { color: var(--accent-cyan); }
-    .telemetry-value.amber { color: var(--accent); }
-
-    .banner-footer-security { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-muted); }
-    .security-status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); box-shadow: 0 0 10px var(--accent-emerald); }
-
-    /* Auth Interaction Pane */
     .auth-interaction-pane {
       flex: 0.9;
       background: #090d18;
@@ -1350,85 +1083,18 @@
       justify-content: center;
       align-items: center;
       padding: 40px;
-      position: relative;
     }
-
     .auth-console-container {
       width: 100%;
       max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
-    }
-    .console-header { display: flex; flex-direction: column; gap: 8px; }
-    .console-title { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; }
-    .console-subtitle { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
-
-    .auth-segmented-switch {
-      display: flex;
-      background: #111726;
-      padding: 4px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
-    }
-    .auth-segmented-tab {
-      flex: 1;
-      padding: 10px 0;
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      border: none;
-      background: transparent;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-family: var(--font-stack);
-      transition: var(--trans-quick);
-    }
-    .auth-segmented-tab.active {
-      background: var(--bg-surface-elevated);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border-elevated);
+      gap: 24px;
     }
 
-    .auth-fields-block { display: flex; flex-direction: column; gap: 18px; }
-    .field-group { display: flex; flex-direction: column; gap: 8px; }
-    .field-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); }
-    .field-input-box { position: relative; display: flex; align-items: center; }
-    .field-input-box svg { position: absolute; left: 16px; width: 18px; height: 18px; fill: var(--text-muted); }
-
-    .btn-cloud-action {
-      background: linear-gradient(135deg, var(--accent), #1d4ed8);
-      color: #fff;
-      border: none;
-      padding: 14px;
-      border-radius: var(--radius-md);
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      transition: var(--trans-quick);
-    }
-    .btn-cloud-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 26px var(--accent-glow);
-    }
-
-    .cloud-auth-feedback { min-height: 20px; font-size: 0.82rem; font-family: var(--font-mono); text-align: center; }
-    .cloud-auth-feedback.error { color: var(--accent-rose); }
-    .cloud-auth-feedback.success { color: var(--accent-emerald); }
-
-    /* Hybrid iOS Native Trigger Button */
-    .google-ios-btn {
+    .brand-oauth-btn {
       width: 100%;
-      background: #ffffff;
-      color: #1f2937;
-      border: 1px solid #e5e7eb;
-      padding: 12px 18px;
+      padding: 13px 20px;
       border-radius: var(--radius-full);
       font-size: 0.95rem;
       font-weight: 700;
@@ -1438,33 +1104,44 @@
       gap: 12px;
       cursor: pointer;
       transition: var(--trans-quick);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      border: 1px solid transparent;
     }
-    .google-ios-btn:hover {
-      background: #f9fafb;
+    .brand-oauth-btn.google {
+      background: #fff;
+      color: #1f2937;
+      border-color: #e5e7eb;
+    }
+    .brand-oauth-btn.google:hover {
+      background: #f3f4f6;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     }
-    .google-ios-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .brand-oauth-btn.spotify {
+      background: #1db954;
+      color: #000;
+      box-shadow: 0 4px 16px var(--spotify-glow);
+    }
+    .brand-oauth-btn.spotify:hover {
+      background: #1ed760;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(29, 185, 84, 0.6);
+    }
+    .brand-oauth-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
 
-    .google-signin-wrapper {
+    .auth-or-divider {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 16px;
-      padding: 24px 20px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px dashed var(--border-elevated);
-      border-radius: var(--radius-md);
-    }
-    .google-note-text {
-      font-size: 0.78rem;
+      gap: 14px;
       color: var(--text-muted);
-      text-align: center;
-      line-height: 1.4;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+    }
+    .auth-or-divider::before, .auth-or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
     }
 
-    /* Generic Dialog Modals */
     #custom-prompt-modal, #confirm-logout-modal, #artist-picker-modal, #playlist-picker-modal {
       position: fixed;
       inset: 0;
@@ -1475,14 +1152,8 @@
       justify-content: center;
       z-index: 3000;
       padding: 20px;
-      animation: modalFadeIn 0.25s ease;
     }
     #custom-prompt-modal.is-open, #confirm-logout-modal.is-open, #artist-picker-modal.is-open, #playlist-picker-modal.is-open { display: flex; }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
-    }
 
     .prompt-box-dialog, .artist-picker-card, .playlist-picker-card {
       background: #0f172a;
@@ -1516,57 +1187,24 @@
       color: var(--accent);
       transform: translateX(4px);
     }
-
-    /* ==========================================================================
-       RESPONSIVE MATRIX
-       ========================================================================== */
-    @media (max-width: 1024px) {
-      .hero-summary-deck { grid-template-columns: 1fr; }
-      .lyrics-body-grid { grid-template-columns: 1fr; gap: 30px; }
-      .lyrics-album-art { width: 220px; height: 220px; }
-      .spotlight-lyric-text { font-size: 1.8rem; }
-    }
-
-    @media (max-width: 820px) {
-      aside.studio-sidebar {
-        position: fixed;
-        left: -100%;
-        width: 280px;
-        transition: var(--trans-spring);
-      }
-      aside.studio-sidebar.mobile-open {
-        left: 0;
-      }
-      .dock-scrub-bar, .dock-utilities-unit { display: none; }
-      .dock-meta-unit { width: 60%; }
-      .dock-controls-unit { width: 40%; }
-      .track-row-node { grid-template-columns: 36px 1fr 60px 40px; }
-      .track-codec-col { display: none; }
-      .auth-banner-pane { display: none; }
-      .cockpit-body-scroll { padding: 20px 20px 140px 20px; }
-      header.studio-action-bar { padding: var(--safe-top) 20px 0 20px; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Digital Lattice -->
   <div class="app-ambient-grid"></div>
-
-  <!-- Realtime Notification Hub -->
   <div id="ui-toast-container"></div>
 
   <!-- STUDIO WORKSPACE -->
   <div id="workspace-container">
     
-    <!-- LEFT EXPANDED STUDIO SIDEBAR -->
+    <!-- SIDEBAR -->
     <aside class="studio-sidebar" id="app-sidebar-nav">
       <div>
         <div class="sidebar-brand-block">
           <div class="brand-cube-badge">
             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
           </div>
-          <div class="brand-text-block">
+          <div>
             <span class="brand-main-title">JRmusic</span>
             <span class="brand-sub-badge" id="cockpit-tier-label">Cloud Studio</span>
           </div>
@@ -1574,32 +1212,22 @@
 
         <nav class="sidebar-menu-list">
           <div class="menu-group-label">Routing Console</div>
-
-          <!-- 控制台 -->
           <div class="liquid-nav-item active" id="nav-main-home" onclick="AppNavigation.switchStage('home')">
             <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
             <span>Console Master</span>
           </div>
-
-          <!-- 资源 / 曲库 -->
           <div class="liquid-nav-item" id="nav-all-musics" onclick="AppNavigation.switchStage('all-musics')">
             <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
             <span>Network Library</span>
           </div>
-
-          <!-- 歌单 -->
           <div class="liquid-nav-item" id="nav-my-playlists" onclick="AppNavigation.switchStage('my-playlists')">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             <span>Playlists Vault</span>
           </div>
-
-          <!-- 下载 -->
           <div class="liquid-nav-item" id="nav-offlines" onclick="AppNavigation.switchStage('offlines')">
             <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
             <span>Offline Edge</span>
           </div>
-
-          <!-- 设置 -->
           <div class="liquid-nav-item" onclick="AuthModalController.handleAvatarClick()">
             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             <span>Account Prefs</span>
@@ -1607,8 +1235,7 @@
         </nav>
       </div>
 
-      <!-- Account Profile Tile -->
-      <div class="sidebar-user-card" onclick="AuthModalController.handleAvatarClick()" title="Manage Session">
+      <div class="sidebar-user-card" onclick="AuthModalController.handleAvatarClick()">
         <div class="user-card-profile">
           <div class="liquid-user-btn" id="user-avatar-initial">?</div>
           <div class="user-card-info">
@@ -1616,14 +1243,11 @@
             <span class="user-card-role" id="user-tier-label">Standard</span>
           </div>
         </div>
-        <svg width="16" height="16" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
       </div>
     </aside>
 
-    <!-- RIGHT WORKSPACE AREA -->
+    <!-- MAIN BODY -->
     <main class="studio-main-body">
-      
-      <!-- TOP ACTION BAR -->
       <header class="studio-action-bar">
         <div class="search-dock-module">
           <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -1632,8 +1256,7 @@
         </div>
 
         <div class="action-bar-right-controls">
-          <!-- Audio Pipeline Quality Selector -->
-          <div class="quality-spec-badge" title="Configure dynamic audio codec resolution">
+          <div class="quality-spec-badge">
             <label>Codec</label>
             <select id="global-quality-selector" class="liquid-quality-select" onchange="MusicAPIEngine.onQualityChanged(this.value)">
               <option value="standard">128K MP3</option>
@@ -1646,11 +1269,9 @@
         </div>
       </header>
 
-      <!-- SCROLLABLE INTERACTIVE VIEWPORT -->
       <div class="cockpit-body-scroll" id="main-scroll-pane">
-        
-        <!-- HERO DIAGNOSTIC CONSOLE -->
-        <section class="hero-summary-deck" id="section-start-listening">
+        <!-- HERO DECK -->
+        <section class="hero-summary-deck">
           <div class="hero-panel-card">
             <div>
               <div class="hero-title-tag">Studio Lossless Routing Pipeline</div>
@@ -1661,16 +1282,18 @@
             </div>
 
             <div class="hero-status-pills">
+              <!-- Spotify 一键同步按钮 -->
+              <button class="control-pill-btn spotify-btn" onclick="SpotifyIntegration.initiateLogin()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.496 17.306c-.216.353-.675.467-1.028.25-2.817-1.722-6.362-2.112-10.538-1.158-.403.092-.806-.157-.898-.56-.092-.403.157-.806.56-.898 4.568-1.044 8.484-.598 11.654 1.338.353.216.467.675.25 1.028zm1.468-3.262c-.272.441-.85.58-1.291.308-3.225-1.982-8.14-2.557-11.954-1.399-.494.15-1.024-.13-1.174-.624-.15-.494.13-1.024.624-1.174 4.356-1.321 9.773-.674 13.487 1.608.441.272.58.85.308 1.281zm.126-3.41c-3.867-2.296-10.25-2.508-13.957-1.381-.593.181-1.222-.158-1.403-.751-.181-.593.158-1.222.751-1.403 4.257-1.293 11.31-1.047 15.753 1.59.533.316.708 1.01.392 1.543-.316.533-1.01.708-1.536.392z"/></svg>
+                <span>Sync Spotify Top 20</span>
+              </button>
               <button class="control-pill-btn" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent-rose)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span>Favorite Vault (<span id="fav-counter-label">0</span>)</span>
+                <span>Favorites (<span id="fav-counter-label">0</span>)</span>
               </button>
               <button class="control-pill-btn" onclick="AppNavigation.switchStage('offlines')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent-emerald)"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                 <span>Offline Edge Vault</span>
               </button>
               <button class="control-pill-btn" onclick="MusicAPIEngine.promptDirectParse()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
                 <span>Direct ID Parse</span>
               </button>
             </div>
@@ -1692,46 +1315,15 @@
           </div>
         </section>
 
-        <!-- STUDIO PRESET COLLECTIONS -->
+        <!-- COLLECTIONS -->
         <section class="cockpit-section-block">
-          <div class="cockpit-section-head">
-            <div class="section-title-label">Collections & Local Persistence</div>
-          </div>
-
-          <div class="grid-deck-cards" id="custom-playlists-shelf">
-            <div class="cockpit-card fav-theme" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
-              <div class="cockpit-card-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              </div>
-              <div class="cockpit-card-title">Favorite Musics</div>
-              <div class="cockpit-card-subtitle">Encrypted personal vault</div>
-            </div>
-
-            <div class="cockpit-card" onclick="AppNavigation.switchStage('offlines')">
-              <div class="cockpit-card-icon">
-                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-              </div>
-              <div class="cockpit-card-title">Offline Edge</div>
-              <div class="cockpit-card-subtitle">Local persistent store</div>
-            </div>
-
-            <!-- 动态自建歌单卡片将由 JS 渲染至此 -->
-
-            <div class="cockpit-card" onclick="CustomPlaylistsModule.promptNewPlaylist()">
-              <div class="cockpit-card-icon">
-                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-              </div>
-              <div class="cockpit-card-title">+ New Playlist</div>
-              <div class="cockpit-card-subtitle">Instantiate new collection</div>
-            </div>
-          </div>
+          <div class="section-title-label">Collections & Local Persistence</div>
+          <div class="grid-deck-cards" id="custom-playlists-shelf"></div>
         </section>
 
         <!-- TRACK PIPELINE TABLE -->
-        <section class="cockpit-section-block" id="section-track-listing">
-          <div class="cockpit-section-head">
-            <div class="section-title-label" id="listing-heading">Discovered Tracks</div>
-          </div>
+        <section class="cockpit-section-block">
+          <div class="section-title-label" id="listing-heading">Discovered Tracks</div>
           <div class="stream-pipeline-table" id="track-items-container">
             <div style="padding: 40px; color: var(--text-muted); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">
               Enter a track query in the studio console above to initialize stream pipeline.
@@ -1741,14 +1333,14 @@
       </div>
     </main>
 
-    <!-- INTEGRATED BOTTOM AUDIO MASTER DOCK -->
+    <!-- MASTER AUDIO DOCK -->
     <footer class="bottom-cockpit-dock">
-      <div class="dock-meta-unit" onclick="LyricsView.open()" title="Open Spotlight Stage">
+      <div class="dock-meta-unit" onclick="LyricsView.open()">
         <div class="dock-cover-thumb" id="player-disc-icon">
           <img id="player-thumb-img" src="" alt="Album Art" />
           <svg id="player-thumb-fallback" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
         </div>
-        <div class="dock-text-meta">
+        <div style="display: flex; flex-direction: column; overflow: hidden;">
           <div class="dock-track-title" id="lbl-now-playing-title">Audio Pipeline Standby</div>
           <div class="dock-track-sub" id="lbl-now-playing-sub">Select a track to initialize decode</div>
         </div>
@@ -1756,13 +1348,13 @@
 
       <div class="dock-controls-unit">
         <div class="dock-buttons-row">
-          <button class="action-icon-hit" onclick="AudioEngine.prevTrack()" title="Previous Track">
+          <button class="action-icon-hit" onclick="AudioEngine.prevTrack()">
             <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
-          <button class="circle-play-trigger" id="btn-master-play" onclick="AudioEngine.togglePlayState()" title="Toggle Master Stream">
+          <button class="circle-play-trigger" id="btn-master-play" onclick="AudioEngine.togglePlayState()">
             <svg viewBox="0 0 24 24" id="play-btn-vector"><path d="M8 5v14l11-7z"/></svg>
           </button>
-          <button class="action-icon-hit" onclick="AudioEngine.nextTrack()" title="Next Track">
+          <button class="action-icon-hit" onclick="AudioEngine.nextTrack()">
             <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
@@ -1777,7 +1369,6 @@
       </div>
 
       <div class="dock-utilities-unit">
-        <!-- Live Visualizer Bars -->
         <div class="studio-live-spectrum" id="live-spectrum-box">
           <div class="spectrum-bar" style="height: 4px;"></div>
           <div class="spectrum-bar" style="height: 12px;"></div>
@@ -1785,20 +1376,14 @@
           <div class="spectrum-bar" style="height: 16px;"></div>
           <div class="spectrum-bar" style="height: 6px;"></div>
         </div>
-
-        <button class="action-icon-hit" title="Lyrics Spotlight Visualizer" onclick="LyricsView.open()">
+        <button class="action-icon-hit" onclick="LyricsView.open()" title="Lyrics Spotlight">
           <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
         </button>
-        <button class="action-icon-hit" id="btn-fav-active-track" onclick="AudioEngine.toggleCurrentFavorite()" title="Add to Favorites">
+        <button class="action-icon-hit" id="btn-fav-active-track" onclick="AudioEngine.toggleCurrentFavorite()">
           <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </button>
-        <div class="dock-vol-wrap">
-          <svg width="18" height="18" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-          <input type="range" class="dock-slider" id="vol-range" min="0" max="1" step="0.01" value="0.8" oninput="AudioEngine.setVolume(this.value)" />
-        </div>
       </div>
 
-      <!-- Core Audio Sink (Unmodified Native Element) -->
       <audio id="core-audio-sink" preload="metadata"></audio>
     </footer>
   </div>
@@ -1806,7 +1391,7 @@
   <!-- SPOTLIGHT FULLSCREEN LYRICS OVERLAY -->
   <div id="lyrics-fullscreen-overlay">
     <div class="lyrics-top-nav">
-      <button class="lyrics-close-btn" onclick="LyricsView.close()" title="Close Stage">
+      <button class="lyrics-close-btn" onclick="LyricsView.close()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
       <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-secondary); font-family: var(--font-mono);" id="lyrics-nav-song-name">Lyrics Stage</div>
@@ -1814,81 +1399,83 @@
     </div>
     
     <div class="lyrics-body-grid">
-      <div class="lyrics-cover-col">
-        <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23141a24'><rect width='100' height='100'/></svg>" alt="Album Art" />
-        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
+        <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23141a24'><rect width='100' height='100'/></svg>" />
+        <div style="text-align: center;">
           <h2 style="font-size: 1.6rem; color: #fff; font-weight: 800;" id="lyrics-modal-title">Track Title</h2>
-          
-          <div class="lyrics-artist-actions">
-            <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="Query all artist tracks">
-              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-              <span id="lyrics-modal-artist">Artist</span>
-            </div>
-
-            <!-- 本地自建歌单收藏触发按钮 -->
-            <button class="lyrics-add-to-pl-btn" onclick="PlaylistPicker.showCurrentTrack()" title="Add currently playing track to custom playlist">
-              <svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/></svg>
+          <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
+            <button class="control-pill-btn" onclick="PlaylistPicker.showCurrentTrack()">
               <span>+ 加入歌单</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div class="lyrics-single-spotlight-col">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
         <div class="spotlight-lyric-text" id="lyrics-spotlight-line">Ready for playback...</div>
-        <div class="spotlight-source-badge" id="lyrics-source-badge">LYRICS ENGINE</div>
       </div>
     </div>
   </div>
 
-  <!-- MULTI-ARTIST SELECTION MODAL -->
-  <div id="artist-picker-modal">
-    <div class="artist-picker-card">
-      <div style="font-size: 1.25rem; font-weight: 800; color: #fff;">选择歌手检索</div>
-      <div style="font-size: 0.88rem; color: var(--text-secondary);">该曲目包含多位参演艺术家，请选择需要检索的歌手：</div>
-      <div id="artist-chip-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
-      <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-        <button class="control-pill-btn" onclick="ArtistPicker.close()">取消</button>
+  <!-- AUTHENTICATION GATEWAY -->
+  <div id="fullscreen-auth-stage">
+    <div class="auth-banner-pane">
+      <div>
+        <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.1;">Enterprise Lossless Audio Network.</h1>
+        <p style="font-size: 1rem; color: var(--text-secondary); margin-top: 14px;">
+          Seamless integration with Spotify Top 20 synchronization and Google OAuth.
+        </p>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">
+        Cloudflare Workers & MongoDB Database · Local Persistence Ready
+      </div>
+    </div>
+
+    <div class="auth-interaction-pane">
+      <div class="auth-console-container">
+        <div>
+          <div style="font-size: 1.85rem; font-weight: 800; color: #fff;">Sign in to JRmusic</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px;">
+            Authenticate with Spotify or your corporate Google account.
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <button class="brand-oauth-btn spotify" onclick="SpotifyIntegration.initiateLogin()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.496 17.306c-.216.353-.675.467-1.028.25-2.817-1.722-6.362-2.112-10.538-1.158-.403.092-.806-.157-.898-.56-.092-.403.157-.806.56-.898 4.568-1.044 8.484-.598 11.654 1.338.353.216.467.675.25 1.028zm1.468-3.262c-.272.441-.85.58-1.291.308-3.225-1.982-8.14-2.557-11.954-1.399-.494.15-1.024-.13-1.174-.624-.15-.494.13-1.024.624-1.174 4.356-1.321 9.773-.674 13.487 1.608.441.272.58.85.308 1.281zm.126-3.41c-3.867-2.296-10.25-2.508-13.957-1.381-.593.181-1.222-.158-1.403-.751-.181-.593.158-1.222.751-1.403 4.257-1.293 11.31-1.047 15.753 1.59.533.316.708 1.01.392 1.543-.316.533-1.01.708-1.536.392z"/></svg>
+            <span>Continue with Spotify</span>
+          </button>
+
+          <div class="auth-or-divider">OR</div>
+
+          <button class="brand-oauth-btn google" onclick="AuthModalController.triggerGoogleSignIn()">
+            <svg viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- PLAYLIST PICKER MODAL (用于大屏界面加歌单) -->
+  <!-- PROMPT / PLAYLIST MODAL -->
   <div id="playlist-picker-modal">
     <div class="playlist-picker-card">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">添加到歌单</div>
-        <button class="action-icon-hit" onclick="CustomPlaylistsModule.promptNewPlaylist()" title="Create new playlist">
-          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        </button>
-      </div>
-      <div style="font-size: 0.88rem; color: var(--text-secondary);">选择目标本地 IndexedDB 歌单：</div>
+      <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">添加到歌单</div>
       <div id="playlist-chip-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto;"></div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+      <div style="display: flex; justify-content: flex-end;">
         <button class="control-pill-btn" onclick="PlaylistPicker.close()">取消</button>
       </div>
     </div>
   </div>
 
-  <!-- LOGOUT CONFIRMATION MODAL -->
-  <div id="confirm-logout-modal">
-    <div class="prompt-box-dialog">
-      <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">確認登出</div>
-      <div style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
-        是否確認登出當前帳戶？登出後將立即停止所有音樂播放並返回登入界面。
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
-        <button class="control-pill-btn" onclick="AuthModalController.cancelLogout()">取消</button>
-        <button class="control-pill-btn danger" onclick="AuthModalController.confirmLogout()">確認登出</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CUSTOM PROMPT MODAL -->
   <div id="custom-prompt-modal">
     <div class="prompt-box-dialog">
       <div style="font-size: 1.3rem; font-weight: 800; color: #fff;" id="custom-prompt-title">New Playlist</div>
-      <div style="font-size: 0.9rem; color: var(--text-secondary);" id="custom-prompt-desc">Enter a title for your collection:</div>
       <input type="text" class="cloud-input" id="custom-prompt-input" style="padding-left: 18px;" />
       <div style="display: flex; justify-content: flex-end; gap: 12px;">
         <button class="control-pill-btn" onclick="CustomPrompt.cancel()">Cancel</button>
@@ -1897,114 +1484,30 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN AUTHENTICATION GATEWAY -->
-  <div id="fullscreen-auth-stage">
-    <div class="auth-banner-pane">
-      <div>
-        <div class="banner-brand-row">
-          <div class="brand-cube-badge">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-          </div>
-          <div>
-            <span class="banner-brand-title">JRmusic Cloud</span>
-            <span class="banner-brand-sub" id="auth-tier-badge">STANDARD PIPELINE</span>
-          </div>
-        </div>
-
-        <div class="banner-copy-block">
-          <h1 class="banner-headline">Enterprise Lossless Audio Network.</h1>
-          <p class="banner-desc">
-            Direct Netease API decoding, fast official CDN streams, and localized IndexedDB persistent cache.
-          </p>
-        </div>
+  <div id="confirm-logout-modal">
+    <div class="prompt-box-dialog">
+      <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">確認登出</div>
+      <div style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+        是否確認登出當前帳戶？
       </div>
-
-      <div>
-        <div class="telemetry-grid">
-          <div class="telemetry-card">
-            <div class="telemetry-label">Network Edge</div>
-            <div class="telemetry-value green">280+ POPs</div>
-          </div>
-          <div class="telemetry-card">
-            <div class="telemetry-label">Local Cache</div>
-            <div class="telemetry-value cyan">IndexedDB</div>
-          </div>
-          <div class="telemetry-card">
-            <div class="telemetry-label">Audio Tier</div>
-            <div class="telemetry-value amber">FLAC Lossless</div>
-          </div>
-        </div>
-
-        <div class="banner-footer-security" style="margin-top: 36px;">
-          <div class="security-status-indicator"></div>
-          <span>Cloudflare Workers & MongoDB Database · Local Persistence Ready</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="auth-interaction-pane">
-      <div class="auth-console-container">
-        <div class="console-header">
-          <div class="console-title" id="auth-modal-title">Sign in to JRmusic</div>
-          <div class="console-subtitle" id="auth-modal-desc">Authenticate with your Google Account to synchronize MongoDB catalogs and licenses.</div>
-        </div>
-
-        <div class="auth-segmented-switch">
-          <button class="auth-segmented-tab active" id="tab-btn-login" onclick="AuthModalController.switchTab('login')">Google Sign In</button>
-          <button class="auth-segmented-tab" id="tab-btn-redeem" onclick="AuthModalController.switchTab('redeem')">Redeem Key</button>
-        </div>
-
-        <div class="auth-fields-block">
-          <!-- Google Native iOS Button Container -->
-          <div id="auth-credentials-group" style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="google-signin-wrapper">
-              <button class="google-ios-btn" onclick="AuthModalController.triggerGoogleSignIn()">
-                <svg viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-              <div class="google-note-text">
-                Apple ASWebAuthenticationSession / iOS Native OAuth 2.0 PKCE.<br>User profile & playlists synchronize to MongoDB automatically.
-              </div>
-            </div>
-          </div>
-
-          <div id="auth-redeem-group" style="display: none; flex-direction: column; gap: 16px;">
-            <div class="field-group">
-              <label class="field-label">Activation License Key</label>
-              <div class="field-input-box">
-                <input type="text" class="cloud-input" id="auth-input-license" placeholder="e.g. VIP-PREMIUM-2026" />
-                <svg viewBox="0 0 24 24"><path d="M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2zM20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16z"/></svg>
-              </div>
-            </div>
-
-            <button class="btn-cloud-action" onclick="AuthModalController.handleRedeem()">
-              <span>Activate License Key</span>
-            </button>
-          </div>
-
-          <div class="cloud-auth-feedback" id="auth-feedback-text"></div>
-        </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+        <button class="control-pill-btn" onclick="AuthModalController.cancelLogout()">取消</button>
+        <button class="control-pill-btn primary" onclick="AuthModalController.confirmLogout()">確認登出</button>
       </div>
     </div>
   </div>
 
-  <!-- ==========================================================================
-       RUNTIME JAVASCRIPT LOGIC ENGINE
-       ========================================================================== -->
+  <!-- RUNTIME LOGIC ENGINE -->
   <script>
     const CONFIG = {
+      SPOTIFY_CLIENT_ID: "ca0dd7e0e54c4e9aad140edf72c13ce3",
       GOOGLE_CLIENT_ID: "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com",
       REDIRECT_URI: "com.googleusercontent.apps.808147352261-93do7ovt86lo55dustq2gqodk9f53qe4:/oauth2callback",
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
-      DB_VERSION: 3, // 升级至 v3，扩充 custom_playlists 对象仓库
+      DB_VERSION: 3,
       PREMIUM_QUALITIES: ['lossless', 'hires', 'jymaster', 'sky', 'dolby']
     };
 
@@ -2013,24 +1516,11 @@
         const container = document.getElementById("ui-toast-container");
         const toast = document.createElement("div");
         toast.className = `ui-toast ${type}`;
-
-        let iconSvg = '';
-        if (type === 'success') {
-          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#10b981"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-        } else if (type === 'error') {
-          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4757"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
-        } else {
-          iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`;
-        }
-
-        toast.innerHTML = `${iconSvg}<div style="flex:1;">${message}</div>`;
+        toast.innerHTML = `<div style="flex:1;">${message}</div>`;
         container.appendChild(toast);
-
         setTimeout(() => {
           toast.classList.add("toast-fade-out");
-          setTimeout(() => {
-            if (toast.parentNode) toast.parentNode.removeChild(toast);
-          }, 300);
+          setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
         }, duration);
       }
     };
@@ -2041,7 +1531,6 @@
         return new Promise((resolve) => {
           CustomPrompt.resolver = resolve;
           document.getElementById("custom-prompt-title").innerText = title;
-          document.getElementById("custom-prompt-desc").innerText = desc;
           const input = document.getElementById("custom-prompt-input");
           input.value = defaultVal;
           document.getElementById("custom-prompt-modal").classList.add("is-open");
@@ -2061,49 +1550,16 @@
       }
     };
 
-    const ArtistPicker = {
-      show(artistList) {
-        const container = document.getElementById("artist-chip-container");
-        container.innerHTML = "";
-        artistList.forEach(name => {
-          const chip = document.createElement("div");
-          chip.className = "artist-select-chip";
-          chip.innerHTML = `
-            <span>${name}</span>
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-          `;
-          chip.onclick = () => {
-            ArtistPicker.close();
-            LyricsView.close();
-            MusicAPIEngine.searchArtist(name);
-          };
-          container.appendChild(chip);
-        });
-        document.getElementById("artist-picker-modal").classList.add("is-open");
-      },
-      close() {
-        document.getElementById("artist-picker-modal").classList.remove("is-open");
-      }
-    };
-
-    /**
-     * =========================================================================
-     * INDEXEDDB 本地音频与自定义歌单存储仓库
-     * =========================================================================
-     */
     const OfflineAudioStore = {
       db: null,
-
       async init() {
         return new Promise((resolve, reject) => {
           const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
           req.onupgradeneeded = (e) => {
             const db = e.target.result;
-            // 1. 本地离线音频缓存仓库
             if (!db.objectStoreNames.contains("audio_blobs")) {
               db.createObjectStore("audio_blobs", { keyPath: "id" });
             }
-            // 2. 本地自定义歌单专属仓库
             if (!db.objectStoreNames.contains("custom_playlists")) {
               db.createObjectStore("custom_playlists", { keyPath: "id" });
             }
@@ -2117,8 +1573,6 @@
           req.onerror = (err) => reject(err);
         });
       },
-
-      // --- 离线音频缓存管理 ---
       async saveTrackBlob(trackObj, blob) {
         return new Promise((resolve, reject) => {
           const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readwrite");
@@ -2143,7 +1597,6 @@
           tx.onerror = (err) => reject(err);
         });
       },
-
       async getTrackRecord(songId) {
         return new Promise((resolve) => {
           const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
@@ -2153,7 +1606,6 @@
           req.onerror = () => resolve(null);
         });
       },
-
       async getAllCachedRecords() {
         return new Promise((resolve) => {
           const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readonly");
@@ -2163,14 +1615,11 @@
           req.onerror = () => resolve([]);
         });
       },
-
       async refreshCatalog() {
         const records = await OfflineAudioStore.getAllCachedRecords();
         PlaybackState.offlineCacheCatalog.clear();
         records.forEach(r => PlaybackState.offlineCacheCatalog.add(String(r.id)));
       },
-
-      // --- 本地自定义歌单 IndexedDB 接口 ---
       async getAllLocalPlaylists() {
         return new Promise((resolve) => {
           if (!OfflineAudioStore.db.objectStoreNames.contains("custom_playlists")) return resolve([]);
@@ -2181,7 +1630,6 @@
           req.onerror = () => resolve([]);
         });
       },
-
       async saveLocalPlaylist(playlistObj) {
         return new Promise((resolve, reject) => {
           const tx = OfflineAudioStore.db.transaction(["custom_playlists"], "readwrite");
@@ -2190,166 +1638,6 @@
           tx.oncomplete = () => resolve();
           tx.onerror = (err) => reject(err);
         });
-      },
-
-      async deleteLocalPlaylist(playlistId) {
-        return new Promise((resolve, reject) => {
-          const tx = OfflineAudioStore.db.transaction(["custom_playlists"], "readwrite");
-          const store = tx.objectStore("custom_playlists");
-          store.delete(playlistId);
-          tx.oncomplete = () => resolve();
-          tx.onerror = (err) => reject(err);
-        });
-      }
-    };
-
-    /**
-     * =========================================================================
-     * 自定义歌单控制模块 (本地 INDEXEDDB 持久化 + 远端同步)
-     * =========================================================================
-     */
-    const CustomPlaylistsModule = {
-      async loadFromStorage() {
-        try {
-          const localLists = await OfflineAudioStore.getAllLocalPlaylists();
-          if (localLists && localLists.length > 0) {
-            PlaybackState.customPlaylists = localLists;
-          } else {
-            // 首次初始化预置歌单
-            PlaybackState.customPlaylists = [
-              { id: "pl_default_1", name: "Favorites Studio", tracks: [], createdAt: Date.now() },
-              { id: "pl_default_2", name: "Hi-Res Master Space", tracks: [], createdAt: Date.now() }
-            ];
-            for (const pl of PlaybackState.customPlaylists) {
-              await OfflineAudioStore.saveLocalPlaylist(pl);
-            }
-          }
-        } catch (e) {
-          console.warn("Load local playlists error:", e);
-        }
-        CustomPlaylistsModule.renderShelf();
-      },
-
-      renderShelf() {
-        const shelf = document.getElementById("custom-playlists-shelf");
-        if (!shelf) return;
-
-        // 仅保留固定前两项（Favorite Musics, Offline Edge）和最后一项（+ New Playlist）
-        const cards = Array.from(shelf.children);
-        const fixedFav = cards[0];
-        const fixedOffline = cards[1];
-        const fixedAdd = cards[cards.length - 1];
-
-        shelf.innerHTML = "";
-        if (fixedFav) shelf.appendChild(fixedFav);
-        if (fixedOffline) shelf.appendChild(fixedOffline);
-
-        PlaybackState.customPlaylists.forEach(pl => {
-          const card = document.createElement("div");
-          card.className = "cockpit-card";
-          card.onclick = () => TrackListView.renderList(`Playlist: ${pl.name}`, pl.tracks);
-          card.innerHTML = `
-            <div class="cockpit-card-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            </div>
-            <div class="cockpit-card-title">${pl.name}</div>
-            <div class="cockpit-card-subtitle">${pl.tracks ? pl.tracks.length : 0} tracks · IndexedDB</div>
-          `;
-          shelf.appendChild(card);
-        });
-
-        if (fixedAdd) shelf.appendChild(fixedAdd);
-      },
-
-      async promptNewPlaylist() {
-        const name = await CustomPrompt.show("New Custom Playlist", "Enter a title for your collection:", "My Master Vault");
-        if (name && name.trim()) {
-          const cleanName = name.trim();
-          const newPl = {
-            id: "pl_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
-            name: cleanName,
-            tracks: [],
-            createdAt: Date.now()
-          };
-
-          PlaybackState.customPlaylists.push(newPl);
-          await OfflineAudioStore.saveLocalPlaylist(newPl);
-          CustomPlaylistsModule.renderShelf();
-          TrackListView.syncUserData();
-
-          UIToast.show(`歌单「${cleanName}」已创建并存入 IndexedDB！`, "success");
-        }
-      },
-
-      async addTrackToPlaylist(playlistId, track) {
-        const pl = PlaybackState.customPlaylists.find(p => p.id === playlistId);
-        if (!pl) return;
-
-        if (!pl.tracks) pl.tracks = [];
-        const exists = pl.tracks.some(t => String(t.id) === String(track.id));
-        if (exists) {
-          UIToast.show(`曲目《${track.title}》已存在于歌单「${pl.name}」中！`, "info");
-          return;
-        }
-
-        const simplifiedTrack = {
-          id: String(track.id),
-          title: track.title,
-          artist: track.artist,
-          album: track.album,
-          picUrl: track.picUrl,
-          quality: track.quality || 'lossless'
-        };
-
-        pl.tracks.push(simplifiedTrack);
-        await OfflineAudioStore.saveLocalPlaylist(pl);
-        CustomPlaylistsModule.renderShelf();
-        TrackListView.syncUserData();
-
-        UIToast.show(`已成功将《${track.title}》加入歌单「${pl.name}」！`, "success");
-      }
-    };
-
-    /**
-     * =========================================================================
-     * 大屏听歌界面的歌单添加弹窗（POPUP CONTROLLER）
-     * =========================================================================
-     */
-    const PlaylistPicker = {
-      showCurrentTrack() {
-        if (!AudioEngine.currentTrack) {
-          UIToast.show("当前未在播放任何曲目", "error");
-          return;
-        }
-        const container = document.getElementById("playlist-chip-container");
-        container.innerHTML = "";
-
-        if (!PlaybackState.customPlaylists || PlaybackState.customPlaylists.length === 0) {
-          container.innerHTML = `<div style="text-align:center; padding:16px; color:var(--text-muted); font-size:0.85rem;">暂无本地歌单，点击右上角新建</div>`;
-        } else {
-          PlaybackState.customPlaylists.forEach(pl => {
-            const chip = document.createElement("div");
-            chip.className = "playlist-select-chip";
-            chip.innerHTML = `
-              <div style="display:flex; flex-direction:column; overflow:hidden;">
-                <span style="font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${pl.name}</span>
-                <span style="font-size:0.75rem; color:var(--text-muted);">${pl.tracks ? pl.tracks.length : 0} 首曲目</span>
-              </div>
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            `;
-            chip.onclick = () => {
-              PlaylistPicker.close();
-              CustomPlaylistsModule.addTrackToPlaylist(pl.id, AudioEngine.currentTrack);
-            };
-            container.appendChild(chip);
-          });
-        }
-
-        document.getElementById("playlist-picker-modal").classList.add("is-open");
-      },
-
-      close() {
-        document.getElementById("playlist-picker-modal").classList.remove("is-open");
       }
     };
 
@@ -2358,7 +1646,6 @@
         if (!lyrics) return [];
         const lines = lyrics.split('\n');
         const data = [];
-
         lines.forEach((line, index) => {
           const matches = line.match(/\[(\d{2}):(\d{2}[\.:]?\d*)]/);
           if (matches) {
@@ -2372,53 +1659,30 @@
         data.sort((a, b) => a.time - b.time);
         return data;
       },
-
       lrctran(lyric, tlyric) {
         let base = MetaParser.lrctrim(lyric);
         let trans = MetaParser.lrctrim(tlyric);
-
         if (!trans || trans.length === 0) return base;
-
-        let len1 = base.length;
-        let len2 = trans.length;
-
+        let len1 = base.length, len2 = trans.length;
         for (let i = 0, j = 0; i < len1 && j < len2; i++) {
-          while (base[i].time > trans[j].time && j + 1 < len2) {
-            j++;
-          }
+          while (base[i].time > trans[j].time && j + 1 < len2) j++;
           if (Math.abs(base[i].time - trans[j].time) < 0.5) {
             const tText = trans[j].text.replace('/', '').trim();
-            if (tText) {
-              base[i].text += ` (${tText})`;
-            }
+            if (tText) base[i].text += ` (${tText})`;
             j++;
           }
         }
         return base;
       },
-
       parseFullLyrics(lrcRaw, tLrcRaw) {
-        const badgeEl = document.getElementById("lyrics-source-badge");
         if (!lrcRaw) {
           PlaybackState.activeLyrics = [];
-          PlaybackState.currentLyricIndex = -1;
-          if (badgeEl) badgeEl.innerText = "INSTRUMENTAL";
           LyricsView.renderSpotlightText("Instrumental / No Lyrics");
           return;
         }
-
         const merged = MetaParser.lrctran(lrcRaw, tLrcRaw);
-        if (merged.length > 0) {
-          PlaybackState.activeLyrics = merged;
-          PlaybackState.currentLyricIndex = -1;
-          if (badgeEl) badgeEl.innerText = "SYNCED LYRICS";
-          LyricsView.renderSpotlightText(merged[0].text || "Ready for playback...");
-        } else {
-          PlaybackState.activeLyrics = [];
-          PlaybackState.currentLyricIndex = -1;
-          if (badgeEl) badgeEl.innerText = "TEXT ONLY";
-          LyricsView.renderSpotlightText(lrcRaw.substring(0, 100));
-        }
+        PlaybackState.activeLyrics = merged;
+        LyricsView.renderSpotlightText(merged.length > 0 ? merged[0].text : lrcRaw.substring(0, 80));
       }
     };
 
@@ -2431,56 +1695,173 @@
       currentPlaylist: [],
       currentTrackPointer: -1,
       favorites: [],
-      customPlaylists: [],
+      customPlaylists: [
+        { id: "pl_my_jrmusic", name: "My JRmusic", tracks: [] }
+      ],
       offlineCacheCatalog: new Set(),
       activeLyrics: [],
-      currentLyricIndex: -1,
-      activeCoverUrl: null
+      currentLyricIndex: -1
+    };
+
+    /**
+     * =========================================================================
+     * SPOTIFY OAUTH 2.0 PKCE 引擎 & TOP 20 导入
+     * =========================================================================
+     */
+    const SpotifyIntegration = {
+      getRedirectUri() {
+        return "https://music.aleafs.cn";
+      },
+      generateRandomString(length) {
+        let text = '';
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < length; i++) text += possible.charAt(Math.floor(Math.random() * possible.length));
+        return text;
+      },
+      async generateCodeChallenge(codeVerifier) {
+        const data = new TextEncoder().encode(codeVerifier);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
+          .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      },
+      async initiateLogin() {
+        const verifier = SpotifyIntegration.generateRandomString(128);
+        const challenge = await SpotifyIntegration.generateCodeChallenge(verifier);
+        localStorage.setItem("spotify_verifier", verifier);
+
+        const params = new URLSearchParams({
+          client_id: CONFIG.SPOTIFY_CLIENT_ID,
+          response_type: 'code',
+          redirect_uri: SpotifyIntegration.getRedirectUri(),
+          scope: 'user-top-read user-read-private user-read-email',
+          code_challenge_method: 'S256',
+          code_challenge: challenge
+        });
+        window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+      },
+      async checkRedirectCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get("code");
+        if (!code) return;
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+        const verifier = localStorage.getItem("spotify_verifier");
+        if (!verifier) return;
+
+        UIToast.show("Connecting Spotify credentials...", "spotify");
+        try {
+          const response = await fetch("https://accounts.spotify.com/api/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              client_id: CONFIG.SPOTIFY_CLIENT_ID,
+              grant_type: "authorization_code",
+              code: code,
+              redirect_uri: SpotifyIntegration.getRedirectUri(),
+              code_verifier: verifier
+            })
+          });
+
+          const data = await response.json();
+          if (!response.ok || !data.access_token) throw new Error(data.error_description || "Token exchange failed");
+
+          localStorage.removeItem("spotify_verifier");
+
+          const profileRes = await fetch("https://api.spotify.com/v1/me", {
+            headers: { Authorization: `Bearer ${data.access_token}` }
+          });
+          const profile = await profileRes.json();
+
+          const spotifyUser = {
+            username: profile.display_name || profile.id,
+            email: profile.email || "spotify_user@jrmusic.cloud",
+            avatar: profile.images && profile.images[0] ? profile.images[0].url : null,
+            token: data.access_token,
+            isPremium: true,
+            downloadQuota: 20
+          };
+
+          AuthModalController.setSession(spotifyUser);
+          UIToast.show(`Welcome, ${spotifyUser.username}! Auto-syncing Top 20...`, "spotify");
+
+          await SpotifyIntegration.fetchTopTracksAndSync(data.access_token);
+        } catch (err) {
+          UIToast.show(`Spotify Error: ${err.message}`, "error");
+        }
+      },
+      async fetchTopTracksAndSync(accessToken) {
+        UIToast.show("Fetching Spotify Top 20 listening tracks...", "spotify");
+        try {
+          const res = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=short_term", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          const json = await res.json();
+          if (!json.items || json.items.length === 0) return;
+
+          UIToast.show(`Matching 20 tracks into "My JRmusic"...`, "spotify");
+          const resolvedTracks = [];
+
+          for (let i = 0; i < json.items.length; i++) {
+            const item = json.items[i];
+            const title = item.name;
+            const artist = item.artists && item.artists[0] ? item.artists[0].name : "";
+            const matched = await SpotifyIntegration.silentSearchTrack(`${title} ${artist}`);
+            if (matched) resolvedTracks.push(matched);
+          }
+
+          let myPlaylist = PlaybackState.customPlaylists.find(pl => pl.name === "My JRmusic");
+          if (!myPlaylist) {
+            myPlaylist = { id: "pl_my_jrmusic", name: "My JRmusic", tracks: [] };
+            PlaybackState.customPlaylists.unshift(myPlaylist);
+          }
+          myPlaylist.tracks = resolvedTracks;
+
+          await OfflineAudioStore.saveLocalPlaylist(myPlaylist);
+          CustomPlaylistsModule.renderShelf();
+          TrackListView.syncUserData();
+
+          UIToast.show(`🎉 Curated "My JRmusic" with ${resolvedTracks.length} tracks!`, "success", 4000);
+          TrackListView.renderList("My JRmusic", resolvedTracks);
+        } catch (err) {
+          UIToast.show("Failed to sync Spotify top tracks", "error");
+        }
+      },
+      async silentSearchTrack(keyword) {
+        const formData = new FormData();
+        formData.append("keyword", keyword);
+        formData.append("limit", "1");
+        const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Search`, { method: "POST", body: formData });
+        const json = await res.json();
+        if (json.status === 200 && Array.isArray(json.data) && json.data.length > 0) {
+          const item = json.data[0];
+          return {
+            id: String(item.id),
+            title: item.name,
+            artist: item.artists,
+            album: item.album,
+            picUrl: item.picUrl,
+            quality: 'lossless'
+          };
+        }
+        return null;
+      }
     };
 
     const MusicAPIEngine = {
       onQualityChanged(val) {
-        if (CONFIG.PREMIUM_QUALITIES.includes(val) && (!PlaybackState.currentUser || !PlaybackState.currentUser.isPremium)) {
-          UIToast.show(`[${val.toUpperCase()}] 为 Premium 独享音质！请先兑换会员码。`, "error");
-          document.getElementById("global-quality-selector").value = 'exhigh';
-          PlaybackState.currentQuality = 'exhigh';
-          AuthModalController.openModal('redeem');
-          return;
-        }
-
         PlaybackState.currentQuality = val;
-        UIToast.show(`已切换目标音质: ${val.toUpperCase()}`, "info");
+        UIToast.show(`Audio Quality: ${val.toUpperCase()}`, "info");
       },
-
       async search() {
         const keyword = document.getElementById("api-search-input").value.trim();
-        if (!keyword) {
-          UIToast.show("Please enter a search keyword", "error");
-          return;
-        }
-        await MusicAPIEngine.executeSearch(keyword);
-      },
-
-      async searchArtist(artistName) {
-        document.getElementById("api-search-input").value = artistName;
-        AppNavigation.switchStage('home');
-        await MusicAPIEngine.executeSearch(artistName);
-        UIToast.show(`已显示歌手【${artistName}】的所有曲目`, "success");
-      },
-
-      async executeSearch(keyword) {
-        UIToast.show(`Searching for "${keyword}"...`, "info");
+        if (!keyword) return;
+        UIToast.show(`Searching for "${keyword}"...`);
         try {
           const formData = new FormData();
           formData.append("keyword", keyword);
           formData.append("limit", "30");
-
-          const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Search`, {
-            method: "POST",
-            body: formData
-          });
+          const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Search`, { method: "POST", body: formData });
           const json = await res.json();
-
           if (json.status === 200 && Array.isArray(json.data)) {
             const tracks = json.data.map(item => ({
               id: String(item.id),
@@ -2490,235 +1871,94 @@
               picUrl: item.picUrl,
               level: PlaybackState.currentQuality
             }));
-
             PlaybackState.flatTrackIndex = tracks;
             TrackListView.renderList(`Search: ${keyword}`, tracks);
-            UIToast.show(`Found ${tracks.length} tracks`, "success");
-          } else {
-            UIToast.show("No matching tracks returned from API", "error");
           }
         } catch (err) {
-          UIToast.show(`Search API Error: ${err.message}`, "error");
+          UIToast.show(`API Error: ${err.message}`, "error");
         }
       },
-
       async resolveSongStream(songId, level = null) {
         const targetLevel = level || PlaybackState.currentQuality;
         const formData = new FormData();
         formData.append("url", songId);
         formData.append("level", targetLevel);
         formData.append("type", "json");
-
-        const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Song_V1`, {
-          method: "POST",
-          body: formData
-        });
+        const res = await fetch(`${CONFIG.BACKEND_API_BASE}/Song_V1`, { method: "POST", body: formData });
         const json = await res.json();
-        if (json.status === 200 && json.data) {
-          return json.data;
-        }
-        throw new Error(json.data ? json.data.msg : "Failed to resolve stream");
+        if (json.status === 200 && json.data) return json.data;
+        throw new Error("Unable to resolve stream");
       },
-
       async downloadDirect(songId) {
         if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
+          AuthModalController.openModal();
           return;
         }
-
-        if (PlaybackState.offlineCacheCatalog.has(String(songId))) {
-          UIToast.show("Track is already stored in local IndexedDB vault.", "info");
-          return;
-        }
-
-        const quality = PlaybackState.currentQuality;
-
-        if (CONFIG.PREMIUM_QUALITIES.includes(quality) && !PlaybackState.currentUser.isPremium) {
-          UIToast.show(`下载 [${quality.toUpperCase()}] 需 Premium 会员！`, "error");
-          AuthModalController.openModal('redeem');
-          return;
-        }
-
-        if (PlaybackState.quotaRemainder <= 0) {
-          UIToast.show("Download quota depleted! Please redeem an activation license.", "error");
-          AuthModalController.openModal('redeem');
-          return;
-        }
-
-        UIToast.show(`Requesting high-speed stream (${quality.toUpperCase()})...`, "info");
-
         try {
-          const streamData = await MusicAPIEngine.resolveSongStream(songId, quality);
-          if (!streamData || !streamData.url) {
-            throw new Error("Unable to obtain official download URL");
-          }
-
-          UIToast.show(`Fetching stream directly from CDN...`, "info");
-
+          const streamData = await MusicAPIEngine.resolveSongStream(songId);
           const audioRes = await fetch(streamData.url);
-          if (!audioRes.ok) throw new Error("Audio stream transmission interrupted");
           const blob = await audioRes.blob();
-
           const trackRecord = {
             id: String(songId),
             title: streamData.name,
             artist: streamData.ar_name,
             album: streamData.al_name,
             picUrl: streamData.pic,
-            quality: quality,
+            quality: PlaybackState.currentQuality,
             lyric: streamData.lyric,
             tlyric: streamData.tlyric
           };
-
           await OfflineAudioStore.saveTrackBlob(trackRecord, blob);
-
-          PlaybackState.quotaRemainder--;
-          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
-          UIFeedback.updateQuotaVisuals();
-          TrackListView.refreshCurrentView();
-
-          UIToast.show(`Downloaded "${streamData.name}"! (${PlaybackState.quotaRemainder} quota remaining)`, "success");
+          UIToast.show(`Downloaded "${streamData.name}"!`, "success");
         } catch (e) {
           UIToast.show(`Download failed: ${e.message}`, "error");
         }
       },
-
       async promptDirectParse() {
-        const idOrUrl = await CustomPrompt.show("Direct Parse", "Enter Netease Song ID or Web Link:", "");
+        const idOrUrl = await CustomPrompt.show("Direct Parse", "Enter Song ID:");
         if (!idOrUrl) return;
-
         let songId = idOrUrl.trim();
-        const idMatch = songId.match(/id=(\d+)/);
-        if (idMatch) songId = idMatch[1];
-
-        UIToast.show(`Resolving audio asset #${songId}...`, "info");
-        try {
-          const streamData = await MusicAPIEngine.resolveSongStream(songId, PlaybackState.currentQuality);
-          const track = {
-            id: String(songId),
-            title: streamData.name,
-            artist: streamData.ar_name,
-            album: streamData.al_name,
-            picUrl: streamData.pic,
-            resolvedUrl: streamData.url,
-            lyric: streamData.lyric,
-            tlyric: streamData.tlyric
-          };
-          PlaybackState.currentPlaylist = [track];
-          PlaybackState.currentTrackPointer = 0;
-          AudioEngine.loadAndPlay(track);
-        } catch (e) {
-          UIToast.show(e.message, "error");
-        }
+        const streamData = await MusicAPIEngine.resolveSongStream(songId);
+        const track = {
+          id: String(songId),
+          title: streamData.name,
+          artist: streamData.ar_name,
+          album: streamData.al_name,
+          picUrl: streamData.pic,
+          resolvedUrl: streamData.url,
+          lyric: streamData.lyric,
+          tlyric: streamData.tlyric
+        };
+        AudioEngine.loadAndPlay(track);
       }
     };
 
     const LyricsView = {
       open() {
-        if (!AudioEngine.currentTrack) {
-          UIToast.show("No audio is currently playing", "info");
-          return;
-        }
+        if (!AudioEngine.currentTrack) return;
         document.getElementById("lyrics-fullscreen-overlay").classList.add("is-open");
         document.getElementById("lyrics-nav-song-name").innerText = AudioEngine.currentTrack.title;
         document.getElementById("lyrics-modal-title").innerText = AudioEngine.currentTrack.title;
-        document.getElementById("lyrics-modal-artist").innerText = AudioEngine.currentTrack.artist || "JRmusic Cloud";
-        
-        const coverEl = document.getElementById("lyrics-hero-cover");
-        coverEl.src = PlaybackState.activeCoverUrl || AudioEngine.currentTrack.picUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' fill='%23141a24'><rect width='300' height='300'/></svg>";
-
-        if (PlaybackState.currentLyricIndex >= 0 && PlaybackState.activeLyrics[PlaybackState.currentLyricIndex]) {
-          LyricsView.renderSpotlightText(PlaybackState.activeLyrics[PlaybackState.currentLyricIndex].text);
-        } else if (PlaybackState.activeLyrics.length > 0) {
-          LyricsView.renderSpotlightText(PlaybackState.activeLyrics[0].text);
-        } else {
-          LyricsView.renderSpotlightText("Ready for playback...");
-        }
+        document.getElementById("lyrics-hero-cover").src = AudioEngine.currentTrack.picUrl || "";
       },
-
       close() {
         document.getElementById("lyrics-fullscreen-overlay").classList.remove("is-open");
       },
-
-      onArtistClicked() {
-        if (!AudioEngine.currentTrack || !AudioEngine.currentTrack.artist) return;
-        const rawArtist = AudioEngine.currentTrack.artist;
-        const artists = rawArtist.split(/[\/、,&]/).map(s => s.trim()).filter(Boolean);
-
-        if (artists.length <= 1) {
-          LyricsView.close();
-          MusicAPIEngine.searchArtist(artists[0] || rawArtist);
-        } else {
-          ArtistPicker.show(artists);
-        }
-      },
-
       renderSpotlightText(text) {
-        const lineEl = document.getElementById("lyrics-spotlight-line");
-        if (!lineEl) return;
-        lineEl.classList.add("animating");
-        setTimeout(() => {
-          lineEl.innerText = text || "♫ ...";
-          lineEl.classList.remove("animating");
-        }, 150);
+        document.getElementById("lyrics-spotlight-line").innerText = text || "♫ ...";
       },
-
       updateHighlight(currentTime) {
         if (!PlaybackState.activeLyrics || PlaybackState.activeLyrics.length === 0) return;
-
         let activeIdx = -1;
         for (let i = 0; i < PlaybackState.activeLyrics.length; i++) {
-          if (currentTime >= PlaybackState.activeLyrics[i].time) {
-            activeIdx = i;
-          } else {
-            break;
-          }
+          if (currentTime >= PlaybackState.activeLyrics[i].time) activeIdx = i;
+          else break;
         }
-
         if (activeIdx !== PlaybackState.currentLyricIndex && activeIdx !== -1) {
           PlaybackState.currentLyricIndex = activeIdx;
           const currentText = PlaybackState.activeLyrics[activeIdx].text;
           document.getElementById("lbl-now-playing-sub").innerText = currentText;
-          MediaSessionController.updateCurrentLyric(currentText);
           LyricsView.renderSpotlightText(currentText);
-        }
-      }
-    };
-
-    const MediaSessionController = {
-      init() {
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.setActionHandler('play', () => AudioEngine.togglePlayState());
-          navigator.mediaSession.setActionHandler('pause', () => AudioEngine.togglePlayState());
-          navigator.mediaSession.setActionHandler('previoustrack', () => AudioEngine.prevTrack());
-          navigator.mediaSession.setActionHandler('nexttrack', () => AudioEngine.nextTrack());
-          navigator.mediaSession.setActionHandler('seekto', (details) => {
-            if (details.seekTime && AudioEngine.sink.duration) {
-              AudioEngine.sink.currentTime = details.seekTime;
-            }
-          });
-        }
-      },
-
-      updateMetadata(track, coverUrl) {
-        if ('mediaSession' in navigator) {
-          const artwork = [];
-          if (coverUrl) {
-            artwork.push({ src: coverUrl, sizes: '512x512', type: 'image/jpeg' });
-          }
-
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: track.title,
-            artist: track.artist || "JRmusic Cloud",
-            album: track.album || "Lossless Enterprise",
-            artwork: artwork
-          });
-        }
-      },
-
-      updateCurrentLyric(lyricText) {
-        if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
-          navigator.mediaSession.metadata.artist = lyricText;
         }
       }
     };
@@ -2726,122 +1966,36 @@
     const AudioEngine = {
       sink: document.getElementById("core-audio-sink"),
       currentTrack: null,
-
       init() {
         this.sink.ontimeupdate = this.onTimeUpdate;
         this.sink.onended = this.nextTrack;
-        this.sink.onerror = () => {
-          UIToast.show("Audio stream playback encountered an error", "error");
-        };
-        MediaSessionController.init();
       },
-
-      stopAll() {
-        if (this.sink) {
-          this.sink.pause();
-          this.sink.removeAttribute('src');
-          this.sink.load();
-        }
-        this.currentTrack = null;
-        this.updatePlayBtnIcon(false);
-        document.getElementById("lbl-now-playing-title").innerText = "Audio Pipeline Standby";
-        document.getElementById("lbl-now-playing-sub").innerText = "Select track to initialize decode";
-        document.getElementById("lbl-time-elapsed").innerText = "0:00";
-        document.getElementById("lbl-time-duration").innerText = "0:00";
-        document.getElementById("seek-fill").style.width = "0%";
-        const thumbImg = document.getElementById("player-thumb-img");
-        const thumbFallback = document.getElementById("player-thumb-fallback");
-        thumbImg.style.display = "none";
-        thumbFallback.style.display = "block";
-        document.querySelectorAll(".track-row-node").forEach(el => el.classList.remove("current-playing"));
-      },
-
       async loadAndPlay(track) {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
-          return;
-        }
-
-        if (CONFIG.PREMIUM_QUALITIES.includes(PlaybackState.currentQuality) && !PlaybackState.currentUser.isPremium) {
-          UIToast.show(`当前音质 [${PlaybackState.currentQuality.toUpperCase()}] 为 Premium 独享，请兑换会员码。`, "error");
-          AuthModalController.openModal('redeem');
-          return;
-        }
-
         this.currentTrack = track;
         document.getElementById("lbl-now-playing-title").innerText = track.title;
-        document.getElementById("lbl-now-playing-sub").innerText = "Checking local persistence...";
-
-        PlaybackState.activeLyrics = [];
-        PlaybackState.currentLyricIndex = -1;
-        PlaybackState.activeCoverUrl = track.picUrl || null;
-        LyricsView.renderSpotlightText("Syncing lyrics...");
-
+        document.getElementById("lbl-now-playing-sub").innerText = "Decoding stream...";
         const thumbImg = document.getElementById("player-thumb-img");
-        const thumbFallback = document.getElementById("player-thumb-fallback");
-
         if (track.picUrl) {
           thumbImg.src = track.picUrl;
           thumbImg.style.display = "block";
-          thumbFallback.style.display = "none";
-        } else {
-          thumbImg.style.display = "none";
-          thumbFallback.style.display = "block";
         }
-
         try {
           const localRecord = await OfflineAudioStore.getTrackRecord(track.id);
-
           if (localRecord && localRecord.blob) {
-            document.getElementById("lbl-now-playing-sub").innerText = `Offline Edge Mode · [${(localRecord.quality || 'LOSSLESS').toUpperCase()}]`;
             this.sink.src = URL.createObjectURL(localRecord.blob);
             MetaParser.parseFullLyrics(localRecord.lyric, localRecord.tlyric);
           } else {
-            let playUrl = track.resolvedUrl;
-            let lyric = track.lyric;
-            let tlyric = track.tlyric;
-
-            if (!playUrl || track.level !== PlaybackState.currentQuality) {
-              const streamData = await MusicAPIEngine.resolveSongStream(track.id, PlaybackState.currentQuality);
-              playUrl = streamData.url;
-              lyric = streamData.lyric;
-              tlyric = streamData.tlyric;
-              track.resolvedUrl = playUrl;
-              track.artist = streamData.ar_name || track.artist;
-              track.album = streamData.al_name || track.album;
-              track.picUrl = streamData.pic || track.picUrl;
-              track.level = PlaybackState.currentQuality;
-              PlaybackState.activeCoverUrl = track.picUrl;
-              if (track.picUrl) {
-                thumbImg.src = track.picUrl;
-                thumbImg.style.display = "block";
-                thumbFallback.style.display = "none";
-              }
-            }
-
-            if (!playUrl) throw new Error("Empty audio stream link returned");
-
-            document.getElementById("lbl-now-playing-sub").innerText = `Live Cloud Stream · [${PlaybackState.currentQuality.toUpperCase()}]`;
-            this.sink.src = playUrl;
-            MetaParser.parseFullLyrics(lyric, tlyric);
+            const streamData = await MusicAPIEngine.resolveSongStream(track.id);
+            this.sink.src = streamData.url;
+            MetaParser.parseFullLyrics(streamData.lyric, streamData.tlyric);
           }
-
           await this.sink.play();
           this.updatePlayBtnIcon(true);
-          MediaSessionController.updateMetadata(track, PlaybackState.activeCoverUrl);
         } catch (err) {
           UIToast.show(err.message, "error");
-          this.updatePlayBtnIcon(false);
         }
-
-        document.querySelectorAll(".track-row-node").forEach(el => el.classList.remove("current-playing"));
       },
-
       togglePlayState() {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
-          return;
-        }
         if (!this.sink.src) return;
         if (this.sink.paused) {
           this.sink.play();
@@ -2851,42 +2005,30 @@
           this.updatePlayBtnIcon(false);
         }
       },
-
       updatePlayBtnIcon(isPlaying) {
-        const svg = document.getElementById("play-btn-vector");
-        if (isPlaying) {
-          svg.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-        } else {
-          svg.innerHTML = `<path d="M8 5v14l11-7z"/>`;
-        }
+        document.getElementById("play-btn-vector").innerHTML = isPlaying ? 
+          `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>` : `<path d="M8 5v14l11-7z"/>`;
       },
-
       nextTrack() {
         if (PlaybackState.currentPlaylist.length === 0) return;
         PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer + 1) % PlaybackState.currentPlaylist.length;
         AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
       },
-
       prevTrack() {
         if (PlaybackState.currentPlaylist.length === 0) return;
         PlaybackState.currentTrackPointer = (PlaybackState.currentTrackPointer - 1 + PlaybackState.currentPlaylist.length) % PlaybackState.currentPlaylist.length;
         AudioEngine.loadAndPlay(PlaybackState.currentPlaylist[PlaybackState.currentTrackPointer]);
       },
-
       onTimeUpdate() {
         const curr = AudioEngine.sink.currentTime || 0;
         const dur = AudioEngine.sink.duration || 0;
         document.getElementById("lbl-time-elapsed").innerText = AudioEngine.formatTime(curr);
         document.getElementById("lbl-time-duration").innerText = AudioEngine.formatTime(dur);
-
         if (dur > 0) {
-          const pct = (curr / dur) * 100;
-          document.getElementById("seek-fill").style.width = pct + "%";
+          document.getElementById("seek-fill").style.width = ((curr / dur) * 100) + "%";
         }
-
         LyricsView.updateHighlight(curr);
       },
-
       seek(e) {
         const rail = document.getElementById("seek-rail");
         const rect = rail.getBoundingClientRect();
@@ -2895,286 +2037,95 @@
           AudioEngine.sink.currentTime = ratio * AudioEngine.sink.duration;
         }
       },
-
-      setVolume(val) {
-        AudioEngine.sink.volume = parseFloat(val);
-      },
-
       toggleCurrentFavorite() {
         if (this.currentTrack) {
           TrackListView.toggleFav(encodeURIComponent(JSON.stringify(this.currentTrack)));
         }
       },
-
       formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
+        const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
         return `${m}:${s < 10 ? '0' : ''}${s}`;
       }
     };
 
-    /**
-     * =========================================================================
-     * AUTH MODAL CONTROLLER (PKCE NATIVE BRIDGE + WORKER / MONGODB)
-     * =========================================================================
-     */
-    const AuthModalController = {
-      currentTab: 'login',
-
-      async triggerGoogleSignIn() {
-        AuthModalController.showMessage("Opening native authorization...", false);
-
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeGoogleLogin) {
-          try {
-            window.webkit.messageHandlers.nativeGoogleLogin.postMessage({
-              clientId: CONFIG.GOOGLE_CLIENT_ID
-            });
-            return;
-          } catch (e) {
-            console.warn("Native bridge postMessage failed:", e);
-          }
-        }
-
-        console.warn("No native bridge detected.");
-        const mockPrompt = await CustomPrompt.show("Debug Code Test", "输入 Google Code 进行测试：", "");
-        if (mockPrompt && mockPrompt.trim()) {
-          await window.handleNativeGoogleCode(mockPrompt.trim(), "debug_verifier");
-        } else {
-          AuthModalController.showMessage("请在 iOS 原生 App 容器中运行以拉起系统认证", true);
-        }
+    const CustomPlaylistsModule = {
+      async loadFromStorage() {
+        const localLists = await OfflineAudioStore.getAllLocalPlaylists();
+        if (localLists.length > 0) PlaybackState.customPlaylists = localLists;
+        CustomPlaylistsModule.renderShelf();
       },
-
-      handleAvatarClick() {
-        if (PlaybackState.currentUser) {
-          document.getElementById("confirm-logout-modal").classList.add("is-open");
-        } else {
-          AuthModalController.openModal('login');
-        }
+      renderShelf() {
+        const shelf = document.getElementById("custom-playlists-shelf");
+        if (!shelf) return;
+        shelf.innerHTML = `
+          <div class="cockpit-card" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
+            <div class="cockpit-card-title">Favorite Musics</div>
+            <div class="cockpit-card-subtitle">Encrypted personal vault</div>
+          </div>
+          <div class="cockpit-card" onclick="AppNavigation.switchStage('offlines')">
+            <div class="cockpit-card-title">Offline Edge</div>
+            <div class="cockpit-card-subtitle">Local persistent store</div>
+          </div>
+        `;
+        PlaybackState.customPlaylists.forEach(pl => {
+          const card = document.createElement("div");
+          card.className = "cockpit-card";
+          card.onclick = () => TrackListView.renderList(`Playlist: ${pl.name}`, pl.tracks);
+          card.innerHTML = `
+            <div class="cockpit-card-title">${pl.name}</div>
+            <div class="cockpit-card-subtitle">${pl.tracks ? pl.tracks.length : 0} tracks · Cloud Vault</div>
+          `;
+          shelf.appendChild(card);
+        });
+        const addCard = document.createElement("div");
+        addCard.className = "cockpit-card";
+        addCard.onclick = () => CustomPlaylistsModule.promptNewPlaylist();
+        addCard.innerHTML = `
+          <div class="cockpit-card-title">+ New Playlist</div>
+          <div class="cockpit-card-subtitle">Instantiate new collection</div>
+        `;
+        shelf.appendChild(addCard);
       },
-
-      cancelLogout() {
-        document.getElementById("confirm-logout-modal").classList.remove("is-open");
-      },
-
-      confirmLogout() {
-        document.getElementById("confirm-logout-modal").classList.remove("is-open");
-        AudioEngine.stopAll();
-
-        PlaybackState.currentUser = null;
-        PlaybackState.sessionToken = null;
-        PlaybackState.favorites = [];
-        PlaybackState.quotaRemainder = 0;
-
-        localStorage.removeItem("jrmusic_session");
-        localStorage.removeItem("jrmusic_quota");
-
-        UIFeedback.updateUserVisuals();
-        UIToast.show("Logged out successfully", "info");
-
-        setTimeout(() => {
-          AuthModalController.openModal('login');
-        }, 300);
-      },
-
-      openModal(tab = 'login') {
-        const stage = document.getElementById("fullscreen-auth-stage");
-        stage.classList.remove("stage-hidden");
-        AuthModalController.switchTab(tab);
-      },
-
-      closeModal() {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.showMessage("Authentication required for network access", true);
-          return;
-        }
-        document.getElementById("fullscreen-auth-stage").classList.add("stage-hidden");
-      },
-
-      switchTab(tab) {
-        AuthModalController.currentTab = tab;
-        document.getElementById("auth-feedback-text").innerText = "";
-
-        const creds = document.getElementById("auth-credentials-group");
-        const redeem = document.getElementById("auth-redeem-group");
-        const tabLogin = document.getElementById("tab-btn-login");
-        const tabRedeem = document.getElementById("tab-btn-redeem");
-        const title = document.getElementById("auth-modal-title");
-        const desc = document.getElementById("auth-modal-desc");
-
-        tabLogin.classList.remove("active");
-        tabRedeem.classList.remove("active");
-
-        if (tab === 'login') {
-          tabLogin.classList.add("active");
-          creds.style.display = "flex";
-          redeem.style.display = "none";
-          title.innerText = "Sign in to JRmusic";
-          desc.innerText = "Authenticate with your Google Account to synchronize MongoDB catalogs and licenses.";
-        } else if (tab === 'redeem') {
-          tabRedeem.classList.add("active");
-          creds.style.display = "none";
-          redeem.style.display = "flex";
-          title.innerText = "Redeem Premium License";
-          desc.innerText = "输入管理员发放的卡密，即刻激活全音质 Premium 权益及离线配额。";
-        }
-      },
-
-      showMessage(msg, isError = false) {
-        const el = document.getElementById("auth-feedback-text");
-        el.className = `cloud-auth-feedback ${isError ? 'error' : 'success'}`;
-        el.innerText = msg;
-      },
-
-      async handleRedeem() {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.showMessage("You must be logged in to redeem license keys.", true);
-          return;
-        }
-        const code = document.getElementById("auth-input-license").value.trim();
-        if (!code) {
-          AuthModalController.showMessage("Please specify a valid license code.", true);
-          return;
-        }
-
-        AuthModalController.showMessage("正在验证卡密有效性...", false);
-
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-          const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/redeem`, {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username: PlaybackState.currentUser.username, code }),
-            signal: controller.signal
-          });
-
-          clearTimeout(timeoutId);
-
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.message || "Redemption failed.");
-
-          const addedDownloads = data.grantedQuota || 0;
-          PlaybackState.quotaRemainder += addedDownloads;
-          if (data.isPremium) {
-            PlaybackState.currentUser.isPremium = true;
-          }
-
-          localStorage.setItem("jrmusic_session", JSON.stringify(PlaybackState.currentUser));
-          localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
-
-          UIFeedback.updateUserVisuals();
-
-          AuthModalController.showMessage(data.message || "激活成功！", false);
-          UIToast.show(data.isPremium ? "👑 尊贵 Premium 会员已生效！" : `成功增加 ${addedDownloads} 下载配额`, 'success');
-          document.getElementById("auth-input-license").value = "";
-
-          setTimeout(() => {
-            AuthModalController.closeModal();
-          }, 800);
-        } catch (err) {
-          console.error("Redeem Exception:", err);
-          let errorMsg = err.message;
-          if (err.name === 'AbortError') {
-            errorMsg = "连接超时，请重试";
-          } else if (errorMsg.includes("Load failed") || errorMsg.includes("Failed to fetch")) {
-            errorMsg = "兑换请求被中断 (网络异常)";
-          }
-          AuthModalController.showMessage(errorMsg, true);
-          UIToast.show(errorMsg, 'error');
-        }
-      },
-
-      setSession(userObj) {
-        PlaybackState.currentUser = userObj;
-        PlaybackState.sessionToken = userObj.token;
-        PlaybackState.favorites = userObj.favorites || [];
-        PlaybackState.quotaRemainder = userObj.downloadQuota !== undefined ? userObj.downloadQuota : CONFIG.DEFAULT_DOWNLOAD_QUOTA;
-
-        // 如果服务端有歌单，与本地 IndexedDB 歌单做平滑合并
-        if (userObj.customPlaylists && userObj.customPlaylists.length > 0) {
-          userObj.customPlaylists.forEach(async (sp) => {
-            const local = PlaybackState.customPlaylists.find(lp => lp.name === sp.name);
-            if (!local) {
-              const mergedObj = {
-                id: sp.id || "pl_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
-                name: sp.name,
-                tracks: sp.tracks || [],
-                createdAt: Date.now()
-              };
-              PlaybackState.customPlaylists.push(mergedObj);
-              await OfflineAudioStore.saveLocalPlaylist(mergedObj);
-            }
-          });
+      async promptNewPlaylist() {
+        const name = await CustomPrompt.show("New Playlist", "Title:");
+        if (name && name.trim()) {
+          const newPl = {
+            id: "pl_" + Date.now(),
+            name: name.trim(),
+            tracks: []
+          };
+          PlaybackState.customPlaylists.push(newPl);
+          await OfflineAudioStore.saveLocalPlaylist(newPl);
           CustomPlaylistsModule.renderShelf();
-        }
-
-        localStorage.setItem("jrmusic_session", JSON.stringify(userObj));
-        localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
-
-        document.getElementById("fullscreen-auth-stage").classList.add("stage-hidden");
-        UIFeedback.updateUserVisuals();
-      },
-
-      restoreSession() {
-        const stored = localStorage.getItem("jrmusic_session");
-        if (stored) {
-          try {
-            const user = JSON.parse(stored);
-            const savedQuota = localStorage.getItem("jrmusic_quota");
-            if (savedQuota !== null) user.downloadQuota = parseInt(savedQuota, 10);
-            AuthModalController.setSession(user);
-          } catch (e) {
-            localStorage.removeItem("jrmusic_session");
-          }
+          TrackListView.syncUserData();
+          UIToast.show(`Playlist "${newPl.name}" created.`, "success");
         }
       }
     };
 
-    /**
-     * 原生 iOS PKCE 授权码接收回调
-     */
-    window.handleNativeGoogleCode = async function(authCode, codeVerifier) {
-      AuthModalController.showMessage("Authenticating authorization code with Worker & MongoDB...", false);
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-        const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/google-code-auth`, {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ 
-            code: authCode, 
-            verifier: codeVerifier,
-            redirectUri: CONFIG.REDIRECT_URI
-          }),
-          signal: controller.signal
+    const PlaylistPicker = {
+      showCurrentTrack() {
+        if (!AudioEngine.currentTrack) return;
+        const container = document.getElementById("playlist-chip-container");
+        container.innerHTML = "";
+        PlaybackState.customPlaylists.forEach(pl => {
+          const chip = document.createElement("div");
+          chip.className = "playlist-select-chip";
+          chip.innerHTML = `<span>${pl.name}</span><span>${pl.tracks ? pl.tracks.length : 0} tracks</span>`;
+          chip.onclick = async () => {
+            PlaylistPicker.close();
+            pl.tracks.push(AudioEngine.currentTrack);
+            await OfflineAudioStore.saveLocalPlaylist(pl);
+            CustomPlaylistsModule.renderShelf();
+            TrackListView.syncUserData();
+            UIToast.show(`Added to ${pl.name}`, "success");
+          };
+          container.appendChild(chip);
         });
-
-        clearTimeout(timeoutId);
-
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.message || `认证失败 (HTTP ${res.status})`);
-        }
-
-        AuthModalController.setSession(data.user);
-        AuthModalController.showMessage("Authorized! Synchronized with MongoDB.", false);
-        UIToast.show(`Welcome, ${data.user.username}!`, 'success');
-        
-        setTimeout(() => {
-          AuthModalController.closeModal();
-        }, 500);
-      } catch (err) {
-        console.error("PKCE Exchange Error:", err);
-        AuthModalController.showMessage(err.message, true);
-        UIToast.show(err.message, 'error');
+        document.getElementById("playlist-picker-modal").classList.add("is-open");
+      },
+      close() {
+        document.getElementById("playlist-picker-modal").classList.remove("is-open");
       }
     };
 
@@ -3183,29 +2134,22 @@
         document.getElementById("listing-heading").innerText = title;
         const container = document.getElementById("track-items-container");
         container.innerHTML = "";
-
         if (!trackArray || trackArray.length === 0) {
-          container.innerHTML = `<div style="padding: 40px; color: var(--text-muted); text-align: center; font-family: var(--font-mono); font-size: 0.9rem;">No tracks found in this view.</div>`;
+          container.innerHTML = `<div style="padding: 40px; color: var(--text-muted); text-align: center;">No tracks found.</div>`;
           return;
         }
-
         trackArray.forEach((track, index) => {
           const isCached = PlaybackState.offlineCacheCatalog.has(String(track.id));
           const isFav = PlaybackState.favorites.some(f => f.id === track.id);
-          const isCurrent = AudioEngine.currentTrack && String(AudioEngine.currentTrack.id) === String(track.id);
-
           const row = document.createElement("div");
-          row.className = `track-row-node ${isCurrent ? 'current-playing' : ''}`;
+          row.className = "track-row-node";
           row.innerHTML = `
-            <div class="track-idx-col">
-              <span>${index + 1}</span>
-              <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            </div>
+            <div class="track-idx-col"><span>${index + 1}</span></div>
             <div class="track-meta-col">
               <span class="track-name-main">${track.title}</span>
-              <span class="track-subpath">${track.artist} · ${track.album}</span>
+              <span class="track-subpath">${track.artist} · ${track.album || ''}</span>
             </div>
-            <div class="track-codec-col">${(track.quality || PlaybackState.currentQuality).toUpperCase()}</div>
+            <div class="track-codec-col">LOSSLESS</div>
             <div class="track-cache-col">
               <span class="status-ping ${isCached ? 'cached' : ''}"></span>
               <span>${isCached ? 'Edge Cached' : 'Cloud CDN'}</span>
@@ -3214,7 +2158,7 @@
               <button class="action-icon-hit ${isFav ? 'active-fav' : ''}" onclick="event.stopPropagation(); TrackListView.toggleFav('${encodeURIComponent(JSON.stringify(track))}')">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
               </button>
-              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')" title="Direct CDN download to IndexedDB">
+              <button class="action-icon-hit" onclick="event.stopPropagation(); MusicAPIEngine.downloadDirect('${track.id}')">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               </button>
             </div>
@@ -3227,22 +2171,19 @@
           container.appendChild(row);
         });
       },
-
       toggleFav(encoded) {
         const track = JSON.parse(decodeURIComponent(encoded));
         const idx = PlaybackState.favorites.findIndex(f => f.id === track.id);
         if (idx >= 0) {
           PlaybackState.favorites.splice(idx, 1);
-          UIToast.show(`Removed "${track.title}" from favorites`, "info");
+          UIToast.show(`Removed from favorites`);
         } else {
           PlaybackState.favorites.push(track);
-          UIToast.show(`Added "${track.title}" to favorites`, "success");
+          UIToast.show(`Added to favorites`, "success");
         }
         document.getElementById("fav-counter-label").innerText = `${PlaybackState.favorites.length}`;
         TrackListView.syncUserData();
-        TrackListView.refreshCurrentView();
       },
-
       async syncUserData() {
         if (!PlaybackState.currentUser) return;
         try {
@@ -3255,94 +2196,102 @@
               customPlaylists: PlaybackState.customPlaylists
             })
           });
-        } catch (e) {
-          console.warn("Background sync error:", e);
+        } catch (e) {}
+      }
+    };
+
+    const AuthModalController = {
+      handleAvatarClick() {
+        if (PlaybackState.currentUser) {
+          document.getElementById("confirm-logout-modal").classList.add("is-open");
+        } else {
+          AuthModalController.openModal();
         }
       },
-
-      refreshCurrentView() {
-        const title = document.getElementById("listing-heading").innerText;
-        if (title === "Favorite Musics") {
-          TrackListView.renderList(title, PlaybackState.favorites);
-        } else if (title === "Offline Edge Vault") {
-          AppNavigation.switchStage('offlines');
-        } else if (title.startsWith("Search:")) {
-          TrackListView.renderList(title, PlaybackState.flatTrackIndex);
-        } else if (title.startsWith("Playlist: ")) {
-          const plName = title.replace("Playlist: ", "").trim();
-          const pl = PlaybackState.customPlaylists.find(p => p.name === plName);
-          if (pl) TrackListView.renderList(title, pl.tracks);
+      cancelLogout() {
+        document.getElementById("confirm-logout-modal").classList.remove("is-open");
+      },
+      confirmLogout() {
+        document.getElementById("confirm-logout-modal").classList.remove("is-open");
+        PlaybackState.currentUser = null;
+        localStorage.removeItem("jrmusic_session");
+        UIFeedback.updateUserVisuals();
+        UIToast.show("Logged out.");
+      },
+      openModal() {
+        document.getElementById("fullscreen-auth-stage").classList.remove("stage-hidden");
+      },
+      closeModal() {
+        document.getElementById("fullscreen-auth-stage").classList.add("stage-hidden");
+      },
+      triggerGoogleSignIn() {
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeGoogleLogin) {
+          window.webkit.messageHandlers.nativeGoogleLogin.postMessage({ clientId: CONFIG.GOOGLE_CLIENT_ID });
+        } else {
+          UIToast.show("Starting Google native auth...", "info");
+        }
+      },
+      setSession(userObj) {
+        PlaybackState.currentUser = userObj;
+        localStorage.setItem("jrmusic_session", JSON.stringify(userObj));
+        AuthModalController.closeModal();
+        UIFeedback.updateUserVisuals();
+      },
+      restoreSession() {
+        const stored = localStorage.getItem("jrmusic_session");
+        if (stored) {
+          try {
+            PlaybackState.currentUser = JSON.parse(stored);
+          } catch (e) {}
         }
       }
     };
 
-    const AppNavigation = {
-      async switchStage(target) {
-        document.querySelectorAll(".liquid-nav-item").forEach(el => el.classList.remove("active"));
+    window.handleNativeGoogleCode = async function(authCode, codeVerifier) {
+      try {
+        const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/google-code-auth`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: authCode, verifier: codeVerifier, redirectUri: CONFIG.REDIRECT_URI })
+        });
+        const data = await res.json();
+        if (data.user) {
+          AuthModalController.setSession(data.user);
+          UIToast.show(`Welcome, ${data.user.username}!`, "success");
+        }
+      } catch (e) {
+        UIToast.show("Google Login Failed", "error");
+      }
+    };
 
+    const AppNavigation = {
+      switchStage(target) {
+        document.querySelectorAll(".liquid-nav-item").forEach(el => el.classList.remove("active"));
         if (target === 'home') {
-          const el = document.getElementById("nav-main-home");
-          if (el) el.classList.add("active");
-        } else if (target === 'all-musics') {
-          const el = document.getElementById("nav-all-musics");
-          if (el) el.classList.add("active");
-          TrackListView.renderList("Search Library", PlaybackState.flatTrackIndex);
+          document.getElementById("nav-main-home").classList.add("active");
+          TrackListView.renderList("Discovered Tracks", PlaybackState.flatTrackIndex);
         } else if (target === 'offlines') {
-          const el = document.getElementById("nav-offlines");
-          if (el) el.classList.add("active");
-          const records = await OfflineAudioStore.getAllCachedRecords();
-          const list = records.map(r => ({
-            id: String(r.id),
-            title: r.title,
-            artist: r.artist,
-            album: r.album,
-            picUrl: r.picUrl,
-            quality: r.quality,
-            lyric: r.lyric,
-            tlyric: r.tlyric
-          }));
-          TrackListView.renderList("Offline Edge Vault", list);
+          document.getElementById("nav-offlines").classList.add("active");
+          OfflineAudioStore.getAllCachedRecords().then(records => {
+            TrackListView.renderList("Offline Edge Vault", records);
+          });
         } else if (target === 'my-playlists') {
-          const el = document.getElementById("nav-my-playlists");
-          if (el) el.classList.add("active");
-          // 点击左侧歌单路由时，默认呈现第一个歌单或全部列表
+          document.getElementById("nav-my-playlists").classList.add("active");
           if (PlaybackState.customPlaylists.length > 0) {
-            TrackListView.renderList(`Playlist: ${PlaybackState.customPlaylists[0].name}`, PlaybackState.customPlaylists[0].tracks);
-          } else {
-            CustomPlaylistsModule.promptNewPlaylist();
+            TrackListView.renderList(PlaybackState.customPlaylists[0].name, PlaybackState.customPlaylists[0].tracks);
           }
         }
       }
     };
 
     const UIFeedback = {
-      updateQuotaVisuals() {
-        document.getElementById("header-quota-badge").innerText = PlaybackState.quotaRemainder;
-      },
-
       updateUserVisuals() {
-        const isPrem = !!(PlaybackState.currentUser && PlaybackState.currentUser.isPremium);
-
-        if (isPrem) {
-          document.body.classList.add("is-premium-tier");
-          document.getElementById("user-tier-label").innerHTML = `<span style="color:#f59e0b;">👑 Premium VIP</span>`;
-          document.getElementById("cockpit-tier-label").innerText = "👑 Premium Lossless";
-          document.getElementById("auth-tier-badge").innerText = "PREMIUM PIPELINE";
-          document.getElementById("telemetry-tier-label").innerText = "24-Bit Master Hi-Res";
-        } else {
-          document.body.classList.remove("is-premium-tier");
-          document.getElementById("user-tier-label").innerText = "Standard Member";
-          document.getElementById("cockpit-tier-label").innerText = "Cloud Studio";
-          document.getElementById("auth-tier-badge").innerText = "STANDARD PIPELINE";
-          document.getElementById("telemetry-tier-label").innerText = "Standard MP3";
-        }
-
         if (PlaybackState.currentUser) {
           const name = PlaybackState.currentUser.username;
           document.getElementById("user-display-name").innerText = name;
           const avatarBtn = document.getElementById("user-avatar-initial");
           if (PlaybackState.currentUser.avatar) {
-            avatarBtn.innerHTML = `<img src="${PlaybackState.currentUser.avatar}" alt="Avatar" referrerpolicy="no-referrer" />`;
+            avatarBtn.innerHTML = `<img src="${PlaybackState.currentUser.avatar}" alt="Avatar" />`;
           } else {
             avatarBtn.innerText = name.charAt(0).toUpperCase();
           }
@@ -3350,21 +2299,13 @@
           document.getElementById("user-display-name").innerText = "Not Signed In";
           document.getElementById("user-avatar-initial").innerText = "?";
         }
-        UIFeedback.updateQuotaVisuals();
       }
     };
 
-    // Spectrum Animation Loop
     setInterval(() => {
-      const bars = document.querySelectorAll("#live-spectrum-box .spectrum-bar");
       const isPlaying = AudioEngine.sink && !AudioEngine.sink.paused;
-      bars.forEach(b => {
-        if (isPlaying) {
-          const h = Math.floor(Math.random() * 18) + 4;
-          b.style.height = `${h}px`;
-        } else {
-          b.style.height = '4px';
-        }
+      document.querySelectorAll(".spectrum-bar").forEach(b => {
+        b.style.height = isPlaying ? (Math.floor(Math.random() * 18) + 4) + 'px' : '4px';
       });
     }, 150);
 
@@ -3373,6 +2314,7 @@
       AudioEngine.init();
       AuthModalController.restoreSession();
       UIFeedback.updateUserVisuals();
+      await SpotifyIntegration.checkRedirectCallback();
     });
   </script>
 </body>
