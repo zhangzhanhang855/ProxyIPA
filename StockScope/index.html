@@ -10,9 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-
   <style>
     /* ==========================================================================
        DESIGN SYSTEM CORE & DESIGN TOKENS
@@ -1396,23 +1393,40 @@
     .cloud-auth-feedback.error { color: var(--accent-rose); }
     .cloud-auth-feedback.success { color: var(--accent-emerald); }
 
-    /* Google Sign-In Container Styling */
+    /* Hybrid iOS Native Trigger Button */
+    .google-ios-btn {
+      width: 100%;
+      background: #ffffff;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+      padding: 12px 18px;
+      border-radius: var(--radius-full);
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: var(--trans-quick);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+    .google-ios-btn:hover {
+      background: #f9fafb;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+    .google-ios-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
     .google-signin-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 16px;
       padding: 24px 20px;
       background: rgba(15, 23, 42, 0.6);
       border: 1px dashed var(--border-elevated);
       border-radius: var(--radius-md);
-    }
-    .google-btn-mount {
-      display: flex;
-      justify-content: center;
-      min-height: 44px;
-      width: 100%;
     }
     .google-note-text {
       font-size: 0.78rem;
@@ -1892,12 +1906,20 @@
         </div>
 
         <div class="auth-fields-block">
-          <!-- Google Auth Container -->
+          <!-- Google Native iOS Button Container -->
           <div id="auth-credentials-group" style="display: flex; flex-direction: column; gap: 16px;">
             <div class="google-signin-wrapper">
-              <div id="google-btn-container" class="google-btn-mount"></div>
+              <button class="google-ios-btn" onclick="AuthModalController.triggerGoogleSignIn()">
+                <svg viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continue with Google</span>
+              </button>
               <div class="google-note-text">
-                Securely authenticating via Google OAuth 2.0.<br>User profile & playlists synchronize to MongoDB automatically.
+                Apple ASWebAuthenticationSession / iOS Native OAuth 2.0.<br>User profile & playlists synchronize to MongoDB automatically.
               </div>
             </div>
           </div>
@@ -1927,7 +1949,8 @@
        ========================================================================== -->
   <script>
     const CONFIG = {
-      GOOGLE_CLIENT_ID: "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com", // 请替换为你Google Cloud Console生成的Web Client ID
+      // 你的 iOS Client ID
+      GOOGLE_CLIENT_ID: "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com",
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
@@ -2651,58 +2674,68 @@
 
     /**
      * =========================================================================
-     * AUTH MODAL CONTROLLER (GOOGLE GIS INTEGRATION + MONGODB SYNC)
+     * AUTH MODAL CONTROLLER (iOS NATIVE BRIDGE + WORKER / MONGODB)
      * =========================================================================
      */
     const AuthModalController = {
       currentTab: 'login',
 
-      initGoogleClient() {
-        if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-          setTimeout(AuthModalController.initGoogleClient, 200);
-          return;
+      /**
+       * 点击 Google 登录时触发（原生容器优先，降级支持 Capacitor / Mock）
+       */
+      async triggerGoogleSignIn() {
+        AuthModalController.showMessage("Opening native authorization...", false);
+
+        // 1. 检查是否存在 iOS WKWebView 原生消息通道 (如 Swift: userContentController.add(self, name: "nativeGoogleLogin"))
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeGoogleLogin) {
+          try {
+            window.webkit.messageHandlers.nativeGoogleLogin.postMessage({
+              clientId: CONFIG.GOOGLE_CLIENT_ID
+            });
+            return;
+          } catch (e) {
+            console.warn("Native bridge postMessage failed:", e);
+          }
         }
 
-        google.accounts.id.initialize({
-          client_id: CONFIG.GOOGLE_CLIENT_ID,
-          callback: AuthModalController.handleGoogleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
+        // 2. 检查是否存在 Capacitor 插件环境 (@codetrix-studio/capacitor-google-auth)
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.GoogleAuth) {
+          try {
+            const googleUser = await window.Capacitor.Plugins.GoogleAuth.signIn();
+            const idToken = googleUser.authentication.idToken;
+            await AuthModalController.handleGoogleCredential(idToken);
+            return;
+          } catch (err) {
+            AuthModalController.showMessage(err.message || "Native Google Sign-In failed", true);
+            return;
+          }
+        }
 
-        AuthModalController.renderGoogleButton();
+        // 3. 本地调试或独立浏览器打开时的降级调试支持
+        console.warn("No native bridge detected. Enter debug token or configure iOS host container.");
+        const mockPrompt = await CustomPrompt.show("Debug ID Token", "输入 Google ID Token 测试 Worker 验签与 MongoDB 写入：", "");
+        if (mockPrompt && mockPrompt.trim()) {
+          await AuthModalController.handleGoogleCredential(mockPrompt.trim());
+        } else {
+          AuthModalController.showMessage("请在 iOS 原生 App 容器中运行以拉起系统认证", true);
+        }
       },
 
-      renderGoogleButton() {
-        const container = document.getElementById("google-btn-container");
-        if (!container || typeof google === 'undefined' || !google.accounts || !google.accounts.id) return;
-
-        container.innerHTML = "";
-        google.accounts.id.renderButton(container, {
-          type: "standard",
-          shape: "pill",
-          theme: "filled_blue",
-          text: "continue_with",
-          size: "large",
-          logo_alignment: "left",
-          width: 320
-        });
-      },
-
-      async handleGoogleCredentialResponse(response) {
-        const idToken = response.credential;
+      /**
+       * 接收原生容器授权拿到的 ID Token
+       */
+      async handleGoogleCredential(idToken) {
         if (!idToken) {
-          AuthModalController.showMessage("Failed to acquire Google authorization token.", true);
+          AuthModalController.showMessage("Invalid token received from native container", true);
           return;
         }
 
-        AuthModalController.showMessage("Verifying Google token with MongoDB backend...", false);
+        AuthModalController.showMessage("Authenticating with Cloudflare & MongoDB...", false);
 
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-          // 向后端发送 Google ID Token，后端校验后将账号与 MongoDB 进行持久化同步
           const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/google-auth`, {
             method: "POST",
             mode: "cors",
@@ -2721,47 +2754,19 @@
           }
 
           AuthModalController.setSession(data.user);
-          AuthModalController.showMessage("Google identity verified. Synchronized with MongoDB.", false);
+          AuthModalController.showMessage("Authorized! Synchronized with MongoDB.", false);
           UIToast.show(`Welcome, ${data.user.username}!`, 'success');
 
           setTimeout(() => {
             AuthModalController.closeModal();
           }, 600);
         } catch (err) {
-          console.error("Google Auth Exception:", err);
+          console.error("Auth Exception:", err);
           let errorMsg = err.message;
           if (err.name === 'AbortError') {
             errorMsg = "连接超时，请检查后端网关状态";
           } else if (errorMsg.includes("Load failed") || errorMsg.includes("Failed to fetch")) {
-            // 如果后端服务尚未部署，提供基于JWT前端解析的优雅本地调试回退
-            console.warn("Backend unavailable, applying fallback client decode for test...");
-            try {
-              const base64Url = idToken.split('.')[1];
-              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-              const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-              const payload = JSON.parse(jsonPayload);
-              
-              const mockUser = {
-                username: payload.name || payload.email.split('@')[0],
-                email: payload.email,
-                avatar: payload.picture,
-                googleId: payload.sub,
-                token: idToken,
-                isPremium: false,
-                downloadQuota: CONFIG.DEFAULT_DOWNLOAD_QUOTA,
-                favorites: [],
-                customPlaylists: [
-                  { name: "Playlist 1", tracks: [] },
-                  { name: "Playlist 2", tracks: [] }
-                ]
-              };
-              AuthModalController.setSession(mockUser);
-              UIToast.show(`Welcome (Local Mode), ${mockUser.username}!`, 'success');
-              AuthModalController.closeModal();
-              return;
-            } catch (decErr) {
-              errorMsg = "网络连接失败 (Worker 离线或跨域阻断)";
-            }
+            errorMsg = "网络连接失败 (Worker 离线或跨域阻断)";
           }
           AuthModalController.showMessage(errorMsg, true);
           UIToast.show(errorMsg, 'error');
@@ -2796,10 +2801,6 @@
         localStorage.removeItem("jrmusic_session");
         localStorage.removeItem("jrmusic_quota");
 
-        if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-          google.accounts.id.disableAutoSelect();
-        }
-
         UIFeedback.updateUserVisuals();
         UIToast.show("Logged out successfully", "info");
 
@@ -2812,7 +2813,6 @@
         const stage = document.getElementById("fullscreen-auth-stage");
         stage.classList.remove("stage-hidden");
         AuthModalController.switchTab(tab);
-        AuthModalController.renderGoogleButton();
       },
 
       closeModal() {
@@ -2843,7 +2843,6 @@
           redeem.style.display = "none";
           title.innerText = "Sign in to JRmusic";
           desc.innerText = "Authenticate with your Google Account to synchronize MongoDB catalogs and licenses.";
-          AuthModalController.renderGoogleButton();
         } else if (tab === 'redeem') {
           tabRedeem.classList.add("active");
           creds.style.display = "none";
@@ -2952,6 +2951,15 @@
           }
         }
       }
+    };
+
+    /**
+     * 原生 iOS 容器直接回调注入入口
+     * Swift / Objective-C 拿到 idToken 后直接执行：
+     * webView.evaluateJavaScript("window.handleNativeGoogleAuth('\(token)')", completionHandler: nil)
+     */
+    window.handleNativeGoogleAuth = function(idToken) {
+      AuthModalController.handleGoogleCredential(idToken);
     };
 
     const TrackListView = {
@@ -3160,7 +3168,6 @@
       await OfflineAudioStore.init();
       AudioEngine.init();
       AuthModalController.restoreSession();
-      AuthModalController.initGoogleClient();
       UIFeedback.updateUserVisuals();
     });
   </script>
