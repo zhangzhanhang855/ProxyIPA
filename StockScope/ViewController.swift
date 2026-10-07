@@ -2,18 +2,19 @@ import UIKit
 import WebKit
 import AVFoundation
 import AuthenticationServices
+import CryptoKit
 
 class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, ASWebAuthenticationPresentationContextProviding {
 
     var webView: WKWebView!
     var authSession: ASWebAuthenticationSession?
 
-    // Google iOS 客户端 ID（保留 Google 登录原生支持）
+    // Google iOS 客户端 ID
     let googleClientID = "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com"
     let redirectScheme = "com.googleusercontent.apps.808147352261-93do7ovt86lo55dustq2gqodk9f53qe4"
     private var currentCodeVerifier: String?
 
-    // ⭐️ 替换为你的方案 2 线上托管地址（与 Spotify Dashboard 中填写的完全一致）
+    // 方案 2 线上托管地址
     let remoteAppURL = "https://music.aleafs.cn"
 
     override func loadView() {
@@ -31,7 +32,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
         config.mediaTypesRequiringUserActionForPlayback = []
         config.preferences.javaScriptEnabled = true
 
-        // 注册桥接：保留 Google 原生登录通道
+        // 注册桥接：Google 原生登录通道
         config.userContentController.add(self, name: "nativeGoogleLogin")
 
         webView = WKWebView(frame: .zero, configuration: config)
@@ -51,7 +52,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // 4. 方案 2 核心改动：直接加载线上托管的完整 HTML 网页
+        // 4. 加载线上网页
         if let url = URL(string: remoteAppURL) {
             let request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 20.0)
             webView.load(request)
@@ -63,7 +64,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
     }
 
     // =========================================================================
-    // MARK: - WKScriptMessageHandler (接收前端 Google 登录调用)
+    // MARK: - WKScriptMessageHandler
     // =========================================================================
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "nativeGoogleLogin" {
@@ -113,24 +114,26 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
         authSession?.start()
     }
 
+    // =========================================================================
+    // MARK: - 纯 Swift PKCE 算法 (不再使用 CommonCrypto，避免符号丢失)
+    // =========================================================================
     private func generateRandomString(length: Int) -> String {
         let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~"
         return String((0..<length).map { _ in characters.randomElement()! })
     }
 
     private func generateCodeChallenge(verifier: String) -> String {
-        // 使用 CommonCrypto 计算 SHA256，避免依赖差异
         guard let data = verifier.data(using: .utf8) else { return "" }
-        var hash = [UInt8](repeating: 0, count: 32)
-        data.withUnsafeBytes {
-            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
-        }
-        return Data(hash).base64EncodedString()
+        let hashed = SHA256.hash(data: data)
+        return Data(hashed).base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
     }
 
+    // =========================================================================
+    // MARK: - ASWebAuthenticationPresentationContextProviding
+    // =========================================================================
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         return view.window ?? UIWindow()
     }
