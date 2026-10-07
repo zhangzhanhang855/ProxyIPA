@@ -2,20 +2,22 @@ import UIKit
 import WebKit
 import AVFoundation
 import AuthenticationServices
-import CryptoKit
 
 class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, ASWebAuthenticationPresentationContextProviding {
 
     var webView: WKWebView!
     var authSession: ASWebAuthenticationSession?
 
+    // Google iOS 客户端 ID（保留 Google 登录原生支持）
     let googleClientID = "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com"
     let redirectScheme = "com.googleusercontent.apps.808147352261-93do7ovt86lo55dustq2gqodk9f53qe4"
-    
-    // 临时保存本次认证生成的 PKCE 验证码
     private var currentCodeVerifier: String?
 
+    // ⭐️ 替换为你的方案 2 线上托管地址（与 Spotify Dashboard 中填写的完全一致）
+    let remoteAppURL = "https://music.aleafs.cn"
+
     override func loadView() {
+        // 1. 配置后台音频播放会话
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
             try AVAudioSession.sharedInstance().setActive(true)
@@ -23,18 +25,20 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
             print("AVAudioSession configuration error: \(error)")
         }
 
+        // 2. 配置 WebKit 行为
         let config = WKWebViewConfiguration()
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.preferences.javaScriptEnabled = true
-        config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
 
+        // 注册桥接：保留 Google 原生登录通道
         config.userContentController.add(self, name: "nativeGoogleLogin")
 
         webView = WKWebView(frame: .zero, configuration: config)
         webView.uiDelegate = self
         webView.navigationDelegate = self
         
+        // 3. 原生 App 视觉优化
         webView.isOpaque = false
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
@@ -46,9 +50,11 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let htmlPath = Bundle.main.path(forResource: "index", ofType: "html") {
-            let htmlUrl = URL(fileURLWithPath: htmlPath)
-            webView.loadFileURL(htmlUrl, allowingReadAccessTo: htmlUrl.deletingLastPathComponent())
+
+        // 4. 方案 2 核心改动：直接加载线上托管的完整 HTML 网页
+        if let url = URL(string: remoteAppURL) {
+            let request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 20.0)
+            webView.load(request)
         }
     }
 
@@ -56,19 +62,17 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
         return .lightContent
     }
 
+    // =========================================================================
+    // MARK: - WKScriptMessageHandler (接收前端 Google 登录调用)
+    // =========================================================================
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "nativeGoogleLogin" {
             startGoogleOAuthFlow()
         }
     }
 
-    // =========================================================================
-    // 标准 PKCE 授权流程（解决 400: unsupported_response_type）
-    // =========================================================================
     private func startGoogleOAuthFlow() {
         let redirectURI = "\(redirectScheme):/oauth2callback"
-        
-        // 1. 生成 PKCE 验证码 (Verifier) 与 Challenge
         let codeVerifier = generateRandomString(length: 64)
         self.currentCodeVerifier = codeVerifier
         let codeChallenge = generateCodeChallenge(verifier: codeVerifier)
@@ -76,7 +80,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: googleClientID),
-            URLQueryItem(name: "response_type", value: "code"), // 关键修改：从 id_token 改为 code
+            URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: "openid email profile"),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "code_challenge", value: codeChallenge),
@@ -87,7 +91,7 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
 
         authSession = ASWebAuthenticationSession(url: authURL, callbackURLScheme: redirectScheme) { [weak self] callbackURL, error in
             if let error = error {
-                print("ASWebAuthenticationSession error: \(error.localizedDescription)")
+                print("Google Auth error: \(error.localizedDescription)")
                 return
             }
 
@@ -95,11 +99,9 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
                   let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                   let queryItems = components.queryItems else { return }
 
-            // 从回调 URL 中提取返回的 authorization code
             if let authCode = queryItems.first(where: { $0.name == "code" })?.value,
                let verifier = self?.currentCodeVerifier {
                 DispatchQueue.main.async {
-                    // 将 code 与 verifier 传回前端
                     let js = "window.handleNativeGoogleCode('\(authCode)', '\(verifier)')"
                     self?.webView.evaluateJavaScript(js, completionHandler: nil)
                 }
@@ -111,17 +113,19 @@ class ViewController: UIViewController, WKUIDelegate, WKNavigationDelegate, WKSc
         authSession?.start()
     }
 
-    // PKCE 辅助算法
     private func generateRandomString(length: Int) -> String {
         let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~"
         return String((0..<length).map { _ in characters.randomElement()! })
     }
 
     private func generateCodeChallenge(verifier: String) -> String {
+        // 使用 CommonCrypto 计算 SHA256，避免依赖差异
         guard let data = verifier.data(using: .utf8) else { return "" }
-        let hashed = SHA256.hash(data: data)
-        return Data(hashed)
-            .base64EncodedString()
+        var hash = [UInt8](repeating: 0, count: 32)
+        data.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
+        }
+        return Data(hash).base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
