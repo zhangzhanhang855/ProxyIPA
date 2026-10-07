@@ -1163,12 +1163,20 @@
       border: 1px solid var(--border-elevated);
     }
 
+    .lyrics-artist-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
     .lyrics-interactive-artist {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 8px 18px;
-      margin-top: 10px;
       border-radius: var(--radius-full);
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
@@ -1184,6 +1192,27 @@
       transform: translateY(-2px);
     }
     .lyrics-interactive-artist svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .lyrics-add-to-pl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid var(--border-accent);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--trans-quick);
+    }
+    .lyrics-add-to-pl-btn:hover {
+      background: var(--accent);
+      box-shadow: 0 0 16px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .lyrics-add-to-pl-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
     .lyrics-single-spotlight-col {
       height: 100%;
@@ -1436,7 +1465,7 @@
     }
 
     /* Generic Dialog Modals */
-    #custom-prompt-modal, #confirm-logout-modal, #artist-picker-modal {
+    #custom-prompt-modal, #confirm-logout-modal, #artist-picker-modal, #playlist-picker-modal {
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.82);
@@ -1448,19 +1477,19 @@
       padding: 20px;
       animation: modalFadeIn 0.25s ease;
     }
-    #custom-prompt-modal.is-open, #confirm-logout-modal.is-open, #artist-picker-modal.is-open { display: flex; }
+    #custom-prompt-modal.is-open, #confirm-logout-modal.is-open, #artist-picker-modal.is-open, #playlist-picker-modal.is-open { display: flex; }
 
     @keyframes modalFadeIn {
       from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
     }
 
-    .prompt-box-dialog, .artist-picker-card {
+    .prompt-box-dialog, .artist-picker-card, .playlist-picker-card {
       background: #0f172a;
       border: 1px solid var(--border-elevated);
       border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       padding: 30px;
       display: flex;
       flex-direction: column;
@@ -1468,8 +1497,8 @@
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
     }
 
-    .artist-select-chip {
-      padding: 12px 18px;
+    .artist-select-chip, .playlist-select-chip {
+      padding: 14px 18px;
       background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
@@ -1481,7 +1510,7 @@
       justify-content: space-between;
       transition: var(--trans-quick);
     }
-    .artist-select-chip:hover {
+    .artist-select-chip:hover, .playlist-select-chip:hover {
       background: var(--accent-dim);
       border-color: var(--accent);
       color: var(--accent);
@@ -1669,7 +1698,7 @@
             <div class="section-title-label">Collections & Local Persistence</div>
           </div>
 
-          <div class="grid-deck-cards">
+          <div class="grid-deck-cards" id="custom-playlists-shelf">
             <div class="cockpit-card fav-theme" onclick="TrackListView.renderList('Favorite Musics', PlaybackState.favorites)">
               <div class="cockpit-card-icon">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -1686,13 +1715,7 @@
               <div class="cockpit-card-subtitle">Local persistent store</div>
             </div>
 
-            <div class="cockpit-card" onclick="CustomPlaylistsModule.inspectPlaylist(0)">
-              <div class="cockpit-card-icon">
-                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-              </div>
-              <div class="cockpit-card-title" id="pl-slot-0-name">Playlist 1</div>
-              <div class="cockpit-card-subtitle">Custom playlist tracklist</div>
-            </div>
+            <!-- 动态自建歌单卡片将由 JS 渲染至此 -->
 
             <div class="cockpit-card" onclick="CustomPlaylistsModule.promptNewPlaylist()">
               <div class="cockpit-card-icon">
@@ -1795,9 +1818,18 @@
         <img class="lyrics-album-art" id="lyrics-hero-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23141a24'><rect width='100' height='100'/></svg>" alt="Album Art" />
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
           <h2 style="font-size: 1.6rem; color: #fff; font-weight: 800;" id="lyrics-modal-title">Track Title</h2>
-          <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="Query all artist tracks">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span id="lyrics-modal-artist">Artist</span>
+          
+          <div class="lyrics-artist-actions">
+            <div class="lyrics-interactive-artist" id="lyrics-modal-artist-btn" onclick="LyricsView.onArtistClicked()" title="Query all artist tracks">
+              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <span id="lyrics-modal-artist">Artist</span>
+            </div>
+
+            <!-- 本地自建歌单收藏触发按钮 -->
+            <button class="lyrics-add-to-pl-btn" onclick="PlaylistPicker.showCurrentTrack()" title="Add currently playing track to custom playlist">
+              <svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/></svg>
+              <span>+ 加入歌单</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1817,6 +1849,23 @@
       <div id="artist-chip-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
       <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
         <button class="control-pill-btn" onclick="ArtistPicker.close()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYLIST PICKER MODAL (用于大屏界面加歌单) -->
+  <div id="playlist-picker-modal">
+    <div class="playlist-picker-card">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">添加到歌单</div>
+        <button class="action-icon-hit" onclick="CustomPlaylistsModule.promptNewPlaylist()" title="Create new playlist">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+      </div>
+      <div style="font-size: 0.88rem; color: var(--text-secondary);">选择目标本地 IndexedDB 歌单：</div>
+      <div id="playlist-chip-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto;"></div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+        <button class="control-pill-btn" onclick="PlaylistPicker.close()">取消</button>
       </div>
     </div>
   </div>
@@ -1955,7 +2004,7 @@
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
       DB_NAME: "JRMusicOfflineStore",
-      DB_VERSION: 2,
+      DB_VERSION: 3, // 升级至 v3，扩充 custom_playlists 对象仓库
       PREMIUM_QUALITIES: ['lossless', 'hires', 'jymaster', 'sky', 'dolby']
     };
 
@@ -2037,6 +2086,11 @@
       }
     };
 
+    /**
+     * =========================================================================
+     * INDEXEDDB 本地音频与自定义歌单存储仓库
+     * =========================================================================
+     */
     const OfflineAudioStore = {
       db: null,
 
@@ -2045,18 +2099,26 @@
           const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
           req.onupgradeneeded = (e) => {
             const db = e.target.result;
+            // 1. 本地离线音频缓存仓库
             if (!db.objectStoreNames.contains("audio_blobs")) {
               db.createObjectStore("audio_blobs", { keyPath: "id" });
             }
+            // 2. 本地自定义歌单专属仓库
+            if (!db.objectStoreNames.contains("custom_playlists")) {
+              db.createObjectStore("custom_playlists", { keyPath: "id" });
+            }
           };
-          req.onsuccess = (e) => {
+          req.onsuccess = async (e) => {
             OfflineAudioStore.db = e.target.result;
-            OfflineAudioStore.refreshCatalog().then(resolve);
+            await OfflineAudioStore.refreshCatalog();
+            await CustomPlaylistsModule.loadFromStorage();
+            resolve();
           };
           req.onerror = (err) => reject(err);
         });
       },
 
+      // --- 离线音频缓存管理 ---
       async saveTrackBlob(trackObj, blob) {
         return new Promise((resolve, reject) => {
           const tx = OfflineAudioStore.db.transaction(["audio_blobs"], "readwrite");
@@ -2106,6 +2168,188 @@
         const records = await OfflineAudioStore.getAllCachedRecords();
         PlaybackState.offlineCacheCatalog.clear();
         records.forEach(r => PlaybackState.offlineCacheCatalog.add(String(r.id)));
+      },
+
+      // --- 本地自定义歌单 IndexedDB 接口 ---
+      async getAllLocalPlaylists() {
+        return new Promise((resolve) => {
+          if (!OfflineAudioStore.db.objectStoreNames.contains("custom_playlists")) return resolve([]);
+          const tx = OfflineAudioStore.db.transaction(["custom_playlists"], "readonly");
+          const store = tx.objectStore("custom_playlists");
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+      },
+
+      async saveLocalPlaylist(playlistObj) {
+        return new Promise((resolve, reject) => {
+          const tx = OfflineAudioStore.db.transaction(["custom_playlists"], "readwrite");
+          const store = tx.objectStore("custom_playlists");
+          store.put(playlistObj);
+          tx.oncomplete = () => resolve();
+          tx.onerror = (err) => reject(err);
+        });
+      },
+
+      async deleteLocalPlaylist(playlistId) {
+        return new Promise((resolve, reject) => {
+          const tx = OfflineAudioStore.db.transaction(["custom_playlists"], "readwrite");
+          const store = tx.objectStore("custom_playlists");
+          store.delete(playlistId);
+          tx.oncomplete = () => resolve();
+          tx.onerror = (err) => reject(err);
+        });
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 自定义歌单控制模块 (本地 INDEXEDDB 持久化 + 远端同步)
+     * =========================================================================
+     */
+    const CustomPlaylistsModule = {
+      async loadFromStorage() {
+        try {
+          const localLists = await OfflineAudioStore.getAllLocalPlaylists();
+          if (localLists && localLists.length > 0) {
+            PlaybackState.customPlaylists = localLists;
+          } else {
+            // 首次初始化预置歌单
+            PlaybackState.customPlaylists = [
+              { id: "pl_default_1", name: "Favorites Studio", tracks: [], createdAt: Date.now() },
+              { id: "pl_default_2", name: "Hi-Res Master Space", tracks: [], createdAt: Date.now() }
+            ];
+            for (const pl of PlaybackState.customPlaylists) {
+              await OfflineAudioStore.saveLocalPlaylist(pl);
+            }
+          }
+        } catch (e) {
+          console.warn("Load local playlists error:", e);
+        }
+        CustomPlaylistsModule.renderShelf();
+      },
+
+      renderShelf() {
+        const shelf = document.getElementById("custom-playlists-shelf");
+        if (!shelf) return;
+
+        // 仅保留固定前两项（Favorite Musics, Offline Edge）和最后一项（+ New Playlist）
+        const cards = Array.from(shelf.children);
+        const fixedFav = cards[0];
+        const fixedOffline = cards[1];
+        const fixedAdd = cards[cards.length - 1];
+
+        shelf.innerHTML = "";
+        if (fixedFav) shelf.appendChild(fixedFav);
+        if (fixedOffline) shelf.appendChild(fixedOffline);
+
+        PlaybackState.customPlaylists.forEach(pl => {
+          const card = document.createElement("div");
+          card.className = "cockpit-card";
+          card.onclick = () => TrackListView.renderList(`Playlist: ${pl.name}`, pl.tracks);
+          card.innerHTML = `
+            <div class="cockpit-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="cockpit-card-title">${pl.name}</div>
+            <div class="cockpit-card-subtitle">${pl.tracks ? pl.tracks.length : 0} tracks · IndexedDB</div>
+          `;
+          shelf.appendChild(card);
+        });
+
+        if (fixedAdd) shelf.appendChild(fixedAdd);
+      },
+
+      async promptNewPlaylist() {
+        const name = await CustomPrompt.show("New Custom Playlist", "Enter a title for your collection:", "My Master Vault");
+        if (name && name.trim()) {
+          const cleanName = name.trim();
+          const newPl = {
+            id: "pl_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+            name: cleanName,
+            tracks: [],
+            createdAt: Date.now()
+          };
+
+          PlaybackState.customPlaylists.push(newPl);
+          await OfflineAudioStore.saveLocalPlaylist(newPl);
+          CustomPlaylistsModule.renderShelf();
+          TrackListView.syncUserData();
+
+          UIToast.show(`歌单「${cleanName}」已创建并存入 IndexedDB！`, "success");
+        }
+      },
+
+      async addTrackToPlaylist(playlistId, track) {
+        const pl = PlaybackState.customPlaylists.find(p => p.id === playlistId);
+        if (!pl) return;
+
+        if (!pl.tracks) pl.tracks = [];
+        const exists = pl.tracks.some(t => String(t.id) === String(track.id));
+        if (exists) {
+          UIToast.show(`曲目《${track.title}》已存在于歌单「${pl.name}」中！`, "info");
+          return;
+        }
+
+        const simplifiedTrack = {
+          id: String(track.id),
+          title: track.title,
+          artist: track.artist,
+          album: track.album,
+          picUrl: track.picUrl,
+          quality: track.quality || 'lossless'
+        };
+
+        pl.tracks.push(simplifiedTrack);
+        await OfflineAudioStore.saveLocalPlaylist(pl);
+        CustomPlaylistsModule.renderShelf();
+        TrackListView.syncUserData();
+
+        UIToast.show(`已成功将《${track.title}》加入歌单「${pl.name}」！`, "success");
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 大屏听歌界面的歌单添加弹窗（POPUP CONTROLLER）
+     * =========================================================================
+     */
+    const PlaylistPicker = {
+      showCurrentTrack() {
+        if (!AudioEngine.currentTrack) {
+          UIToast.show("当前未在播放任何曲目", "error");
+          return;
+        }
+        const container = document.getElementById("playlist-chip-container");
+        container.innerHTML = "";
+
+        if (!PlaybackState.customPlaylists || PlaybackState.customPlaylists.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:16px; color:var(--text-muted); font-size:0.85rem;">暂无本地歌单，点击右上角新建</div>`;
+        } else {
+          PlaybackState.customPlaylists.forEach(pl => {
+            const chip = document.createElement("div");
+            chip.className = "playlist-select-chip";
+            chip.innerHTML = `
+              <div style="display:flex; flex-direction:column; overflow:hidden;">
+                <span style="font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${pl.name}</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${pl.tracks ? pl.tracks.length : 0} 首曲目</span>
+              </div>
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            `;
+            chip.onclick = () => {
+              PlaylistPicker.close();
+              CustomPlaylistsModule.addTrackToPlaylist(pl.id, AudioEngine.currentTrack);
+            };
+            container.appendChild(chip);
+          });
+        }
+
+        document.getElementById("playlist-picker-modal").classList.add("is-open");
+      },
+
+      close() {
+        document.getElementById("playlist-picker-modal").classList.remove("is-open");
       }
     };
 
@@ -2187,10 +2431,7 @@
       currentPlaylist: [],
       currentTrackPointer: -1,
       favorites: [],
-      customPlaylists: [
-        { name: "Playlist 1", tracks: [] },
-        { name: "Playlist 2", tracks: [] }
-      ],
+      customPlaylists: [],
       offlineCacheCatalog: new Set(),
       activeLyrics: [],
       currentLyricIndex: -1,
@@ -2680,9 +2921,6 @@
     const AuthModalController = {
       currentTab: 'login',
 
-      /**
-       * 点击 Google 按钮，通知 iOS 原生容器拉起 ASWebAuthenticationSession
-       */
       async triggerGoogleSignIn() {
         AuthModalController.showMessage("Opening native authorization...", false);
 
@@ -2697,7 +2935,6 @@
           }
         }
 
-        // 仅在电脑调试且无原生容器时才触发备用测试
         console.warn("No native bridge detected.");
         const mockPrompt = await CustomPrompt.show("Debug Code Test", "输入 Google Code 进行测试：", "");
         if (mockPrompt && mockPrompt.trim()) {
@@ -2727,10 +2964,6 @@
         PlaybackState.sessionToken = null;
         PlaybackState.favorites = [];
         PlaybackState.quotaRemainder = 0;
-        PlaybackState.customPlaylists = [
-          { name: "Playlist 1", tracks: [] },
-          { name: "Playlist 2", tracks: [] }
-        ];
 
         localStorage.removeItem("jrmusic_session");
         localStorage.removeItem("jrmusic_quota");
@@ -2860,10 +3093,24 @@
         PlaybackState.sessionToken = userObj.token;
         PlaybackState.favorites = userObj.favorites || [];
         PlaybackState.quotaRemainder = userObj.downloadQuota !== undefined ? userObj.downloadQuota : CONFIG.DEFAULT_DOWNLOAD_QUOTA;
-        PlaybackState.customPlaylists = userObj.customPlaylists || [
-          { name: "Playlist 1", tracks: [] },
-          { name: "Playlist 2", tracks: [] }
-        ];
+
+        // 如果服务端有歌单，与本地 IndexedDB 歌单做平滑合并
+        if (userObj.customPlaylists && userObj.customPlaylists.length > 0) {
+          userObj.customPlaylists.forEach(async (sp) => {
+            const local = PlaybackState.customPlaylists.find(lp => lp.name === sp.name);
+            if (!local) {
+              const mergedObj = {
+                id: sp.id || "pl_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+                name: sp.name,
+                tracks: sp.tracks || [],
+                createdAt: Date.now()
+              };
+              PlaybackState.customPlaylists.push(mergedObj);
+              await OfflineAudioStore.saveLocalPlaylist(mergedObj);
+            }
+          });
+          CustomPlaylistsModule.renderShelf();
+        }
 
         localStorage.setItem("jrmusic_session", JSON.stringify(userObj));
         localStorage.setItem("jrmusic_quota", PlaybackState.quotaRemainder.toString());
@@ -2889,8 +3136,6 @@
 
     /**
      * 原生 iOS PKCE 授权码接收回调
-     * Swift 拿到授权码 code 与 codeVerifier 后自动调用：
-     * webView.evaluateJavaScript("window.handleNativeGoogleCode('\(authCode)', '\(verifier)')", completionHandler: nil)
      */
     window.handleNativeGoogleCode = async function(authCode, codeVerifier) {
       AuthModalController.showMessage("Authenticating authorization code with Worker & MongoDB...", false);
@@ -3023,28 +3268,10 @@
           AppNavigation.switchStage('offlines');
         } else if (title.startsWith("Search:")) {
           TrackListView.renderList(title, PlaybackState.flatTrackIndex);
-        }
-      }
-    };
-
-    const CustomPlaylistsModule = {
-      inspectPlaylist(index) {
-        const pl = PlaybackState.customPlaylists[index];
-        if (!pl) return;
-        TrackListView.renderList(pl.name, pl.tracks);
-      },
-
-      async promptNewPlaylist() {
-        if (!PlaybackState.currentUser) {
-          AuthModalController.openModal('login');
-          return;
-        }
-
-        const name = await CustomPrompt.show("Create Playlist", "Enter a title for your collection:", "My Collection");
-        if (name && name.trim()) {
-          PlaybackState.customPlaylists.push({ name: name.trim(), tracks: [] });
-          TrackListView.syncUserData();
-          UIToast.show(`Playlist "${name.trim()}" created.`, "success");
+        } else if (title.startsWith("Playlist: ")) {
+          const plName = title.replace("Playlist: ", "").trim();
+          const pl = PlaybackState.customPlaylists.find(p => p.name === plName);
+          if (pl) TrackListView.renderList(title, pl.tracks);
         }
       }
     };
@@ -3078,6 +3305,12 @@
         } else if (target === 'my-playlists') {
           const el = document.getElementById("nav-my-playlists");
           if (el) el.classList.add("active");
+          // 点击左侧歌单路由时，默认呈现第一个歌单或全部列表
+          if (PlaybackState.customPlaylists.length > 0) {
+            TrackListView.renderList(`Playlist: ${PlaybackState.customPlaylists[0].name}`, PlaybackState.customPlaylists[0].tracks);
+          } else {
+            CustomPlaylistsModule.promptNewPlaylist();
+          }
         }
       }
     };
