@@ -1919,7 +1919,7 @@
                 <span>Continue with Google</span>
               </button>
               <div class="google-note-text">
-                Apple ASWebAuthenticationSession / iOS Native OAuth 2.0.<br>User profile & playlists synchronize to MongoDB automatically.
+                Apple ASWebAuthenticationSession / iOS Native OAuth 2.0 PKCE.<br>User profile & playlists synchronize to MongoDB automatically.
               </div>
             </div>
           </div>
@@ -1949,8 +1949,8 @@
        ========================================================================== -->
   <script>
     const CONFIG = {
-      // 你的 iOS Client ID
       GOOGLE_CLIENT_ID: "808147352261-93do7ovt86lo55dustq2gqodk9f53qe4.apps.googleusercontent.com",
+      REDIRECT_URI: "com.googleusercontent.apps.808147352261-93do7ovt86lo55dustq2gqodk9f53qe4:/oauth2callback",
       WORKER_API_BASE: "https://jrmusic-premium.zhangzhanhang855.workers.dev",
       BACKEND_API_BASE: "https://neteasemusicdl.onrender.com",
       DEFAULT_DOWNLOAD_QUOTA: 10,
@@ -2674,19 +2674,18 @@
 
     /**
      * =========================================================================
-     * AUTH MODAL CONTROLLER (iOS NATIVE BRIDGE + WORKER / MONGODB)
+     * AUTH MODAL CONTROLLER (PKCE NATIVE BRIDGE + WORKER / MONGODB)
      * =========================================================================
      */
     const AuthModalController = {
       currentTab: 'login',
 
       /**
-       * 点击 Google 登录时触发（原生容器优先，降级支持 Capacitor / Mock）
+       * 点击 Google 按钮，通知 iOS 原生容器拉起 ASWebAuthenticationSession
        */
       async triggerGoogleSignIn() {
         AuthModalController.showMessage("Opening native authorization...", false);
 
-        // 1. 检查是否存在 iOS WKWebView 原生消息通道 (如 Swift: userContentController.add(self, name: "nativeGoogleLogin"))
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeGoogleLogin) {
           try {
             window.webkit.messageHandlers.nativeGoogleLogin.postMessage({
@@ -2698,78 +2697,13 @@
           }
         }
 
-        // 2. 检查是否存在 Capacitor 插件环境 (@codetrix-studio/capacitor-google-auth)
-        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.GoogleAuth) {
-          try {
-            const googleUser = await window.Capacitor.Plugins.GoogleAuth.signIn();
-            const idToken = googleUser.authentication.idToken;
-            await AuthModalController.handleGoogleCredential(idToken);
-            return;
-          } catch (err) {
-            AuthModalController.showMessage(err.message || "Native Google Sign-In failed", true);
-            return;
-          }
-        }
-
-        // 3. 本地调试或独立浏览器打开时的降级调试支持
-        console.warn("No native bridge detected. Enter debug token or configure iOS host container.");
-        const mockPrompt = await CustomPrompt.show("Debug ID Token", "输入 Google ID Token 测试 Worker 验签与 MongoDB 写入：", "");
+        // 仅在电脑调试且无原生容器时才触发备用测试
+        console.warn("No native bridge detected.");
+        const mockPrompt = await CustomPrompt.show("Debug Code Test", "输入 Google Code 进行测试：", "");
         if (mockPrompt && mockPrompt.trim()) {
-          await AuthModalController.handleGoogleCredential(mockPrompt.trim());
+          await window.handleNativeGoogleCode(mockPrompt.trim(), "debug_verifier");
         } else {
           AuthModalController.showMessage("请在 iOS 原生 App 容器中运行以拉起系统认证", true);
-        }
-      },
-
-      /**
-       * 接收原生容器授权拿到的 ID Token
-       */
-      async handleGoogleCredential(idToken) {
-        if (!idToken) {
-          AuthModalController.showMessage("Invalid token received from native container", true);
-          return;
-        }
-
-        AuthModalController.showMessage("Authenticating with Cloudflare & MongoDB...", false);
-
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-          const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/google-auth`, {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ token: idToken }),
-            signal: controller.signal
-          });
-
-          clearTimeout(timeoutId);
-
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            throw new Error(data.message || `认证被拒绝 (HTTP ${res.status})`);
-          }
-
-          AuthModalController.setSession(data.user);
-          AuthModalController.showMessage("Authorized! Synchronized with MongoDB.", false);
-          UIToast.show(`Welcome, ${data.user.username}!`, 'success');
-
-          setTimeout(() => {
-            AuthModalController.closeModal();
-          }, 600);
-        } catch (err) {
-          console.error("Auth Exception:", err);
-          let errorMsg = err.message;
-          if (err.name === 'AbortError') {
-            errorMsg = "连接超时，请检查后端网关状态";
-          } else if (errorMsg.includes("Load failed") || errorMsg.includes("Failed to fetch")) {
-            errorMsg = "网络连接失败 (Worker 离线或跨域阻断)";
-          }
-          AuthModalController.showMessage(errorMsg, true);
-          UIToast.show(errorMsg, 'error');
         }
       },
 
@@ -2954,12 +2888,49 @@
     };
 
     /**
-     * 原生 iOS 容器直接回调注入入口
-     * Swift / Objective-C 拿到 idToken 后直接执行：
-     * webView.evaluateJavaScript("window.handleNativeGoogleAuth('\(token)')", completionHandler: nil)
+     * 原生 iOS PKCE 授权码接收回调
+     * Swift 拿到授权码 code 与 codeVerifier 后自动调用：
+     * webView.evaluateJavaScript("window.handleNativeGoogleCode('\(authCode)', '\(verifier)')", completionHandler: nil)
      */
-    window.handleNativeGoogleAuth = function(idToken) {
-      AuthModalController.handleGoogleCredential(idToken);
+    window.handleNativeGoogleCode = async function(authCode, codeVerifier) {
+      AuthModalController.showMessage("Authenticating authorization code with Worker & MongoDB...", false);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const res = await fetch(`${CONFIG.WORKER_API_BASE}/api/google-code-auth`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ 
+            code: authCode, 
+            verifier: codeVerifier,
+            redirectUri: CONFIG.REDIRECT_URI
+          }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || `认证失败 (HTTP ${res.status})`);
+        }
+
+        AuthModalController.setSession(data.user);
+        AuthModalController.showMessage("Authorized! Synchronized with MongoDB.", false);
+        UIToast.show(`Welcome, ${data.user.username}!`, 'success');
+        
+        setTimeout(() => {
+          AuthModalController.closeModal();
+        }, 500);
+      } catch (err) {
+        console.error("PKCE Exchange Error:", err);
+        AuthModalController.showMessage(err.message, true);
+        UIToast.show(err.message, 'error');
+      }
     };
 
     const TrackListView = {
